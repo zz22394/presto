@@ -28,8 +28,8 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:git://github.com/facebook/presto.git</connection>
-        <url>https://github.com/facebook/presto</url>
+        <connection>scm:git:git://sdvl3ghe001.td.teradata.com/bdch/presto.git</connection>
+        <url>https://sdvl3ghe001.td.teradata.com/bdch/presto</url>
         <tag>HEAD</tag>
     </scm>
 
@@ -637,7 +637,7 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <configuration combine.children="append">
-                        <argLine>${argLine} -Duser.timezone=${test.timezone} -Xmx2g -Xms2g</argLine>
+                        <argLine>${argLine} -Duser.timezone=${test.timezone} -Xmx2g -Xms2g -Djava.io.tmpdir=/home/sa-mgt/tmp</argLine>
                         <parallel>methods</parallel>
                         <threadCount>4</threadCount>
                         <systemPropertyVariables>
