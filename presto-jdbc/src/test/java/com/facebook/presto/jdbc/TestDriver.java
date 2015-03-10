@@ -693,28 +693,46 @@ public class TestDriver
             try (Statement statement = connection.createStatement()) {
                 assertTrue(statement.execute("SELECT 123 x, 'foo' y, CAST(NULL AS bigint) z"));
                 ResultSet rs = statement.getResultSet();
-                assertTrue(rs.next());
-
-                assertEquals(rs.getLong(1), 123);
-                assertFalse(rs.wasNull());
-                assertEquals(rs.getLong("x"), 123);
-                assertFalse(rs.wasNull());
-
-                assertEquals(rs.getLong(3), 0);
-                assertTrue(rs.wasNull());
-                assertEquals(rs.getLong("z"), 0);
-                assertTrue(rs.wasNull());
-                assertNull(rs.getObject("z"));
-                assertTrue(rs.wasNull());
-
-                assertEquals(rs.getString(2), "foo");
-                assertFalse(rs.wasNull());
-                assertEquals(rs.getString("y"), "foo");
-                assertFalse(rs.wasNull());
-
-                assertFalse(rs.next());
+                assertResultSet(rs);
             }
         }
+    }
+
+    @Test
+    public void testExecuteUpdate()
+            throws Exception
+    {
+        try (Connection connection = createConnection()) {
+            try (Statement statement = connection.createStatement()) {
+                assertEquals(statement.executeUpdate("SELECT 123 x, 'foo' y, CAST(NULL AS bigint) z"), 0);
+                ResultSet rs = statement.getResultSet();
+                assertResultSet(rs);
+            }
+        }
+    }
+
+    private static void assertResultSet(ResultSet rs) throws Exception
+    {
+        assertTrue(rs.next());
+
+        assertEquals(rs.getLong(1), 123);
+        assertFalse(rs.wasNull());
+        assertEquals(rs.getLong("x"), 123);
+        assertFalse(rs.wasNull());
+
+        assertEquals(rs.getLong(3), 0);
+        assertTrue(rs.wasNull());
+        assertEquals(rs.getLong("z"), 0);
+        assertTrue(rs.wasNull());
+        assertNull(rs.getObject("z"));
+        assertTrue(rs.wasNull());
+
+        assertEquals(rs.getString(2), "foo");
+        assertFalse(rs.wasNull());
+        assertEquals(rs.getString("y"), "foo");
+        assertFalse(rs.wasNull());
+
+        assertFalse(rs.next());
     }
 
     @Test
