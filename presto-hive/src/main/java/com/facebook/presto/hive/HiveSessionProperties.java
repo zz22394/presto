@@ -21,6 +21,7 @@ import static com.facebook.presto.spi.StandardErrorCode.INVALID_SESSION_PROPERTY
 
 public final class HiveSessionProperties
 {
+    public static final String STORAGE_CLASS_NAME_PROPERTY = "storage_class";
     public static final String STORAGE_FORMAT_PROPERTY = "storage_format";
     private static final String OPTIMIZED_READER_ENABLED = "optimized_reader_enabled";
     private static final String ORC_MAX_MERGE_DISTANCE = "orc_max_merge_distance";
@@ -31,18 +32,31 @@ public final class HiveSessionProperties
     {
     }
 
-    public static HiveStorageFormat getHiveStorageFormat(ConnectorSession session, HiveStorageFormat defaultValue)
+    public static HiveStorageFormat getHiveStorageFormat(ConnectorSession session, PredefinedHiveStorageFormat defaultValue)
     {
+        String storageClassNameString = session.getProperties().get(STORAGE_CLASS_NAME_PROPERTY);
         String storageFormatString = session.getProperties().get(STORAGE_FORMAT_PROPERTY);
-        if (storageFormatString == null) {
+        if (storageFormatString == null && storageClassNameString == null) {
             return defaultValue;
         }
 
+        if (storageClassNameString != null) {
+            if (storageFormatString != null) {
+                throw new PrestoException(INVALID_SESSION_PROPERTY, "Hive storage format and storage class defined simultaneously");
+            }
+            try {
+                return CustomHiveStorageFormat.valueOf(storageClassNameString);
+            }
+            catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+                throw new PrestoException(INVALID_SESSION_PROPERTY, "Hive storage-class is invalid: " + storageClassNameString, e);
+            }
+        }
+
         try {
-            return HiveStorageFormat.valueOf(storageFormatString.toUpperCase());
+            return PredefinedHiveStorageFormat.valueOf(storageFormatString.toUpperCase());
         }
         catch (IllegalArgumentException e) {
-            throw new PrestoException(INVALID_SESSION_PROPERTY, "Hive storage-format is invalid: " + storageFormatString);
+            throw new PrestoException(INVALID_SESSION_PROPERTY, "Hive storage-format is invalid: " + storageFormatString, e);
         }
     }
 
