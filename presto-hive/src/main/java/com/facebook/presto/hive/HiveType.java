@@ -26,6 +26,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.google.common.collect.ImmutableList;
 import org.apache.hadoop.hive.common.type.HiveVarchar;
+import org.apache.hadoop.hive.serde2.typeinfo.CharTypeInfo;
 import org.apache.hadoop.hive.serde2.typeinfo.DecimalTypeInfo;
 import org.apache.hadoop.hive.serde2.typeinfo.ListTypeInfo;
 import org.apache.hadoop.hive.serde2.typeinfo.MapTypeInfo;
@@ -335,6 +336,8 @@ public final class HiveType
                 return createUnboundedVarcharType();
             case VARCHAR:
                 return createVarcharType(((VarcharTypeInfo) typeInfo).getLength());
+            case CHAR:
+                return createVarcharType(((CharTypeInfo) typeInfo).getLength());
             case DATE:
                 return DATE;
             case TIMESTAMP:

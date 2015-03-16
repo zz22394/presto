@@ -310,7 +310,7 @@ public class TestHiveFileFormats
             throws Exception
     {
         List<TestColumn> testColumns = TEST_COLUMNS.stream()
-                .filter(testColumn -> !hasType(testColumn.getObjectInspector(), PrimitiveCategory.DATE, PrimitiveCategory.VARCHAR, PrimitiveCategory.DECIMAL))
+                .filter(testColumn -> !hasType(testColumn.getObjectInspector(), PrimitiveCategory.DATE, PrimitiveCategory.VARCHAR, PrimitiveCategory.DECIMAL, PrimitiveCategory.CHAR))
                 .collect(Collectors.toList());
         assertThatFileFormat(DWRF)
                 .withColumns(testColumns)
