@@ -2266,19 +2266,19 @@ public abstract class AbstractTestHiveClient
                     }
                 }
 
-                /* TODO: enable this test when the CHAR type is supported
                 // CHAR(25)
                 index = columnIndex.get("t_char");
                 if (index != null) {
                     if ((rowNumber % 41) == 0) {
-                        assertTrue(cursor.isNull(index));
+                        assertNull(row.getField(index));
+                    }
+                    else if ((rowNumber % 41) == 1) {
+                        assertEquals(row.getField(index), "                         "); // 25 trailing spaces
                     }
                     else {
-                        String stringValue = cursor.getSlice(index).toStringUtf8();
-                        assertEquals(stringValue, ((rowNumber % 41) == 1) ? "" : "test char");
+                        assertEquals(row.getField(index), "test char                "); // padded
                     }
                 }
-                */
 
                 // MAP<STRING, STRING>
                 index = columnIndex.get("t_map");
