@@ -42,6 +42,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import static com.facebook.presto.hive.HiveUtil.isArrayType;
 import static com.facebook.presto.hive.HiveUtil.isMapType;
@@ -69,6 +70,7 @@ import static org.apache.hadoop.hive.serde.Constants.STRING_TYPE_NAME;
 import static org.apache.hadoop.hive.serde.Constants.TIMESTAMP_TYPE_NAME;
 import static org.apache.hadoop.hive.serde.Constants.TINYINT_TYPE_NAME;
 import static org.apache.hadoop.hive.serde.serdeConstants.DATE_TYPE_NAME;
+import static org.apache.hadoop.hive.serde.serdeConstants.VARCHAR_TYPE_NAME;
 import static org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector.Category;
 
 public final class HiveType
@@ -97,6 +99,7 @@ public final class HiveType
             HIVE_TIMESTAMP,
             HIVE_DATE,
             HIVE_BINARY);
+    private static final Pattern SUPPORTED_VARCHAR_TYPE = Pattern.compile(VARCHAR_TYPE_NAME + "\\(\\d+\\)");
 
     private final String hiveTypeName;
     private final Category category;
@@ -130,10 +133,15 @@ public final class HiveType
     public static HiveType getHiveType(String hiveTypeName)
     {
         HiveType hiveType = new HiveType(hiveTypeName);
-        if (!isStructuralType(hiveType) && !SUPPORTED_HIVE_TYPES.contains(hiveType)) {
+        if (!isStructuralType(hiveType) && !isSupported(hiveType)) {
             return null;
         }
         return hiveType;
+    }
+
+    public static boolean isSupported(HiveType hiveType)
+    {
+        return SUPPORTED_HIVE_TYPES.contains(hiveType) || SUPPORTED_VARCHAR_TYPE.matcher(hiveType.getHiveTypeName()).matches();
     }
 
     public static HiveType getSupportedHiveType(ObjectInspector fieldInspector)
@@ -298,6 +306,8 @@ public final class HiveType
             case DOUBLE:
                 return DOUBLE;
             case STRING:
+                return VARCHAR;
+            case VARCHAR:
                 return VARCHAR;
             case DATE:
                 return DATE;
