@@ -58,6 +58,7 @@ import static com.facebook.presto.hive.HiveUtil.booleanPartitionKey;
 import static com.facebook.presto.hive.HiveUtil.datePartitionKey;
 import static com.facebook.presto.hive.HiveUtil.doublePartitionKey;
 import static com.facebook.presto.hive.HiveUtil.getTableObjectInspector;
+import static com.facebook.presto.hive.HiveUtil.isCharType;
 import static com.facebook.presto.hive.HiveUtil.isStructuralType;
 import static com.facebook.presto.hive.HiveUtil.isVarcharType;
 import static com.facebook.presto.hive.HiveUtil.longDecimalPartitionKey;
@@ -622,7 +623,8 @@ class ColumnarBinaryHiveRecordCursor<K>
     private boolean isValidHiveStringType(HiveType hiveType)
     {
         return VALID_HIVE_STRING_TYPES.contains(hiveType)
-                        || isVarcharType(hiveType);
+                || isVarcharType(hiveType)
+                || isCharType(hiveType);
     }
 
     @Override

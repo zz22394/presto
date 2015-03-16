@@ -316,6 +316,8 @@ public static Type getPrimitiveType(PrimitiveTypeInfo typeInfo)
                 return VARCHAR;
             case VARCHAR:
                 return VARCHAR;
+            case CHAR:
+                return VARCHAR;
             case DATE:
                 return DATE;
             case TIMESTAMP:
