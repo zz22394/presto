@@ -1,0 +1,3 @@
+node.environment=test
+node.id=${uuid-generated-nodeid}
+node.data-dir=/var/lib/presto/data

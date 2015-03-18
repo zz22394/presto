@@ -1,0 +1,5 @@
+# Pre installation script
+
+echo "Installing Presto..."
+
+# TODO: Java Version check
