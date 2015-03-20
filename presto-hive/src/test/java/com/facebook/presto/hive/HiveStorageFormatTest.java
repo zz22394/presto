@@ -36,7 +36,7 @@ public class HiveStorageFormatTest
     }
 
     @Test
-    public void testCustormStorageFormatRoundTrip()
+    public void testCustomStorageFormatRoundTrip()
     {
         String serde = "ala";
         String inputFormat = "has";
