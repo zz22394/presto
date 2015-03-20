@@ -139,11 +139,6 @@ public final class HiveType
         return hiveType;
     }
 
-    public static boolean isSupported(HiveType hiveType)
-    {
-        return SUPPORTED_HIVE_TYPES.contains(hiveType) || SUPPORTED_VARCHAR_TYPE.matcher(hiveType.getHiveTypeName()).matches();
-    }
-
     public static HiveType getSupportedHiveType(ObjectInspector fieldInspector)
     {
         HiveType hiveType = getHiveType(fieldInspector);
@@ -286,6 +281,11 @@ public final class HiveType
             default:
                 throw new IllegalArgumentException("Unsupported hive type " + fieldInspector.getTypeName());
         }
+    }
+
+    private static boolean isSupported(HiveType hiveType)
+    {
+        return SUPPORTED_HIVE_TYPES.contains(hiveType) || SUPPORTED_VARCHAR_TYPE.matcher(hiveType.getHiveTypeName()).matches();
     }
 
     private static Type getPrimitiveType(PrimitiveObjectInspector.PrimitiveCategory primitiveCategory)
