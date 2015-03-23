@@ -59,7 +59,10 @@ public class PrestoStatement
     public int executeUpdate(String sql)
             throws SQLException
     {
-        executeQuery(sql);
+        ResultSet result = executeQuery(sql);
+        while (result.next()) {
+            continue;
+        }
         return 0;
     }
 
