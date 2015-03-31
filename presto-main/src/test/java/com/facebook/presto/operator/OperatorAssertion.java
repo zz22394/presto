@@ -40,11 +40,11 @@ public final class OperatorAssertion
     {
     }
 
-    public static List<Page> appendSampleWeight(List<Page> input, final int sampleWeight)
+    public static List<Page> appendSampleWeight(List<Page> input, int sampleWeight)
     {
         return input.stream()
                 .map(page -> {
-                    BlockBuilder builder = BIGINT.createBlockBuilder(new BlockBuilderStatus());
+                    BlockBuilder builder = BIGINT.createBlockBuilder(new BlockBuilderStatus(), page.getPositionCount());
                     for (int i = 0; i < page.getPositionCount(); i++) {
                         BIGINT.writeLong(builder, sampleWeight);
                     }
@@ -215,20 +215,6 @@ public final class OperatorAssertion
             actual = toMaterializedResult(operator.getOperatorContext().getSession(), operator.getTypes(), pages);
         }
 
-        assertEqualsIgnoreOrder(actual.getMaterializedRows(), expected.getMaterializedRows());
-    }
-
-    public static void assertOperatorEqualsIgnoreOrderWithoutHashes(Operator operator, List<Page> input, MaterializedResult expected, List<Integer> hashChannels)
-    {
-        List<Page> pages = toPages(operator, input);
-
-        // Drop the hashChannel for all pages
-        List<Page> actualPages = dropChannel(pages, hashChannels);
-        List<Type> expectedTypes = without(operator.getTypes(), hashChannels);
-
-        MaterializedResult actual = toMaterializedResult(operator.getOperatorContext().getSession(), expectedTypes, actualPages);
-
-        assertEquals(actual.getTypes(), expected.getTypes());
         assertEqualsIgnoreOrder(actual.getMaterializedRows(), expected.getMaterializedRows());
     }
 

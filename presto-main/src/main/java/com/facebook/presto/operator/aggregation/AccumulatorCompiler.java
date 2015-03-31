@@ -30,14 +30,13 @@ import com.facebook.presto.spi.block.BlockBuilder;
 import com.facebook.presto.spi.type.Type;
 import com.facebook.presto.sql.gen.CallSiteBinder;
 import com.facebook.presto.sql.gen.CompilerOperations;
-import com.facebook.presto.sql.gen.SqlTypeByteCodeExpression;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import io.airlift.slice.Slice;
 
 import javax.annotation.Nullable;
 
-import java.lang.reflect.Method;
+import java.lang.invoke.MethodHandle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -57,6 +56,7 @@ import static com.facebook.presto.operator.aggregation.AggregationMetadata.Param
 import static com.facebook.presto.operator.aggregation.AggregationMetadata.ParameterMetadata.ParameterType.NULLABLE_INPUT_CHANNEL;
 import static com.facebook.presto.operator.aggregation.AggregationMetadata.countInputChannels;
 import static com.facebook.presto.sql.gen.Bootstrap.BOOTSTRAP_METHOD;
+import static com.facebook.presto.sql.gen.ByteCodeUtils.invoke;
 import static com.facebook.presto.sql.gen.CompilerUtils.defineClass;
 import static com.facebook.presto.sql.gen.CompilerUtils.makeClassName;
 import static com.facebook.presto.sql.gen.SqlTypeByteCodeExpression.constantType;
@@ -132,11 +132,11 @@ public class AccumulatorCompiler
         // Generate methods
         generateAddInput(definition, stateField, inputChannelsField, maskChannelField, sampleWeightChannelField, metadata.getInputMetadata(), metadata.getInputFunction(), callSiteBinder, grouped);
         generateGetEstimatedSize(definition, stateField);
-        MethodDefinition getIntermediateType = generateGetIntermediateType(definition, callSiteBinder, stateSerializer.getSerializedType());
-        MethodDefinition getFinalType = generateGetFinalType(definition, callSiteBinder, metadata.getOutputType());
+        generateGetIntermediateType(definition, callSiteBinder, stateSerializer.getSerializedType());
+        generateGetFinalType(definition, callSiteBinder, metadata.getOutputType());
 
         if (metadata.getIntermediateInputFunction() == null) {
-            generateAddIntermediateAsCombine(definition, stateField, stateSerializerField, stateFactoryField, metadata.getCombineFunction(), stateFactory.getSingleStateClass(), grouped);
+            generateAddIntermediateAsCombine(definition, stateField, stateSerializerField, stateFactoryField, metadata.getCombineFunction(), stateFactory.getSingleStateClass(), callSiteBinder, grouped);
         }
         else {
             generateAddIntermediateAsIntermediateInput(definition, stateField, metadata.getIntermediateInputMetadata(), metadata.getIntermediateInputFunction(), callSiteBinder, grouped);
@@ -146,14 +146,14 @@ public class AccumulatorCompiler
             generateGroupedEvaluateIntermediate(definition, stateSerializerField, stateField);
         }
         else {
-            generateEvaluateIntermediate(definition, getIntermediateType, stateSerializerField, stateField);
+            generateEvaluateIntermediate(definition, stateSerializerField, stateField);
         }
 
         if (grouped) {
-            generateGroupedEvaluateFinal(definition, confidenceField, stateSerializerField, stateField, metadata.getOutputFunction(), metadata.isApproximate());
+            generateGroupedEvaluateFinal(definition, confidenceField, stateSerializerField, stateField, metadata.getOutputFunction(), metadata.isApproximate(), callSiteBinder);
         }
         else {
-            generateEvaluateFinal(definition, getFinalType, confidenceField, stateSerializerField, stateField, metadata.getOutputFunction(), metadata.isApproximate());
+            generateEvaluateFinal(definition, confidenceField, stateSerializerField, stateField, metadata.getOutputFunction(), metadata.isApproximate(), callSiteBinder);
         }
 
         return defineClass(definition, accumulatorInterface, callSiteBinder.getBindings(), classLoader);
@@ -198,11 +198,11 @@ public class AccumulatorCompiler
             FieldDefinition maskChannelField,
             @Nullable FieldDefinition sampleWeightChannelField,
             List<ParameterMetadata> parameterMetadatas,
-            Method inputFunction,
+            MethodHandle inputFunction,
             CallSiteBinder callSiteBinder,
             boolean grouped)
     {
-        CompilerContext context = new CompilerContext();
+        CompilerContext context = new CompilerContext(BOOTSTRAP_METHOD);
 
         ImmutableList.Builder<NamedParameterDefinition> parameters = ImmutableList.builder();
         if (grouped) {
@@ -272,7 +272,7 @@ public class AccumulatorCompiler
     private static Block generateInputForLoop(
             FieldDefinition stateField,
             List<ParameterMetadata> parameterMetadatas,
-            Method inputFunction,
+            MethodHandle inputFunction,
             CompilerContext context,
             List<Variable> parameterVariables,
             Variable masksBlock,
@@ -383,7 +383,7 @@ public class AccumulatorCompiler
             @Nullable Variable sampleWeight,
             List<Variable> parameterVariables,
             List<ParameterMetadata> parameterMetadatas,
-            Method inputFunction,
+            MethodHandle inputFunction,
             CallSiteBinder callSiteBinder,
             boolean grouped)
     {
@@ -395,7 +395,7 @@ public class AccumulatorCompiler
 
         block.comment("Call input function with unpacked Block arguments");
 
-        Class<?>[] parameters = inputFunction.getParameterTypes();
+        Class<?>[] parameters = inputFunction.type().parameterArray();
         int inputChannel = 0;
         for (int i = 0; i < parameters.length; i++) {
             ParameterMetadata parameterMetadata = parameterMetadatas.get(i);
@@ -425,7 +425,7 @@ public class AccumulatorCompiler
             }
         }
 
-        block.invokeStatic(inputFunction);
+        block.append(invoke(context, callSiteBinder.bind(inputFunction), "input"));
         return block;
     }
 
@@ -437,28 +437,28 @@ public class AccumulatorCompiler
         }
         else if (parameter == long.class) {
             block.comment("%s.getLong(block, position)", sqlType.getTypeSignature())
-                    .append(SqlTypeByteCodeExpression.constantType(new CompilerContext(BOOTSTRAP_METHOD), callSiteBinder, sqlType))
+                    .append(constantType(new CompilerContext(BOOTSTRAP_METHOD), callSiteBinder, sqlType))
                     .append(getBlockByteCode)
                     .getVariable("position")
                     .invokeInterface(Type.class, "getLong", long.class, com.facebook.presto.spi.block.Block.class, int.class);
         }
         else if (parameter == double.class) {
             block.comment("%s.getDouble(block, position)", sqlType.getTypeSignature())
-                    .append(SqlTypeByteCodeExpression.constantType(new CompilerContext(BOOTSTRAP_METHOD), callSiteBinder, sqlType))
+                    .append(constantType(new CompilerContext(BOOTSTRAP_METHOD), callSiteBinder, sqlType))
                     .append(getBlockByteCode)
                     .getVariable("position")
                     .invokeInterface(Type.class, "getDouble", double.class, com.facebook.presto.spi.block.Block.class, int.class);
         }
         else if (parameter == boolean.class) {
             block.comment("%s.getBoolean(block, position)", sqlType.getTypeSignature())
-                    .append(SqlTypeByteCodeExpression.constantType(new CompilerContext(BOOTSTRAP_METHOD), callSiteBinder, sqlType))
+                    .append(constantType(new CompilerContext(BOOTSTRAP_METHOD), callSiteBinder, sqlType))
                     .append(getBlockByteCode)
                     .getVariable("position")
                     .invokeInterface(Type.class, "getBoolean", boolean.class, com.facebook.presto.spi.block.Block.class, int.class);
         }
         else if (parameter == Slice.class) {
             block.comment("%s.getBoolean(block, position)", sqlType.getTypeSignature())
-                    .append(SqlTypeByteCodeExpression.constantType(new CompilerContext(BOOTSTRAP_METHOD), callSiteBinder, sqlType))
+                    .append(constantType(new CompilerContext(BOOTSTRAP_METHOD), callSiteBinder, sqlType))
                     .append(getBlockByteCode)
                     .getVariable("position")
                     .invokeInterface(Type.class, "getSlice", Slice.class, com.facebook.presto.spi.block.Block.class, int.class);
@@ -473,11 +473,12 @@ public class AccumulatorCompiler
             FieldDefinition stateField,
             FieldDefinition stateSerializerField,
             FieldDefinition stateFactoryField,
-            Method combineFunction,
+            MethodHandle combineFunction,
             Class<?> singleStateClass,
+            CallSiteBinder callSiteBinder,
             boolean grouped)
     {
-        CompilerContext context = new CompilerContext();
+        CompilerContext context = new CompilerContext(BOOTSTRAP_METHOD);
 
         Block body = declareAddIntermediate(definition, grouped, context);
 
@@ -513,7 +514,7 @@ public class AccumulatorCompiler
                 .pushThis()
                 .getField(stateField)
                 .getVariable("scratchState")
-                .invokeStatic(combineFunction);
+                .append(invoke(context, callSiteBinder.bind(combineFunction), "combine"));
 
         body.append(generateBlockNonNullPositionForLoop(context, positionVariable, loopBody))
                 .ret();
@@ -561,11 +562,11 @@ public class AccumulatorCompiler
             ClassDefinition definition,
             FieldDefinition stateField,
             List<ParameterMetadata> parameterMetadatas,
-            Method intermediateInputFunction,
+            MethodHandle intermediateInputFunction,
             CallSiteBinder callSiteBinder,
             boolean grouped)
     {
-        CompilerContext context = new CompilerContext();
+        CompilerContext context = new CompilerContext(BOOTSTRAP_METHOD);
 
         Block body = declareAddIntermediate(definition, grouped, context);
 
@@ -640,7 +641,7 @@ public class AccumulatorCompiler
                 .ret();
     }
 
-    private static void generateEvaluateIntermediate(ClassDefinition definition, MethodDefinition getIntermediateType, FieldDefinition stateSerializerField, FieldDefinition stateField)
+    private static void generateEvaluateIntermediate(ClassDefinition definition, FieldDefinition stateSerializerField, FieldDefinition stateField)
     {
         CompilerContext context = new CompilerContext();
         definition.declareMethod(
@@ -665,9 +666,11 @@ public class AccumulatorCompiler
             FieldDefinition confidenceField,
             FieldDefinition stateSerializerField,
             FieldDefinition stateField,
-            @Nullable Method outputFunction,
-            boolean approximate)
+            @Nullable MethodHandle outputFunction,
+            boolean approximate,
+            CallSiteBinder callSiteBinder)
     {
+        CompilerContext context = new CompilerContext(BOOTSTRAP_METHOD);
         Block body = definition.declareMethod(
                 a(PUBLIC),
                 "evaluateFinal",
@@ -691,7 +694,7 @@ public class AccumulatorCompiler
                 body.pushThis().getField(confidenceField);
             }
             body.getVariable("out")
-                    .invokeStatic(outputFunction);
+                    .append(invoke(context, callSiteBinder.bind(outputFunction), "output"));
         }
         else {
             checkArgument(!approximate, "Approximate aggregations must specify an output function");
@@ -708,14 +711,15 @@ public class AccumulatorCompiler
 
     private static void generateEvaluateFinal(
             ClassDefinition definition,
-            MethodDefinition getFinalType,
             FieldDefinition confidenceField,
             FieldDefinition stateSerializerField,
             FieldDefinition stateField,
             @Nullable
-            Method outputFunction,
-            boolean approximate)
+            MethodHandle outputFunction,
+            boolean approximate,
+            CallSiteBinder callSiteBinder)
     {
+        CompilerContext context = new CompilerContext(BOOTSTRAP_METHOD);
         Block body = definition.declareMethod(
                 a(PUBLIC),
                 "evaluateFinal",
@@ -732,7 +736,7 @@ public class AccumulatorCompiler
                 body.pushThis().getField(confidenceField);
             }
             body.getVariable("out")
-                    .invokeStatic(outputFunction);
+                    .append(invoke(context, callSiteBinder.bind(outputFunction), "output"));
         }
         else {
             checkArgument(!approximate, "Approximate aggregations must specify an output function");

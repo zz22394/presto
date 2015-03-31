@@ -28,7 +28,7 @@ import com.facebook.presto.spi.type.Type;
 import com.facebook.presto.spi.type.TypeManager;
 import com.google.common.collect.ImmutableList;
 
-import java.lang.reflect.Method;
+import java.lang.invoke.MethodHandle;
 import java.util.List;
 import java.util.Map;
 
@@ -40,7 +40,7 @@ import static com.facebook.presto.operator.aggregation.AggregationMetadata.Param
 import static com.facebook.presto.operator.aggregation.AggregationUtils.generateAggregationName;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.TypeSignature.parseTypeSignature;
-import static com.facebook.presto.util.Reflection.method;
+import static com.facebook.presto.util.Reflection.methodHandle;
 
 public class CountColumn
         extends ParametricAggregation
@@ -48,8 +48,8 @@ public class CountColumn
     public static final CountColumn COUNT_COLUMN = new CountColumn();
     private static final String NAME = "count";
     private static final Signature SIGNATURE = new Signature(NAME, ImmutableList.of(typeParameter("T")), StandardTypes.BIGINT, ImmutableList.of("T"), false, false);
-    private static final Method INPUT_FUNCTION = method(CountColumn.class, "input", LongState.class, Block.class, int.class);
-    private static final Method COMBINE_FUNCTION = method(CountColumn.class, "combine", LongState.class, LongState.class);
+    private static final MethodHandle INPUT_FUNCTION = methodHandle(CountColumn.class, "input", LongState.class, Block.class, int.class);
+    private static final MethodHandle COMBINE_FUNCTION = methodHandle(CountColumn.class, "combine", LongState.class, LongState.class);
 
     @Override
     public Signature getSignature()
@@ -69,7 +69,7 @@ public class CountColumn
         Type type = types.get("T");
         Signature signature = new Signature(NAME, parseTypeSignature(StandardTypes.BIGINT), type.getTypeSignature());
         InternalAggregationFunction aggregation = generateAggregation(type);
-        return new FunctionInfo(signature, getDescription(), aggregation.getIntermediateType().getTypeSignature(), aggregation, false);
+        return new FunctionInfo(signature, getDescription(), aggregation);
     }
 
     private static InternalAggregationFunction generateAggregation(Type type)

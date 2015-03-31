@@ -14,11 +14,13 @@
 package com.facebook.presto.operator.scalar;
 
 import com.facebook.presto.spi.PrestoException;
+import com.google.common.collect.ImmutableList;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import static com.facebook.presto.spi.StandardErrorCode.INVALID_FUNCTION_ARGUMENT;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.fail;
 
 public class TestStringFunctions
 {
@@ -131,6 +133,19 @@ public class TestStringFunctions
     }
 
     @Test
+    public void testSplit()
+    {
+        assertFunction("SPLIT('a.b.c', '.')", ImmutableList.of("a", "b", "c"));
+        assertFunction("SPLIT('a..b..c', '..')", ImmutableList.of("a", "b", "c"));
+        assertFunction("SPLIT('a.b.c', '.', 2)", ImmutableList.of("a", "b.c"));
+        assertFunction("SPLIT('a.b.c', '.', 3)", ImmutableList.of("a", "b", "c"));
+        assertFunction("SPLIT('a.b.c', '.', 4)", ImmutableList.of("a", "b", "c"));
+        assertInvalidFunction("SPLIT('a.b.c', '.', 0)", "Limit must be positive");
+        assertInvalidFunction("SPLIT('a.b.c', '.', -1)", "Limit must be positive");
+        assertInvalidFunction("SPLIT('a.b.c', '.', 2147483648)", "Limit is too large");
+    }
+
+    @Test
     public void testSplitPart()
     {
         assertFunction("SPLIT_PART('abc-@-def-@-ghi', '-@-', 1)", "abc");
@@ -232,6 +247,7 @@ public class TestStringFunctions
     {
         try {
             assertFunction(projection, null);
+            fail("Expected to throw an INVALID_FUNCTION_ARGUMENT exception with message " + message);
         }
         catch (PrestoException e) {
             assertEquals(e.getErrorCode(), INVALID_FUNCTION_ARGUMENT.toErrorCode());
