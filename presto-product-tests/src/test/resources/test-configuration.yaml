@@ -1,0 +1,29 @@
+hdfs:
+  username: hdfs
+  webhdfs:
+    host: master
+    port: 50070
+
+databases:
+  default:
+    alias: presto
+
+  hive:
+    jdbc_driver_class: org.apache.hive.jdbc.HiveDriver
+    jdbc_url: jdbc:hive2://master:10000
+    jdbc_user: hdfs
+    jdbc_password: na
+    jdbc_pooling: false
+    jdbc_jar: /home/ksobczak/Desktop/Hadapt/jdbc-drivers/test-framework-hive-jdbc-all.jar
+
+  presto:
+    jdbc_driver_class: com.facebook.presto.jdbc.PrestoDriver
+    jdbc_url: jdbc:presto://localhost:8080/hive/default
+    jdbc_user: hdfs
+    jdbc_password: na
+    jdbc_pooling: false
+
+tests:
+  hdfs:
+    path: /product-test
+

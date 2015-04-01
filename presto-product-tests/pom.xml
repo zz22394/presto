@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>presto-root</artifactId>
+        <groupId>com.facebook.presto</groupId>
+        <version>0.100-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>presto-product-tests</artifactId>
+    <name>presto-product-tests</name>
+
+    <properties>
+        <air.main.basedir>${project.parent.basedir}</air.main.basedir>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <!-- Enable multi threading when test framework supports this -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <parallel/>
+                    <threadCount>1</threadCount>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>com.ning.maven.plugins</groupId>
+                <artifactId>maven-duplicate-finder-plugin</artifactId>
+                <version>1.0.9</version>
+                <configuration>
+                    <exceptions combine.children="append">
+                        <exception>
+                            <conflictingDependencies>
+                                <dependency>
+                                    <groupId>net.minidev</groupId>
+                                    <artifactId>asm</artifactId>
+                                </dependency>
+                                <dependency>
+                                    <groupId>asm</groupId>
+                                    <artifactId>asm</artifactId>
+                                 </dependency>
+                            </conflictingDependencies>
+                            <packages>
+                                <packge>org.objectweb.asm</packge>
+                            </packages>
+                        </exception>
+                        <exception>
+                            <conflictingDependencies>
+                                <dependency>
+                                    <groupId>velocity</groupId>
+                                    <artifactId>velocity</artifactId>
+                                </dependency>
+                                <dependency>
+                                    <groupId>velocity</groupId>
+                                    <artifactId>velocity-dep</artifactId>
+                                </dependency>
+                            </conflictingDependencies>
+                            <packages>
+                                <packge>org.apache.velocity</packge>
+                            </packages>
+                            <resourcePatterns>
+                                <resourcePattern>.*</resourcePattern>
+                            </resourcePatterns>
+                        </exception>
+                    </exceptions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.teradata.test</groupId>
+            <artifactId>test-framework-core</artifactId>
+            <version>1.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>2.0.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>6.8.7</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

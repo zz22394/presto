@@ -20,3 +20,6 @@ benchmark_outputs
 *.pyc
 *.class
 .checkstyle
+
+# test logging output
+testlogs
