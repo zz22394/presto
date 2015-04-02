@@ -3,8 +3,14 @@
 SCRIPT_NAME=$0
 ACTION_NAME=$1
 SERVICE_NAME='presto'
-# Just use default params for now
-CONFIGURATION='--launcher-config /usr/lib/presto/bin/launcher.properties  --node-config /etc/presto/node.properties --jvm-config /etc/presto/jvm.config --config /etc/presto/config.properties --data-dir /var/lib/presto/data  --launcher-log-file /var/log/presto/launcher.log --server-log-file /var/log/presto/server.log'
+
+log_uid=$(date "+%Y.%d.%m-%H.%M.%S")
+
+# Launcher Config. 
+# Use data-dir from node.properties file (assumes it to be at /etc/presto). For other args use defaults from rpm install
+NODE_PROPERTIES=/etc/presto/node.properties
+DATA_DIR=$(grep -Po "(?<=^node.data-dir=).*" $NODE_PROPERTIES)
+CONFIGURATION="--launcher-config /usr/lib/presto/bin/launcher.properties --data-dir $DATA_DIR --node-config $NODE_PROPERTIES --jvm-config /etc/presto/jvm.config --config /etc/presto/config.properties --launcher-log-file /var/log/presto/launcher_$log_uid.log --server-log-file /var/log/presto/server_$log_uid.log"
 
 start () {
     echo "Starting ${SERVICE_NAME} "
