@@ -18,15 +18,14 @@
     <build>
         <plugins>
             <plugin>
-                <!-- Enable multi threading when test framework supports this -->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <parallel/>
-                    <threadCount>1</threadCount>
+                    <environmentVariables>
+                        <PRESTO_ROOT>${project.parent.basedir}/</PRESTO_ROOT>
+                    </environmentVariables>
                 </configuration>
             </plugin>
-
             <plugin>
                 <groupId>com.ning.maven.plugins</groupId>
                 <artifactId>maven-duplicate-finder-plugin</artifactId>
