@@ -22,6 +22,7 @@ java_version_is_correct() {
   JAVA_VERSION=$(java_version "$1")
   JAVA_VENDOR=$(java_vendor "$1")
   if [[ ("$JAVA_VERSION" > "1.8") && ("$JAVA_VENDOR" = "Oracle Corporation") ]]; then
+    echo "PRESTO_JAVA=$1" > /tmp/presto_env.sh
     return 0
   else
     return 1
@@ -45,7 +46,7 @@ if ! java_version_is_correct "$JAVA_HOME" ; then
           break
         fi
       fi
-    done
+  done
 fi
 
 # if no appropriate java found

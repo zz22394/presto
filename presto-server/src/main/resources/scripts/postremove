@@ -1,0 +1,5 @@
+# Post erase script
+
+# Delete the conf directory manually during uninstall.
+# rpm -e wont remove it, because this directory was manually updated in postinstall
+rm -rf /etc/presto

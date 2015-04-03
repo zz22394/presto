@@ -130,6 +130,9 @@
                             <postinstallScriptlet>
                                 <scriptFile>src/main/resources/scripts/postinstall</scriptFile>
                             </postinstallScriptlet>
+                            <postremoveScriptlet>
+                                <scriptFile>src/main/resources/scripts/postremove</scriptFile>
+                            </postremoveScriptlet>
                         </configuration>
                     </plugin>
                 </plugins>
