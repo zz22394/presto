@@ -1,0 +1,4 @@
+coordinator=false
+http-server.http.port=8080
+task.max-memory=1GB
+discovery.uri=http://${presto-coordinator}:8080
