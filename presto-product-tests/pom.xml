@@ -14,6 +14,7 @@
 
     <properties>
         <air.main.basedir>${project.parent.basedir}</air.main.basedir>
+        <skip.product.tests>true</skip.product.tests>
     </properties>
 
     <dependencies>
@@ -46,6 +47,10 @@
                     <environmentVariables>
                         <PRESTO_ROOT>${project.parent.basedir}/</PRESTO_ROOT>
                     </environmentVariables>
+                    <suiteXmlFiles>
+                        <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
+                    </suiteXmlFiles>
+                    <skipTests>${skip.product.tests}</skipTests>
                 </configuration>
             </plugin>
             <plugin>
@@ -110,6 +115,15 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>productTests</id>
+            <properties>
+                <skip.product.tests>false</skip.product.tests>
+            </properties>
+        </profile>
+    </profiles>
 
     <repositories>
         <repository>
