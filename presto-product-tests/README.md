@@ -2,6 +2,8 @@
 
 ## Running tests
 
+Product tests are not run by default. To start them use _productTests_ maven profile:
+
 ```
-mvn test
+mvn -PproductTests test
 ```
