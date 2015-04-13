@@ -32,15 +32,22 @@ stop () {
     return $?
 }
 
+status () {
+    echo "Getting status for ${SERVICE_NAME} "
+    /usr/lib/presto/bin/launcher status ${CONFIGURATION}
+    return $?
+}
+
+
 restart () {
     stop && start
     return $?
 }
 
-# TODO: Add status, kill
+# TODO: Add kill
 
 usage () {
-    echo $"Usage: ${SCRIPT_NAME} {start|stop|restart}"
+    echo $"Usage: ${SCRIPT_NAME} {start|stop|restart|status}"
     return 3
 }
 
@@ -54,7 +61,10 @@ case "${ACTION_NAME}" in
     restart)
         restart
         ;;
+    status)
+        status
+        ;;
     *)
-        echo $"Usage: $0 {start|stop|restart}"
+        echo $"Usage: $0 {start|stop|restart|status}"
         exit 3
 esac
