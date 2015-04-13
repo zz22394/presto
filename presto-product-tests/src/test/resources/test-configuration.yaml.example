@@ -1,7 +1,7 @@
 hdfs:
   username: hdfs
   webhdfs:
-    host: hadoop-master
+    host: hadoop-master 
     port: 50070
 
 databases:
