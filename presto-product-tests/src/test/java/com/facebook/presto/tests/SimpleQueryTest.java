@@ -20,7 +20,7 @@ import com.teradata.test.Requirement;
 import com.teradata.test.RequirementsProvider;
 import com.teradata.test.Requires;
 import com.teradata.test.assertions.QueryAssert;
-import com.teradata.test.fulfillment.hive.ImmutableHiveTableRequirement;
+import com.teradata.test.fulfillment.table.ImmutableTableRequirement;
 import org.testng.annotations.Test;
 
 import static com.teradata.test.assertions.QueryAssert.Row.row;
@@ -38,7 +38,7 @@ public class SimpleQueryTest
         @Override
         public Requirement getRequirements()
         {
-            return new ImmutableHiveTableRequirement(NATION);
+            return new ImmutableTableRequirement(NATION);
         }
     }
 
@@ -67,7 +67,7 @@ public class SimpleQueryTest
     {
         QueryAssert.assertThat(query("select count(*) from nation"))
                 .hasRowsCount(1)
-                .hasRows(row(25));
+                .contains(row(25));
     }
 
     @Test(groups = "failing")
