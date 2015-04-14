@@ -1,4 +1,4 @@
--- database: presto; groups: tpch,quarantine
+-- database: presto; groups: tpch
 SELECT
   l_shipmode,
   sum(CASE
