@@ -105,6 +105,21 @@ public class TestStringFunctions
         assertFunction("STRPOS('zoo!', '!')", BIGINT,  4);
         assertFunction("STRPOS('x', '')", BIGINT,  1);
         assertFunction("STRPOS('', '')", BIGINT,  1);
+        assertFunction("STRPOS(NULL, '')", BIGINT,  null);
+        assertFunction("STRPOS('', NULL)", BIGINT,  null);
+        assertFunction("STRPOS(NULL, NULL)", BIGINT,  null);
+
+        assertFunction("POSITION('ig' IN 'high')", BIGINT,  2);
+        assertFunction("POSITION('igx' IN 'high')", BIGINT,  0);
+        assertFunction("POSITION('a' IN 'Quadratically')", BIGINT,  3);
+        assertFunction("POSITION('foobar' IN 'foobar')", BIGINT,  1);
+        assertFunction("POSITION('obar' IN 'foobar')", BIGINT,  3);
+        assertFunction("POSITION('!' IN 'zoo!')", BIGINT,  4);
+        assertFunction("POSITION('' IN 'x')", BIGINT,  1);
+        assertFunction("POSITION('' IN '')", BIGINT,  1);
+        assertFunction("POSITION(NULL IN '')", BIGINT,  null);
+        assertFunction("POSITION('' IN NULL)", BIGINT,  null);
+        assertFunction("POSITION(NULL IN NULL)", BIGINT,  null);
     }
 
     @Test
