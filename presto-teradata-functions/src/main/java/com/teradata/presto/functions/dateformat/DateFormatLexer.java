@@ -24,11 +24,6 @@ import java.util.ArrayList;
  */
 public class DateFormatLexer
 {
-    public interface Token
-    {
-        public String representation();
-    }
-
     // map "first character of a token" -> "list of Tokens starting with this character"
     private Map<Character, List<Token>> tokens;
 

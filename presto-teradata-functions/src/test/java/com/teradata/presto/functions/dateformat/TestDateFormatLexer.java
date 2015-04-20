@@ -13,6 +13,7 @@
  */
 package com.teradata.presto.functions.dateformat;
 
+import org.joda.time.format.DateTimeFormatterBuilder;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -23,7 +24,7 @@ import static org.testng.Assert.assertEquals;
 
 public class TestDateFormatLexer
 {
-    private class SimpleToken implements DateFormatLexer.Token
+    private class SimpleToken implements Token
     {
         private String token;
 
@@ -36,6 +37,12 @@ public class TestDateFormatLexer
         public String representation()
         {
             return token;
+        }
+
+        @Override
+        public void appendTo(DateTimeFormatterBuilder builder)
+        {
+            throw new UnsupportedOperationException();
         }
     }
 
@@ -50,7 +57,7 @@ public class TestDateFormatLexer
     @Test
     public void testSimpleFormat() throws ParseException
     {
-        List<DateFormatLexer.Token> tokens = yearLexer.tokenize("yyyy");
+        List<Token> tokens = yearLexer.tokenize("yyyy");
         assertEquals(tokens.size(), 1);
         assertEquals(tokens.get(0).representation(), "yyyy");
     }
@@ -78,7 +85,7 @@ public class TestDateFormatLexer
                 .addToken(new SimpleToken("/"))
                 .build();
 
-        List<DateFormatLexer.Token> tokens = yearMonthDayLexer.tokenize("mm-dd/yyyy");
+        List<Token> tokens = yearMonthDayLexer.tokenize("mm-dd/yyyy");
         assertEquals(tokens.size(), 5);
         assertEquals(tokens.get(0).representation(), "mm");
         assertEquals(tokens.get(1).representation(), "-");
