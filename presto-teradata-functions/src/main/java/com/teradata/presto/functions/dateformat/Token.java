@@ -15,9 +15,24 @@ package com.teradata.presto.functions.dateformat;
 
 import org.joda.time.format.DateTimeFormatterBuilder;
 
+/**
+ * Token binds string representation of a date format from Teradata
+ * to a particular DateTimeFormatter
+ *
+ * For example if we encounter "YYYY" string as date format, we must
+ * call "appendYear" on DateTimeFormatterBuilder
+ */
 public interface Token
 {
+    /**
+     * @return String representation of this token in Teradata.
+     */
     public String representation();
 
+    /**
+     * @param builder
+     *
+     * Append action associated with this token to the builder
+     */
     void appendTo(DateTimeFormatterBuilder builder);
 }
