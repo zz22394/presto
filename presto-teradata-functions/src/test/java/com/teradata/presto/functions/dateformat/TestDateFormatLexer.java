@@ -13,7 +13,6 @@
  */
 package com.teradata.presto.functions.dateformat;
 
-import org.joda.time.format.DateTimeFormatterBuilder;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -24,34 +23,12 @@ import static org.testng.Assert.assertEquals;
 
 public class TestDateFormatLexer
 {
-    private class SimpleToken implements Token
-    {
-        private String token;
-
-        private SimpleToken(String token)
-        {
-            this.token = token;
-        }
-
-        @Override
-        public String representation()
-        {
-            return token;
-        }
-
-        @Override
-        public void appendTo(DateTimeFormatterBuilder builder)
-        {
-            throw new UnsupportedOperationException();
-        }
-    }
-
     private DateFormatLexer yearLexer;
 
     @BeforeClass
     public void setUp()
     {
-        yearLexer = DateFormatLexer.builder().addToken(new SimpleToken("yyyy")).build();
+        yearLexer = DateFormatLexer.builder().addTextToken("yyyy").build();
     }
 
     @Test
@@ -78,11 +55,11 @@ public class TestDateFormatLexer
     public void testYearMonthDay() throws ParseException
     {
         DateFormatLexer yearMonthDayLexer = DateFormatLexer.builder()
-                .addToken(new SimpleToken("yyyy"))
-                .addToken(new SimpleToken("mm"))
-                .addToken(new SimpleToken("dd"))
-                .addToken(new SimpleToken("-"))
-                .addToken(new SimpleToken("/"))
+                .addTextToken("yyyy")
+                .addTextToken("mm")
+                .addTextToken("dd")
+                .addTextToken("-")
+                .addTextToken("/")
                 .build();
 
         List<Token> tokens = yearMonthDayLexer.tokenize("mm-dd/yyyy");
@@ -98,9 +75,9 @@ public class TestDateFormatLexer
     public void testGreedinessLongFirst() throws ParseException
     {
         DateFormatLexer lexer = DateFormatLexer.builder()
-                .addToken(new SimpleToken("yyy"))
-                .addToken(new SimpleToken("yy"))
-                .addToken(new SimpleToken("y"))
+                .addTextToken("yyy")
+                .addTextToken("yy")
+                .addTextToken("y")
                 .build();
 
         assertEquals(lexer.tokenize("y").size(), 1);
@@ -116,9 +93,9 @@ public class TestDateFormatLexer
     public void testGreedinessShortFirst() throws ParseException
     {
         DateFormatLexer lexer = DateFormatLexer.builder()
-                .addToken(new SimpleToken("y"))
-                .addToken(new SimpleToken("yy"))
-                .addToken(new SimpleToken("yyy"))
+                .addTextToken("y")
+                .addTextToken("yy")
+                .addTextToken("yyy")
                 .build();
 
         assertEquals(lexer.tokenize("y").size(), 1);

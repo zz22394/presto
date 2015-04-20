@@ -24,12 +24,11 @@ import java.util.ArrayList;
  */
 public class DateFormatLexer
 {
-    // map "first character of a token" -> "list of Tokens starting with this character"
-    private Map<Character, List<Token>> tokens;
+    private Map<Character, List<Token>> tokensByFirstCharMap;
 
     public DateFormatLexer(Map<Character, List<Token>> tokens)
     {
-        this.tokens = tokens;
+        this.tokensByFirstCharMap = tokens;
     }
 
     public static DateFormatLexerBuilder builder()
@@ -47,17 +46,17 @@ public class DateFormatLexer
         List<Token> result = new ArrayList<>();
 
         while (offset < string.length()) {
-            boolean proceeded = false;
+            boolean noTokenFound = true;
             for (Token token : getPossibleTokens(string, offset)) {
                 if (string.startsWith(token.representation(), offset)) {
                     result.add(token);
                     offset += token.representation().length();
-                    proceeded = true;
+                    noTokenFound = false;
                     break;
                 }
             }
 
-            if (!proceeded) {
+            if (noTokenFound) {
                 throw new ParseException(String.format("Failed to tokenize string [%s]", string), offset);
             }
         }
@@ -67,7 +66,7 @@ public class DateFormatLexer
     private List<Token> getPossibleTokens(String string, int offset) throws ParseException
     {
         Character firstChar = string.charAt(offset);
-        if (!tokens.containsKey(firstChar)) {
+        if (!tokensByFirstCharMap.containsKey(firstChar)) {
             throw new ParseException(
                     String.format(
                             "No tokens starts with character [%c] in string [%s]",
@@ -75,7 +74,7 @@ public class DateFormatLexer
                             string),
                     offset);
         }
-        return tokens.get(firstChar);
+        return tokensByFirstCharMap.get(firstChar);
     }
 
     public static class DateFormatLexerBuilder
