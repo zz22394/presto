@@ -16,9 +16,18 @@ package com.teradata.presto.functions;
 import com.facebook.presto.operator.scalar.ScalarFunction;
 import com.facebook.presto.operator.scalar.StringFunctions;
 import com.facebook.presto.operator.Description;
+import com.facebook.presto.spi.PrestoException;
+import com.facebook.presto.spi.StandardErrorCode;
 import com.facebook.presto.spi.type.StandardTypes;
 import com.facebook.presto.type.SqlType;
 import io.airlift.slice.Slice;
+import io.airlift.slice.Slices;
+
+import java.nio.ByteBuffer;
+import java.nio.charset.CharacterCodingException;
+
+import static java.nio.charset.StandardCharsets.UTF_16BE;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public final class TeradataFunctions
 {
@@ -32,5 +41,21 @@ public final class TeradataFunctions
     public static long index(@SqlType(StandardTypes.VARCHAR) Slice string, @SqlType(StandardTypes.VARCHAR) Slice substring)
     {
         return StringFunctions.stringPosition(string, substring);
+    }
+
+    @Description("Teradata extension to the ANSI SQL-2003 standard. Returns string with HEX representation of UTF16BE encoding of the argument")
+    @ScalarFunction("char2hexint")
+    @SqlType(StandardTypes.VARCHAR)
+    public static Slice char2HexInt(@SqlType(StandardTypes.VARCHAR) Slice string)
+    {
+        ByteBuffer utf8Buffer = string.toByteBuffer();
+        ByteBuffer utf16Buffer = UTF_16BE.encode(UTF_8.decode(utf8Buffer));
+        try {
+            ByteBuffer hexBuffer = new HexEncoder().encode(utf16Buffer.asCharBuffer());
+            return Slices.wrappedBuffer(hexBuffer);
+        }
+        catch (CharacterCodingException e) {
+            throw new PrestoException(StandardErrorCode.INTERNAL_ERROR, e);
+        }
     }
 }
