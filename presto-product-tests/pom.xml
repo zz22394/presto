@@ -19,6 +19,14 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.facebook.presto</groupId>
+            <artifactId>presto-jdbc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.teradata.test</groupId>
             <artifactId>framework-core</artifactId>
             <version>1.0.6-SNAPSHOT</version>

@@ -59,7 +59,9 @@ import static com.facebook.presto.hive.HiveErrorCode.HIVE_DATABASE_LOCATION_ERRO
 import static com.facebook.presto.hive.HiveErrorCode.HIVE_FILESYSTEM_ERROR;
 import static com.facebook.presto.hive.HiveErrorCode.HIVE_PATH_ALREADY_EXISTS;
 import static com.facebook.presto.hive.HiveErrorCode.HIVE_TIMEZONE_MISMATCH;
+import static com.facebook.presto.hive.HiveSessionProperties.getHiveSerdeParameters;
 import static com.facebook.presto.hive.HiveSessionProperties.getHiveStorageFormat;
+import static com.facebook.presto.hive.HiveSessionProperties.getHiveTableParameters;
 import static com.facebook.presto.hive.HiveUtil.PRESTO_VIEW_FLAG;
 import static com.facebook.presto.hive.HiveUtil.decodeViewData;
 import static com.facebook.presto.hive.HiveUtil.encodeViewData;
@@ -337,6 +339,7 @@ public class HiveMetadata
         SerDeInfo serdeInfo = new SerDeInfo();
         serdeInfo.setName(tableName);
         serdeInfo.setSerializationLib(hiveStorageFormat.getSerDe());
+        serdeInfo.setParameters(getHiveSerdeParameters(session));
 
         StorageDescriptor sd = new StorageDescriptor();
         sd.setLocation(targetPath.toString());
@@ -351,8 +354,9 @@ public class HiveMetadata
         table.setTableName(tableName);
         table.setOwner(tableMetadata.getOwner());
         table.setTableType(TableType.MANAGED_TABLE.toString());
-        String tableComment = "Created by Presto";
-        table.setParameters(ImmutableMap.of("comment", tableComment));
+
+        String comment = "Created by Presto";
+        table.setParameters(createTableParameters(comment, getHiveTableParameters(session)));
         table.setPartitionKeys(partitionKeys.build());
         table.setSd(sd);
 
@@ -400,6 +404,8 @@ public class HiveMetadata
         checkArgument(!isNullOrEmpty(tableMetadata.getOwner()), "Table owner is null or empty");
 
         HiveStorageFormat hiveStorageFormat = getHiveStorageFormat(session, this.hiveStorageFormat);
+        Map<String, String> hiveTableParameters = getHiveTableParameters(session);
+        Map<String, String> hiveSerdeParameters = getHiveSerdeParameters(session);
 
         ImmutableList.Builder<String> columnNames = ImmutableList.builder();
         ImmutableList.Builder<Type> columnTypes = ImmutableList.builder();
@@ -412,20 +418,6 @@ public class HiveMetadata
         buildColumnInfo(tableMetadata, columnNames, columnTypes);
 
         Path targetPath = getTargetPath(schemaName, tableName, schemaTableName);
-
-        if (!useTemporaryDirectory(targetPath)) {
-            return new HiveOutputTableHandle(
-                    connectorId,
-                    schemaName,
-                    tableName,
-                    columnNames.build(),
-                    columnTypes.build(),
-                    tableMetadata.getOwner(),
-                    targetPath.toString(),
-                    targetPath.toString(),
-                    session,
-                    hiveStorageFormat);
-        }
 
         // use a per-user temporary directory to avoid permission problems
         // TODO: this should use Hadoop UserGroupInformation
@@ -446,7 +438,9 @@ public class HiveMetadata
                 targetPath.toString(),
                 temporaryPath.toString(),
                 session,
-                hiveStorageFormat);
+                hiveStorageFormat,
+                hiveTableParameters,
+                hiveSerdeParameters);
     }
 
     @Override
@@ -492,7 +486,7 @@ public class HiveMetadata
         SerDeInfo serdeInfo = new SerDeInfo();
         serdeInfo.setName(handle.getTableName());
         serdeInfo.setSerializationLib(hiveStorageFormat.getSerDe());
-        serdeInfo.setParameters(ImmutableMap.<String, String>of());
+        serdeInfo.setParameters(handle.getSerdeParameters());
 
         StorageDescriptor sd = new StorageDescriptor();
         sd.setLocation(targetPath.toString());
@@ -507,11 +501,13 @@ public class HiveMetadata
         table.setTableName(handle.getTableName());
         table.setOwner(handle.getTableOwner());
         table.setTableType(TableType.MANAGED_TABLE.toString());
+
         String tableComment = "Created by Presto";
         if (sampled) {
             tableComment = "Sampled table created by Presto. Only query this table from Hive if you understand how Presto implements sampling.";
         }
-        table.setParameters(ImmutableMap.of("comment", tableComment));
+
+        table.setParameters(createTableParameters(tableComment, handle.getTableParameters()));
         table.setPartitionKeys(ImmutableList.<FieldSchema>of());
         table.setSd(sd);
 
@@ -709,7 +705,6 @@ public class HiveMetadata
     public ConnectorInsertTableHandle beginInsert(ConnectorSession session, ConnectorTableHandle tableHandle)
     {
         verifyJvmTimeZone();
-
         throw new PrestoException(NOT_SUPPORTED, "INSERT not yet supported for Hive");
     }
 
@@ -734,6 +729,14 @@ public class HiveMetadata
                     "To write Hive data, your JVM timezone must match the Hive storage timezone. Add -Duser.timezone=%s to your JVM arguments.",
                     timeZone.getID()));
         }
+    }
+
+    private Map<String, String> createTableParameters(String comment, Map<String, String> parameters)
+    {
+        return ImmutableMap.<String, String>builder()
+                .put("comment", comment)
+                .putAll(parameters)
+                .build();
     }
 
     private static void buildColumnInfo(ConnectorTableMetadata tableMetadata, ImmutableList.Builder<String> names, ImmutableList.Builder<Type> types)

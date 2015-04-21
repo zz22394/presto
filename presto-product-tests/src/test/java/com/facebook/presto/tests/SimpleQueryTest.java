@@ -70,6 +70,12 @@ public class SimpleQueryTest
                 .contains(row(25));
     }
 
+    @Test(groups = {"failing", "quarantine"})
+    public void failingTest()
+    {
+        assertThat(1).isEqualTo(2);
+    }
+
     @Test(groups = "skipped", enabled = false)
     public void disabledTest()
     {
