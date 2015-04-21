@@ -70,7 +70,7 @@ public class SimpleQueryTest
                 .contains(row(25));
     }
 
-    @Test(groups = "failing")
+    @Test(groups = {"failing", "quarantine"})
     public void failingTest()
     {
         assertThat(1).isEqualTo(2);

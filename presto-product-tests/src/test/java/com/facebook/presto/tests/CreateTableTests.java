@@ -13,23 +13,40 @@
  */
 package com.facebook.presto.tests;
 
+import com.facebook.presto.tests.utils.PrestoDDLUtils.Table;
+import com.google.common.collect.ImmutableMap;
 import com.teradata.test.ProductTest;
 import com.teradata.test.Requirement;
 import com.teradata.test.RequirementsProvider;
 import com.teradata.test.Requires;
 import com.teradata.test.fulfillment.table.ImmutableTableRequirement;
+import com.teradata.test.query.QueryResult;
+import org.assertj.core.api.Assertions;
 import org.testng.annotations.Test;
 
-import java.sql.SQLException;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
+import static com.facebook.presto.tests.utils.PrestoDDLUtils.createPrestoTable;
+import static com.facebook.presto.tests.utils.QueryExecutors.onHive;
+import static com.google.common.base.Preconditions.checkPositionIndexes;
+import static com.google.common.collect.Iterables.getFirst;
 import static com.teradata.test.assertions.QueryAssert.assertThat;
 import static com.teradata.test.fulfillment.hive.tpch.TpchTableDefinitions.NATION;
 import static com.teradata.test.query.QueryExecutor.query;
+import static com.teradata.test.query.QueryType.SELECT;
 import static java.lang.String.format;
+import static org.assertj.core.data.MapEntry.entry;
 
+@Requires(CreateTableTests.SimpleTestRequirements.class)
 public class CreateTableTests extends ProductTest
 {
-    private static class SimpleTestRequirements
+    private static final String TABLE_PARAMETERS = "Table Parameters:";
+    private static final String SERDE_PARAMETERS = "Storage Desc Params:";
+
+    static class SimpleTestRequirements
             implements RequirementsProvider
     {
         @Override
@@ -40,30 +57,92 @@ public class CreateTableTests extends ProductTest
     }
 
     @Test(groups = "create_table")
-    @Requires(SimpleTestRequirements.class)
-    public void testCreateTableAsSelect() throws SQLException
+    public void shouldCreateTableAsSelect()
+            throws Exception
     {
         String tableName = "create_table_as_select";
-        query(format("CREATE TABLE %s AS SELECT * FROM nation", tableName));
-        try {
-            assertThat(query(format("SELECT * FROM %s", tableName))).hasRowsCount(25);
-        }
-        finally {
-            query(format("DROP TABLE %s", tableName));
+        try (Table table = createPrestoTable(tableName, "CREATE TABLE %s AS SELECT * FROM nation")) {
+            assertThat(query(format("SELECT * FROM %s", table.getNameInDatabase()))).hasRowsCount(25);
         }
     }
 
     @Test(groups = "create_table")
-    @Requires(SimpleTestRequirements.class)
-    public void testCreateTableAsEmptySelect() throws SQLException
+    public void shouldCreateTableAsEmptySelect()
+            throws Exception
     {
         String tableName = "create_table_as_empty_select";
-        query(format("CREATE TABLE %s AS SELECT * FROM nation", tableName));
-        try {
-            assertThat(query(format("SELECT * FROM %s WHERE 0 is NULL", tableName))).hasRowsCount(0);
+        try (Table table = createPrestoTable(tableName, "CREATE TABLE %s AS SELECT * FROM nation WHERE 0 is NULL")) {
+            assertThat(query(format("SELECT * FROM %s", table.getNameInDatabase()))).hasRowsCount(0);
         }
-        finally {
-            query(format("DROP TABLE %s", tableName));
+    }
+
+    @Test(groups = "create_table")
+    public void shouldCreateTableWithParameters()
+            throws Exception
+    {
+        testCreateTableWithParameters("dummy_table_with_parameters", "CREATE TABLE %s (a VARCHAR)");
+    }
+
+    @Test(groups = "create_table")
+    public void shouldCreateTableAsSelectWithParameters()
+            throws Exception
+    {
+        testCreateTableWithParameters("create_table_with_table_properties", "CREATE TABLE %s AS SELECT * FROM nation");
+    }
+
+    private void testCreateTableWithParameters(String tableName, String tableDDL)
+            throws IOException
+    {
+        Map<String, String> sessionProperties = createSessionPropertiesWithTableParameters();
+        try (Table table = createPrestoTable(tableName, tableDDL, sessionProperties)) {
+            QueryResult describeResult = onHive().executeQuery(format("DESCRIBE FORMATTED %s", table.getNameInDatabase()), SELECT);
+            assertTableParameters(describeResult);
         }
+    }
+
+    private Map<String, String> createSessionPropertiesWithTableParameters()
+    {
+        return ImmutableMap.<String, String>builder()
+                .put("hive.table_parameters.table_property_1", "table_property_1_value")
+                .put("hive.table_parameters.table_property_2", "table_property_2_value")
+                .put("hive.serde_parameters.serde_property_1", "serde_property_1_value")
+                .put("hive.serde_parameters.serde_property_2", "serde_property_2_value")
+                .build();
+    }
+
+    private void assertTableParameters(QueryResult describeResult)
+    {
+        Assertions.assertThat(extractParameters(describeResult, TABLE_PARAMETERS)).contains(
+                entry("table_property_1", "table_property_1_value"),
+                entry("table_property_2", "table_property_2_value")
+        );
+
+        Assertions.assertThat(extractParameters(describeResult, SERDE_PARAMETERS)).contains(
+                entry("serde_property_1", "serde_property_1_value"),
+                entry("serde_property_2", "serde_property_2_value")
+        );
+    }
+
+    private Map<String, String> extractParameters(QueryResult describeResult, String header)
+    {
+        ImmutableMap.Builder<String, String> result = ImmutableMap.builder();
+
+        boolean parametersFound = false;
+        for (List<Object> row : describeResult.rows()) {
+            if (parametersFound) {
+                checkPositionIndexes(0, 2, row.size());
+                if (!Objects.toString(getFirst(row, "")).equalsIgnoreCase("")) {
+                    break;
+                }
+                result.put(Objects.toString(row.get(1)).trim(), Objects.toString(row.get(2)).trim());
+            }
+
+            if (Objects.toString(getFirst(row, "")).equalsIgnoreCase(header)) {
+                parametersFound = true;
+            }
+        }
+
+        Assertions.assertThat(parametersFound).isTrue();
+        return result.build();
     }
 }

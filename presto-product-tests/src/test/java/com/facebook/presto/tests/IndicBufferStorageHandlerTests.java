@@ -13,49 +13,33 @@
  */
 package com.facebook.presto.tests;
 
-import com.facebook.presto.jdbc.PrestoConnection;
+import com.facebook.presto.tests.utils.PrestoDDLUtils.Table;
 import com.teradata.test.ProductTest;
-import com.teradata.test.configuration.Configuration;
-import com.teradata.test.query.JdbcQueryExecutor;
-import com.teradata.test.query.QueryExecutor;
 import org.testng.annotations.Test;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.util.Map;
 
+import static com.facebook.presto.tests.utils.PrestoDDLUtils.createPrestoTable;
+import static com.facebook.presto.tests.utils.QueryExecutors.onPresto;
 import static com.teradata.test.assertions.QueryAssert.Row.row;
 import static com.teradata.test.assertions.QueryAssert.assertThat;
-import static com.teradata.test.context.ThreadLocalTestContextHolder.testContext;
 import static java.sql.JDBCType.BIGINT;
+import static java.util.Collections.singletonMap;
 
 public class IndicBufferStorageHandlerTests extends ProductTest
 {
-    private static String tableName = "indic_buffer_table_test";
+    private static final String TABLE_NAME = "indic_buffer_table_test";
+    private static final Map<String, String> STORAGE_HANDLER_INDIC_BUFFERS = singletonMap("hive.storage_class", "com.teradata.swarm.qg.sh.hive.IndicBuffersStorageHandler");
 
     @Test
-    public void testCreateIndicTable() throws SQLException
+    public void shouldCreateIndicBuffersTable()
+            throws Exception
     {
-        Configuration config = testContext().getDependency(Configuration.class).getSubconfiguration("databases.presto");
-
-        try (Connection connection = DriverManager.getConnection(config.getStringMandatory("jdbc_url"),
-                                                                 config.getStringMandatory("jdbc_user"),
-                                                                 config.getStringMandatory("jdbc_password"));
-             QueryExecutor executor = new JdbcQueryExecutor(connection, testContext())) {
-            connection.unwrap(PrestoConnection.class).setSessionProperty(
-                    "hive.storage_class",
-                    "com.teradata.swarm.qg.sh.hive.IndicBuffersStorageHandler");
-
-            executor.executeQuery(String.format("CREATE TABLE %s (i bigint)", tableName));
-            try {
-                executor.executeQuery(String.format("INSERT INTO %s values (42)", tableName));
-                assertThat(executor.executeQuery(String.format("SELECT * FROM %s", tableName)))
-                        .hasColumns(BIGINT)
-                        .containsExactly(row(42));
-            }
-            finally {
-                executor.executeQuery(String.format("DROP TABLE %s", tableName));
-            }
+        try (Table table = createPrestoTable(TABLE_NAME, "CREATE TABLE %s (i bigint)", STORAGE_HANDLER_INDIC_BUFFERS)) {
+            onPresto().executeQuery(String.format("INSERT INTO %s values (42)", table.getNameInDatabase()));
+            assertThat(onPresto().executeQuery(String.format("SELECT * FROM %s", table.getNameInDatabase())))
+                    .hasColumns(BIGINT)
+                    .containsExactly(row(42));
         }
     }
 }
