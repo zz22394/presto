@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import static com.facebook.presto.tests.TestGroups.CREATE_TABLE;
 import static com.facebook.presto.tests.utils.PrestoDDLUtils.createPrestoTable;
 import static com.facebook.presto.tests.utils.QueryExecutors.onHive;
 import static com.google.common.base.Preconditions.checkPositionIndexes;
@@ -56,7 +57,7 @@ public class CreateTableTests extends ProductTest
         }
     }
 
-    @Test(groups = "create_table")
+    @Test(groups = CREATE_TABLE)
     public void shouldCreateTableAsSelect()
             throws Exception
     {
@@ -66,7 +67,7 @@ public class CreateTableTests extends ProductTest
         }
     }
 
-    @Test(groups = "create_table")
+    @Test(groups = CREATE_TABLE)
     public void shouldCreateTableAsEmptySelect()
             throws Exception
     {
@@ -76,14 +77,14 @@ public class CreateTableTests extends ProductTest
         }
     }
 
-    @Test(groups = "create_table")
+    @Test(groups = CREATE_TABLE)
     public void shouldCreateTableWithParameters()
             throws Exception
     {
         testCreateTableWithParameters("dummy_table_with_parameters", "CREATE TABLE %s (a VARCHAR)");
     }
 
-    @Test(groups = "create_table")
+    @Test(groups = CREATE_TABLE)
     public void shouldCreateTableAsSelectWithParameters()
             throws Exception
     {
