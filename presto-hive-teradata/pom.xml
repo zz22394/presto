@@ -16,6 +16,13 @@
         <air.main.basedir>${project.parent.basedir}</air.main.basedir>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>TD nexus</id>
+            <url>http://phabricator.td.teradata.com:8081/nexus/content/repositories/test-framework</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <!-- begin of Teradata specific dependencies -->
         <dependency>

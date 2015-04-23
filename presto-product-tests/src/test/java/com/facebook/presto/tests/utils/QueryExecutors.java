@@ -48,7 +48,7 @@ public class QueryExecutors
         return testContext().getDependency(QueryExecutor.class, "hive");
     }
 
-    private static PrestoConnection createPrestoConnection()
+    public static PrestoConnection createPrestoConnection()
             throws SQLException
     {
         Configuration config = getPrestoConfiguration();
