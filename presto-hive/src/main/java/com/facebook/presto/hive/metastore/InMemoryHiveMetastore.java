@@ -76,7 +76,7 @@ public class InMemoryHiveMetastore
     }
 
     @Override
-    public void dropTable(String databaseName, String tableName)
+    public void dropTable(String databaseName, String tableName, boolean deleteData)
     {
         SchemaTableName schemaTableName = new SchemaTableName(databaseName, tableName);
         if (relations.remove(schemaTableName) == null) {

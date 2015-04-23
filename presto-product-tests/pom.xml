@@ -106,6 +106,21 @@
                                 <resourcePattern>.*</resourcePattern>
                             </resourcePatterns>
                         </exception>
+                        <exception>
+                            <conflictingDependencies>
+                                <dependency>
+                                    <groupId>com.facebook.presto</groupId>
+                                    <artifactId>presto-jdbc</artifactId>
+                                </dependency>
+                                <dependency>
+                                    <groupId>org.apache.httpcomponents</groupId>
+                                    <artifactId>httpclient</artifactId>
+                                </dependency>
+                            </conflictingDependencies>
+                            <resourcePatterns>
+                                <resourcePattern>mozilla/public-suffix-list.txt</resourcePattern>
+                            </resourcePatterns>
+                        </exception>
                     </exceptions>
                 </configuration>
             </plugin>

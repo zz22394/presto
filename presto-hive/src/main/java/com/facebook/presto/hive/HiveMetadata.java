@@ -389,7 +389,8 @@ public class HiveMetadata
             if (!handle.getSession().getUser().equals(table.getOwner())) {
                 throw new PrestoException(PERMISSION_DENIED, format("Unable to drop table '%s': owner of the table is different from session user", table));
             }
-            metastore.dropTable(handle.getSchemaName(), handle.getTableName());
+            metastore.dropTable(handle.getSchemaName(), handle.getTableName(), false);
+            delete(getTableLocation(table), true);
         }
         catch (NoSuchObjectException e) {
             throw new TableNotFoundException(tableName);
@@ -516,6 +517,21 @@ public class HiveMetadata
 
     private Path getTargetPath(String schemaName, String tableName, SchemaTableName schemaTableName)
     {
+        // verify the target directory for the table
+        Path targetPath = getTableLocation(schemaName, tableName);
+        if (pathExists(targetPath)) {
+            throw new PrestoException(HIVE_PATH_ALREADY_EXISTS, format("Target directory for table '%s' already exists: %s", schemaTableName, targetPath));
+        }
+        return targetPath;
+    }
+
+    private Path getTableLocation(Table table)
+    {
+        return getTableLocation(table.getDbName(), table.getTableName());
+    }
+
+    private Path getTableLocation(String schemaName, String tableName)
+    {
         String location = getDatabase(schemaName).getLocationUri();
         if (isNullOrEmpty(location)) {
             throw new PrestoException(HIVE_DATABASE_LOCATION_ERROR, format("Database '%s' location is not set", schemaName));
@@ -528,13 +544,7 @@ public class HiveMetadata
         if (!isDirectory(databasePath)) {
             throw new PrestoException(HIVE_DATABASE_LOCATION_ERROR, format("Database '%s' location is not a directory: %s", schemaName, databasePath));
         }
-
-        // verify the target directory for the table
-        Path targetPath = new Path(databasePath, tableName);
-        if (pathExists(targetPath)) {
-            throw new PrestoException(HIVE_PATH_ALREADY_EXISTS, format("Target directory for table '%s' already exists: %s", schemaTableName, targetPath));
-        }
-        return targetPath;
+        return new Path(databasePath, tableName);
     }
 
     private Database getDatabase(String database)
@@ -602,6 +612,18 @@ public class HiveMetadata
         }
     }
 
+    private void delete(Path source, boolean recursive)
+    {
+        try {
+            if (!hdfsEnvironment.getFileSystem(source).delete(source, recursive)) {
+                throw new IOException(String.format("delete on '%s' returned false", source));
+            }
+        }
+        catch (IOException e) {
+            throw new PrestoException(HIVE_FILESYSTEM_ERROR, format("Failed to remove %s ", source), e);
+        }
+    }
+
     @Override
     public void createView(ConnectorSession session, SchemaTableName viewName, String viewData, boolean replace)
     {
@@ -651,7 +673,7 @@ public class HiveMetadata
         }
 
         try {
-            metastore.dropTable(viewName.getSchemaName(), viewName.getTableName());
+            metastore.dropTable(viewName.getSchemaName(), viewName.getTableName(), false);
         }
         catch (TableNotFoundException e) {
             throw new ViewNotFoundException(e.getTableName());

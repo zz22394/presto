@@ -429,7 +429,7 @@ public class CachingHiveMetastore
     }
 
     @Override
-    public void dropTable(final String databaseName, final String tableName)
+    public void dropTable(final String databaseName, final String tableName, final boolean deleteData)
     {
         try {
             retry()
@@ -437,7 +437,7 @@ public class CachingHiveMetastore
                     .stopOnIllegalExceptions()
                     .run("dropTable", stats.getDropTable().wrap(() -> {
                         try (HiveMetastoreClient client = clientProvider.createMetastoreClient()) {
-                            client.drop_table(databaseName, tableName, true);
+                            client.drop_table(databaseName, tableName, deleteData);
                         }
                         tableCache.invalidate(new HiveTableName(databaseName, tableName));
                         tableNamesCache.invalidate(databaseName);
