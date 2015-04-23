@@ -23,6 +23,8 @@ import com.teradata.test.assertions.QueryAssert;
 import com.teradata.test.fulfillment.table.ImmutableTableRequirement;
 import org.testng.annotations.Test;
 
+import static com.facebook.presto.tests.TestGroups.QUARANTINE;
+import static com.facebook.presto.tests.TestGroups.SIMPLE;
 import static com.teradata.test.assertions.QueryAssert.Row.row;
 import static com.teradata.test.context.ThreadLocalTestContextHolder.testContextIfSet;
 import static com.teradata.test.fulfillment.hive.tpch.TpchTableDefinitions.NATION;
@@ -54,14 +56,14 @@ public class SimpleQueryTest
         assertThat(testContextIfSet().isPresent()).isTrue();
     }
 
-    @Test(groups = "create_as_select")
+    @Test(groups = SIMPLE)
     @Requires(SimpleTestRequirements.class)
     public void selectAllFromNation()
     {
         QueryAssert.assertThat(query("select * from nation")).hasRowsCount(25);
     }
 
-    @Test(groups = {"create_as_select"})
+    @Test(groups = SIMPLE)
     @Requires(SimpleTestRequirements.class)
     public void selectCountFromNation()
     {
@@ -70,13 +72,13 @@ public class SimpleQueryTest
                 .contains(row(25));
     }
 
-    @Test(groups = {"failing", "quarantine"})
+    @Test(groups = QUARANTINE)
     public void failingTest()
     {
         assertThat(1).isEqualTo(2);
     }
 
-    @Test(groups = "skipped", enabled = false)
+    @Test(enabled = false)
     public void disabledTest()
     {
         assertThat(1).isEqualTo(2);

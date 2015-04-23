@@ -19,9 +19,9 @@
     <dependencies>
         <!-- begin of Teradata specific dependencies -->
         <dependency>
-            <groupId>com.teradata.swarm</groupId>
+            <groupId>com.teradata.swarm.qg</groupId>
             <artifactId>querygrid-storagehandler-hive</artifactId>
-            <version>1.0</version>
+            <version>1.0.0-SNAPSHOT</version>
             <scope>runtime</scope>
         </dependency>
         <!-- end of Teradata specific dependencies -->
