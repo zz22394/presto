@@ -1,0 +1,4 @@
+-- delimiter: |; ignoreOrder: true; ignoreExcessRows:true; types: LONGNVARCHAR
+system|
+jmx|
+tpch|

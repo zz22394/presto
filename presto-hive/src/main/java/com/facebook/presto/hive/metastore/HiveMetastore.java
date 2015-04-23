@@ -26,7 +26,7 @@ public interface HiveMetastore
 {
     void createTable(Table table);
 
-    void dropTable(String databaseName, String tableName);
+    void dropTable(String databaseName, String tableName, boolean deleteData);
 
     void renameTable(String databaseName, String tableName, String newDatabaseName, String newTableName);
 

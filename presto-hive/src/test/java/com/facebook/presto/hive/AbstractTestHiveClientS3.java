@@ -319,7 +319,7 @@ public abstract class AbstractTestHiveClientS3
     private void dropTable(SchemaTableName table)
     {
         try {
-            metastoreClient.dropTable(table.getSchemaName(), table.getTableName());
+            metastoreClient.dropTable(table.getSchemaName(), table.getTableName(), false);
         }
         catch (RuntimeException e) {
             // this usually occurs because the table was not created
@@ -384,7 +384,7 @@ public abstract class AbstractTestHiveClientS3
         }
 
         @Override
-        public void dropTable(String databaseName, String tableName)
+        public void dropTable(String databaseName, String tableName, boolean dropData)
         {
             try {
                 // hack to work around the metastore not being configured for S3
@@ -392,7 +392,7 @@ public abstract class AbstractTestHiveClientS3
                 table.getSd().setLocation("/");
                 try (HiveMetastoreClient client = clientProvider.createMetastoreClient()) {
                     client.alter_table(databaseName, tableName, table);
-                    client.drop_table(databaseName, tableName, false);
+                    client.drop_table(databaseName, tableName, dropData);
                 }
             }
             catch (TException e) {
