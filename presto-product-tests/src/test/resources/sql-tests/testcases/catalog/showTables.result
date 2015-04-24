@@ -1,10 +1,7 @@
 -- delimiter: |; ignoreOrder: true; ignoreExcessRows:true; types: LONGNVARCHAR
 java.lang:type=classloading|
 java.lang:type=compilation|
-java.lang:type=garbagecollector,name=concurrentmarksweep|
-java.lang:type=garbagecollector,name=parnew|
 java.lang:type=memory|
 java.lang:type=operatingsystem|
 java.lang:type=runtime|
 java.lang:type=threading|
-java.util.logging:type=logging|
