@@ -152,6 +152,24 @@
                 <skip.product.tests>false</skip.product.tests>
             </properties>
         </profile>
+        <profile>
+            <id>productTestsJenkins</id>
+            <properties>
+                <skip.product.tests>false</skip.product.tests>
+            </properties>
+            <repositories>
+                <repository>
+                    <id>upstream</id>
+                    <url>${env.Jenkins.Repository}</url>
+                    <releases>
+                        <enabled>false</enabled>
+                    </releases>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
+                </repository>
+            </repositories>
+        </profile>
     </profiles>
 
     <repositories>
