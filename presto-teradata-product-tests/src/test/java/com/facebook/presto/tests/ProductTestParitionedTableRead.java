@@ -35,10 +35,9 @@ import static com.facebook.presto.tests.utils.QueryExecutors.onHive;
 import static com.facebook.presto.tests.utils.QueryExecutors.onPresto;
 import static com.teradata.test.Requirements.compose;
 import static com.teradata.test.fulfillment.hive.tpch.TpchTableDefinitions.NATION;
-import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
-public class TestParitionedTableRead extends ProductTest implements RequirementsProvider
+public class ProductTestParitionedTableRead extends ProductTest implements RequirementsProvider
 {
     @Inject
     private MutableTablesState mutableTablesState;
