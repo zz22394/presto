@@ -19,6 +19,7 @@ public final class TestGroups
     public static final String INDIC_BUFFERS = "indic_buffers";
     public static final String SIMPLE = "simple";
     public static final String QUARANTINE = "quarantine";
+    public static final String FUNCTIONS = "functions";
 
     private TestGroups(){}
 }
