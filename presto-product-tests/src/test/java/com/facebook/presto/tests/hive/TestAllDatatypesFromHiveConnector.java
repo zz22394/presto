@@ -82,7 +82,7 @@ public class TestAllDatatypesFromHiveConnector
         // get this result even if we connect to hive directly without presto.
     }
 
-    @Test(groups = "hive_connector")
+    @Test(groups = {"hive_connector", "quarantine"})
     public void testSelectAllDatatypesOrc()
             throws SQLException
     {
