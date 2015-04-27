@@ -35,7 +35,7 @@ import static com.facebook.presto.tests.utils.QueryExecutors.onHive;
 import static com.facebook.presto.tests.utils.QueryExecutors.onPresto;
 import static com.teradata.test.Requirements.compose;
 import static com.teradata.test.fulfillment.hive.tpch.TpchTableDefinitions.NATION;
-import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.assertEquals;
 
 public class ProductTestParitionedTableRead extends ProductTest implements RequirementsProvider
 {
@@ -73,45 +73,53 @@ public class ProductTestParitionedTableRead extends ProductTest implements Requi
     @BeforeTestWithContext
     public void beforeTest()
     {
-        String insertQuery1 = String.format(
-                "INSERT INTO TABLE %s PARTITION (p_regionkey=1) SELECT n_nationkey, n_name, n_comment FROM %s WHERE n_regionkey=1",
-                mutableTablesState.get(PARTITIONED_NATION_NAME).getNameInDatabase(),
-                NATION.getName());
+        String insertQueryFormat = new StringBuilder()
+                .append("INSERT INTO TABLE ").append(mutableTablesState.get(PARTITIONED_NATION_NAME).getNameInDatabase()).append(" PARTITION (p_regionkey=%d) ")
+                .append("SELECT n_nationkey, n_name, n_comment FROM ").append(NATION.getName()).append(" WHERE n_regionkey=%d")
+                .toString();
 
-        String insertQuery2 = String.format(
-                "INSERT INTO TABLE %s PARTITION (p_regionkey=2) SELECT n_nationkey, n_name, n_comment FROM %s WHERE n_regionkey=2",
-                mutableTablesState.get(PARTITIONED_NATION_NAME).getNameInDatabase(),
-                NATION.getName());
-
-        onHive().executeQuery(insertQuery1);
-        onHive().executeQuery(insertQuery2);
+        onHive().executeQuery(String.format(insertQueryFormat, 1, 1));
+        onHive().executeQuery(String.format(insertQueryFormat, 2, 2));
+        onHive().executeQuery(String.format(insertQueryFormat, 3, 3));
     }
 
     @Test
-    public void selectCountFromPartitionedNation() throws Exception
+    public void selectFromPartitionedNation() throws Exception
+    {
+        // read all data
+        testQuerySplitsNumber("INSERT INTO %s SELECT * FROM %s WHERE p_nationkey < 40", 5);
+
+        // read no partitions
+        testQuerySplitsNumber("INSERT INTO %s SELECT * FROM %s WHERE p_regionkey = 42", 1);
+
+        // read one partition
+        testQuerySplitsNumber("INSERT INTO %s SELECT * FROM %s WHERE p_regionkey = 2 AND p_nationkey < 40", 3);
+        // read two partitions
+        testQuerySplitsNumber("INSERT INTO %s SELECT * FROM %s WHERE p_regionkey = 2 AND p_nationkey < 40 or p_regionkey = 3", 4);
+        // read all (three) partitions
+        testQuerySplitsNumber("INSERT INTO %s SELECT * FROM %s WHERE p_regionkey = 2 OR p_nationkey < 40", 5);
+
+        // range read two partitions
+        testQuerySplitsNumber("INSERT INTO %s SELECT * FROM %s WHERE p_regionkey <= 2", 4);
+        testQuerySplitsNumber("INSERT INTO %s SELECT * FROM %s WHERE p_regionkey <= 1 OR p_regionkey >= 3", 4);
+    }
+
+    private void testQuerySplitsNumber(String query, int expectedSplitsNumber) throws Exception
     {
         String partitionedNation = mutableTablesState.get(PARTITIONED_NATION_NAME).getNameInDatabase();
         String targetNation = mutableTablesState.get(TARGET_NATION_NAME).getNameInDatabase();
 
-        String partitionedQueryId;
-        String nonPartitionedQueryId;
+        String queryId;
         try (PrestoConnection prestoConnection = QueryExecutors.createPrestoConnection()) {
-            partitionedQueryId = executeAndGetQueryId(
+            queryId = executeAndGetQueryId(
                     prestoConnection,
-                    String.format("INSERT INTO %s SELECT * FROM %s WHERE p_regionkey=2 AND p_nationkey < 40 ",
-                            targetNation,
-                            partitionedNation));
-
-            nonPartitionedQueryId = executeAndGetQueryId(
-                    prestoConnection,
-                    String.format("INSERT INTO %s SELECT * FROM %s WHERE p_nationkey < 40",
+                    String.format(query,
                             targetNation,
                             partitionedNation));
         }
 
-        long partitionedBytes = getRawInputBytes(partitionedQueryId);
-        long nonPartitionedBytes = getRawInputBytes(nonPartitionedQueryId);
-        assertTrue(partitionedBytes < nonPartitionedBytes);
+        long splitsNumber = getSplitsNumber(queryId);
+        assertEquals(splitsNumber, expectedSplitsNumber);
     }
 
     private String executeAndGetQueryId(PrestoConnection prestoConnection, String query) throws Exception
@@ -120,6 +128,7 @@ public class ProductTestParitionedTableRead extends ProductTest implements Requi
             try (ResultSet resultSet = statement.executeQuery(query)) {
                 PrestoResultSet prestoResultSet = resultSet.unwrap(PrestoResultSet.class);
                 while (prestoResultSet.next()) {
+                    // read all query's output to finish query
                     continue;
                 }
                 return prestoResultSet.getQueryId();
@@ -127,14 +136,13 @@ public class ProductTestParitionedTableRead extends ProductTest implements Requi
         }
     }
 
-    private long getRawInputBytes(String queryId)
+    private long getSplitsNumber(String queryId)
     {
         String queryBytes = String.format(
-                "SELECT raw_input_bytes FROM system.runtime.tasks WHERE query_id='%s'",
+                "SELECT splits FROM system.runtime.tasks WHERE query_id='%s'",
                 queryId);
 
         QueryResult queryResult = onPresto().executeQuery(queryBytes);
-        return (long) queryResult.column(1).stream()
-                .reduce(0L, (a, b) -> (Long) a + (Long) b);
+        return queryResult.column(1).stream().mapToLong(t -> (long) t).sum();
     }
 }
