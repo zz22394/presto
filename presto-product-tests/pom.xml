@@ -27,10 +27,6 @@
             <artifactId>guava</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.google.inject</groupId>
-            <artifactId>guice</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.teradata.test</groupId>
             <artifactId>framework-core</artifactId>
             <version>1.0.6-SNAPSHOT</version>
