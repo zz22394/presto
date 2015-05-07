@@ -4,6 +4,9 @@ hdfs:
     host: ${HADOOP_MASTER}
     port: 50070
 
+presto_rest:
+  base_uri: http://${PRESTO_MASTER}:8080/
+
 databases:
   default:
     alias: presto
