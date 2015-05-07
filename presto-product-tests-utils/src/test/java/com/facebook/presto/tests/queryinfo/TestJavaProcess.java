@@ -13,13 +13,14 @@
  */
 package com.facebook.presto.tests.queryinfo;
 
-import com.facebook.presto.tests.JavaProcess;
+import com.facebook.presto.tests.CliProcess;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.io.PrintStream;
-import java.util.Scanner;
 
+import static com.facebook.presto.tests.CliProcess.asCliProcess;
+import static com.facebook.presto.tests.CliProcessHelper.waitWithTimeout;
+import static com.facebook.presto.tests.JavaProcessUtils.execute;
 import static com.facebook.presto.tests.queryinfo.TestClassWithMain.EXPECTED_ARGUMENT;
 import static com.facebook.presto.tests.queryinfo.TestClassWithMain.EXPECTED_LINE;
 import static com.facebook.presto.tests.queryinfo.TestClassWithMain.PRODUCED_LINE;
@@ -32,15 +33,11 @@ public class TestJavaProcess
     public void testExecuteJavaProcess()
             throws IOException, InterruptedException
     {
-        Process child = JavaProcess.execute(TestClassWithMain.class, newArrayList(EXPECTED_ARGUMENT));
-        Scanner scanner = new Scanner(child.getInputStream());
-        PrintStream printStream = new PrintStream(child.getOutputStream());
+        CliProcess child = asCliProcess(execute(TestClassWithMain.class, newArrayList(EXPECTED_ARGUMENT)));
 
-        printStream.println(EXPECTED_LINE);
-        printStream.flush();
-        assertThat(scanner.nextLine()).isEqualTo(PRODUCED_LINE);
+        child.in.println(EXPECTED_LINE);
+        assertThat(child.out.nextLine()).isEqualTo(PRODUCED_LINE);
 
-        child.waitFor();
-        assertThat(child.exitValue()).isEqualTo(0);
+        assertThat(waitWithTimeout(child)).isEqualTo(0);
     }
 }

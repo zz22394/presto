@@ -21,6 +21,10 @@
         <!-- don't add test scope dependencies since they won't be listed in product-tests jar as transitive -->
         <dependency>
             <groupId>com.facebook.presto</groupId>
+            <artifactId>presto-product-tests-utils</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.facebook.presto</groupId>
             <artifactId>presto-jdbc</artifactId>
         </dependency>
         <dependency>
@@ -30,6 +34,10 @@
         <dependency>
             <groupId>com.facebook.presto</groupId>
             <artifactId>presto-product-tests-utils</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.facebook.presto</groupId>
+            <artifactId>presto-cli</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>

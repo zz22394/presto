@@ -22,11 +22,10 @@ import java.util.List;
 /**
  * Launches a Java class with main() method as a separate process.
  */
-public final class JavaProcess
+public final class JavaProcessUtils
 {
     public static Process execute(Class clazz, List<String> arguments)
-            throws IOException,
-            InterruptedException
+            throws IOException, InterruptedException
     {
         String javaHome = System.getProperty("java.home");
         String javaBin = javaHome + File.separator + "bin" + File.separator + "java";
@@ -41,7 +40,7 @@ public final class JavaProcess
         return new ProcessBuilder(command).start();
     }
 
-    private JavaProcess()
+    private JavaProcessUtils()
     {
     }
 }
