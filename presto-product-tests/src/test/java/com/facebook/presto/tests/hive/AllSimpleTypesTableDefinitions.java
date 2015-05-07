@@ -41,7 +41,7 @@ public final class AllSimpleTypesTableDefinitions
     private static HiveTableDefinition allSimpleTypesTableDefinition(String fileFormat)
     {
         String tableName = fileFormat.toLowerCase() + "_all_types";
-        DataSource dataSource = createResourceDataSource(tableName, "" + System.currentTimeMillis(), "com/facebook/presto/tests/hive/" + tableName + ".data");
+        DataSource dataSource = createResourceDataSource(tableName, "" + System.currentTimeMillis(), "com/facebook/presto/tests/hive/data/all_types/data." + fileFormat.toLowerCase());
         return HiveTableDefinition.builder()
                 .setName(tableName)
                 .setCreateTableDDLTemplate("" +
@@ -72,7 +72,7 @@ public final class AllSimpleTypesTableDefinitions
     private static HiveTableDefinition allSimpleTypesParquetTableDefinition()
     {
         String tableName = "parquet_all_types";
-        DataSource dataSource = createResourceDataSource(tableName, "" + System.currentTimeMillis(), "com/facebook/presto/tests/hive/" + tableName + ".data");
+        DataSource dataSource = createResourceDataSource(tableName, "" + System.currentTimeMillis(), "com/facebook/presto/tests/hive/data/all_types/data.parquet");
         return HiveTableDefinition.builder()
                 .setName(tableName)
                 .setCreateTableDDLTemplate("" +
