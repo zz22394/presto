@@ -18,9 +18,7 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 
-import static com.facebook.presto.tests.CliProcess.asCliProcess;
-import static com.facebook.presto.tests.CliProcessHelper.waitWithTimeout;
-import static com.facebook.presto.tests.JavaProcessUtils.execute;
+import static com.facebook.presto.tests.JavaProcessLauncher.defaultJavaProcessLauncher;
 import static com.facebook.presto.tests.queryinfo.TestClassWithMain.EXPECTED_ARGUMENT;
 import static com.facebook.presto.tests.queryinfo.TestClassWithMain.EXPECTED_LINE;
 import static com.facebook.presto.tests.queryinfo.TestClassWithMain.PRODUCED_LINE;
@@ -33,11 +31,11 @@ public class TestJavaProcess
     public void testExecuteJavaProcess()
             throws IOException, InterruptedException
     {
-        CliProcess child = asCliProcess(execute(TestClassWithMain.class, newArrayList(EXPECTED_ARGUMENT)));
+        CliProcess child = new CliProcess(defaultJavaProcessLauncher().launch(TestClassWithMain.class, newArrayList(EXPECTED_ARGUMENT)));
 
         child.in.println(EXPECTED_LINE);
         assertThat(child.out.nextLine()).isEqualTo(PRODUCED_LINE);
 
-        assertThat(waitWithTimeout(child)).isEqualTo(0);
+        assertThat(child.waitWithTimeoutAndKill()).isEqualTo(0);
     }
 }

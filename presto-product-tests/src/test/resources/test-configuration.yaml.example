@@ -20,6 +20,7 @@ databases:
     jdbc_jar: ${PRESTO_PRODUCT_TESTS_ROOT}/libs/test-framework-hive-jdbc-all.jar
 
   presto:
+    server_address: ${PRESTO_MASTER}:8080
     jdbc_driver_class: com.facebook.presto.jdbc.PrestoDriver
     jdbc_url: jdbc:presto://${PRESTO_MASTER}:8080/hive/default
     jdbc_user: hdfs

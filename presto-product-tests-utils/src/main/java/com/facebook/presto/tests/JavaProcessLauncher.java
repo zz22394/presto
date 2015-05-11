@@ -22,25 +22,33 @@ import java.util.List;
 /**
  * Launches a Java class with main() method as a separate process.
  */
-public final class JavaProcessUtils
+public final class JavaProcessLauncher
 {
-    public static Process execute(Class clazz, List<String> arguments)
+    private final String javaBin;
+    private final String classpath;
+
+    public static JavaProcessLauncher defaultJavaProcessLauncher()
+    {
+        return new JavaProcessLauncher(
+                System.getProperty("java.home") + File.separator + "bin" + File.separator + "java",
+                System.getProperty("java.class.path")
+        );
+    }
+
+    public JavaProcessLauncher(String javaBin, String classpath)
+    {
+        this.javaBin = javaBin;
+        this.classpath = classpath;
+    }
+
+    public Process launch(Class clazz, List<String> arguments)
             throws IOException, InterruptedException
     {
-        String javaHome = System.getProperty("java.home");
-        String javaBin = javaHome + File.separator + "bin" + File.separator + "java";
-        String classpath = System.getProperty("java.class.path");
         String className = clazz.getCanonicalName();
-
         List<String> command = ImmutableList.<String>builder()
                 .add(javaBin, "-cp", classpath, className)
                 .addAll(arguments)
                 .build();
-
         return new ProcessBuilder(command).start();
-    }
-
-    private JavaProcessUtils()
-    {
     }
 }
