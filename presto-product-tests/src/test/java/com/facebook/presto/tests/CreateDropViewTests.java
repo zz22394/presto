@@ -21,10 +21,11 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 
 import static com.facebook.presto.tests.TestGroups.CREATE_DROP_VIEW;
-import static com.facebook.presto.tests.utils.PrestoViewUtils.withView;
 import static com.teradata.test.assertions.QueryAssert.assertThat;
+import static com.teradata.test.context.ContextDsl.executeWith;
 import static com.teradata.test.query.QueryExecutor.query;
 import static com.teradata.test.query.QueryType.UPDATE;
+import static com.teradata.test.sql.SqlContexts.createViewAs;
 import static java.lang.String.format;
 
 @Requires(ImmutableNationTable.class)
@@ -35,8 +36,8 @@ public class CreateDropViewTests
     public void createSimpleView()
             throws IOException
     {
-        withView("CREATE VIEW %s AS SELECT * FROM nation", viewName -> {
-            assertThat(query(format("SELECT * FROM %s", viewName)))
+        executeWith(createViewAs("SELECT * FROM nation"), view -> {
+            assertThat(query(format("SELECT * FROM %s", view.getName())))
                     .hasRowsCount(25);
         });
     }
@@ -45,9 +46,8 @@ public class CreateDropViewTests
     public void createViewWithAggregate()
             throws IOException
     {
-        withView("CREATE VIEW %s AS " +
-                "SELECT n_regionkey, count(*) countries FROM nation GROUP BY n_regionkey ORDER BY n_regionkey", viewName -> {
-            assertThat(query(format("SELECT * FROM %s", viewName)))
+        executeWith(createViewAs("SELECT n_regionkey, count(*) countries FROM nation GROUP BY n_regionkey ORDER BY n_regionkey"), view -> {
+            assertThat(query(format("SELECT * FROM %s", view.getName())))
                     .hasRowsCount(5);
         });
     }
@@ -56,10 +56,10 @@ public class CreateDropViewTests
     public void createOrReplaceSimpleView()
             throws IOException
     {
-        withView("CREATE VIEW %s AS SELECT * FROM nation", viewName -> {
-            assertThat(query(format("CREATE OR REPLACE VIEW %s AS SELECT * FROM nation", viewName), UPDATE))
+        executeWith(createViewAs("SELECT * FROM nation"), view -> {
+            assertThat(query(format("CREATE OR REPLACE VIEW %s AS SELECT * FROM nation", view.getName()), UPDATE))
                     .hasRowsCount(1);
-            assertThat(query(format("SELECT * FROM %s", viewName)))
+            assertThat(query(format("SELECT * FROM %s", view.getName())))
                     .hasRowsCount(25);
         });
     }
@@ -68,10 +68,10 @@ public class CreateDropViewTests
     public void createSimpleViewTwiceShouldFail()
             throws IOException
     {
-        withView("CREATE VIEW %s AS SELECT * FROM nation", viewName -> {
-            assertThat(() -> query(format("CREATE VIEW %s AS SELECT * FROM nation", viewName), UPDATE))
+        executeWith(createViewAs("SELECT * FROM nation"), view -> {
+            assertThat(() -> query(format("CREATE VIEW %s AS SELECT * FROM nation", view.getName()), UPDATE))
                     .failsWithMessage("View already exists");
-            assertThat(query(format("SELECT * FROM %s", viewName)))
+            assertThat(query(format("SELECT * FROM %s", view.getName())))
                     .hasRowsCount(25);
         });
     }
@@ -80,12 +80,12 @@ public class CreateDropViewTests
     public void dropViewTest()
             throws IOException
     {
-        withView("CREATE VIEW %s AS SELECT * FROM nation", viewName -> {
-            assertThat(query(format("SELECT * FROM %s", viewName)))
+        executeWith(createViewAs("SELECT * FROM nation"), view -> {
+            assertThat(query(format("SELECT * FROM %s", view.getName())))
                     .hasRowsCount(25);
-            assertThat(query(format("DROP VIEW %s", viewName), UPDATE))
+            assertThat(query(format("DROP VIEW %s", view.getName()), UPDATE))
                     .hasRowsCount(1);
-            assertThat(() -> query(format("SELECT * FROM %s", viewName)))
+            assertThat(() -> query(format("SELECT * FROM %s", view.getName())))
                     .failsWithMessage("does not exist");
         });
     }
