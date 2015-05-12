@@ -14,6 +14,7 @@
 package com.facebook.presto.tests.cli;
 
 import com.facebook.presto.cli.Presto;
+import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.Files;
 import com.google.inject.Inject;
@@ -83,7 +84,8 @@ public class PrestoCliTests
             throws IOException, InterruptedException
     {
         launchPrestoCli("--version");
-        assertThat(presto.readRemainingLines()).containsExactly("Presto CLI (version unknown)");
+        String version = MoreObjects.firstNonNull(Presto.class.getPackage().getImplementationVersion(), "(version unknown)");
+        assertThat(presto.readRemainingLines()).containsExactly("Presto CLI " + version);
     }
 
     @Test(groups = CLI, timeOut = TIMEOUT)
