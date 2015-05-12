@@ -37,7 +37,6 @@ public class SystemConnectorTests
     @Test(groups = "system")
     public void selectRuntimeQueries()
     {
-        // TODO: Include end column in query: SWARM-375
         assertThat(query("SELECT" +
                 "  node_id," +
                 "  query_id," +
@@ -49,17 +48,17 @@ public class SystemConnectorTests
                 "  distributed_planning_time_ms," +
                 "  created," +
                 "  started," +
-                "  last_heartbeat " +
+                "  last_heartbeat," +
+                "  'end' " +
                 "FROM system.runtime.queries"))
                 .hasColumns(LONGNVARCHAR, LONGNVARCHAR, LONGNVARCHAR, LONGNVARCHAR, LONGNVARCHAR,
-                        BIGINT, BIGINT, BIGINT, TIMESTAMP, TIMESTAMP, TIMESTAMP)
+                        BIGINT, BIGINT, BIGINT, TIMESTAMP, TIMESTAMP, TIMESTAMP, LONGNVARCHAR)
                 .hasAnyRows();
     }
 
     @Test(groups = "system")
     public void selectRuntimeTasks()
     {
-        // TODO: Include end column in query: SWARM-375
         assertThat(query("SELECT" +
                 "  node_id," +
                 "  task_id," +
@@ -82,11 +81,12 @@ public class SystemConnectorTests
                 "  output_rows," +
                 "  created," +
                 "  start," +
-                "  last_heartbeat " +
+                "  last_heartbeat," +
+                "  'end' " +
                 "FROM SYSTEM.runtime.tasks"))
                 .hasColumns(LONGNVARCHAR, LONGNVARCHAR, LONGNVARCHAR, LONGNVARCHAR, LONGNVARCHAR,
                         BIGINT, BIGINT, BIGINT, BIGINT, BIGINT, BIGINT, BIGINT, BIGINT, BIGINT,
-                        BIGINT, BIGINT, BIGINT, BIGINT, BIGINT, TIMESTAMP, TIMESTAMP, TIMESTAMP)
+                        BIGINT, BIGINT, BIGINT, BIGINT, BIGINT, TIMESTAMP, TIMESTAMP, TIMESTAMP, LONGNVARCHAR)
                 .hasAnyRows();
     }
 
