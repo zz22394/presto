@@ -33,9 +33,9 @@ public class TestJavaProcess
     {
         CliProcess child = new CliProcess(defaultJavaProcessLauncher().launch(TestClassWithMain.class, newArrayList(EXPECTED_ARGUMENT)));
 
-        child.in.println(EXPECTED_LINE);
-        assertThat(child.out.nextLine()).isEqualTo(PRODUCED_LINE);
+        child.getInput().println(EXPECTED_LINE);
+        assertThat(child.nextOutputLine()).isEqualTo(PRODUCED_LINE);
 
-        assertThat(child.waitWithTimeoutAndKill()).isEqualTo(0);
+        child.waitWithTimeoutAndKill();
     }
 }

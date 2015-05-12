@@ -36,8 +36,8 @@ public final class PrestoCliProcess
     public List<String> readLinesUntilPrompt()
     {
         List<String> lines = newArrayList();
-        while (!out.hasNext(PRESTO_PROMPT_PATTERN)) {
-            lines.add(out.nextLine());
+        while (!outputHasNext(PRESTO_PROMPT_PATTERN)) {
+            lines.add(nextOutputLine());
         }
         waitForPrompt();
         return lines;
@@ -45,6 +45,6 @@ public final class PrestoCliProcess
 
     public void waitForPrompt()
     {
-        assertThat(out.next()).isEqualTo(PRESTO_PROMPT);
+        assertThat(nextOutputToken()).isEqualTo(PRESTO_PROMPT);
     }
 }
