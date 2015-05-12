@@ -11,11 +11,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.facebook.presto.tests;
+package com.facebook.presto.tests.querygrid;
 
-public final class TestGroups
+public final class QuerygridTestGroups
 {
     public static final String FUNCTIONS = "functions";
 
-    private TestGroups(){}
+    private QuerygridTestGroups(){}
 }

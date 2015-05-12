@@ -62,6 +62,18 @@
         </artifact>
     </artifactSet>
 
+    <artifactSet to="plugin/hive-teradata">
+        <artifact id="${project.groupId}:presto-hive-teradata:zip:${project.version}">
+            <unpack />
+        </artifact>
+    </artifactSet>
+
+    <artifactSet to="plugin/teradata-functions">
+        <artifact id="${project.groupId}:presto-teradata-functions:zip:${project.version}">
+            <unpack />
+        </artifact>
+    </artifactSet>
+
     <artifactSet to="plugin/kafka">
         <artifact id="${project.groupId}:presto-kafka:zip:${project.version}">
             <unpack />

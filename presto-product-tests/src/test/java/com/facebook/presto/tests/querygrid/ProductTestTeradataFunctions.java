@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.facebook.presto.tests;
+package com.facebook.presto.tests.querygrid;
 
 import com.teradata.test.ProductTest;
 import org.testng.annotations.Test;
@@ -19,39 +19,40 @@ import org.testng.annotations.Test;
 import java.sql.Date;
 import java.sql.Timestamp;
 
+import static com.facebook.presto.tests.querygrid.QuerygridTestGroups.FUNCTIONS;
 import static com.facebook.presto.tests.utils.QueryExecutors.onPresto;
 import static com.teradata.test.assertions.QueryAssert.Row.row;
 import static com.teradata.test.assertions.QueryAssert.assertThat;
 
 public class ProductTestTeradataFunctions extends ProductTest
 {
-    @Test(groups = TestGroups.FUNCTIONS)
+    @Test(groups = FUNCTIONS)
     public void testIndex()
     {
         assertThat(onPresto().executeQuery("SELECT index('high', 'ig')")).contains(row(2));
     }
 
-    @Test(groups = TestGroups.FUNCTIONS)
+    @Test(groups = FUNCTIONS)
     public void testChar2HexInt()
     {
         assertThat(onPresto().executeQuery("SELECT char2hexint('ಠ益ಠ')")).contains(row("0CA076CA0CA0"));
     }
 
-    @Test(groups = TestGroups.FUNCTIONS)
+    @Test(groups = FUNCTIONS)
     public void testToDate()
     {
         assertThat(onPresto().executeQuery("SELECT to_date('1988/04/08', 'yyyy/mm/dd')"))
                 .contains(row(Date.valueOf("1988-04-08")));
     }
 
-    @Test(groups = TestGroups.FUNCTIONS)
+    @Test(groups = FUNCTIONS)
     public void testToTimestamp()
     {
         assertThat(onPresto().executeQuery("SELECT to_timestamp('1988/04/08;02:03:04','yyyy/mm/dd;hh24:mi:ss')"))
                 .contains(row(Timestamp.valueOf("1988-04-08 02:03:04.0")));
     }
 
-    @Test(groups = TestGroups.FUNCTIONS)
+    @Test(groups = FUNCTIONS)
     public void testToChar()
     {
         assertThat(onPresto().executeQuery("SELECT to_char(TIMESTAMP '1988-04-08 14:15:16 +02:09','yyyy/mm/dd;hh24:mi:ss')"))
