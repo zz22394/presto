@@ -20,7 +20,8 @@ import static com.facebook.presto.tests.utils.QueryExecutors.onPresto;
 import static com.teradata.test.assertions.QueryAssert.Row.row;
 import static com.teradata.test.assertions.QueryAssert.assertThat;
 
-public class ProductTestFunctions extends ProductTest
+public class ProductTestFunctions
+        extends ProductTest
 {
     @Test(groups = TestGroups.FUNCTIONS)
     public void testSubstring()

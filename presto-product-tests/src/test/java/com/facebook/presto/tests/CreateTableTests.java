@@ -13,13 +13,11 @@
  */
 package com.facebook.presto.tests;
 
+import com.facebook.presto.tests.ImmutableTpchTablesRequirements.ImmutableNationTable;
 import com.facebook.presto.tests.utils.PrestoDDLUtils.Table;
 import com.google.common.collect.ImmutableMap;
 import com.teradata.test.ProductTest;
-import com.teradata.test.Requirement;
-import com.teradata.test.RequirementsProvider;
 import com.teradata.test.Requires;
-import com.teradata.test.fulfillment.table.ImmutableTableRequirement;
 import com.teradata.test.query.QueryResult;
 import org.assertj.core.api.Assertions;
 import org.testng.annotations.Test;
@@ -35,27 +33,17 @@ import static com.facebook.presto.tests.utils.QueryExecutors.onHive;
 import static com.google.common.base.Preconditions.checkPositionIndexes;
 import static com.google.common.collect.Iterables.getFirst;
 import static com.teradata.test.assertions.QueryAssert.assertThat;
-import static com.teradata.test.fulfillment.hive.tpch.TpchTableDefinitions.NATION;
 import static com.teradata.test.query.QueryExecutor.query;
 import static com.teradata.test.query.QueryType.SELECT;
 import static java.lang.String.format;
 import static org.assertj.core.data.MapEntry.entry;
 
-@Requires(CreateTableTests.SimpleTestRequirements.class)
-public class CreateTableTests extends ProductTest
+@Requires(ImmutableNationTable.class)
+public class CreateTableTests
+        extends ProductTest
 {
     private static final String TABLE_PARAMETERS = "Table Parameters:";
     private static final String SERDE_PARAMETERS = "Storage Desc Params:";
-
-    static class SimpleTestRequirements
-            implements RequirementsProvider
-    {
-        @Override
-        public Requirement getRequirements()
-        {
-            return new ImmutableTableRequirement(NATION);
-        }
-    }
 
     @Test(groups = CREATE_TABLE)
     public void shouldCreateTableAsSelect()
