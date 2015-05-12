@@ -14,7 +14,6 @@
 package com.facebook.presto.tests.cli;
 
 import com.facebook.presto.cli.Presto;
-import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.Files;
 import com.google.inject.Inject;
