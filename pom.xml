@@ -82,6 +82,7 @@
         <module>presto-ml</module>
         <module>presto-benchmark</module>
         <module>presto-tests</module>
+        <module>presto-product-tests-utils</module>
         <module>presto-product-tests</module>
         <module>presto-teradata-product-tests</module>
         <module>presto-jdbc</module>
@@ -228,6 +229,18 @@
             <dependency>
                 <groupId>com.facebook.presto</groupId>
                 <artifactId>presto-benchmark</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.facebook.presto</groupId>
+                <artifactId>presto-product-tests</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.facebook.presto</groupId>
+                <artifactId>presto-product-tests-utils</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
@@ -699,6 +712,12 @@
             </dependency>
 
             <dependency>
+                <groupId>org.assertj</groupId>
+                <artifactId>assertj-core</artifactId>
+                <version>3.0.0</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpasyncclient</artifactId>
                 <version>4.0.2</version>
@@ -714,6 +733,12 @@
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-all</artifactId>
                 <version>1.8.4</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.teradata.test</groupId>
+                <artifactId>framework-core</artifactId>
+                <version>1.0.11-SNAPSHOT</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

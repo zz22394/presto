@@ -1,25 +1,7 @@
 -- delimiter: |; ignoreOrder: true; ignoreExcessRows:true; types: LONGNVARCHAR
-com.facebook.presto.execution:name=nodescheduler|
-com.facebook.presto.execution:name=queryexecution|
-com.facebook.presto.execution:name=querymanager|
-com.facebook.presto.execution:name=remotetaskfactory|
-com.facebook.presto.execution:name=taskexecutor|
-com.facebook.presto.execution:name=taskmanager|
-io.airlift.http.client:type=httpclient,name=fordiscoveryclient|
-io.airlift.http.client:type=httpclient,name=fordynamicstore|
-io.airlift.http.client:type=httpclient,name=foreventclient|
-io.airlift.http.client:type=httpclient,name=forexchange|
-io.airlift.http.client:type=httpclient,name=forexecute|
-io.airlift.http.client:type=httpclient,name=forfailuredetector|
-io.airlift.http.client:type=httpclient,name=forscheduler|
-io.airlift.http.server:name=requeststats|
-io.airlift.node:name=nodeinfo|
 java.lang:type=classloading|
 java.lang:type=compilation|
-java.lang:type=garbagecollector,name=concurrentmarksweep|
-java.lang:type=garbagecollector,name=parnew|
 java.lang:type=memory|
 java.lang:type=operatingsystem|
 java.lang:type=runtime|
 java.lang:type=threading|
-java.util.logging:type=logging|

@@ -4,6 +4,9 @@ hdfs:
     host: ${HADOOP_MASTER}
     port: 50070
 
+presto_rest:
+  base_uri: http://${PRESTO_MASTER}:8080/
+
 databases:
   default:
     alias: presto
@@ -14,7 +17,7 @@ databases:
     jdbc_user: hdfs
     jdbc_password: na
     jdbc_pooling: false
-    jdbc_jar: ${PRESTO_ROOT}/presto-product-tests/libs/test-framework-hive-jdbc-all.jar
+    jdbc_jar: ${PRESTO_PRODUCT_TESTS_ROOT}/libs/test-framework-hive-jdbc-all.jar
 
   presto:
     jdbc_driver_class: com.facebook.presto.jdbc.PrestoDriver

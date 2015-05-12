@@ -18,9 +18,18 @@
     </properties>
 
     <dependencies>
+        <!-- don't add test scope dependencies since they won't be listed in product-tests jar as transitive -->
         <dependency>
             <groupId>com.facebook.presto</groupId>
             <artifactId>presto-jdbc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.facebook.presto</groupId>
+            <artifactId>presto-main</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.facebook.presto</groupId>
+            <artifactId>presto-product-tests-utils</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -29,101 +38,37 @@
         <dependency>
             <groupId>com.teradata.test</groupId>
             <artifactId>framework-core</artifactId>
-            <version>1.0.6-SNAPSHOT</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <version>2.0.0</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-            <version>6.8.7</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>1.7.5</version>
-            <scope>test</scope>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
         </dependency>
     </dependencies>
 
     <build>
         <plugins>
+            <!-- build jar with test cases -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <environmentVariables>
-                        <PRESTO_ROOT>${project.parent.basedir}/</PRESTO_ROOT>
-                    </environmentVariables>
-                    <suiteXmlFiles>
-                        <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
-                    </suiteXmlFiles>
-                    <skipTests>${skip.product.tests}</skipTests>
-                </configuration>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
-            <plugin>
-                <groupId>com.ning.maven.plugins</groupId>
-                <artifactId>maven-duplicate-finder-plugin</artifactId>
-                <version>1.0.9</version>
-                <configuration>
-                    <exceptions combine.children="append">
-                        <exception>
-                            <conflictingDependencies>
-                                <dependency>
-                                    <groupId>net.minidev</groupId>
-                                    <artifactId>asm</artifactId>
-                                </dependency>
-                                <dependency>
-                                    <groupId>asm</groupId>
-                                    <artifactId>asm</artifactId>
-                                </dependency>
-                            </conflictingDependencies>
-                            <packages>
-                                <packge>org.objectweb.asm</packge>
-                            </packages>
-                        </exception>
-                        <exception>
-                            <conflictingDependencies>
-                                <dependency>
-                                    <groupId>velocity</groupId>
-                                    <artifactId>velocity</artifactId>
-                                </dependency>
-                                <dependency>
-                                    <groupId>velocity</groupId>
-                                    <artifactId>velocity-dep</artifactId>
-                                </dependency>
-                            </conflictingDependencies>
-                            <packages>
-                                <packge>org.apache.velocity</packge>
-                            </packages>
-                            <resourcePatterns>
-                                <resourcePattern>.*</resourcePattern>
-                            </resourcePatterns>
-                        </exception>
-                        <exception>
-                            <conflictingDependencies>
-                                <dependency>
-                                    <groupId>com.facebook.presto</groupId>
-                                    <artifactId>presto-jdbc</artifactId>
-                                </dependency>
-                                <dependency>
-                                    <groupId>org.apache.httpcomponents</groupId>
-                                    <artifactId>httpclient</artifactId>
-                                </dependency>
-                            </conflictingDependencies>
-                            <resourcePatterns>
-                                <resourcePattern>mozilla/public-suffix-list.txt</resourcePattern>
-                            </resourcePatterns>
-                        </exception>
-                    </exceptions>
-                </configuration>
-            </plugin>
+
+            <!-- download hive JDBC -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
@@ -140,6 +85,31 @@
                 <configuration>
                     <executable>./download.sh</executable>
                     <workingDirectory>libs</workingDirectory>
+                </configuration>
+            </plugin>
+
+            <!-- run product tests -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <environmentVariables>
+                        <PRESTO_PRODUCT_TESTS_ROOT>${project.basedir}/</PRESTO_PRODUCT_TESTS_ROOT>
+                    </environmentVariables>
+                    <suiteXmlFiles>
+                        <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
+                    </suiteXmlFiles>
+                    <skipTests>${skip.product.tests}</skipTests>
+                </configuration>
+            </plugin>
+
+            <!-- disable maven-duplicate-finder-plugin -->
+            <plugin>
+                <groupId>com.ning.maven.plugins</groupId>
+                <artifactId>maven-duplicate-finder-plugin</artifactId>
+                <version>1.0.9</version>
+                <configuration>
+                    <skip>true</skip>
                 </configuration>
             </plugin>
         </plugins>
