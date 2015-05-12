@@ -29,12 +29,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import static com.facebook.presto.tests.CliProcess.trimLines;
-import static com.facebook.presto.tests.JavaProcessLauncher.defaultJavaProcessLauncher;
 import static com.facebook.presto.tests.TestGroups.CLI;
 import static com.google.common.io.Resources.getResource;
 import static com.google.common.io.Resources.readLines;
 import static com.teradata.test.fulfillment.hive.tpch.TpchTableDefinitions.NATION;
+import static com.teradata.test.process.CliProcess.trimLines;
+import static com.teradata.test.process.JavaProcessLauncher.defaultJavaProcessLauncher;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
