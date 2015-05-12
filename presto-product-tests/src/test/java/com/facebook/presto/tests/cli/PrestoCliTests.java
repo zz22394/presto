@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.util.List;
 
 import static com.facebook.presto.tests.TestGroups.CLI;
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.io.Resources.getResource;
 import static com.google.common.io.Resources.readLines;
 import static com.teradata.test.fulfillment.hive.tpch.TpchTableDefinitions.NATION;
@@ -84,7 +85,7 @@ public class PrestoCliTests
             throws IOException, InterruptedException
     {
         launchPrestoCli("--version");
-        String version = MoreObjects.firstNonNull(Presto.class.getPackage().getImplementationVersion(), "(version unknown)");
+        String version = firstNonNull(Presto.class.getPackage().getImplementationVersion(), "(version unknown)");
         assertThat(presto.readRemainingLines()).containsExactly("Presto CLI " + version);
     }
 
