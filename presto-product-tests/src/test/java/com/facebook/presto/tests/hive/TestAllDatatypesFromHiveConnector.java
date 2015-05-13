@@ -56,8 +56,7 @@ public class TestAllDatatypesFromHiveConnector
     {
         assertProperAllDatatypesSchema("textfile_all_types");
 
-        // we skip c_binary here as it produces unexpected result (see testSelectBinaryColumn)
-        assertThat(query("SELECT c_tinyint, c_smallint, c_int, c_bigint, c_float, c_double, c_timestamp, c_date, c_string, c_varchar, c_boolean " +
+        assertThat(query("SELECT * " +
                 "FROM textfile_all_types")).containsOnly(
                 row(
                         127,
@@ -70,18 +69,8 @@ public class TestAllDatatypesFromHiveConnector
                         Date.valueOf("2015-05-10"),
                         "ala ma kota",
                         "ala ma kot",
-                        true));
-    }
-
-    @Test(groups = {HIVE_CONNECTOR, QUARANTINE})
-    public void testSelectBinaryColumnTextFile()
-            throws SQLException
-    {
-        assertThat(query("SELECT c_binary FROM textfile_all_types"))
-                .containsOnly(row("kot binarny".getBytes()));
-
-        // this test fails we get '��[�v��' instead of 'kot binarny'. This may be hive issue as we
-        // get this result even if we connect to hive directly without presto.
+                        true,
+                        "kot binarny".getBytes()));
     }
 
     @Test(groups = HIVE_CONNECTOR)
@@ -90,7 +79,7 @@ public class TestAllDatatypesFromHiveConnector
     {
         assertProperAllDatatypesSchema("orc_all_types");
 
-        assertThat(query("SELECT c_tinyint, c_smallint, c_int, c_bigint, c_float, c_double, c_timestamp, c_date, c_string, c_boolean " +
+        assertThat(query("SELECT c_tinyint, c_smallint, c_int, c_bigint, c_float, c_double, c_timestamp, c_date, c_string, c_boolean, c_binary " +
                 "FROM orc_all_types")).containsOnly(
                 row(
                         127,
@@ -102,7 +91,8 @@ public class TestAllDatatypesFromHiveConnector
                         Timestamp.valueOf("2015-05-10 12:15:35.123"),
                         Date.valueOf("2015-05-10"),
                         "ala ma kota",
-                        true));
+                        true,
+                        "kot binarny".getBytes()));
     }
 
     @Test(groups = {HIVE_CONNECTOR, QUARANTINE})
@@ -124,7 +114,7 @@ public class TestAllDatatypesFromHiveConnector
     {
         assertProperAllDatatypesSchema("rcfile_all_types");
 
-        assertThat(query("SELECT c_tinyint, c_smallint, c_int, c_bigint, c_float, c_double, c_timestamp, c_date, c_string, c_varchar, c_boolean " +
+        assertThat(query("SELECT * " +
                 "FROM rcfile_all_types")).containsOnly(
                 row(
                         127,
@@ -137,7 +127,8 @@ public class TestAllDatatypesFromHiveConnector
                         Date.valueOf("2015-05-10"),
                         "ala ma kota",
                         "ala ma kot",
-                        true));
+                        true,
+                        "kot binarny".getBytes()));
     }
 
     private void assertProperAllDatatypesSchema(String tableName)
