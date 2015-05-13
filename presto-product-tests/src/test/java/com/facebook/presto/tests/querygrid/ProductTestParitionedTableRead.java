@@ -31,6 +31,7 @@ import org.testng.annotations.Test;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
+import static com.facebook.presto.tests.TestGroups.QUARANTINE;
 import static com.facebook.presto.tests.utils.QueryExecutors.onHive;
 import static com.facebook.presto.tests.utils.QueryExecutors.onPresto;
 import static com.teradata.test.Requirements.compose;
@@ -83,7 +84,8 @@ public class ProductTestParitionedTableRead extends ProductTest implements Requi
         onHive().executeQuery(String.format(insertQueryFormat, 3, 3));
     }
 
-    @Test
+    // http://bdch-jira.td.teradata.com:8080/browse/SWARM-545
+    @Test(groups = QUARANTINE)
     public void selectFromPartitionedNation() throws Exception
     {
         // read all data
