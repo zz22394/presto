@@ -16,6 +16,7 @@ package com.facebook.presto.tests;
 import com.teradata.test.ProductTest;
 import org.testng.annotations.Test;
 
+import static com.facebook.presto.tests.TestGroups.SYSTEM_CONNECTOR;
 import static com.teradata.test.assertions.QueryAssert.assertThat;
 import static com.teradata.test.query.QueryExecutor.query;
 import static java.sql.JDBCType.BIGINT;
@@ -26,7 +27,7 @@ import static java.sql.JDBCType.TIMESTAMP;
 public class SystemConnectorTests
         extends ProductTest
 {
-    @Test(groups = "system")
+    @Test(groups = SYSTEM_CONNECTOR)
     public void selectRuntimeNodes()
     {
         assertThat(query("SELECT node_id, http_uri, node_version, active FROM system.runtime.nodes"))
@@ -34,7 +35,7 @@ public class SystemConnectorTests
                 .hasAnyRows();
     }
 
-    @Test(groups = "system")
+    @Test(groups = SYSTEM_CONNECTOR)
     public void selectRuntimeQueries()
     {
         assertThat(query("SELECT" +
@@ -56,7 +57,7 @@ public class SystemConnectorTests
                 .hasAnyRows();
     }
 
-    @Test(groups = "system")
+    @Test(groups = SYSTEM_CONNECTOR)
     public void selectRuntimeTasks()
     {
         assertThat(query("SELECT" +
@@ -90,7 +91,7 @@ public class SystemConnectorTests
                 .hasAnyRows();
     }
 
-    @Test(groups = "system")
+    @Test(groups = SYSTEM_CONNECTOR)
     public void selectMetadataCatalogs()
     {
         assertThat(query("select catalog_name, connector_id from system.metadata.catalogs"))

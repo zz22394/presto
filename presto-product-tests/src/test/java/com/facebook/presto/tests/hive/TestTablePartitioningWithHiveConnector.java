@@ -28,6 +28,7 @@ import org.testng.annotations.Test;
 
 import java.sql.SQLException;
 
+import static com.facebook.presto.tests.TestGroups.HIVE_CONNECTOR;
 import static com.teradata.test.Requirements.allOf;
 import static com.teradata.test.assertions.QueryAssert.Row.row;
 import static com.teradata.test.assertions.QueryAssert.assertThat;
@@ -80,7 +81,7 @@ public class TestTablePartitioningWithHiveConnector
                 mutableTable(SINGLE_INT_COLUMN_PARTITIONED_PARQUET, TABLE_NAME, LOADED));
     }
 
-    @Test(groups = "hive_connector")
+    @Test(groups = HIVE_CONNECTOR)
     public void testSelectPartitionedHiveTableTextFile()
             throws SQLException
     {

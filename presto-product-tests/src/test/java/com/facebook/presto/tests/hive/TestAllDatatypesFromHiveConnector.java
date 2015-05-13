@@ -24,6 +24,8 @@ import java.sql.Date;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
+import static com.facebook.presto.tests.TestGroups.HIVE_CONNECTOR;
+import static com.facebook.presto.tests.TestGroups.QUARANTINE;
 import static com.facebook.presto.tests.hive.AllSimpleTypesTableDefinitions.ALL_PRESTO_TYPES_ORC;
 import static com.facebook.presto.tests.hive.AllSimpleTypesTableDefinitions.ALL_PRESTO_TYPES_PARQUET;
 import static com.facebook.presto.tests.hive.AllSimpleTypesTableDefinitions.ALL_PRESTO_TYPES_RCFILE;
@@ -48,7 +50,7 @@ public class TestAllDatatypesFromHiveConnector
                 immutableTable(ALL_PRESTO_TYPES_PARQUET));
     }
 
-    @Test(groups = "hive_connector")
+    @Test(groups = HIVE_CONNECTOR)
     public void testSelectAllDatatypesTextFile()
             throws SQLException
     {
@@ -71,7 +73,7 @@ public class TestAllDatatypesFromHiveConnector
                         true));
     }
 
-    @Test(groups = {"hive_connector", "quarantine"})
+    @Test(groups = {HIVE_CONNECTOR, QUARANTINE})
     public void testSelectBinaryColumnTextFile()
             throws SQLException
     {
@@ -82,7 +84,7 @@ public class TestAllDatatypesFromHiveConnector
         // get this result even if we connect to hive directly without presto.
     }
 
-    @Test(groups = {"hive_connector"})
+    @Test(groups = HIVE_CONNECTOR)
     public void testSelectAllDatatypesOrc()
             throws SQLException
     {
@@ -103,7 +105,7 @@ public class TestAllDatatypesFromHiveConnector
                         true));
     }
 
-    @Test(groups = {"hive_connector", "quarantine"})
+    @Test(groups = {HIVE_CONNECTOR, QUARANTINE})
     public void testSelectVarcharColumnForOrc()
             throws SQLException
     {
@@ -116,7 +118,7 @@ public class TestAllDatatypesFromHiveConnector
         // Query 20150417_002158_00049_b2hmy failed: Error opening Hive split hdfs://hadoop-master:8020/product-test/inline-tables/xorc_all_types/000000_0 (offset=0, length=1317): Unsupported type: VARCHAR
     }
 
-    @Test(groups = "hive_connector")
+    @Test(groups = HIVE_CONNECTOR)
     public void testSelectAllDatatypesRcfile()
             throws SQLException
     {
@@ -156,7 +158,7 @@ public class TestAllDatatypesFromHiveConnector
         );
     }
 
-    @Test(groups = {"hive_connector", "quarantine"})
+    @Test(groups = {HIVE_CONNECTOR, QUARANTINE})
     public void testSelectAllDatatypesParquetFile()
             throws SQLException
     {

@@ -22,6 +22,8 @@ import org.testng.annotations.Test;
 import java.sql.Date;
 import java.sql.Timestamp;
 
+import static com.facebook.presto.tests.TestGroups.HIVE_CONNECTOR;
+import static com.facebook.presto.tests.TestGroups.QUARANTINE;
 import static com.facebook.presto.tests.hive.AllSimpleTypesTableDefinitions.ALL_PRESTO_TYPES_TEXTFILE;
 import static com.teradata.test.Requirements.compose;
 import static com.teradata.test.assertions.QueryAssert.Row.row;
@@ -46,7 +48,7 @@ public class TestInsertIntoHiveTable
                 immutableTable(ALL_PRESTO_TYPES_TEXTFILE));
     }
 
-    @Test(groups = {"hive_connector", "quarantine"})
+    @Test(groups = {HIVE_CONNECTOR, QUARANTINE})
     public void testInsertIntoValuesToHiveTable()
     {
         String tableNameInDatabase = mutableTablesState().get(TABLE_NAME).getNameInDatabase();
@@ -82,7 +84,7 @@ public class TestInsertIntoHiveTable
                         "kot binarny".getBytes()));
     }
 
-    @Test(groups = {"hive_connector", "quarantine"})
+    @Test(groups = {HIVE_CONNECTOR, QUARANTINE})
     public void testInsertIntoSelectToHiveTable()
     {
         String tableNameInDatabase = mutableTablesState().get(TABLE_NAME).getNameInDatabase();
