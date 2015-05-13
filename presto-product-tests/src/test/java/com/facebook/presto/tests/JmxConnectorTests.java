@@ -16,6 +16,7 @@ package com.facebook.presto.tests;
 import com.teradata.test.ProductTest;
 import org.testng.annotations.Test;
 
+import static com.facebook.presto.tests.TestGroups.JMX_CONNECTOR;
 import static com.teradata.test.assertions.QueryAssert.assertThat;
 import static com.teradata.test.query.QueryExecutor.query;
 import static java.sql.JDBCType.BIGINT;
@@ -24,7 +25,7 @@ import static java.sql.JDBCType.LONGNVARCHAR;
 public class JmxConnectorTests
         extends ProductTest
 {
-    @Test(groups = "jmx")
+    @Test(groups = JMX_CONNECTOR)
     public void selectFromJavaRuntimeJmxMBean()
     {
         assertThat(query("SELECT node, vmname, vmversion FROM jmx.jmx.\"java.lang:type=runtime\""))
@@ -32,7 +33,7 @@ public class JmxConnectorTests
                 .hasAnyRows();
     }
 
-    @Test(groups = "jmx")
+    @Test(groups = JMX_CONNECTOR)
     public void selectFromJavaOperatingSystemJmxMBean()
     {
         assertThat(query("SELECT openfiledescriptorcount, maxfiledescriptorcount " +
