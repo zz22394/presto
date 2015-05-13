@@ -26,10 +26,10 @@ import java.sql.Timestamp;
 
 import static com.facebook.presto.tests.TestGroups.HIVE_CONNECTOR;
 import static com.facebook.presto.tests.TestGroups.QUARANTINE;
-import static com.facebook.presto.tests.hive.AllSimpleTypesTableDefinitions.ALL_PRESTO_TYPES_ORC;
-import static com.facebook.presto.tests.hive.AllSimpleTypesTableDefinitions.ALL_PRESTO_TYPES_PARQUET;
-import static com.facebook.presto.tests.hive.AllSimpleTypesTableDefinitions.ALL_PRESTO_TYPES_RCFILE;
-import static com.facebook.presto.tests.hive.AllSimpleTypesTableDefinitions.ALL_PRESTO_TYPES_TEXTFILE;
+import static com.facebook.presto.tests.hive.AllSimpleTypesTableDefinitions.ALL_HIVE_SIMPLE_TYPES_ORC;
+import static com.facebook.presto.tests.hive.AllSimpleTypesTableDefinitions.ALL_HIVE_SIMPLE_TYPES_PARQUET;
+import static com.facebook.presto.tests.hive.AllSimpleTypesTableDefinitions.ALL_HIVE_SIMPLE_TYPES_RCFILE;
+import static com.facebook.presto.tests.hive.AllSimpleTypesTableDefinitions.ALL_HIVE_SIMPLE_TYPES_TEXTFILE;
 import static com.teradata.test.Requirements.compose;
 import static com.teradata.test.assertions.QueryAssert.Row.row;
 import static com.teradata.test.assertions.QueryAssert.assertThat;
@@ -44,10 +44,10 @@ public class TestAllDatatypesFromHiveConnector
     public Requirement getRequirements()
     {
         return compose(
-                immutableTable(ALL_PRESTO_TYPES_TEXTFILE),
-                immutableTable(ALL_PRESTO_TYPES_ORC),
-                immutableTable(ALL_PRESTO_TYPES_RCFILE),
-                immutableTable(ALL_PRESTO_TYPES_PARQUET));
+                immutableTable(ALL_HIVE_SIMPLE_TYPES_TEXTFILE),
+                immutableTable(ALL_HIVE_SIMPLE_TYPES_ORC),
+                immutableTable(ALL_HIVE_SIMPLE_TYPES_RCFILE),
+                immutableTable(ALL_HIVE_SIMPLE_TYPES_PARQUET));
     }
 
     @Test(groups = HIVE_CONNECTOR)

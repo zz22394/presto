@@ -27,18 +27,21 @@ public final class AllSimpleTypesTableDefinitions
     }
 
     @TableDefinitionsRepository.RepositoryTableDefinition
-    public static final HiveTableDefinition ALL_PRESTO_TYPES_TEXTFILE = allSimpleTypesTableDefinition("TEXTFILE");
+    public static final HiveTableDefinition ALL_HIVE_SIMPLE_TYPES_TEXTFILE = allHiveSimpleTypesTableDefinition("TEXTFILE");
 
     @TableDefinitionsRepository.RepositoryTableDefinition
-    public static final HiveTableDefinition ALL_PRESTO_TYPES_PARQUET = allSimpleTypesParquetTableDefinition();
+    public static final HiveTableDefinition ALL_HIVE_SIMPLE_TYPES_PARQUET = allHiveSimpleTypesParquetTableDefinition();
 
     @TableDefinitionsRepository.RepositoryTableDefinition
-    public static final HiveTableDefinition ALL_PRESTO_TYPES_ORC = allSimpleTypesTableDefinition("ORC");
+    public static final HiveTableDefinition ALL_HIVE_SIMPLE_TYPES_ORC = allHiveSimpleTypesTableDefinition("ORC");
 
     @TableDefinitionsRepository.RepositoryTableDefinition
-    public static final HiveTableDefinition ALL_PRESTO_TYPES_RCFILE = allSimpleTypesTableDefinition("RCFILE");
+    public static final HiveTableDefinition ALL_HIVE_SIMPLE_TYPES_RCFILE = allHiveSimpleTypesTableDefinition("RCFILE");
 
-    private static HiveTableDefinition allSimpleTypesTableDefinition(String fileFormat)
+    @TableDefinitionsRepository.RepositoryTableDefinition
+    public static final HiveTableDefinition ALL_HIVE_SIMPLE_TYPES_KNOWN_TO_PRESTO_TEXTFILE = allHiveSimpleTypesKnownToPrestoTextfileTableDefinition();
+
+    private static HiveTableDefinition allHiveSimpleTypesTableDefinition(String fileFormat)
     {
         String tableName = fileFormat.toLowerCase() + "_all_types";
         DataSource dataSource = createResourceDataSource(tableName, "" + System.currentTimeMillis(), "com/facebook/presto/tests/hive/data/all_types/data." + fileFormat.toLowerCase());
@@ -69,7 +72,7 @@ public final class AllSimpleTypesTableDefinitions
                 .build();
     }
 
-    private static HiveTableDefinition allSimpleTypesParquetTableDefinition()
+    private static HiveTableDefinition allHiveSimpleTypesParquetTableDefinition()
     {
         String tableName = "parquet_all_types";
         DataSource dataSource = createResourceDataSource(tableName, "" + System.currentTimeMillis(), "com/facebook/presto/tests/hive/data/all_types/data.parquet");
@@ -89,6 +92,34 @@ public final class AllSimpleTypesTableDefinitions
                         ") " +
                         "ROW FORMAT DELIMITED FIELDS TERMINATED BY '|' " +
                         "STORED AS PARQUET " +
+                        "LOCATION '%LOCATION%'")
+                .setDataSource(dataSource)
+                .build();
+    }
+
+    private static HiveTableDefinition allHiveSimpleTypesKnownToPrestoTextfileTableDefinition()
+    {
+        String tableName = "textfile_all_types_known_to_presto";
+        DataSource dataSource = createResourceDataSource(tableName, "" + System.currentTimeMillis(), "com/facebook/presto/tests/hive/data/all_types_known_to_presto/data.textfile");
+        return HiveTableDefinition.builder()
+                .setName(tableName)
+                .setCreateTableDDLTemplate("" +
+                        "CREATE EXTERNAL TABLE %NAME%(" +
+                        "   c_tinyint            TINYINT," +
+                        "   c_smallint           SMALLINT," +
+                        "   c_int                INT," +
+                        "   c_bigint             BIGINT," +
+                        "   c_float              FLOAT," +
+                        "   c_double             DOUBLE," +
+                        "   c_timestamp          TIMESTAMP," +
+                        "   c_date               DATE," +
+                        "   c_string             STRING," +
+                        "   c_varchar            VARCHAR(10)," +
+                        "   c_boolean            BOOLEAN," +
+                        "   c_binary             BINARY" +
+                        ") " +
+                        "ROW FORMAT DELIMITED FIELDS TERMINATED BY '|' " +
+                        "STORED AS TEXTFILE " +
                         "LOCATION '%LOCATION%'")
                 .setDataSource(dataSource)
                 .build();
