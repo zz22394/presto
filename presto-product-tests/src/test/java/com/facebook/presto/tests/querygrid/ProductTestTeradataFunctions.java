@@ -41,6 +41,8 @@ public class ProductTestTeradataFunctions extends ProductTest
     @Test(groups = FUNCTIONS)
     public void testToDate()
     {
+        assertThat(onPresto().executeQuery("SELECT to_date('1988/04/01', 'yyyy/mm/dd')"))
+                .contains(row(Date.valueOf("1988-04-01")));
         assertThat(onPresto().executeQuery("SELECT to_date('1988/04/08', 'yyyy/mm/dd')"))
                 .contains(row(Date.valueOf("1988-04-08")));
     }
