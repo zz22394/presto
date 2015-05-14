@@ -1,0 +1,179 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.facebook.presto.tests.jdbc;
+
+import com.facebook.presto.jdbc.PrestoConnection;
+import com.facebook.presto.jdbc.PrestoDatabaseMetaData;
+import com.facebook.presto.tests.ImmutableTpchTablesRequirements.ImmutableNationTable;
+import com.teradata.test.BeforeTestWithContext;
+import com.teradata.test.ProductTest;
+import com.teradata.test.Requirement;
+import com.teradata.test.RequirementsProvider;
+import com.teradata.test.Requires;
+import com.teradata.test.convention.SqlResultFile;
+import com.teradata.test.query.QueryResult;
+import org.testng.annotations.Test;
+
+import java.sql.SQLException;
+import java.sql.Statement;
+
+import static com.facebook.presto.tests.TestGroups.JDBC;
+import static com.facebook.presto.tests.TpchTableResults.PRESTO_NATION_RESULT;
+import static com.teradata.test.Requirements.compose;
+import static com.teradata.test.assertions.QueryAssert.Row.row;
+import static com.teradata.test.assertions.QueryAssert.assertThat;
+import static com.teradata.test.convention.SqlResultFile.sqlResultFileForResource;
+import static com.teradata.test.fulfillment.hive.tpch.TpchTableDefinitions.NATION;
+import static com.teradata.test.fulfillment.table.MutableTableRequirement.State.CREATED;
+import static com.teradata.test.fulfillment.table.MutableTablesState.mutableTablesState;
+import static com.teradata.test.fulfillment.table.TableRequirements.immutableTable;
+import static com.teradata.test.fulfillment.table.TableRequirements.mutableTable;
+import static com.teradata.test.query.QueryExecutor.defaultQueryExecutor;
+import static com.teradata.test.query.QueryExecutor.query;
+import static java.util.Locale.CHINESE;
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class JdbcTests
+        extends ProductTest
+{
+    private static final String TABLE_NAME = "nation_table_name";
+    private static final SqlResultFile GET_COLUMNS_RESULT = sqlResultFileForResource("com/facebook/presto/tests/jdbc/get_nation_columns.result");
+
+    private static class ImmutableAndMutableNationTable
+            implements RequirementsProvider
+    {
+        public Requirement getRequirements()
+        {
+            return compose(immutableTable(NATION), mutableTable(NATION, TABLE_NAME, CREATED));
+        }
+    }
+
+    private PrestoConnection connection;
+
+    @BeforeTestWithContext
+    public void setup()
+            throws SQLException
+    {
+        connection = (PrestoConnection) defaultQueryExecutor().getConnection();
+    }
+
+    @Test(groups = JDBC)
+    @Requires(ImmutableNationTable.class)
+    public void shouldExecuteQuery()
+            throws SQLException
+    {
+        try (Statement statement = connection.createStatement()) {
+            QueryResult result = queryResult(statement, "select * from hive.default.nation");
+            assertThat(result).matchesFile(PRESTO_NATION_RESULT);
+        }
+    }
+
+    @Test(groups = JDBC)
+    @Requires(ImmutableAndMutableNationTable.class)
+    public void shouldInsertSelectQuery()
+            throws SQLException
+    {
+        String tableNameInDatabase = mutableTablesState().get(TABLE_NAME).getNameInDatabase();
+        assertThat(query("SELECT * FROM " + tableNameInDatabase)).hasNoRows();
+
+        try (Statement statement = connection.createStatement()) {
+            // TODO: fix, should return proper number of inserted rows
+            assertThat(statement.executeUpdate("insert into " + tableNameInDatabase + " select * from nation"))
+                    .isEqualTo(0);
+        }
+
+        assertThat(query("SELECT * FROM " + tableNameInDatabase)).matchesFile(PRESTO_NATION_RESULT);
+    }
+
+    @Test(groups = JDBC)
+    @Requires(ImmutableNationTable.class)
+    public void shouldExecuteQueryWithSelectedCatalogAndSchema()
+            throws SQLException
+    {
+        connection.setCatalog("hive");
+        connection.setSchema("default");
+        try (Statement statement = connection.createStatement()) {
+            QueryResult result = queryResult(statement, "select * from nation");
+            assertThat(result).matchesFile(PRESTO_NATION_RESULT);
+        }
+    }
+
+    @Test(groups = JDBC)
+    public void shouldSetTimezone()
+            throws SQLException
+    {
+        String timeZoneId = "Indian/Kerguelen";
+        connection.setTimeZoneId(timeZoneId);
+        try (Statement statement = connection.createStatement()) {
+            QueryResult result = queryResult(statement, "select current_timezone()");
+            assertThat(result).contains(row(timeZoneId));
+        }
+    }
+
+    @Test(groups = JDBC)
+    public void shouldSetLocale()
+            throws SQLException
+    {
+        connection.setLocale(CHINESE);
+        try (Statement statement = connection.createStatement()) {
+            QueryResult result = queryResult(statement, "SELECT date_format(TIMESTAMP '2001-01-09 09:04', '%M')");
+            assertThat(result).contains(row("一月"));
+        }
+    }
+
+    @Test(groups = JDBC)
+    public void shouldGetSchemas()
+            throws SQLException
+    {
+        PrestoDatabaseMetaData metaData = new PrestoDatabaseMetaData(connection);
+        QueryResult result = QueryResult.forResultSet(metaData.getSchemas("hive", null));
+        assertThat(result).contains(row("default", "hive"));
+    }
+
+    @Test(groups = JDBC)
+    @Requires(ImmutableNationTable.class)
+    public void shouldGetTables()
+            throws SQLException
+    {
+        PrestoDatabaseMetaData metaData = new PrestoDatabaseMetaData(connection);
+        QueryResult result = QueryResult.forResultSet(metaData.getTables("hive", null, null, null));
+        assertThat(result).contains(row("hive", "default", "nation", "BASE TABLE", "", "", "", "", "", ""));
+    }
+
+    @Test(groups = JDBC)
+    @Requires(ImmutableNationTable.class)
+    public void shouldGetColumns()
+            throws SQLException
+    {
+        PrestoDatabaseMetaData metaData = new PrestoDatabaseMetaData(connection);
+        QueryResult result = QueryResult.forResultSet(metaData.getColumns("hive", "default", "nation", null));
+        assertThat(result).matchesFile(GET_COLUMNS_RESULT);
+    }
+
+    @Test(groups = JDBC)
+    @Requires(ImmutableNationTable.class)
+    public void shouldGetTableTypes()
+            throws SQLException
+    {
+        PrestoDatabaseMetaData metaData = new PrestoDatabaseMetaData(connection);
+        QueryResult result = QueryResult.forResultSet(metaData.getTableTypes());
+        assertThat(result).contains(row("BASE TABLE"));
+    }
+
+    private QueryResult queryResult(Statement statement, String query)
+            throws SQLException
+    {
+        return QueryResult.forResultSet(statement.executeQuery(query));
+    }
+}
