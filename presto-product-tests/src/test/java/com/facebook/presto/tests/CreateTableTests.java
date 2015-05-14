@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import static com.facebook.presto.tests.TestGroups.CREATE_TABLE;
+import static com.facebook.presto.tests.TestGroups.SMOKE;
 import static com.facebook.presto.tests.utils.PrestoDDLUtils.createPrestoTable;
 import static com.facebook.presto.tests.utils.QueryExecutors.onHive;
 import static com.google.common.base.Preconditions.checkPositionIndexes;
@@ -72,7 +73,7 @@ public class CreateTableTests
         testCreateTableWithParameters("dummy_table_with_parameters", "CREATE TABLE %s (a VARCHAR)");
     }
 
-    @Test(groups = CREATE_TABLE)
+    @Test(groups = {CREATE_TABLE, SMOKE})
     public void shouldCreateTableAsSelectWithParameters()
             throws Exception
     {

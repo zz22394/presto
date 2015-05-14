@@ -26,6 +26,7 @@ import java.sql.Timestamp;
 
 import static com.facebook.presto.tests.TestGroups.HIVE_CONNECTOR;
 import static com.facebook.presto.tests.TestGroups.QUARANTINE;
+import static com.facebook.presto.tests.TestGroups.SMOKE;
 import static com.facebook.presto.tests.hive.AllSimpleTypesTableDefinitions.ALL_HIVE_SIMPLE_TYPES_ORC;
 import static com.facebook.presto.tests.hive.AllSimpleTypesTableDefinitions.ALL_HIVE_SIMPLE_TYPES_PARQUET;
 import static com.facebook.presto.tests.hive.AllSimpleTypesTableDefinitions.ALL_HIVE_SIMPLE_TYPES_RCFILE;
@@ -50,12 +51,11 @@ public class TestAllDatatypesFromHiveConnector
                 immutableTable(ALL_HIVE_SIMPLE_TYPES_PARQUET));
     }
 
-    @Test(groups = HIVE_CONNECTOR)
+    @Test(groups = {HIVE_CONNECTOR, SMOKE})
     public void testSelectAllDatatypesTextFile()
             throws SQLException
     {
         assertProperAllDatatypesSchema("textfile_all_types");
-
         assertThat(query("SELECT * " +
                 "FROM textfile_all_types")).containsOnly(
                 row(

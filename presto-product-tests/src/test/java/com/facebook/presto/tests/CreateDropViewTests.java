@@ -21,6 +21,7 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 
 import static com.facebook.presto.tests.TestGroups.CREATE_DROP_VIEW;
+import static com.facebook.presto.tests.TestGroups.SMOKE;
 import static com.teradata.test.assertions.QueryAssert.assertThat;
 import static com.teradata.test.context.ContextDsl.executeWith;
 import static com.teradata.test.query.QueryExecutor.query;
@@ -52,7 +53,7 @@ public class CreateDropViewTests
         });
     }
 
-    @Test(groups = CREATE_DROP_VIEW)
+    @Test(groups = {CREATE_DROP_VIEW, SMOKE})
     public void createOrReplaceSimpleView()
             throws IOException
     {
@@ -76,7 +77,7 @@ public class CreateDropViewTests
         });
     }
 
-    @Test(groups = CREATE_DROP_VIEW)
+    @Test(groups = {CREATE_DROP_VIEW, SMOKE})
     public void dropViewTest()
             throws IOException
     {

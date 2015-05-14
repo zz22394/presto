@@ -21,6 +21,7 @@ import org.testng.annotations.Test;
 import java.util.Map;
 
 import static com.facebook.presto.tests.TestGroups.INDIC_BUFFERS;
+import static com.facebook.presto.tests.TestGroups.SMOKE;
 import static com.facebook.presto.tests.utils.PrestoDDLUtils.createPrestoTable;
 import static com.facebook.presto.tests.utils.QueryExecutors.onPresto;
 import static com.teradata.test.assertions.QueryAssert.Row.row;
@@ -36,7 +37,7 @@ public class IndicBufferStorageHandlerTests extends ProductTest
     private static final String ENCODE_MAX_TEXT_LENGTH_KEY = "hive.serde_parameters.encode-max-text-length";
     private static final int ENCODE_MAX_TEXT_LENGTH = 10;
 
-    @Test(groups = INDIC_BUFFERS)
+    @Test(groups = {INDIC_BUFFERS, SMOKE})
     public void shouldCreateIndicBuffersTable()
             throws Exception
     {

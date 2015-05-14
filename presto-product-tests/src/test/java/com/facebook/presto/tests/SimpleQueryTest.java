@@ -25,6 +25,7 @@ import org.testng.annotations.Test;
 
 import static com.facebook.presto.tests.TestGroups.QUARANTINE;
 import static com.facebook.presto.tests.TestGroups.SIMPLE;
+import static com.facebook.presto.tests.TestGroups.SMOKE;
 import static com.teradata.test.assertions.QueryAssert.Row.row;
 import static com.teradata.test.context.ThreadLocalTestContextHolder.testContextIfSet;
 import static com.teradata.test.fulfillment.hive.tpch.TpchTableDefinitions.NATION;
@@ -56,14 +57,14 @@ public class SimpleQueryTest
         assertThat(testContextIfSet().isPresent()).isTrue();
     }
 
-    @Test(groups = SIMPLE)
+    @Test(groups = {SIMPLE, SMOKE})
     @Requires(SimpleTestRequirements.class)
     public void selectAllFromNation()
     {
         QueryAssert.assertThat(query("select * from nation")).hasRowsCount(25);
     }
 
-    @Test(groups = SIMPLE)
+    @Test(groups = {SIMPLE, SMOKE})
     @Requires(SimpleTestRequirements.class)
     public void selectCountFromNation()
     {

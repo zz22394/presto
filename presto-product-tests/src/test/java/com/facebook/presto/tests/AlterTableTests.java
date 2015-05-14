@@ -22,6 +22,7 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 
 import static com.facebook.presto.tests.TestGroups.ALTER_TABLE;
+import static com.facebook.presto.tests.TestGroups.SMOKE;
 import static com.facebook.presto.tests.utils.PrestoDDLUtils.createPrestoTable;
 import static com.teradata.test.assertions.QueryAssert.assertThat;
 import static com.teradata.test.query.QueryExecutor.query;
@@ -32,7 +33,7 @@ import static java.lang.String.format;
 public class AlterTableTests
         extends ProductTest
 {
-    @Test(groups = ALTER_TABLE)
+    @Test(groups = {ALTER_TABLE, SMOKE})
     public void renameTable()
             throws IOException
     {

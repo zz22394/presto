@@ -25,6 +25,7 @@ import java.sql.Timestamp;
 
 import static com.facebook.presto.tests.TestGroups.HIVE_CONNECTOR;
 import static com.facebook.presto.tests.TestGroups.QUARANTINE;
+import static com.facebook.presto.tests.TestGroups.SMOKE;
 import static com.facebook.presto.tests.hive.AllSimpleTypesTableDefinitions.ALL_HIVE_SIMPLE_TYPES_KNOWN_TO_PRESTO_TEXTFILE;
 import static com.facebook.presto.tests.hive.AllSimpleTypesTableDefinitions.ALL_HIVE_SIMPLE_TYPES_TEXTFILE;
 import static com.teradata.test.Requirements.compose;
@@ -125,7 +126,7 @@ public class TestInsertIntoHiveTable
                         "kot binarny".getBytes()));
     }
 
-    @Test(groups = HIVE_CONNECTOR)
+    @Test(groups = {HIVE_CONNECTOR, SMOKE})
     @Requires(AllSimpleTypesKnownToPrestoTables.class)
     public void testInsertIntoValuesToHiveTableAllHiveSimpleTypesKnownToPresto()
     {
@@ -162,7 +163,7 @@ public class TestInsertIntoHiveTable
                         "kot binarny".getBytes()));
     }
 
-    @Test(groups = HIVE_CONNECTOR)
+    @Test(groups = {HIVE_CONNECTOR, SMOKE})
     @Requires(AllSimpleTypesKnownToPrestoTables.class)
     public void testInsertIntoSelectToHiveTableAllHiveSimpleTypesKnownToPresto()
     {
