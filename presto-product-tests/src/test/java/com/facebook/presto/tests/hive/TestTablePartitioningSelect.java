@@ -29,7 +29,6 @@ import org.testng.annotations.Test;
 import java.sql.SQLException;
 
 import static com.facebook.presto.tests.TestGroups.HIVE_CONNECTOR;
-import static com.facebook.presto.tests.TestGroups.SMOKE;
 import static com.teradata.test.Requirements.allOf;
 import static com.teradata.test.assertions.QueryAssert.Row.row;
 import static com.teradata.test.assertions.QueryAssert.assertThat;
@@ -39,7 +38,7 @@ import static com.teradata.test.fulfillment.table.TableRequirements.mutableTable
 import static com.teradata.test.query.QueryExecutor.query;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TestTablePartitioningWithHiveConnector
+public class TestTablePartitioningSelect
         extends ProductTest
         implements RequirementsProvider
 {
@@ -82,8 +81,8 @@ public class TestTablePartitioningWithHiveConnector
                 mutableTable(SINGLE_INT_COLUMN_PARTITIONED_PARQUET, TABLE_NAME, LOADED));
     }
 
-    @Test(groups = {HIVE_CONNECTOR, SMOKE})
-    public void testSelectPartitionedHiveTable()
+    @Test(groups = {HIVE_CONNECTOR})
+    public void testSelectPartitionedHiveTableDifferentFormats()
             throws SQLException
     {
         String tableNameInDatabase = tablesState.get(TABLE_NAME).getNameInDatabase();
@@ -91,20 +90,20 @@ public class TestTablePartitioningWithHiveConnector
         String selectFromAllPartitionsSql = "SELECT * FROM " + tableNameInDatabase;
         QueryResult allPartitionsQueryResult = query(selectFromAllPartitionsSql);
         assertThat(allPartitionsQueryResult).containsOnly(row(42, 1), row(42, 2));
-        int numberOfTasksForAllPartitions = tasksCountFor(allPartitionsQueryResult);
-        assertThat(numberOfTasksForAllPartitions).isGreaterThan(0);
+        long processedLinesCountAllPartitions = getProcessedLinesCount(allPartitionsQueryResult);
+        assertThat(processedLinesCountAllPartitions).isEqualTo(2);
 
         String selectFromOnePartitionsSql = "SELECT * FROM " + tableNameInDatabase + " WHERE part_col = 2";
         QueryResult onePartitionQueryResult = query(selectFromOnePartitionsSql);
         assertThat(onePartitionQueryResult).containsOnly(row(42, 2));
-        int numberOfTasksForOnePartition = tasksCountFor(onePartitionQueryResult);
-        assertThat(numberOfTasksForAllPartitions).isGreaterThan(numberOfTasksForOnePartition);
+        long processedLinesCountOnePartition = getProcessedLinesCount(onePartitionQueryResult);
+        assertThat(processedLinesCountOnePartition).isEqualTo(1);
     }
 
-    private int tasksCountFor(QueryResult queryResult)
+    private long getProcessedLinesCount(QueryResult queryResult)
             throws SQLException
     {
         PrestoResultSet prestoResultSet = queryResult.getJdbcResultSet().get().unwrap(PrestoResultSet.class);
-        return queryInfoClient.getQueryStats(prestoResultSet.getQueryId()).get().getCompletedTasks();
+        return queryInfoClient.getQueryStats(prestoResultSet.getQueryId()).get().getRawInputPositions();
     }
 }
