@@ -70,7 +70,7 @@ public final class TeradataDateFunctions
             @SqlType(StandardTypes.VARCHAR) Slice dateTime,
             @SqlType(StandardTypes.VARCHAR) Slice formatString)
     {
-        return castToDate(session, toTimestamp(session, dateTime, formatString));
+        return castToDate(session, parseMilis(session, dateTime, formatString));
     }
 
     @Description("Converts string_expr to a TIMESTAMP data type. Teradata extension to the ANSI SQL-2003 standard")
