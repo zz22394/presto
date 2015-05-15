@@ -107,16 +107,7 @@
                                         </source>
                                     </sources>
                                 </mapping>
-                                <mapping>
-                                    <directory>/etc/presto/catalog</directory>
-                                </mapping>
-                                <mapping>
-                                    <directory>/var/lib/presto/data</directory>
-                                </mapping>
                                 <!-- Add these mappings so that .spec knows these dirs are to be removed too on rpm -e -->
-                                <mapping>
-                                    <directory>/etc/presto</directory>
-                                </mapping>
                                 <mapping>
                                     <directory>/usr/lib/presto</directory>
                                 </mapping>
