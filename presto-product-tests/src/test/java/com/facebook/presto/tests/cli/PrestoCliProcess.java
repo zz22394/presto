@@ -13,7 +13,7 @@
  */
 package com.facebook.presto.tests.cli;
 
-import com.teradata.test.process.CliProcess;
+import com.teradata.test.process.LocalCliProcess;
 
 import java.util.List;
 import java.util.regex.Pattern;
@@ -23,7 +23,7 @@ import static java.util.regex.Pattern.quote;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public final class PrestoCliProcess
-        extends CliProcess
+        extends LocalCliProcess
 {
     private static final String PRESTO_PROMPT = "presto:default>";
     private static final Pattern PRESTO_PROMPT_PATTERN = Pattern.compile(quote(PRESTO_PROMPT));
@@ -36,7 +36,7 @@ public final class PrestoCliProcess
     public List<String> readLinesUntilPrompt()
     {
         List<String> lines = newArrayList();
-        while (!outputHasNext(PRESTO_PROMPT_PATTERN)) {
+        while (!hasNextOutput(PRESTO_PROMPT_PATTERN)) {
             lines.add(nextOutputLine());
         }
         waitForPrompt();

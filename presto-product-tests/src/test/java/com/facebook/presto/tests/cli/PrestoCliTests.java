@@ -69,7 +69,7 @@ public class PrestoCliTests
     {
         if (presto != null) {
             presto.getInput().println(EXIT_COMMAND);
-            presto.waitWithTimeoutAndKill();
+            presto.waitForWithTimeoutAndKill();
         }
     }
 
@@ -85,7 +85,7 @@ public class PrestoCliTests
     {
         launchPrestoCli("--version");
         String version = firstNonNull(Presto.class.getPackage().getImplementationVersion(), "(version unknown)");
-        assertThat(presto.readRemainingLines()).containsExactly("Presto CLI " + version);
+        assertThat(presto.readRemainingOutputLines()).containsExactly("Presto CLI " + version);
     }
 
     @Test(groups = CLI, timeOut = TIMEOUT)
@@ -103,7 +103,7 @@ public class PrestoCliTests
             throws IOException, InterruptedException
     {
         launchPrestoCliWithServerArgument("--execute", "select * from hive.default.nation;");
-        assertThat(trimLines(presto.readRemainingLines())).containsAll(nationTableBatchLines);
+        assertThat(trimLines(presto.readRemainingOutputLines())).containsAll(nationTableBatchLines);
     }
 
     @Test(groups = CLI, timeOut = TIMEOUT)
@@ -111,7 +111,7 @@ public class PrestoCliTests
             throws IOException, InterruptedException
     {
         launchPrestoCliWithServerArgument("--catalog", "hive", "--schema", "default", "--execute", "select * from nation;");
-        assertThat(trimLines(presto.readRemainingLines())).containsAll(nationTableBatchLines);
+        assertThat(trimLines(presto.readRemainingOutputLines())).containsAll(nationTableBatchLines);
     }
 
     @Test(groups = CLI, timeOut = TIMEOUT)
@@ -123,7 +123,7 @@ public class PrestoCliTests
         Files.write("select * from hive.default.nation;\n", temporayFile, UTF_8);
 
         launchPrestoCliWithServerArgument("--file", temporayFile.getAbsolutePath());
-        assertThat(trimLines(presto.readRemainingLines())).containsAll(nationTableBatchLines);
+        assertThat(trimLines(presto.readRemainingOutputLines())).containsAll(nationTableBatchLines);
     }
 
     private void launchPrestoCliWithServerArgument(String... arguments)
