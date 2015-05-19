@@ -34,6 +34,32 @@ public class TestConditions
     }
 
     @Test
+    public void testAnd()
+    {
+        assertFunction("true AND true", BOOLEAN, true);
+        assertFunction("true AND false", BOOLEAN, false);
+        assertFunction("false AND true", BOOLEAN, false);
+        assertFunction("false AND false", BOOLEAN, false);
+        assertFunction("NOT (true AND true)", BOOLEAN, false);
+        assertFunction("NULL AND true", BOOLEAN, null);
+        assertFunction("NULL AND false", BOOLEAN, false);
+        assertFunction("NULL AND NULL", BOOLEAN, null);
+    }
+
+    @Test
+    public void testOr()
+    {
+        assertFunction("true OR true", BOOLEAN, true);
+        assertFunction("true OR false", BOOLEAN, true);
+        assertFunction("false OR true", BOOLEAN, true);
+        assertFunction("false OR false", BOOLEAN, false);
+        assertFunction("NOT (true OR true)", BOOLEAN, false);
+        assertFunction("NULL or true", BOOLEAN, true);
+        assertFunction("NULL or false", BOOLEAN, null);
+        assertFunction("NULL or NULL", BOOLEAN, null);
+    }
+
+    @Test
     public void testLike()
     {
         assertFunction("'_monkey_' like 'X_monkeyX_' escape 'X'", BOOLEAN, true);
