@@ -738,14 +738,10 @@
                 <artifactId>framework-core</artifactId>
                 <version>1.0.20-SNAPSHOT</version>
                 <exclusions>
-                  <exclusion>
-                    <groupId>net.minidev</groupId>
-                    <artifactId>asm</artifactId>
-                  </exclusion>
-                  <exclusion>
-                    <artifactId>commons-logging</artifactId>
-                    <groupId>commons-logging</groupId>
-                  </exclusion>
+                    <exclusion>
+                        <artifactId>commons-logging</artifactId>
+                        <groupId>commons-logging</groupId>
+                    </exclusion>
                 </exclusions>
             </dependency>
         </dependencies>
