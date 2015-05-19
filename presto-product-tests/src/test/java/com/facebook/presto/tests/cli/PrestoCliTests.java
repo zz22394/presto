@@ -68,7 +68,7 @@ public class PrestoCliTests
             throws InterruptedException
     {
         if (presto != null) {
-            presto.getInput().println(EXIT_COMMAND);
+            presto.getProcessInput().println(EXIT_COMMAND);
             presto.waitForWithTimeoutAndKill();
         }
     }
@@ -94,7 +94,7 @@ public class PrestoCliTests
     {
         launchPrestoCliWithServerArgument();
         presto.waitForPrompt();
-        presto.getInput().println("select * from hive.default.nation;");
+        presto.getProcessInput().println("select * from hive.default.nation;");
         assertThat(trimLines(presto.readLinesUntilPrompt())).containsAll(nationTableInteractiveLines);
     }
 

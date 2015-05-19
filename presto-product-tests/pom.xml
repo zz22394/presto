@@ -111,15 +111,32 @@
                 </configuration>
             </plugin>
 
-            <!-- disable maven-duplicate-finder-plugin -->
+            <!-- exclude conflicting dependencies -->
             <plugin>
                 <groupId>com.ning.maven.plugins</groupId>
                 <artifactId>maven-duplicate-finder-plugin</artifactId>
                 <version>1.0.9</version>
                 <configuration>
-                    <skip>true</skip>
+                    <exceptions combine.children="append">
+                        <exception>
+                            <conflictingDependencies>
+                                <dependency>
+                                    <groupId>com.facebook.presto</groupId>
+                                    <artifactId>presto-jdbc</artifactId>
+                                </dependency>
+                                <dependency>
+                                    <groupId>org.apache.httpcomponents</groupId>
+                                    <artifactId>httpclient</artifactId>
+                                </dependency>
+                            </conflictingDependencies>
+                            <resources>
+                                <resource>mozilla/public-suffix-list.txt</resource>
+                            </resources>
+                        </exception>
+                    </exceptions>
                 </configuration>
             </plugin>
+
         </plugins>
     </build>
 
