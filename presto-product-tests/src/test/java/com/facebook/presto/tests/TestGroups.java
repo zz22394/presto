@@ -28,6 +28,7 @@ public final class TestGroups
     public static final String JMX_CONNECTOR = "jmx";
     public static final String SMOKE = "smoke";
     public static final String JDBC = "jdbc";
+    public static final String COMPARISON = "comparison";
 
     private TestGroups() {}
 }
