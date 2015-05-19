@@ -14,7 +14,7 @@
             </run>
         </groups>
         <packages>
-            <package name="com.facebook.presto.tests"/>
+            <package name="com.facebook.presto.tests.*"/>
         </packages>
         <classes>
             <class name="com.teradata.test.internal.convention.ConventionBasedTestFactory"/>
