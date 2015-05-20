@@ -18,6 +18,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static com.facebook.presto.tests.TestGroups.COMPARISON;
+import static com.facebook.presto.tests.TestGroups.QE;
 import static com.teradata.test.assertions.QueryAssert.Row.row;
 import static com.teradata.test.assertions.QueryAssert.assertThat;
 import static com.teradata.test.query.QueryExecutor.query;
@@ -40,42 +41,42 @@ public class Comparison
         };
     }
 
-    @Test(groups = COMPARISON, dataProvider = "operands")
+    @Test(groups = {COMPARISON, QE}, dataProvider = "operands")
     public void testLessThanOperatorExists(String leftOperand, String rightOperand, String typeName)
     {
         assertThat(query(String.format("select cast(%s as %s) < cast(%s as %s)", leftOperand, typeName, rightOperand, typeName)))
                 .containsExactly(row(true));
     }
 
-    @Test(groups = COMPARISON, dataProvider = "operands")
+    @Test(groups = {COMPARISON, QE}, dataProvider = "operands")
     public void testGreaterThanOperatorExists(String leftOperand, String rightOperand, String typeName)
     {
         assertThat(query(String.format("select cast(%s as %s) > cast(%s as %s)", leftOperand, typeName, rightOperand, typeName)))
                 .containsExactly(row(false));
     }
 
-    @Test(groups = COMPARISON, dataProvider = "operands")
+    @Test(groups = {COMPARISON, QE}, dataProvider = "operands")
     public void testLessThanOrEqualOperatorExists(String leftOperand, String rightOperand, String typeName)
     {
         assertThat(query(String.format("select cast(%s as %s) <= cast(%s as %s)", leftOperand, typeName, rightOperand, typeName)))
                 .containsExactly(row(true));
     }
 
-    @Test(groups = COMPARISON, dataProvider = "operands")
+    @Test(groups = {COMPARISON, QE}, dataProvider = "operands")
     public void testGreaterThanOrEqualOperatorExists(String leftOperand, String rightOperand, String typeName)
     {
         assertThat(query(String.format("select cast(%s as %s) >= cast(%s as %s)", leftOperand, typeName, rightOperand, typeName)))
                 .containsExactly(row(false));
     }
 
-    @Test(groups = COMPARISON, dataProvider = "operands")
+    @Test(groups = {COMPARISON, QE}, dataProvider = "operands")
     public void testEqualOperatorExists(String leftOperand, String rightOperand, String typeName)
     {
         assertThat(query(String.format("select cast(%s as %s) = cast(%s as %s)", leftOperand, typeName, rightOperand, typeName)))
                 .containsExactly(row(false));
     }
 
-    @Test(groups = COMPARISON, dataProvider = "operands")
+    @Test(groups = {COMPARISON, QE}, dataProvider = "operands")
     public void testBetweenOperatorExists(String leftOperand, String rightOperand, String typeName)
     {
         assertThat(query(String.format("select cast(%s as %s) BETWEEN cast(%s as %s)", leftOperand, typeName, rightOperand, typeName)))

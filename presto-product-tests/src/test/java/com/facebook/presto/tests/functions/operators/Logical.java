@@ -17,6 +17,7 @@ import com.teradata.test.ProductTest;
 import org.testng.annotations.Test;
 
 import static com.facebook.presto.tests.TestGroups.LOGICAL;
+import static com.facebook.presto.tests.TestGroups.QE;
 import static com.teradata.test.assertions.QueryAssert.Row.row;
 import static com.teradata.test.assertions.QueryAssert.assertThat;
 import static com.teradata.test.query.QueryExecutor.query;
@@ -24,8 +25,9 @@ import static com.teradata.test.query.QueryExecutor.query;
 public class Logical
         extends ProductTest
 {
-    @Test(groups = LOGICAL)
-    public void testLogical() {
+    @Test(groups = {LOGICAL, QE})
+    public void testLogical()
+    {
         assertThat(query("select true AND true")).containsExactly(row(true));
         assertThat(query("select true OR false")).containsExactly(row(true));
         assertThat(query("select 1 in (1, 2, 3)")).containsExactly(row(true));
