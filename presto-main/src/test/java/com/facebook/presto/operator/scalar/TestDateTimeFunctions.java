@@ -28,7 +28,6 @@ import com.facebook.presto.spi.type.Type;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.joda.time.DurationFieldType;
 import org.joda.time.LocalTime;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
