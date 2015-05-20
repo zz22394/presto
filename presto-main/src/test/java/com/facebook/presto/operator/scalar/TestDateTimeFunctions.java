@@ -28,6 +28,7 @@ import com.facebook.presto.spi.type.Type;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.joda.time.DurationFieldType;
 import org.joda.time.LocalTime;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -140,6 +141,17 @@ public class TestDateTimeFunctions
         dateTime = new DateTime(2001, 1, 22, 3, 4, 5, 888, DATE_TIME_ZONE);
         seconds = dateTime.getMillis() / 1000.0;
         assertFunction("from_unixtime(" + seconds + ")", TimestampType.TIMESTAMP, toTimestamp(dateTime));
+    }
+
+    @Test
+    public void testFromUnixTimeWithOffset()
+    {
+        DateTime sourceDateTime = new DateTime(2001, 1, 22, 3, 4, 5, 0, DATE_TIME_ZONE);
+        double sourceSeconds = sourceDateTime.getMillis() / 1000.0;
+        int targetTZHoursOffset = 1;
+        int targetTZMinutesOffset = 10;
+        DateTime expectedDateTime = new DateTime(sourceDateTime, getDateTimeZone(getTimeZoneKeyForOffset(targetTZHoursOffset * 60 + targetTZMinutesOffset)));
+        assertFunction("from_unixtime(" + sourceSeconds + ", " + targetTZHoursOffset + ", " + targetTZMinutesOffset + ")", TIMESTAMP_WITH_TIME_ZONE, toTimestampWithTimeZone(expectedDateTime));
     }
 
     @Test
