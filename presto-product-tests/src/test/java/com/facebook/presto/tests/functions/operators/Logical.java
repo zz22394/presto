@@ -26,7 +26,7 @@ public class Logical
         extends ProductTest
 {
     @Test(groups = {LOGICAL, QE})
-    public void testLogical()
+    public void testLogicalOperatorsExists()
     {
         assertThat(query("select true AND true")).containsExactly(row(true));
         assertThat(query("select true OR false")).containsExactly(row(true));
