@@ -18,6 +18,7 @@ import com.teradata.test.ProductTest;
 import com.teradata.test.query.QueryResult;
 import org.testng.annotations.Test;
 
+import static com.facebook.presto.tests.TestGroups.ARRAY_FUNCTIONS;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.teradata.test.assertions.QueryAssert.Row.row;
 import static com.teradata.test.assertions.QueryAssert.assertThat;
@@ -26,14 +27,14 @@ import static com.teradata.test.query.QueryExecutor.query;
 public class TestArrayFunctions
         extends ProductTest
 {
-    @Test
+    @Test(groups = ARRAY_FUNCTIONS)
     public void testArrayCreationOperatorAvailable()
     {
         QueryResult queryResult = query("select ARRAY [1,2,3]");
         assertThat(queryResult).containsExactly(row(newArrayList(1, 2, 3)));
     }
 
-    @Test
+    @Test(groups = ARRAY_FUNCTIONS)
     public void testArrayConcatenationOperatorAvailable()
     {
         QueryResult queryResult = query("select ARRAY [1,2] || ARRAY [3]");
