@@ -31,6 +31,7 @@ public final class TestGroups
     public static final String QE = "qe";
     public static final String COMPARISON = "comparison";
     public static final String LOGICAL = "logical";
+    public static final String JSON_FUNCTIONS = "json_functions";
 
     private TestGroups() {}
 }
