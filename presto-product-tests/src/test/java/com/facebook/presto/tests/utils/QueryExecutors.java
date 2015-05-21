@@ -43,6 +43,11 @@ public class QueryExecutors
         return new JdbcQueryExecutor(prestoConnection, testContext());
     }
 
+    public static QueryExecutor onPrestoOnNullCatalog()
+    {
+        return testContext().getDependency(QueryExecutor.class, "presto_null");
+    }
+
     public static QueryExecutor onHive()
     {
         return testContext().getDependency(QueryExecutor.class, "hive");
