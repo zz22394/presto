@@ -21,7 +21,7 @@ import com.teradata.test.ProductTest;
 import com.teradata.test.Requirement;
 import com.teradata.test.RequirementsProvider;
 import com.teradata.test.Requires;
-import com.teradata.test.convention.SqlResultFile;
+import com.teradata.test.convention.SqlResultDescriptor;
 import com.teradata.test.query.QueryResult;
 import org.testng.annotations.Test;
 
@@ -33,7 +33,7 @@ import static com.facebook.presto.tests.TpchTableResults.PRESTO_NATION_RESULT;
 import static com.teradata.test.Requirements.compose;
 import static com.teradata.test.assertions.QueryAssert.Row.row;
 import static com.teradata.test.assertions.QueryAssert.assertThat;
-import static com.teradata.test.convention.SqlResultFile.sqlResultFileForResource;
+import static com.teradata.test.convention.SqlResultDescriptor.sqlResultDescriptorForResource;
 import static com.teradata.test.fulfillment.hive.tpch.TpchTableDefinitions.NATION;
 import static com.teradata.test.fulfillment.table.MutableTableRequirement.State.CREATED;
 import static com.teradata.test.fulfillment.table.MutableTablesState.mutableTablesState;
@@ -48,7 +48,7 @@ public class JdbcTests
         extends ProductTest
 {
     private static final String TABLE_NAME = "nation_table_name";
-    private static final SqlResultFile GET_COLUMNS_RESULT = sqlResultFileForResource("com/facebook/presto/tests/jdbc/get_nation_columns.result");
+    private static final SqlResultDescriptor GET_COLUMNS_RESULT = sqlResultDescriptorForResource("com/facebook/presto/tests/jdbc/get_nation_columns.result");
 
     private static class ImmutableAndMutableNationTable
             implements RequirementsProvider
@@ -75,7 +75,7 @@ public class JdbcTests
     {
         try (Statement statement = connection.createStatement()) {
             QueryResult result = queryResult(statement, "select * from hive.default.nation");
-            assertThat(result).matchesFile(PRESTO_NATION_RESULT);
+            assertThat(result).matches(PRESTO_NATION_RESULT);
         }
     }
 
@@ -93,7 +93,7 @@ public class JdbcTests
                     .isEqualTo(0);
         }
 
-        assertThat(query("SELECT * FROM " + tableNameInDatabase)).matchesFile(PRESTO_NATION_RESULT);
+        assertThat(query("SELECT * FROM " + tableNameInDatabase)).matches(PRESTO_NATION_RESULT);
     }
 
     @Test(groups = JDBC)
@@ -105,7 +105,7 @@ public class JdbcTests
         connection.setSchema("default");
         try (Statement statement = connection.createStatement()) {
             QueryResult result = queryResult(statement, "select * from nation");
-            assertThat(result).matchesFile(PRESTO_NATION_RESULT);
+            assertThat(result).matches(PRESTO_NATION_RESULT);
         }
     }
 
@@ -158,7 +158,7 @@ public class JdbcTests
     {
         PrestoDatabaseMetaData metaData = new PrestoDatabaseMetaData(connection);
         QueryResult result = QueryResult.forResultSet(metaData.getColumns("hive", "default", "nation", null));
-        assertThat(result).matchesFile(GET_COLUMNS_RESULT);
+        assertThat(result).matches(GET_COLUMNS_RESULT);
     }
 
     @Test(groups = JDBC)

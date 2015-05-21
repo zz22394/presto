@@ -13,13 +13,13 @@
  */
 package com.facebook.presto.tests;
 
-import com.teradata.test.convention.SqlResultFile;
+import com.teradata.test.convention.SqlResultDescriptor;
 
-import static com.teradata.test.convention.SqlResultFile.sqlResultFileForResource;
+import static com.teradata.test.convention.SqlResultDescriptor.sqlResultDescriptorForResource;
 
 public final class TpchTableResults
 {
-    public static final SqlResultFile PRESTO_NATION_RESULT = sqlResultFileForResource("table-results/presto-nation.result");
+    public static final SqlResultDescriptor PRESTO_NATION_RESULT = sqlResultDescriptorForResource("table-results/presto-nation.result");
 
     private TpchTableResults()
     {
