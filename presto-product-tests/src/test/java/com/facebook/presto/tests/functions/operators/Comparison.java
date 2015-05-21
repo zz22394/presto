@@ -79,7 +79,7 @@ public class Comparison
     @Test(groups = {COMPARISON, QE}, dataProvider = "operands")
     public void testBetweenOperatorExists(String leftOperand, String rightOperand, String typeName)
     {
-        assertThat(query(String.format("select cast(%s as %s) BETWEEN cast(%s as %s)", leftOperand, typeName, rightOperand, typeName)))
-                .containsExactly(row(false));
+        assertThat(query(String.format("select cast(%s as %s) BETWEEN cast(%s as %s) AND cast(%s as %s)", leftOperand, typeName, leftOperand, typeName, rightOperand, typeName)))
+                .containsExactly(row(true));
     }
 }
