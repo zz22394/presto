@@ -1,4 +1,4 @@
--- delimiter: |; ignoreOrder: false; types: BIGINT
+-- delimiter: |; ignoreOrder: true; types: BIGINT
 25|
 50|
 47|
