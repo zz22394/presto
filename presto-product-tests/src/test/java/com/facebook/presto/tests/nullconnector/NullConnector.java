@@ -14,9 +14,11 @@
 
 package com.facebook.presto.tests.nullconnector;
 
+import com.teradata.test.query.QueryResult;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.util.UUID;
 
 import static com.facebook.presto.tests.TestGroups.NULL_CONNECTOR;
 import static com.teradata.test.assertions.QueryAssert.Row.row;
@@ -30,18 +32,19 @@ public class NullConnector
     public void nullConnector()
             throws IOException
     {
-        String nullTable = "\"null\".default.nation";
+        String nullTable = "\"null\".default.nation_" + UUID.randomUUID().toString().replace("-", "");
         String table = "tpch.tiny.nation";
+
+        assertThat(query(format("SELECT count(*) from %s", table))).containsExactly(row(25));
+        QueryResult result = query(format("CREATE TABLE %s AS SELECT * FROM %s", nullTable, table));
         try {
-            assertThat(query(format("SELECT count(*) from %s", table))).containsExactly(row(25));
-            assertThat(query(format("CREATE TABLE %s AS SELECT * FROM %s", nullTable, table)))
-                    .updatedRowsCountIsEqualTo(0);
+            assertThat(result).updatedRowsCountIsEqualTo(0);
             assertThat(query(format("INSERT INTO %s SELECT * FROM %s", nullTable, table)))
                     .updatedRowsCountIsEqualTo(0);
             assertThat(query(format("SELECT * FROM %s", nullTable))).hasNoRows();
         }
         finally {
-            query("DROP TABLE null.default.nation");
+            query(format("DROP TABLE %s", nullTable));
         }
     }
 }
