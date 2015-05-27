@@ -2,5 +2,5 @@
 -- delimiter: |; ignoreOrder: true; 
 --!
 insert into ${mutableTables.datatype} select * from datatype where c_bigint < 0;
-select * from ${mutableTables.datatype};
+select * from ${mutableTables.datatype}
 --!

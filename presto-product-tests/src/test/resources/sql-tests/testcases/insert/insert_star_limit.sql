@@ -2,7 +2,7 @@
 -- delimiter: |; ignoreOrder: false; 
 --!
 insert into ${mutableTables.datatype} select * from datatype order by 1 limit 2;
-select * from ${mutableTables.datatype};
+select * from ${mutableTables.datatype}
 --!
-12|12.25|String1|1999-01-08|1999-01-08 02:05:06|t|
-25|55.52|test|1952-01-05|1989-01-08 04:05:06|f|
+12|12.25|String1|1999-01-08|1999-01-08 02:05:06|true|
+25|55.52|test|1952-01-05|1989-01-08 04:05:06|false|

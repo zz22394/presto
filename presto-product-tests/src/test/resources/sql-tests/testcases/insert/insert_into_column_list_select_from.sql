@@ -1,8 +1,8 @@
--- database: presto; groups: insert; mutable_tables: datatype|created; tables: datatype
+-- database: presto; groups: insert, quarantine; mutable_tables: datatype|created; tables: datatype
 -- delimiter: |; ignoreOrder: true; 
 --!
-insert into ${mutableTables.datatype} (c_bigint, c_double, c_varchar, c_date, c_timestamp, c_boolean) select * datatype;
-select * from ${mutableTables.datatype};
+insert into ${mutableTables.datatype} (c_bigint, c_double, c_varchar, c_date, c_timestamp, c_boolean) select * from datatype;
+select * from ${mutableTables.datatype}
 --!
 12|12.25|String1|1999-01-08|1999-01-08 02:05:06|t|
 25|55.52|test|1952-01-05|1989-01-08 04:05:06|f|
