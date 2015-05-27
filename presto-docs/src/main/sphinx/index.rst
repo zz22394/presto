@@ -16,6 +16,3 @@ Presto Documentation
     sql
     migration
     develop
-    release
-
-.. Note: If "release" is not the last item, the CSS must be updated.
