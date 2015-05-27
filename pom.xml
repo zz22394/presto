@@ -736,7 +736,7 @@
             <dependency>
                 <groupId>com.teradata.test</groupId>
                 <artifactId>framework-core</artifactId>
-                <version>1.0.24-SNAPSHOT</version>
+                <version>1.0.25-SNAPSHOT</version>
                 <exclusions>
                     <exclusion>
                         <artifactId>commons-logging</artifactId>
