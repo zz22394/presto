@@ -15,4 +15,3 @@ Presto Documentation
     language
     sql
     migration
-    develop
