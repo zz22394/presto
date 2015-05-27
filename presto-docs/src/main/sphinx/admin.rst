@@ -6,3 +6,5 @@ Administration
     :maxdepth: 1
 
     admin/queue
+    admin/web-interface
+    admin/tuning
