@@ -1,7 +1,7 @@
 -- database: presto; groups: insert; mutable_tables: datatype|created; tables: datatype
 -- delimiter: |; ignoreOrder: true; 
 --!
-insert into ${mutableTables.datatype} select * from datatype union select * from datatype;
+insert into ${mutableTables.datatype} select * from datatype union all select * from datatype;
 select * from ${mutableTables.datatype}
 --!
 12|12.25|String1|1999-01-08|1999-01-08 02:05:06|true|
