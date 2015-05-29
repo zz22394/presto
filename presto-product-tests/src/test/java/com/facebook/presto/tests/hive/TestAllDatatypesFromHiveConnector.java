@@ -17,6 +17,7 @@ package com.facebook.presto.tests.hive;
 import com.teradata.test.ProductTest;
 import com.teradata.test.Requirement;
 import com.teradata.test.RequirementsProvider;
+import com.teradata.test.Requires;
 import com.teradata.test.query.QueryType;
 import org.testng.annotations.Test;
 
@@ -25,32 +26,63 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 
 import static com.facebook.presto.tests.TestGroups.HIVE_CONNECTOR;
+import static com.facebook.presto.tests.TestGroups.HIVE_CONNECTOR_014;
 import static com.facebook.presto.tests.TestGroups.QUARANTINE;
 import static com.facebook.presto.tests.TestGroups.SMOKE;
 import static com.facebook.presto.tests.hive.AllSimpleTypesTableDefinitions.ALL_HIVE_SIMPLE_TYPES_ORC;
 import static com.facebook.presto.tests.hive.AllSimpleTypesTableDefinitions.ALL_HIVE_SIMPLE_TYPES_PARQUET;
 import static com.facebook.presto.tests.hive.AllSimpleTypesTableDefinitions.ALL_HIVE_SIMPLE_TYPES_RCFILE;
 import static com.facebook.presto.tests.hive.AllSimpleTypesTableDefinitions.ALL_HIVE_SIMPLE_TYPES_TEXTFILE;
-import static com.teradata.test.Requirements.compose;
 import static com.teradata.test.assertions.QueryAssert.Row.row;
 import static com.teradata.test.assertions.QueryAssert.assertThat;
 import static com.teradata.test.fulfillment.table.TableRequirements.immutableTable;
 import static com.teradata.test.query.QueryExecutor.query;
 
-public class TestAllDatatypesFromHiveConnector
-        extends ProductTest
+final class TextRequirements
         implements RequirementsProvider
 {
     @Override
     public Requirement getRequirements()
     {
-        return compose(
-                immutableTable(ALL_HIVE_SIMPLE_TYPES_TEXTFILE),
-                immutableTable(ALL_HIVE_SIMPLE_TYPES_ORC),
-                immutableTable(ALL_HIVE_SIMPLE_TYPES_RCFILE),
-                immutableTable(ALL_HIVE_SIMPLE_TYPES_PARQUET));
+        return immutableTable(ALL_HIVE_SIMPLE_TYPES_TEXTFILE);
     }
+}
 
+final class OrcRequirements
+        implements RequirementsProvider
+{
+    @Override
+    public Requirement getRequirements()
+    {
+        return immutableTable(ALL_HIVE_SIMPLE_TYPES_ORC);
+    }
+}
+
+final class RcfileRequirements
+        implements RequirementsProvider
+{
+    @Override
+    public Requirement getRequirements()
+    {
+        return immutableTable(ALL_HIVE_SIMPLE_TYPES_RCFILE);
+    }
+}
+
+final class ParquetRequirements
+        implements RequirementsProvider
+{
+    @Override
+    public Requirement getRequirements()
+    {
+        return immutableTable(ALL_HIVE_SIMPLE_TYPES_PARQUET);
+    }
+}
+
+public class TestAllDatatypesFromHiveConnector
+        extends ProductTest
+//        implements RequirementsProvider
+{
+    @Requires(TextRequirements.class)
     @Test(groups = {HIVE_CONNECTOR, SMOKE})
     public void testSelectAllDatatypesTextFile()
             throws SQLException
@@ -73,6 +105,7 @@ public class TestAllDatatypesFromHiveConnector
                         "kot binarny".getBytes()));
     }
 
+    @Requires(OrcRequirements.class)
     @Test(groups = HIVE_CONNECTOR)
     public void testSelectAllDatatypesOrc()
             throws SQLException
@@ -95,6 +128,7 @@ public class TestAllDatatypesFromHiveConnector
                         "kot binarny".getBytes()));
     }
 
+    @Requires(OrcRequirements.class)
     @Test(groups = {HIVE_CONNECTOR, QUARANTINE})
     public void testSelectVarcharColumnForOrc()
             throws SQLException
@@ -108,6 +142,7 @@ public class TestAllDatatypesFromHiveConnector
         // Query 20150417_002158_00049_b2hmy failed: Error opening Hive split hdfs://hadoop-master:8020/product-test/inline-tables/xorc_all_types/000000_0 (offset=0, length=1317): Unsupported type: VARCHAR
     }
 
+    @Requires(RcfileRequirements.class)
     @Test(groups = HIVE_CONNECTOR)
     public void testSelectAllDatatypesRcfile()
             throws SQLException
@@ -149,13 +184,16 @@ public class TestAllDatatypesFromHiveConnector
         );
     }
 
-    @Test(groups = {HIVE_CONNECTOR, QUARANTINE})
+    @Requires(ParquetRequirements.class)
+    @Test(groups = {HIVE_CONNECTOR, HIVE_CONNECTOR_014, QUARANTINE})
     public void testSelectAllDatatypesParquetFile()
             throws SQLException
     {
         // this is stripped from decimal and time columns
         // yet still it does not work through presto, while it work directly from hive
         // fixing would need further investigation.
+        //
+        // Parquet char and varchar types only work in Hive 0.14 and above
 
         assertThat(query("SHOW COLUMNS FROM parquet_all_types", QueryType.SELECT).project(1, 2)).containsExactly(
                 row("c_tinyint", "bigint"),

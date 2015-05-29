@@ -24,6 +24,7 @@ public final class TestGroups
     public static final String FUNCTIONS = "functions";
     public static final String CLI = "cli";
     public static final String HIVE_CONNECTOR = "hive_connector";
+    public static final String HIVE_CONNECTOR_014 = "hive_connector_014";
     public static final String SYSTEM_CONNECTOR = "system";
     public static final String JMX_CONNECTOR = "jmx";
     public static final String NULL_CONNECTOR = "null";
