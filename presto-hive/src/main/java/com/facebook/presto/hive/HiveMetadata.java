@@ -44,6 +44,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.airlift.log.Logger;
 import io.airlift.slice.Slice;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.hive.metastore.MetaStoreUtils;
 import org.apache.hadoop.hive.metastore.TableType;
 import org.apache.hadoop.hive.metastore.api.Database;
 import org.apache.hadoop.hive.metastore.api.FieldSchema;
@@ -417,8 +418,14 @@ public class HiveMetadata
             if (!handle.getSession().getUser().equals(table.getOwner())) {
                 throw new PrestoException(PERMISSION_DENIED, format("Unable to drop table '%s': owner of the table is different from session user", table));
             }
-            metastore.dropTable(handle.getSchemaName(), handle.getTableName(), false);
-            delete(getTableLocation(table), true);
+
+            metastore.dropTable(handle.getSchemaName(), handle.getTableName(), true);
+
+            // When metastore runs from other user than Presto, it may have no rights to delete folder created by Presto.
+            // In such case metastore just silently leaves data untouched.
+            if (!MetaStoreUtils.isExternalTable(table)) {
+                deleteIfExist(getTableLocation(table), true);
+            }
         }
         catch (NoSuchObjectException e) {
             throw new TableNotFoundException(tableName);
@@ -634,10 +641,15 @@ public class HiveMetadata
 
     private void delete(Path source, boolean recursive)
     {
+        if (!deleteIfExist(source, recursive)) {
+            throw new PrestoException(HIVE_FILESYSTEM_ERROR, format("Failed to remove %s. Delete returned false. Perhaps path does not exist.", source));
+        }
+    }
+
+    private boolean deleteIfExist(Path source, boolean recursive)
+    {
         try {
-            if (!hdfsEnvironment.getFileSystem(source).delete(source, recursive)) {
-                throw new IOException(String.format("delete on '%s' returned false", source));
-            }
+            return hdfsEnvironment.getFileSystem(source).delete(source, recursive);
         }
         catch (IOException e) {
             throw new PrestoException(HIVE_FILESYSTEM_ERROR, format("Failed to remove %s ", source), e);
