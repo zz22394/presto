@@ -20,6 +20,7 @@ import com.google.inject.Inject;
 import com.teradata.tempto.ProductTest;
 import com.teradata.tempto.Requirement;
 import com.teradata.tempto.RequirementsProvider;
+import com.teradata.tempto.configuration.Configuration;
 import com.teradata.tempto.fulfillment.hive.DataSource;
 import com.teradata.tempto.fulfillment.hive.HiveTableDefinition;
 import com.teradata.tempto.fulfillment.table.MutableTablesState;
@@ -81,7 +82,7 @@ public class TestTablePartitioningSelect
     }
 
     @Override
-    public Requirement getRequirements()
+    public Requirement getRequirements(Configuration configuration)
     {
         return allOf(
                 mutableTable(SINGLE_INT_COLUMN_PARTITIONEND_TEXTFILE, TABLE_NAME, LOADED),

@@ -22,6 +22,7 @@ import com.teradata.tempto.AfterTestWithContext;
 import com.teradata.tempto.ProductTest;
 import com.teradata.tempto.Requirement;
 import com.teradata.tempto.RequirementsProvider;
+import com.teradata.tempto.configuration.Configuration;
 import com.teradata.tempto.fulfillment.table.ImmutableTableRequirement;
 import org.testng.annotations.Test;
 
@@ -74,7 +75,7 @@ public class PrestoCliTests
     }
 
     @Override
-    public Requirement getRequirements()
+    public Requirement getRequirements(Configuration configuration)
     {
         return new ImmutableTableRequirement(NATION);
     }

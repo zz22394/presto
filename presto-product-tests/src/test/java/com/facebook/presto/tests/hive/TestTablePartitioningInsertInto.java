@@ -19,6 +19,7 @@ import com.google.inject.Inject;
 import com.teradata.tempto.ProductTest;
 import com.teradata.tempto.Requirement;
 import com.teradata.tempto.RequirementsProvider;
+import com.teradata.tempto.configuration.Configuration;
 import com.teradata.tempto.context.ThreadLocalTestContextHolder;
 import com.teradata.tempto.fulfillment.hive.HiveTableDefinition;
 import com.teradata.tempto.fulfillment.table.MutableTableRequirement;
@@ -83,7 +84,7 @@ public class TestTablePartitioningInsertInto
     }
 
     @Override
-    public Requirement getRequirements()
+    public Requirement getRequirements(Configuration configuration)
     {
         return compose(
                 new MutableTableRequirement(PARTITIONED_NATION),

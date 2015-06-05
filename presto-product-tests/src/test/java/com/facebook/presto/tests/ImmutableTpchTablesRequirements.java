@@ -15,6 +15,7 @@ package com.facebook.presto.tests;
 
 import com.teradata.tempto.Requirement;
 import com.teradata.tempto.RequirementsProvider;
+import com.teradata.tempto.configuration.Configuration;
 import com.teradata.tempto.fulfillment.table.ImmutableTableRequirement;
 
 import static com.teradata.tempto.Requirements.compose;
@@ -40,7 +41,7 @@ public class ImmutableTpchTablesRequirements
     public static final Requirement PART_SUPPLIER_TABLE = new ImmutableTableRequirement(PART_SUPPLIER);
 
     @Override
-    public Requirement getRequirements()
+    public Requirement getRequirements(Configuration configuration)
     {
         return compose(
                 PART_TABLE,
@@ -58,7 +59,7 @@ public class ImmutableTpchTablesRequirements
             implements RequirementsProvider
     {
         @Override
-        public Requirement getRequirements()
+        public Requirement getRequirements(Configuration configuration)
         {
             return PART_TABLE;
         }
@@ -68,7 +69,7 @@ public class ImmutableTpchTablesRequirements
             implements RequirementsProvider
     {
         @Override
-        public Requirement getRequirements()
+        public Requirement getRequirements(Configuration configuration)
         {
             return NATION_TABLE;
         }
@@ -78,7 +79,7 @@ public class ImmutableTpchTablesRequirements
             implements RequirementsProvider
     {
         @Override
-        public Requirement getRequirements()
+        public Requirement getRequirements(Configuration configuration)
         {
             return REGION_TABLE;
         }
@@ -88,7 +89,7 @@ public class ImmutableTpchTablesRequirements
             implements RequirementsProvider
     {
         @Override
-        public Requirement getRequirements()
+        public Requirement getRequirements(Configuration configuration)
         {
             return ORDERS_TABLE;
         }
@@ -98,7 +99,7 @@ public class ImmutableTpchTablesRequirements
             implements RequirementsProvider
     {
         @Override
-        public Requirement getRequirements()
+        public Requirement getRequirements(Configuration configuration)
         {
             return SUPPLIER_TABLE;
         }
@@ -108,7 +109,7 @@ public class ImmutableTpchTablesRequirements
             implements RequirementsProvider
     {
         @Override
-        public Requirement getRequirements()
+        public Requirement getRequirements(Configuration configuration)
         {
             return CUSTOMER_TABLE;
         }
@@ -118,7 +119,7 @@ public class ImmutableTpchTablesRequirements
             implements RequirementsProvider
     {
         @Override
-        public Requirement getRequirements()
+        public Requirement getRequirements(Configuration configuration)
         {
             return LINE_ITEM_TABLE;
         }
@@ -128,7 +129,7 @@ public class ImmutableTpchTablesRequirements
             implements RequirementsProvider
     {
         @Override
-        public Requirement getRequirements()
+        public Requirement getRequirements(Configuration configuration)
         {
             return PART_SUPPLIER_TABLE;
         }

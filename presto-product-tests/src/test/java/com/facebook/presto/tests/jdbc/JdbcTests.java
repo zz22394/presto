@@ -21,6 +21,7 @@ import com.teradata.tempto.ProductTest;
 import com.teradata.tempto.Requirement;
 import com.teradata.tempto.RequirementsProvider;
 import com.teradata.tempto.Requires;
+import com.teradata.tempto.configuration.Configuration;
 import com.teradata.tempto.convention.SqlResultDescriptor;
 import com.teradata.tempto.query.QueryResult;
 import org.testng.annotations.Test;
@@ -53,7 +54,7 @@ public class JdbcTests
     private static class ImmutableAndMutableNationTable
             implements RequirementsProvider
     {
-        public Requirement getRequirements()
+        public Requirement getRequirements(Configuration configuration)
         {
             return compose(immutableTable(NATION), mutableTable(NATION, TABLE_NAME, CREATED));
         }

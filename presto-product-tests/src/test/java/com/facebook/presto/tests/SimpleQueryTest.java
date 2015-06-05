@@ -20,6 +20,7 @@ import com.teradata.tempto.Requirement;
 import com.teradata.tempto.RequirementsProvider;
 import com.teradata.tempto.Requires;
 import com.teradata.tempto.assertions.QueryAssert;
+import com.teradata.tempto.configuration.Configuration;
 import com.teradata.tempto.fulfillment.table.ImmutableTableRequirement;
 import org.testng.annotations.Test;
 
@@ -39,7 +40,7 @@ public class SimpleQueryTest
             implements RequirementsProvider
     {
         @Override
-        public Requirement getRequirements()
+        public Requirement getRequirements(Configuration configuration)
         {
             return new ImmutableTableRequirement(NATION);
         }

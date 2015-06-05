@@ -18,6 +18,7 @@ import com.teradata.tempto.ProductTest;
 import com.teradata.tempto.Requirement;
 import com.teradata.tempto.RequirementsProvider;
 import com.teradata.tempto.Requires;
+import com.teradata.tempto.configuration.Configuration;
 import com.teradata.tempto.query.QueryType;
 import org.testng.annotations.Test;
 
@@ -42,7 +43,7 @@ final class TextRequirements
         implements RequirementsProvider
 {
     @Override
-    public Requirement getRequirements()
+    public Requirement getRequirements(Configuration configuration)
     {
         return immutableTable(ALL_HIVE_SIMPLE_TYPES_TEXTFILE);
     }
@@ -52,7 +53,7 @@ final class OrcRequirements
         implements RequirementsProvider
 {
     @Override
-    public Requirement getRequirements()
+    public Requirement getRequirements(Configuration configuration)
     {
         return immutableTable(ALL_HIVE_SIMPLE_TYPES_ORC);
     }
@@ -62,7 +63,7 @@ final class RcfileRequirements
         implements RequirementsProvider
 {
     @Override
-    public Requirement getRequirements()
+    public Requirement getRequirements(Configuration configuration)
     {
         return immutableTable(ALL_HIVE_SIMPLE_TYPES_RCFILE);
     }
@@ -72,7 +73,7 @@ final class ParquetRequirements
         implements RequirementsProvider
 {
     @Override
-    public Requirement getRequirements()
+    public Requirement getRequirements(Configuration configuration)
     {
         return immutableTable(ALL_HIVE_SIMPLE_TYPES_PARQUET);
     }

@@ -18,6 +18,7 @@ import com.teradata.tempto.ProductTest;
 import com.teradata.tempto.Requirement;
 import com.teradata.tempto.RequirementsProvider;
 import com.teradata.tempto.Requires;
+import com.teradata.tempto.configuration.Configuration;
 import org.testng.annotations.Test;
 
 import java.sql.Date;
@@ -46,7 +47,7 @@ public class TestInsertIntoHiveTable
             implements RequirementsProvider
     {
         @Override
-        public Requirement getRequirements()
+        public Requirement getRequirements(Configuration configuration)
         {
             return compose(
                     mutableTable(ALL_HIVE_SIMPLE_TYPES_TEXTFILE, TABLE_NAME, CREATED),
@@ -58,7 +59,7 @@ public class TestInsertIntoHiveTable
             implements RequirementsProvider
     {
         @Override
-        public Requirement getRequirements()
+        public Requirement getRequirements(Configuration configuration)
         {
             return compose(
                     mutableTable(ALL_HIVE_SIMPLE_TYPES_KNOWN_TO_PRESTO_TEXTFILE, TABLE_NAME, CREATED),
