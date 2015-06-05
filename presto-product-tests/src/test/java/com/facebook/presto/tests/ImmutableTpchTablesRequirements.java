@@ -13,19 +13,19 @@
  */
 package com.facebook.presto.tests;
 
-import com.teradata.test.Requirement;
-import com.teradata.test.RequirementsProvider;
-import com.teradata.test.fulfillment.table.ImmutableTableRequirement;
+import com.teradata.tempto.Requirement;
+import com.teradata.tempto.RequirementsProvider;
+import com.teradata.tempto.fulfillment.table.ImmutableTableRequirement;
 
-import static com.teradata.test.Requirements.compose;
-import static com.teradata.test.fulfillment.hive.tpch.TpchTableDefinitions.CUSTOMER;
-import static com.teradata.test.fulfillment.hive.tpch.TpchTableDefinitions.LINE_ITEM;
-import static com.teradata.test.fulfillment.hive.tpch.TpchTableDefinitions.NATION;
-import static com.teradata.test.fulfillment.hive.tpch.TpchTableDefinitions.ORDERS;
-import static com.teradata.test.fulfillment.hive.tpch.TpchTableDefinitions.PART;
-import static com.teradata.test.fulfillment.hive.tpch.TpchTableDefinitions.PART_SUPPLIER;
-import static com.teradata.test.fulfillment.hive.tpch.TpchTableDefinitions.REGION;
-import static com.teradata.test.fulfillment.hive.tpch.TpchTableDefinitions.SUPPLIER;
+import static com.teradata.tempto.Requirements.compose;
+import static com.teradata.tempto.fulfillment.hive.tpch.TpchTableDefinitions.CUSTOMER;
+import static com.teradata.tempto.fulfillment.hive.tpch.TpchTableDefinitions.LINE_ITEM;
+import static com.teradata.tempto.fulfillment.hive.tpch.TpchTableDefinitions.NATION;
+import static com.teradata.tempto.fulfillment.hive.tpch.TpchTableDefinitions.ORDERS;
+import static com.teradata.tempto.fulfillment.hive.tpch.TpchTableDefinitions.PART;
+import static com.teradata.tempto.fulfillment.hive.tpch.TpchTableDefinitions.PART_SUPPLIER;
+import static com.teradata.tempto.fulfillment.hive.tpch.TpchTableDefinitions.REGION;
+import static com.teradata.tempto.fulfillment.hive.tpch.TpchTableDefinitions.SUPPLIER;
 
 public class ImmutableTpchTablesRequirements
         implements RequirementsProvider

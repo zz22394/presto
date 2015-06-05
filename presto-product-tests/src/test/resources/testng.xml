@@ -17,7 +17,7 @@
             <package name="com.facebook.presto.tests.*"/>
         </packages>
         <classes>
-            <class name="com.teradata.test.internal.convention.ConventionBasedTestFactory"/>
+            <class name="com.teradata.tempto.internal.convention.ConventionBasedTestFactory"/>
         </classes>
     </test>
 

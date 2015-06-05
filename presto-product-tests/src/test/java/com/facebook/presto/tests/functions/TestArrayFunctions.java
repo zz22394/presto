@@ -14,15 +14,15 @@
 
 package com.facebook.presto.tests.functions;
 
-import com.teradata.test.ProductTest;
-import com.teradata.test.query.QueryResult;
+import com.teradata.tempto.ProductTest;
+import com.teradata.tempto.query.QueryResult;
 import org.testng.annotations.Test;
 
 import static com.facebook.presto.tests.TestGroups.ARRAY_FUNCTIONS;
 import static com.google.common.collect.Lists.newArrayList;
-import static com.teradata.test.assertions.QueryAssert.Row.row;
-import static com.teradata.test.assertions.QueryAssert.assertThat;
-import static com.teradata.test.query.QueryExecutor.query;
+import static com.teradata.tempto.assertions.QueryAssert.Row.row;
+import static com.teradata.tempto.assertions.QueryAssert.assertThat;
+import static com.teradata.tempto.query.QueryExecutor.query;
 
 public class TestArrayFunctions
         extends ProductTest

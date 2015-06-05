@@ -14,13 +14,13 @@
 
 package com.facebook.presto.tests.hive;
 
-import com.teradata.test.fulfillment.hive.DataSource;
-import com.teradata.test.fulfillment.hive.HiveTableDefinition;
-import com.teradata.test.fulfillment.table.TableDefinitionsRepository;
+import com.teradata.tempto.fulfillment.hive.DataSource;
+import com.teradata.tempto.fulfillment.hive.HiveTableDefinition;
+import com.teradata.tempto.fulfillment.table.TableDefinitionsRepository;
 
 import java.util.Optional;
 
-import static com.teradata.test.fulfillment.hive.InlineDataSource.createResourceDataSource;
+import static com.teradata.tempto.fulfillment.hive.InlineDataSource.createResourceDataSource;
 
 public final class AllSimpleTypesTableDefinitions
 {

@@ -14,10 +14,10 @@
 
 package com.facebook.presto.tests.hive;
 
-import com.teradata.test.ProductTest;
-import com.teradata.test.Requirement;
-import com.teradata.test.RequirementsProvider;
-import com.teradata.test.Requires;
+import com.teradata.tempto.ProductTest;
+import com.teradata.tempto.Requirement;
+import com.teradata.tempto.RequirementsProvider;
+import com.teradata.tempto.Requires;
 import org.testng.annotations.Test;
 
 import java.sql.Date;
@@ -28,14 +28,14 @@ import static com.facebook.presto.tests.TestGroups.QUARANTINE;
 import static com.facebook.presto.tests.TestGroups.SMOKE;
 import static com.facebook.presto.tests.hive.AllSimpleTypesTableDefinitions.ALL_HIVE_SIMPLE_TYPES_KNOWN_TO_PRESTO_TEXTFILE;
 import static com.facebook.presto.tests.hive.AllSimpleTypesTableDefinitions.ALL_HIVE_SIMPLE_TYPES_TEXTFILE;
-import static com.teradata.test.Requirements.compose;
-import static com.teradata.test.assertions.QueryAssert.Row.row;
-import static com.teradata.test.assertions.QueryAssert.assertThat;
-import static com.teradata.test.fulfillment.table.MutableTableRequirement.State.CREATED;
-import static com.teradata.test.fulfillment.table.MutableTablesState.mutableTablesState;
-import static com.teradata.test.fulfillment.table.TableRequirements.immutableTable;
-import static com.teradata.test.fulfillment.table.TableRequirements.mutableTable;
-import static com.teradata.test.query.QueryExecutor.query;
+import static com.teradata.tempto.Requirements.compose;
+import static com.teradata.tempto.assertions.QueryAssert.Row.row;
+import static com.teradata.tempto.assertions.QueryAssert.assertThat;
+import static com.teradata.tempto.fulfillment.table.MutableTableRequirement.State.CREATED;
+import static com.teradata.tempto.fulfillment.table.MutableTablesState.mutableTablesState;
+import static com.teradata.tempto.fulfillment.table.TableRequirements.immutableTable;
+import static com.teradata.tempto.fulfillment.table.TableRequirements.mutableTable;
+import static com.teradata.tempto.query.QueryExecutor.query;
 
 public class TestInsertIntoHiveTable
         extends ProductTest

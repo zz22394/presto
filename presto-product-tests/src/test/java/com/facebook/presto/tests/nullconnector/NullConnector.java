@@ -14,16 +14,16 @@
 
 package com.facebook.presto.tests.nullconnector;
 
-import com.teradata.test.query.QueryResult;
+import com.teradata.tempto.query.QueryResult;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.util.UUID;
 
 import static com.facebook.presto.tests.TestGroups.NULL_CONNECTOR;
-import static com.teradata.test.assertions.QueryAssert.Row.row;
-import static com.teradata.test.assertions.QueryAssert.assertThat;
-import static com.teradata.test.query.QueryExecutor.query;
+import static com.teradata.tempto.assertions.QueryAssert.Row.row;
+import static com.teradata.tempto.assertions.QueryAssert.assertThat;
+import static com.teradata.tempto.query.QueryExecutor.query;
 import static java.lang.String.format;
 
 public class NullConnector

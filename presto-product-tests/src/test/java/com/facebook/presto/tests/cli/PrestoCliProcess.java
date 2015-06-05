@@ -13,7 +13,7 @@
  */
 package com.facebook.presto.tests.cli;
 
-import com.teradata.test.process.LocalCliProcess;
+import com.teradata.tempto.process.LocalCliProcess;
 
 import java.util.List;
 import java.util.regex.Pattern;

@@ -13,12 +13,12 @@
  */
 package com.facebook.presto.tests;
 
-import com.teradata.test.ProductTest;
+import com.teradata.tempto.ProductTest;
 import org.testng.annotations.Test;
 
 import static com.facebook.presto.tests.utils.QueryExecutors.onPresto;
-import static com.teradata.test.assertions.QueryAssert.Row.row;
-import static com.teradata.test.assertions.QueryAssert.assertThat;
+import static com.teradata.tempto.assertions.QueryAssert.Row.row;
+import static com.teradata.tempto.assertions.QueryAssert.assertThat;
 
 public class ProductTestFunctions
         extends ProductTest

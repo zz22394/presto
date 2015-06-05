@@ -13,15 +13,15 @@
  */
 package com.facebook.presto.tests.functions.operators;
 
-import com.teradata.test.ProductTest;
+import com.teradata.tempto.ProductTest;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static com.facebook.presto.tests.TestGroups.COMPARISON;
 import static com.facebook.presto.tests.TestGroups.QE;
-import static com.teradata.test.assertions.QueryAssert.Row.row;
-import static com.teradata.test.assertions.QueryAssert.assertThat;
-import static com.teradata.test.query.QueryExecutor.query;
+import static com.teradata.tempto.assertions.QueryAssert.Row.row;
+import static com.teradata.tempto.assertions.QueryAssert.assertThat;
+import static com.teradata.tempto.query.QueryExecutor.query;
 
 public class Comparison
         extends ProductTest

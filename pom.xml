@@ -734,9 +734,9 @@
             </dependency>
 
             <dependency>
-                <groupId>com.teradata.test</groupId>
-                <artifactId>framework-core</artifactId>
-                <version>1.0.26-SNAPSHOT</version>
+                <groupId>com.teradata.tempto</groupId>
+                <artifactId>tempto-core</artifactId>
+                <version>1.0.27-SNAPSHOT</version>
                 <exclusions>
                     <exclusion>
                         <artifactId>commons-logging</artifactId>

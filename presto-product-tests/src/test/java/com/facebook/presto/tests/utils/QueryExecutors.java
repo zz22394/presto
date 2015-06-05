@@ -14,16 +14,16 @@
 package com.facebook.presto.tests.utils;
 
 import com.facebook.presto.jdbc.PrestoConnection;
-import com.teradata.test.configuration.Configuration;
-import com.teradata.test.query.JdbcQueryExecutor;
-import com.teradata.test.query.QueryExecutor;
+import com.teradata.tempto.configuration.Configuration;
+import com.teradata.tempto.query.JdbcQueryExecutor;
+import com.teradata.tempto.query.QueryExecutor;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Map;
 
-import static com.teradata.test.context.ThreadLocalTestContextHolder.testContext;
+import static com.teradata.tempto.context.ThreadLocalTestContextHolder.testContext;
 
 public class QueryExecutors
 {

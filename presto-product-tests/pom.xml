@@ -40,8 +40,8 @@
             <artifactId>guava</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.teradata.test</groupId>
-            <artifactId>framework-core</artifactId>
+            <groupId>com.teradata.tempto</groupId>
+            <artifactId>tempto-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.assertj</groupId>

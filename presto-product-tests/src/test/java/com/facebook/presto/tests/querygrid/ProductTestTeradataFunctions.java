@@ -13,7 +13,7 @@
  */
 package com.facebook.presto.tests.querygrid;
 
-import com.teradata.test.ProductTest;
+import com.teradata.tempto.ProductTest;
 import org.testng.annotations.Test;
 
 import java.sql.Date;
@@ -21,8 +21,8 @@ import java.sql.Timestamp;
 
 import static com.facebook.presto.tests.querygrid.QuerygridTestGroups.FUNCTIONS;
 import static com.facebook.presto.tests.utils.QueryExecutors.onPresto;
-import static com.teradata.test.assertions.QueryAssert.Row.row;
-import static com.teradata.test.assertions.QueryAssert.assertThat;
+import static com.teradata.tempto.assertions.QueryAssert.Row.row;
+import static com.teradata.tempto.assertions.QueryAssert.assertThat;
 
 public class ProductTestTeradataFunctions extends ProductTest
 {

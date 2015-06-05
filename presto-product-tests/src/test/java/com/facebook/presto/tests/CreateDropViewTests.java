@@ -14,19 +14,19 @@
 package com.facebook.presto.tests;
 
 import com.facebook.presto.tests.ImmutableTpchTablesRequirements.ImmutableNationTable;
-import com.teradata.test.ProductTest;
-import com.teradata.test.Requires;
+import com.teradata.tempto.ProductTest;
+import com.teradata.tempto.Requires;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
 
 import static com.facebook.presto.tests.TestGroups.CREATE_DROP_VIEW;
 import static com.facebook.presto.tests.TestGroups.SMOKE;
-import static com.teradata.test.assertions.QueryAssert.assertThat;
-import static com.teradata.test.context.ContextDsl.executeWith;
-import static com.teradata.test.query.QueryExecutor.query;
-import static com.teradata.test.query.QueryType.UPDATE;
-import static com.teradata.test.sql.SqlContexts.createViewAs;
+import static com.teradata.tempto.assertions.QueryAssert.assertThat;
+import static com.teradata.tempto.context.ContextDsl.executeWith;
+import static com.teradata.tempto.query.QueryExecutor.query;
+import static com.teradata.tempto.query.QueryType.UPDATE;
+import static com.teradata.tempto.sql.SqlContexts.createViewAs;
 import static java.lang.String.format;
 
 @Requires(ImmutableNationTable.class)

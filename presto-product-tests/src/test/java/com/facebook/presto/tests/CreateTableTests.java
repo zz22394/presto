@@ -16,9 +16,9 @@ package com.facebook.presto.tests;
 import com.facebook.presto.tests.ImmutableTpchTablesRequirements.ImmutableNationTable;
 import com.facebook.presto.tests.utils.PrestoDDLUtils.Table;
 import com.google.common.collect.ImmutableMap;
-import com.teradata.test.ProductTest;
-import com.teradata.test.Requires;
-import com.teradata.test.query.QueryResult;
+import com.teradata.tempto.ProductTest;
+import com.teradata.tempto.Requires;
+import com.teradata.tempto.query.QueryResult;
 import org.assertj.core.api.Assertions;
 import org.testng.annotations.Test;
 
@@ -33,9 +33,9 @@ import static com.facebook.presto.tests.utils.PrestoDDLUtils.createPrestoTable;
 import static com.facebook.presto.tests.utils.QueryExecutors.onHive;
 import static com.google.common.base.Preconditions.checkPositionIndexes;
 import static com.google.common.collect.Iterables.getFirst;
-import static com.teradata.test.assertions.QueryAssert.assertThat;
-import static com.teradata.test.query.QueryExecutor.query;
-import static com.teradata.test.query.QueryType.SELECT;
+import static com.teradata.tempto.assertions.QueryAssert.assertThat;
+import static com.teradata.tempto.query.QueryExecutor.query;
+import static com.teradata.tempto.query.QueryType.SELECT;
 import static java.lang.String.format;
 import static org.assertj.core.data.MapEntry.entry;
 

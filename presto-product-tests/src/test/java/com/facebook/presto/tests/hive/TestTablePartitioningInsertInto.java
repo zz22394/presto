@@ -16,24 +16,24 @@ package com.facebook.presto.tests.hive;
 import com.facebook.presto.jdbc.PrestoResultSet;
 import com.facebook.presto.tests.queryinfo.QueryInfoClient;
 import com.google.inject.Inject;
-import com.teradata.test.ProductTest;
-import com.teradata.test.Requirement;
-import com.teradata.test.RequirementsProvider;
-import com.teradata.test.context.ThreadLocalTestContextHolder;
-import com.teradata.test.fulfillment.hive.HiveTableDefinition;
-import com.teradata.test.fulfillment.table.MutableTableRequirement;
-import com.teradata.test.fulfillment.table.MutableTablesState;
-import com.teradata.test.query.QueryResult;
+import com.teradata.tempto.ProductTest;
+import com.teradata.tempto.Requirement;
+import com.teradata.tempto.RequirementsProvider;
+import com.teradata.tempto.context.ThreadLocalTestContextHolder;
+import com.teradata.tempto.fulfillment.hive.HiveTableDefinition;
+import com.teradata.tempto.fulfillment.table.MutableTableRequirement;
+import com.teradata.tempto.fulfillment.table.MutableTablesState;
+import com.teradata.tempto.query.QueryResult;
 import org.testng.annotations.Test;
 
 import java.sql.SQLException;
 
 import static com.facebook.presto.tests.TestGroups.HIVE_CONNECTOR;
 import static com.facebook.presto.tests.TestGroups.SMOKE;
-import static com.teradata.test.Requirements.compose;
-import static com.teradata.test.fulfillment.hive.InlineDataSource.createResourceDataSource;
-import static com.teradata.test.query.QueryExecutor.query;
-import static com.teradata.test.query.QueryType.SELECT;
+import static com.teradata.tempto.Requirements.compose;
+import static com.teradata.tempto.fulfillment.hive.InlineDataSource.createResourceDataSource;
+import static com.teradata.tempto.query.QueryExecutor.query;
+import static com.teradata.tempto.query.QueryType.SELECT;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestTablePartitioningInsertInto
