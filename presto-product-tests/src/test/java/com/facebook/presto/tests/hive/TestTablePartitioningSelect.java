@@ -100,14 +100,29 @@ public class TestTablePartitioningSelect
         String selectFromAllPartitionsSql = "SELECT * FROM " + tableNameInDatabase;
         QueryResult allPartitionsQueryResult = query(selectFromAllPartitionsSql);
         assertThat(allPartitionsQueryResult).containsOnly(row(42, 1), row(42, 2));
-        long processedLinesCountAllPartitions = getProcessedLinesCount(allPartitionsQueryResult);
-        assertThat(processedLinesCountAllPartitions).isEqualTo(2);
+        assertProcessedLinesCountEquals(allPartitionsQueryResult, 2);
 
         String selectFromOnePartitionsSql = "SELECT * FROM " + tableNameInDatabase + " WHERE part_col = 2";
         QueryResult onePartitionQueryResult = query(selectFromOnePartitionsSql);
         assertThat(onePartitionQueryResult).containsOnly(row(42, 2));
-        long processedLinesCountOnePartition = getProcessedLinesCount(onePartitionQueryResult);
-        assertThat(processedLinesCountOnePartition).isEqualTo(1);
+        assertProcessedLinesCountEquals(onePartitionQueryResult, 1);
+    }
+
+    private static final long GET_PROCESSED_LINES_COUNT_RETRY_SLEEP = 500;
+
+    private void assertProcessedLinesCountEquals(QueryResult allPartitionsQueryResult, int expected)
+            throws SQLException
+    {
+        long processedLinesCountAllPartitions = getProcessedLinesCount(allPartitionsQueryResult);
+        if (processedLinesCountAllPartitions != expected) {
+            try {
+                Thread.sleep(GET_PROCESSED_LINES_COUNT_RETRY_SLEEP);
+            }
+            catch (InterruptedException e) {
+            }
+            processedLinesCountAllPartitions = getProcessedLinesCount(allPartitionsQueryResult);
+        }
+        assertThat(processedLinesCountAllPartitions).isEqualTo(expected);
     }
 
     private long getProcessedLinesCount(QueryResult queryResult)
