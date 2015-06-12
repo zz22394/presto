@@ -24,7 +24,6 @@ import org.testng.annotations.Test;
 
 import java.sql.Date;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 
 import static com.facebook.presto.tests.TestGroups.HIVE_CONNECTOR;
 import static com.facebook.presto.tests.TestGroups.HIVE_CONNECTOR_014;
@@ -38,6 +37,7 @@ import static com.teradata.tempto.assertions.QueryAssert.Row.row;
 import static com.teradata.tempto.assertions.QueryAssert.assertThat;
 import static com.teradata.tempto.fulfillment.table.TableRequirements.immutableTable;
 import static com.teradata.tempto.query.QueryExecutor.query;
+import static com.teradata.tempto.util.DateTimeUtils.parseTimestampInUTC;
 
 final class TextRequirements
         implements RequirementsProvider
@@ -98,7 +98,7 @@ public class TestAllDatatypesFromHiveConnector
                         9223372036854775807L,
                         123.34500122070312, // (double) 123.345f - see limitation #1
                         234.567,
-                        Timestamp.valueOf("2015-05-10 12:15:35.123"),
+                        parseTimestampInUTC("2015-05-10 12:15:35.123"),
                         Date.valueOf("2015-05-10"),
                         "ala ma kota",
                         "ala ma kot",
@@ -122,7 +122,7 @@ public class TestAllDatatypesFromHiveConnector
                         9223372036854775807L,
                         (double) 123.345f, // (double) 123.345f - see limitation #1
                         234.567,
-                        Timestamp.valueOf("2015-05-10 12:15:35.123"),
+                        parseTimestampInUTC("2015-05-10 12:15:35.123"),
                         Date.valueOf("2015-05-10"),
                         "ala ma kota",
                         true,
@@ -159,7 +159,7 @@ public class TestAllDatatypesFromHiveConnector
                         9223372036854775807L,
                         123.345, // for some reason we do not get float/double conversion issue like for text files
                         234.567,
-                        Timestamp.valueOf("2015-05-10 12:15:35.123"),
+                        parseTimestampInUTC("2015-05-10 12:15:35.123"),
                         Date.valueOf("2015-05-10"),
                         "ala ma kota",
                         "ala ma kot",

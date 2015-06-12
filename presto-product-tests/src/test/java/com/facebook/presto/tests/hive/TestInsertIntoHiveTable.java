@@ -37,6 +37,7 @@ import static com.teradata.tempto.fulfillment.table.MutableTablesState.mutableTa
 import static com.teradata.tempto.fulfillment.table.TableRequirements.immutableTable;
 import static com.teradata.tempto.fulfillment.table.TableRequirements.mutableTable;
 import static com.teradata.tempto.query.QueryExecutor.query;
+import static com.teradata.tempto.util.DateTimeUtils.parseTimestampInUTC;
 
 public class TestInsertIntoHiveTable
         extends ProductTest
@@ -179,7 +180,7 @@ public class TestInsertIntoHiveTable
                         9223372036854775807L,
                         123.34500122070312,
                         234.567,
-                        Timestamp.valueOf("2015-05-10 12:15:35.123"),
+                        parseTimestampInUTC("2015-05-10 12:15:35.123"),
                         Date.valueOf("2015-05-10"),
                         "ala ma kota",
                         "ala ma kot",

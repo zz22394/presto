@@ -15,7 +15,6 @@
     <properties>
         <air.main.basedir>${project.parent.basedir}</air.main.basedir>
         <skip.product.tests>true</skip.product.tests>
-        <test.timezone>UTC</test.timezone>
     </properties>
 
     <dependencies>
@@ -164,13 +163,4 @@
             </properties>
         </profile>
     </profiles>
-
-    <repositories>
-        <repository>
-            <id>teradata-nexus</id>
-            <name>Teradata labs nexus</name>
-            <url>http://bdch-ftp.td.teradata.com:8081/nexus/content/repositories/test-framework</url>
-        </repository>
-    </repositories>
-
 </project>

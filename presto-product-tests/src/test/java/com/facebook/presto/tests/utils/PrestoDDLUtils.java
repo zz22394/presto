@@ -25,6 +25,8 @@ import static java.util.Collections.emptyMap;
 
 public final class PrestoDDLUtils
 {
+    private PrestoDDLUtils() {}
+
     public static Table createPrestoTable(String tableName, String tableDDL)
     {
         return createPrestoTable(tableName, tableDDL, emptyMap());
@@ -81,6 +83,4 @@ public final class PrestoDDLUtils
             onPresto().executeQuery(dropTableSQL);
         }
     }
-
-    private PrestoDDLUtils() {}
 }

@@ -29,6 +29,8 @@ public class QueryExecutors
 {
     private static final String PRESTO_CONFIGURATION_KEY = "databases.presto";
 
+    private QueryExecutors() {}
+
     public static QueryExecutor onPresto()
     {
         return testContext().getDependency(QueryExecutor.class, "presto");
@@ -75,6 +77,4 @@ public class QueryExecutors
     {
         return testContext().getDependency(Configuration.class);
     }
-
-    private QueryExecutors() {}
 }
