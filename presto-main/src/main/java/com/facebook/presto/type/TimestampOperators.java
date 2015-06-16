@@ -142,7 +142,7 @@ public final class TimestampOperators
     public static long castFromSlice(ConnectorSession session, @SqlType(StandardTypes.VARCHAR) Slice value)
     {
         try {
-            return parseTimestampWithoutTimeZone(session.getTimeZoneKey(), value.toStringUtf8());
+            return parseTimestampWithoutTimeZone(session.getTimeZoneKey(), value.toStringUtf8().trim());
         }
         catch (IllegalArgumentException e) {
             throw new PrestoException(INVALID_CAST_ARGUMENT, e);

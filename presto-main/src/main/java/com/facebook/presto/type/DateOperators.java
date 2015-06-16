@@ -131,7 +131,7 @@ public final class DateOperators
     public static long castFromSlice(@SqlType(StandardTypes.VARCHAR) Slice value)
     {
         try {
-            return parseDate(value.toStringUtf8());
+            return parseDate(value.toStringUtf8().trim());
         }
         catch (IllegalArgumentException e) {
             throw new PrestoException(INVALID_CAST_ARGUMENT, e);
