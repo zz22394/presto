@@ -743,7 +743,7 @@
             <dependency>
                 <groupId>com.teradata.tempto</groupId>
                 <artifactId>tempto-core</artifactId>
-                <version>1.0.30ex</version>
+                <version>1.0.30</version>
                 <exclusions>
                     <exclusion>
                         <artifactId>commons-logging</artifactId>
