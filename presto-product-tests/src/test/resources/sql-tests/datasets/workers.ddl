@@ -1,3 +1,4 @@
+-- type: hive
 CREATE TABLE %NAME%
 (
   id_employee INT,

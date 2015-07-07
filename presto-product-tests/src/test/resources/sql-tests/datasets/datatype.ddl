@@ -1,3 +1,4 @@
+-- type: hive
 CREATE EXTERNAL TABLE %NAME%(
   c_bigint bigint,
   c_double double,
