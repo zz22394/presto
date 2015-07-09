@@ -93,6 +93,14 @@
         <module>presto-verifier</module>
     </modules>
 
+   <repositories>
+       <repository>
+           <id>sonatype-nexus</id>
+           <name>Sonatype nexus</name>
+           <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+       </repository>
+   </repositories>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -743,7 +751,7 @@
             <dependency>
                 <groupId>com.teradata.tempto</groupId>
                 <artifactId>tempto-core</artifactId>
-                <version>1.0.32</version>
+                <version>1.0.33-SNAPSHOT</version>
                 <exclusions>
                     <exclusion>
                         <artifactId>commons-logging</artifactId>

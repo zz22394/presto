@@ -84,14 +84,6 @@
         </dependency>
     </dependencies>
 
-    <repositories>
-        <repository>
-            <id>teradata-nexus</id>
-            <name>Teradata labs nexus</name>
-            <url>http://bdch-ftp.td.teradata.com:8081/nexus/content/repositories/test-framework</url>
-        </repository>
-    </repositories>
-
     <build>
         <plugins>
             <!-- exclude conflicting dependencies -->

@@ -19,6 +19,13 @@
 
     <dependencies>
         <!-- don't add test scope dependencies since they won't be listed in product-tests jar as transitive -->
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>5.1.25</version>
+                <scope>runtime</scope>
+            </dependency>
+
         <dependency>
             <groupId>com.facebook.presto</groupId>
             <artifactId>presto-jdbc</artifactId>
@@ -151,7 +158,6 @@
                     </exceptions>
                 </configuration>
             </plugin>
-
         </plugins>
     </build>
 
