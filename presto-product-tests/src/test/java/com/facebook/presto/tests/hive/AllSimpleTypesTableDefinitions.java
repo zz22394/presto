@@ -14,13 +14,13 @@
 
 package com.facebook.presto.tests.hive;
 
-import com.teradata.tempto.fulfillment.hive.DataSource;
-import com.teradata.tempto.fulfillment.hive.HiveTableDefinition;
+import com.teradata.tempto.fulfillment.table.hive.HiveDataSource;
+import com.teradata.tempto.fulfillment.table.hive.HiveTableDefinition;
 import com.teradata.tempto.fulfillment.table.TableDefinitionsRepository;
 
 import java.util.Optional;
 
-import static com.teradata.tempto.fulfillment.hive.InlineDataSource.createResourceDataSource;
+import static com.teradata.tempto.fulfillment.table.hive.InlineDataSource.createResourceDataSource;
 
 public final class AllSimpleTypesTableDefinitions
 {
@@ -46,7 +46,7 @@ public final class AllSimpleTypesTableDefinitions
     private static HiveTableDefinition allHiveSimpleTypesTableDefinition(String fileFormat, Optional<String> rowFormat)
     {
         String tableName = fileFormat.toLowerCase() + "_all_types";
-        DataSource dataSource = createResourceDataSource(tableName, "" + System.currentTimeMillis(), "com/facebook/presto/tests/hive/data/all_types/data." + fileFormat.toLowerCase());
+        HiveDataSource dataSource = createResourceDataSource(tableName, "" + System.currentTimeMillis(), "com/facebook/presto/tests/hive/data/all_types/data." + fileFormat.toLowerCase());
         return HiveTableDefinition.builder()
                 .setName(tableName)
                 .setCreateTableDDLTemplate("" +
@@ -77,7 +77,7 @@ public final class AllSimpleTypesTableDefinitions
     private static HiveTableDefinition allHiveSimpleTypesParquetTableDefinition()
     {
         String tableName = "parquet_all_types";
-        DataSource dataSource = createResourceDataSource(tableName, "" + System.currentTimeMillis(), "com/facebook/presto/tests/hive/data/all_types/data.parquet");
+        HiveDataSource dataSource = createResourceDataSource(tableName, "" + System.currentTimeMillis(), "com/facebook/presto/tests/hive/data/all_types/data.parquet");
         return HiveTableDefinition.builder()
                 .setName(tableName)
                 .setCreateTableDDLTemplate("" +
@@ -101,7 +101,7 @@ public final class AllSimpleTypesTableDefinitions
     private static HiveTableDefinition allHiveSimpleTypesKnownToPrestoTextfileTableDefinition()
     {
         String tableName = "textfile_all_types_known_to_presto";
-        DataSource dataSource = createResourceDataSource(tableName, "" + System.currentTimeMillis(), "com/facebook/presto/tests/hive/data/all_types_known_to_presto/data.textfile");
+        HiveDataSource dataSource = createResourceDataSource(tableName, "" + System.currentTimeMillis(), "com/facebook/presto/tests/hive/data/all_types_known_to_presto/data.textfile");
         return HiveTableDefinition.builder()
                 .setName(tableName)
                 .setCreateTableDDLTemplate("" +

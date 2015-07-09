@@ -13,9 +13,9 @@
  */
 package com.facebook.presto.tests;
 
-import com.teradata.tempto.convention.SqlResultDescriptor;
+import com.teradata.tempto.internal.convention.SqlResultDescriptor;
 
-import static com.teradata.tempto.convention.SqlResultDescriptor.sqlResultDescriptorForResource;
+import static com.teradata.tempto.internal.convention.SqlResultDescriptor.sqlResultDescriptorForResource;
 
 public final class TpchTableResults
 {

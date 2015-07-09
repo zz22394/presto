@@ -29,7 +29,7 @@ import static com.facebook.presto.tests.TestGroups.SIMPLE;
 import static com.facebook.presto.tests.TestGroups.SMOKE;
 import static com.teradata.tempto.assertions.QueryAssert.Row.row;
 import static com.teradata.tempto.context.ThreadLocalTestContextHolder.testContextIfSet;
-import static com.teradata.tempto.fulfillment.hive.tpch.TpchTableDefinitions.NATION;
+import static com.teradata.tempto.fulfillment.table.hive.tpch.TpchTableDefinitions.NATION;
 import static com.teradata.tempto.query.QueryExecutor.query;
 import static org.assertj.core.api.Assertions.assertThat;
 

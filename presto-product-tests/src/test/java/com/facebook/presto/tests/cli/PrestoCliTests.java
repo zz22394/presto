@@ -34,7 +34,7 @@ import static com.facebook.presto.tests.TestGroups.CLI;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.io.Resources.getResource;
 import static com.google.common.io.Resources.readLines;
-import static com.teradata.tempto.fulfillment.hive.tpch.TpchTableDefinitions.NATION;
+import static com.teradata.tempto.fulfillment.table.hive.tpch.TpchTableDefinitions.NATION;
 import static com.teradata.tempto.process.CliProcess.trimLines;
 import static com.teradata.tempto.process.JavaProcessLauncher.defaultJavaProcessLauncher;
 import static java.nio.charset.StandardCharsets.UTF_8;

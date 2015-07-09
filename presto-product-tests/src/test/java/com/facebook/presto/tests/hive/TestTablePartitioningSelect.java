@@ -21,8 +21,8 @@ import com.teradata.tempto.ProductTest;
 import com.teradata.tempto.Requirement;
 import com.teradata.tempto.RequirementsProvider;
 import com.teradata.tempto.configuration.Configuration;
-import com.teradata.tempto.fulfillment.hive.DataSource;
-import com.teradata.tempto.fulfillment.hive.HiveTableDefinition;
+import com.teradata.tempto.fulfillment.table.hive.HiveDataSource;
+import com.teradata.tempto.fulfillment.table.hive.HiveTableDefinition;
 import com.teradata.tempto.fulfillment.table.MutableTablesState;
 import com.teradata.tempto.query.QueryResult;
 import org.testng.annotations.Test;
@@ -34,7 +34,7 @@ import static com.facebook.presto.tests.TestGroups.HIVE_CONNECTOR;
 import static com.teradata.tempto.Requirements.allOf;
 import static com.teradata.tempto.assertions.QueryAssert.Row.row;
 import static com.teradata.tempto.assertions.QueryAssert.assertThat;
-import static com.teradata.tempto.fulfillment.hive.InlineDataSource.createResourceDataSource;
+import static com.teradata.tempto.fulfillment.table.hive.InlineDataSource.createResourceDataSource;
 import static com.teradata.tempto.fulfillment.table.MutableTableRequirement.State.LOADED;
 import static com.teradata.tempto.fulfillment.table.TableRequirements.mutableTable;
 import static com.teradata.tempto.query.QueryExecutor.query;
@@ -58,7 +58,7 @@ public class TestTablePartitioningSelect
     private static HiveTableDefinition singleIntColumnPartitionedTableDefinition(String fileFormat, Optional<String> serde)
     {
         String tableName = fileFormat.toLowerCase() + "_single_int_column_partitioned";
-        DataSource dataSource = createResourceDataSource(tableName, "" + System.currentTimeMillis(), "com/facebook/presto/tests/hive/data/single_int_column/data." + fileFormat.toLowerCase());
+        HiveDataSource dataSource = createResourceDataSource(tableName, "" + System.currentTimeMillis(), "com/facebook/presto/tests/hive/data/single_int_column/data." + fileFormat.toLowerCase());
         return HiveTableDefinition.builder()
                 .setName(tableName)
                 .setCreateTableDDLTemplate(buildSingleIntColumnPartitionedTableDDL(fileFormat, serde))
