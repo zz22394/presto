@@ -21,6 +21,7 @@ databases:
     jdbc_jar: ${PRESTO_PRODUCT_TESTS_ROOT}/libs/test-framework-hive-jdbc-all.jar
     schema: default
     prepare_statement: USE ${databases.hive.schema}
+    table_manager_type: hive
 
   presto:
     host: ${PRESTO_MASTER}
