@@ -7,4 +7,3 @@ CREATE TABLE %NAME%(
   c_timestamp timestamp,
   c_boolean boolean
 )
-
