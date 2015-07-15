@@ -1,8 +1,8 @@
--- database: presto; groups: postgres_connector;
+-- database: presto; groups: postgresql_connector; tables: nation_jdbc;
+--!
+select t1.n_name, t2.name from postgresql.public.nation_jdbc t1, tpch.sf1.region t2 where t1.n_regionkey = t2.regionkey
+--!
 -- delimiter: |; ignoreOrder: true;
---!
-select t1.n_name, t2.r_name from postgres.public.nation t1, postgres.public.region t2 where t1.n_regionkey = t2.r_regionkey
---!
 ALGERIA|AFRICA|
 ARGENTINA|AMERICA|
 BRAZIL|AMERICA|
