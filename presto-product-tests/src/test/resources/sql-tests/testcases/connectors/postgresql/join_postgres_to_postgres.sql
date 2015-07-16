@@ -1,30 +1,17 @@
--- database: presto; groups: postgresql_connector; tables: nation_jdbc, region_jdbc;
+-- database: presto; groups: postgresql_connector;
 --!
-select t1.n_name, t2.r_name from postgresql.public.nation_jdbc t1, postgresql.public.region_jdbc t2 where t1.n_regionkey = t2.r_regionkey
+select t1.last_name, t2.first_name from postgresql.public.workers_jdbc t1, postgresql.public.workers_jdbc t2 where t1.id_department = t2.id_employee
 --!
--- delimiter: |; ignoreOrder: true;
-ALGERIA|AFRICA|
-ARGENTINA|AMERICA|
-BRAZIL|AMERICA|
-CANADA|AMERICA|
-EGYPT|MIDDLE EAST|
-ETHIOPIA|AFRICA|
-FRANCE|EUROPE|
-GERMANY|EUROPE|
-INDIA|ASIA|
-INDONESIA|ASIA|
-IRAN|MIDDLE EAST|
-IRAQ|MIDDLE EAST|
-JAPAN|ASIA|
-JORDAN|MIDDLE EAST|
-KENYA|AFRICA|
-MOROCCO|AFRICA|
-MOZAMBIQUE|AFRICA|
-PERU|AMERICA|
-CHINA|ASIA|
-ROMANIA|EUROPE|
-SAUDI ARABIA|MIDDLE EAST|
-VIETNAM|ASIA|
-RUSSIA|EUROPE|
-UNITED KINGDOM|EUROPE|
-UNITED STATES|AMERICA|
+-- delimiter: |; trimValues: true; ignoreOrder: true;
+null      | Mary|
+Turner    | Ann|
+Smith     | Ann|
+null      | Martin|
+Donne     | Joana|
+Grant     | Kate|
+Johnson   | Kate|
+null      | Christopher|
+Cage      | George|
+Brown     | Jacob|
+Black     | John|
+null      | Charlie|

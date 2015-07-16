@@ -1,6 +1,0 @@
--- delimiter: |; trimValues: false; types: BIGINT|LONGNVARCHAR
-0|AFRICA|
-1|AMERICA|
-2|ASIA|
-3|EUROPE|
-4|MIDDLE EAST|
