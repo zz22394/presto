@@ -245,7 +245,6 @@ public class TestMathFunctions
                 assertFunction("mod(" + left + ", " + right + ")", DOUBLE, left % right);
             }
         }
-        assertFunction("mod(NULL, NULL)", DOUBLE, null);
         assertFunction("mod(5.0, NULL)", DOUBLE, null);
         assertFunction("mod(NULL, 5.0)", DOUBLE, null);
     }
