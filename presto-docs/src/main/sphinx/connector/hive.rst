@@ -378,3 +378,33 @@ The following configuration properties may have an impact on connector performan
  * **Type:** ``String`` (data size, at least ``5 MB``)
  * **Default value:** ``5 MB``
  * **Description:** Defines the minimum part size for upload parts. Decreasing the minimum part size causes multipart uploads to be split into a larger number of smaller parts. Setting this value too low has a negative effect on transfer speeds, causing extra latency and network communication for each part.
+
+Custom Storage Handlers
+-----------------------
+
+Hive tables can use custom storage handlers to support alternative data formats.
+To query from Hive tables that use custom storage handlers, you will need the
+JARs containing the storage handler classes.  Copy the storage handler JARs to
+the connector plugin directory on all nodes, restart the presto servers, and
+then query the table as you would any other Hive table.  You can copy the
+jar across the cluster using presto-admin's ``plugin add_jar`` command and
+restart servers by using the ``server restart`` command.
+
+For example, if the plugin directory is located at
+``/usr/lib/presto/lib/plugin``, and you want to use the ``hive-hadoop2``
+connector to query from a table that uses a storage handler available
+in ``/tmp/my-classes.jar``:
+
+1. Copy ``my-classes.jar`` into ``/usr/lib/presto/lib/plugin/hive-hadoop2``
+   on all nodes of the cluster.
+   ::
+
+        sudo ./presto-admin plugin add_jar /tmp/my-classes.jar hive-hadoop2
+
+
+2. Restart your presto-servers::
+
+        sudo ./presto-admin server restart
+
+
+Then you can query from the table as you would any other Hive table in Presto.
