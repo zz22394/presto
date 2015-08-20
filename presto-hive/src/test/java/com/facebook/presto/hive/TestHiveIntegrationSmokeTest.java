@@ -29,6 +29,7 @@ import com.facebook.presto.testing.MaterializedRow;
 import com.facebook.presto.tests.AbstractTestIntegrationSmokeTest;
 import com.facebook.presto.tests.DistributedQueryRunner;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import org.intellij.lang.annotations.Language;
 import org.joda.time.DateTime;
 import org.testng.annotations.Test;
@@ -36,6 +37,7 @@ import org.testng.annotations.Test;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static com.facebook.presto.hive.HiveQueryRunner.HIVE_CATALOG;
@@ -43,6 +45,7 @@ import static com.facebook.presto.hive.HiveQueryRunner.TPCH_SCHEMA;
 import static com.facebook.presto.hive.HiveQueryRunner.createQueryRunner;
 import static com.facebook.presto.hive.HiveQueryRunner.createSampledSession;
 import static com.facebook.presto.hive.HiveTableProperties.PARTITIONED_BY_PROPERTY;
+import static com.facebook.presto.hive.HiveTableProperties.SERDE_PARAMETERS;
 import static com.facebook.presto.hive.HiveTableProperties.STORAGE_FORMAT_PROPERTY;
 import static com.facebook.presto.hive.HiveTestUtils.SUPPORTED_STORAGE_FORMAT_NAMES;
 import static io.airlift.tpch.TpchTable.ORDERS;
@@ -250,6 +253,58 @@ public class TestHiveIntegrationSmokeTest
         assertQueryTrue("DROP TABLE test_create_partitioned_table_as");
 
         assertFalse(queryRunner.tableExists(getSession(), "test_create_partitioned_table_as"));
+    }
+
+    @Test
+    public void createTableWithSerdeParameters()
+            throws Exception
+    {
+        @Language("SQL") String createTable = "" +
+                "CREATE TABLE test_serde_parameters_table " +
+                "(" +
+                "  _varchar VARCHAR," +
+                "  _bigint BIGINT," +
+                "  _doube DOUBLE," +
+                "  _boolean BOOLEAN" +
+                ") " +
+                "WITH (" +
+                STORAGE_FORMAT_PROPERTY + " = 'ORC', " +
+                SERDE_PARAMETERS + " = MAP(ARRAY['property1', 'property2'], ARRAY['value1', 'value2'])" +
+                ") ";
+
+        assertQuery(createTable, "SELECT 1");
+
+        Map<String, String> expectedSerdeProperties = ImmutableMap.of("property1", "value1", "property2", "value2");
+        TableMetadata tableMetadata = getTableMetadata("test_serde_parameters_table");
+        assertEquals(tableMetadata.getMetadata().getProperties().get(SERDE_PARAMETERS), expectedSerdeProperties);
+
+        assertQueryTrue("DROP TABLE test_serde_parameters_table");
+
+        assertFalse(queryRunner.tableExists(getSession(), "test_serde_parameters_table"));
+    }
+
+    @Test
+    public void createTableAsWithSerdeParameters()
+            throws Exception
+    {
+        @Language("SQL") String select = "SELECT" +
+                " 'foo' _varchar" +
+                ", 1 _bigint" +
+                ", 3.14 _double" +
+                ", true _boolean";
+
+        String createTableAs = String.format("CREATE TABLE test_serde_parameters_table_as WITH (%s = '%s', %s = %s) AS %s",
+                STORAGE_FORMAT_PROPERTY, "ORC", SERDE_PARAMETERS, "MAP(ARRAY['property1', 'property2'], ARRAY['value1', 'value2'])", select);
+
+        assertQuery(createTableAs, "SELECT 1");
+
+        Map<String, String> expectedSerdeProperties = ImmutableMap.of("property1", "value1", "property2", "value2");
+        TableMetadata tableMetadata = getTableMetadata("test_serde_parameters_table_as");
+        assertEquals(tableMetadata.getMetadata().getProperties().get(SERDE_PARAMETERS), expectedSerdeProperties);
+
+        assertQueryTrue("DROP TABLE test_serde_parameters_table_as");
+
+        assertFalse(queryRunner.tableExists(getSession(), "test_serde_parameters_table_as"));
     }
 
     @Test

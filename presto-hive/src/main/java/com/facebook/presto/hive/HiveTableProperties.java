@@ -16,6 +16,7 @@ package com.facebook.presto.hive;
 import com.facebook.presto.spi.session.PropertyMetadata;
 import com.facebook.presto.spi.type.TypeManager;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
 
@@ -24,6 +25,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.facebook.presto.spi.type.StandardTypes.ARRAY;
+import static com.facebook.presto.spi.type.StandardTypes.MAP;
 import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
 import static java.util.Locale.ENGLISH;
 
@@ -31,6 +33,7 @@ public class HiveTableProperties
 {
     public static final String STORAGE_FORMAT_PROPERTY = "format";
     public static final String PARTITIONED_BY_PROPERTY = "partitioned_by";
+    public static final String SERDE_PARAMETERS = "serde_parameters";
 
     private final List<PropertyMetadata<?>> tableProperties;
 
@@ -55,7 +58,14 @@ public class HiveTableProperties
                         false,
                         value -> ImmutableList.copyOf(((List<String>) value).stream()
                                 .map(name -> name.toLowerCase(ENGLISH))
-                                .collect(Collectors.toList()))));
+                                .collect(Collectors.toList()))),
+                new PropertyMetadata<>(
+                        SERDE_PARAMETERS,
+                        "SerDe properties",
+                        typeManager.getParameterizedType(MAP, ImmutableList.of(VARCHAR.getTypeSignature(), VARCHAR.getTypeSignature()), ImmutableList.of()),
+                        Map.class,
+                        ImmutableMap.of(),
+                        false));
     }
 
     public List<PropertyMetadata<?>> getTableProperties()
@@ -71,5 +81,10 @@ public class HiveTableProperties
     public static List<String> getPartitionedBy(Map<String, Object> tableProperties)
     {
         return (List<String>) tableProperties.get(PARTITIONED_BY_PROPERTY);
+    }
+
+    public static Map<String, String> getSerdeParameters(Map<String, Object> tableProperties)
+    {
+        return (Map<String, String>) tableProperties.get(SERDE_PARAMETERS);
     }
 }

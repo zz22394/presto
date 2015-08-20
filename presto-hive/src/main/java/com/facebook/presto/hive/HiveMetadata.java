@@ -72,9 +72,11 @@ import static com.facebook.presto.hive.HiveErrorCode.HIVE_PATH_ALREADY_EXISTS;
 import static com.facebook.presto.hive.HiveErrorCode.HIVE_TIMEZONE_MISMATCH;
 import static com.facebook.presto.hive.HiveErrorCode.HIVE_UNSUPPORTED_FORMAT;
 import static com.facebook.presto.hive.HiveTableProperties.PARTITIONED_BY_PROPERTY;
+import static com.facebook.presto.hive.HiveTableProperties.SERDE_PARAMETERS;
 import static com.facebook.presto.hive.HiveTableProperties.STORAGE_FORMAT_PROPERTY;
 import static com.facebook.presto.hive.HiveTableProperties.getHiveStorageFormat;
 import static com.facebook.presto.hive.HiveTableProperties.getPartitionedBy;
+import static com.facebook.presto.hive.HiveTableProperties.getSerdeParameters;
 import static com.facebook.presto.hive.HiveType.toHiveType;
 import static com.facebook.presto.hive.HiveUtil.PRESTO_VIEW_FLAG;
 import static com.facebook.presto.hive.HiveUtil.decodeViewData;
@@ -237,6 +239,11 @@ public class HiveMetadata
             properties.put(PARTITIONED_BY_PROPERTY, partitionedBy);
         }
 
+        Map<String, String> serdeParameters = table.get().getSd().getSerdeInfo().getParameters();
+        if (serdeParameters != null && !serdeParameters.isEmpty()) {
+            properties.put(SERDE_PARAMETERS, serdeParameters);
+        }
+
         return new ConnectorTableMetadata(tableName, columns.build(), properties.build(), table.get().getOwner(), sampled);
     }
 
@@ -347,8 +354,9 @@ public class HiveMetadata
         String tableName = schemaTableName.getTableName();
         List<String> partitionedBy = getPartitionedBy(tableMetadata.getProperties());
         List<HiveColumnHandle> columnHandles = getColumnHandles(connectorId, tableMetadata, ImmutableSet.copyOf(partitionedBy));
+        Map<String, String> serdeParameters = ImmutableMap.copyOf(getSerdeParameters(tableMetadata.getProperties()));
         HiveStorageFormat hiveStorageFormat = getHiveStorageFormat(tableMetadata.getProperties());
-        createTable(schemaName, tableName, tableMetadata.getOwner(), columnHandles, hiveStorageFormat, partitionedBy);
+        createTable(schemaName, tableName, tableMetadata.getOwner(), columnHandles, hiveStorageFormat, partitionedBy, serdeParameters);
     }
 
     public void createTable(String schemaName,
@@ -356,7 +364,8 @@ public class HiveMetadata
             String tableOwner,
             List<HiveColumnHandle> columnHandles,
             HiveStorageFormat hiveStorageFormat,
-            List<String> partitionedBy)
+            List<String> partitionedBy,
+            Map<String, String> serdeParameters)
     {
         Path targetPath = getTableDefaultLocation(metastore, hdfsEnvironment, schemaName, tableName);
 
@@ -366,7 +375,7 @@ public class HiveMetadata
         }
 
         createDirectory(hdfsEnvironment, targetPath);
-        createTable(schemaName, tableName, tableOwner, columnHandles, hiveStorageFormat, partitionedBy, targetPath);
+        createTable(schemaName, tableName, tableOwner, columnHandles, hiveStorageFormat, partitionedBy, targetPath, serdeParameters);
     }
 
     private Table createTable(String schemaName,
@@ -375,7 +384,8 @@ public class HiveMetadata
             List<HiveColumnHandle> columnHandles,
             HiveStorageFormat hiveStorageFormat,
             List<String> partitionedBy,
-            Path targetPath)
+            Path targetPath,
+            Map<String, String> serdeParameters)
     {
         Map<String, HiveColumnHandle> columnHandlesByName = Maps.uniqueIndex(columnHandles, HiveColumnHandle::getName);
         List<FieldSchema> partitionColumns = partitionedBy.stream()
@@ -406,7 +416,7 @@ public class HiveMetadata
         SerDeInfo serdeInfo = new SerDeInfo();
         serdeInfo.setName(tableName);
         serdeInfo.setSerializationLib(hiveStorageFormat.getSerDe());
-        serdeInfo.setParameters(ImmutableMap.of());
+        serdeInfo.setParameters(serdeParameters);
 
         StorageDescriptor sd = new StorageDescriptor();
         sd.setLocation(targetPath.toString());
@@ -475,6 +485,7 @@ public class HiveMetadata
 
         HiveStorageFormat hiveStorageFormat = getHiveStorageFormat(tableMetadata.getProperties());
         List<String> partitionedBy = getPartitionedBy(tableMetadata.getProperties());
+        Map<String, String> serdeParameters = ImmutableMap.copyOf(getSerdeParameters(tableMetadata.getProperties()));
 
         // get the root directory for the database
         SchemaTableName schemaTableName = tableMetadata.getTable();
@@ -507,7 +518,8 @@ public class HiveMetadata
                 writePath,
                 hiveStorageFormat,
                 partitionedBy,
-                tableMetadata.getOwner());
+                tableMetadata.getOwner(),
+                serdeParameters);
     }
 
     @Override
@@ -547,7 +559,8 @@ public class HiveMetadata
                     handle.getInputColumns(),
                     handle.getHiveStorageFormat(),
                     handle.getPartitionedBy(),
-                    targetPath);
+                    targetPath,
+                    handle.getSerdeParameters());
 
             if (!handle.getPartitionedBy().isEmpty()) {
                 partitionUpdates.stream()
