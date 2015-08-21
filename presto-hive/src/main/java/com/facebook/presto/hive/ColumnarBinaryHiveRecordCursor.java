@@ -54,6 +54,7 @@ import static com.facebook.presto.hive.HiveUtil.booleanPartitionKey;
 import static com.facebook.presto.hive.HiveUtil.datePartitionKey;
 import static com.facebook.presto.hive.HiveUtil.doublePartitionKey;
 import static com.facebook.presto.hive.HiveUtil.getTableObjectInspector;
+import static com.facebook.presto.hive.HiveUtil.isCharType;
 import static com.facebook.presto.hive.HiveUtil.isStructuralType;
 import static com.facebook.presto.hive.HiveUtil.isVarcharType;
 import static com.facebook.presto.hive.HiveUtil.timestampPartitionKey;
@@ -538,9 +539,9 @@ class ColumnarBinaryHiveRecordCursor<K>
 
     private void parseStringColumn(int column, byte[] bytes, int start, int length)
     {
-        checkState(
-                VALID_HIVE_STRING_TYPES.contains(hiveTypes[column]) ||
-                isVarcharType(hiveTypes[column]),
+        checkState(VALID_HIVE_STRING_TYPES.contains(hiveTypes[column])
+                        || isVarcharType(hiveTypes[column])
+                        || isCharType(hiveTypes[column]),
                 "%s is not a valid STRING type", hiveTypes[column]);
         if (length == 0) {
             nulls[column] = true;

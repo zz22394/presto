@@ -98,6 +98,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.hadoop.hive.metastore.MetaStoreUtils.getTableMetadata;
 import static org.apache.hadoop.hive.metastore.Warehouse.makePartName;
 import static org.apache.hadoop.hive.metastore.api.hive_metastoreConstants.FILE_INPUT_FORMAT;
+import static org.apache.hadoop.hive.serde.serdeConstants.CHAR_TYPE_NAME;
 import static org.apache.hadoop.hive.serde.serdeConstants.SERIALIZATION_LIB;
 import static org.apache.hadoop.hive.serde.serdeConstants.VARCHAR_TYPE_NAME;
 import static org.apache.hadoop.hive.serde2.ColumnProjectionUtils.READ_ALL_COLUMNS;
@@ -116,6 +117,7 @@ public final class HiveUtil
     private static final DateTimeFormatter HIVE_TIMESTAMP_PARSER;
 
     private static final Pattern SUPPORTED_VARCHAR_TYPE = Pattern.compile(VARCHAR_TYPE_NAME + "\\(\\d+\\)");
+    private static final Pattern SUPPORTED_CHAR_TYPE = Pattern.compile(CHAR_TYPE_NAME + "\\(\\d+\\)");
 
     static {
         DateTimeParser[] timestampWithoutTimeZoneParser = {
@@ -430,6 +432,16 @@ public final class HiveUtil
         return new String(Base64.getDecoder().decode(data), UTF_8);
     }
 
+    public static boolean isCharType(HiveType hiveType)
+    {
+        return SUPPORTED_CHAR_TYPE.matcher(hiveType.getHiveTypeName()).matches();
+    }
+
+    public static boolean isVarcharType(HiveType hiveType)
+    {
+        return SUPPORTED_VARCHAR_TYPE.matcher(hiveType.getHiveTypeName()).matches();
+    }
+
     public static boolean isArrayType(Type type)
     {
         return type.getTypeSignature().getBase().equals(StandardTypes.ARRAY);
@@ -454,11 +466,6 @@ public final class HiveUtil
     public static boolean isStructuralType(HiveType hiveType)
     {
         return hiveType.getCategory() == Category.LIST || hiveType.getCategory() == Category.MAP || hiveType.getCategory() == Category.STRUCT;
-    }
-
-    public static boolean isVarcharType(HiveType hiveType)
-    {
-        return SUPPORTED_VARCHAR_TYPE.matcher(hiveType.getHiveTypeName()).matches();
     }
 
     public static boolean booleanPartitionKey(String value, String name)

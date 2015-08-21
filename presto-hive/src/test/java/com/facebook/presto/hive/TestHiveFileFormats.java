@@ -284,13 +284,13 @@ public class TestHiveFileFormats
         RowType phoneType = new RowType(ImmutableList.of(VARCHAR, VARCHAR), Optional.empty());
         RowType personType = new RowType(ImmutableList.of(nameType, BIGINT, VARCHAR, new ArrayType(phoneType)), Optional.empty());
 
-        List<TestColumn> testColumns = ImmutableList.<TestColumn>of(
+        List<TestColumn> testColumns = ImmutableList.of(
             new TestColumn(
                 "persons",
                 getStandardListObjectInspector(
                     getStandardStructObjectInspector(
                         ImmutableList.of("name", "id", "email", "phones"),
-                        ImmutableList.<ObjectInspector>of(
+                        ImmutableList.of(
                             getStandardStructObjectInspector(
                               ImmutableList.of("first_name", "last_name"),
                               ImmutableList.of(javaStringObjectInspector, javaStringObjectInspector)
@@ -333,7 +333,7 @@ public class TestHiveFileFormats
     {
         List<TestColumn> testColumns = filterOutPrimitiveTypes(
                 TEST_COLUMNS,
-                Arrays.asList(PrimitiveCategory.DATE, PrimitiveCategory.VARCHAR));
+                Arrays.asList(PrimitiveCategory.DATE, PrimitiveCategory.VARCHAR, PrimitiveCategory.CHAR));
 
         HiveOutputFormat<?, ?> outputFormat = new com.facebook.hive.orc.OrcOutputFormat();
         InputFormat<?, ?> inputFormat = new com.facebook.hive.orc.OrcInputFormat();
@@ -357,7 +357,7 @@ public class TestHiveFileFormats
     {
         List<TestColumn> testColumns = filterOutPrimitiveTypes(
                 TEST_COLUMNS,
-                Arrays.asList(PrimitiveCategory.DATE, PrimitiveCategory.VARCHAR));
+                Arrays.asList(PrimitiveCategory.DATE, PrimitiveCategory.VARCHAR, PrimitiveCategory.CHAR));
 
         HiveOutputFormat<?, ?> outputFormat = new com.facebook.hive.orc.OrcOutputFormat();
         InputFormat<?, ?> inputFormat = new com.facebook.hive.orc.OrcInputFormat();

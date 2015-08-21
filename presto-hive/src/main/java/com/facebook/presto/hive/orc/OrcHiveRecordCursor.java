@@ -31,7 +31,7 @@ import org.apache.hadoop.hive.ql.io.orc.RecordReader;
 import org.apache.hadoop.hive.serde2.io.ByteWritable;
 import org.apache.hadoop.hive.serde2.io.DateWritable;
 import org.apache.hadoop.hive.serde2.io.DoubleWritable;
-import org.apache.hadoop.hive.serde2.io.HiveVarcharWritable;
+import org.apache.hadoop.hive.serde2.io.HiveBaseCharWritable;
 import org.apache.hadoop.hive.serde2.io.ShortWritable;
 import org.apache.hadoop.hive.serde2.io.TimestampWritable;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
@@ -66,6 +66,7 @@ import static com.facebook.presto.hive.HiveUtil.booleanPartitionKey;
 import static com.facebook.presto.hive.HiveUtil.datePartitionKey;
 import static com.facebook.presto.hive.HiveUtil.doublePartitionKey;
 import static com.facebook.presto.hive.HiveUtil.getTableObjectInspector;
+import static com.facebook.presto.hive.HiveUtil.isCharType;
 import static com.facebook.presto.hive.HiveUtil.isStructuralType;
 import static com.facebook.presto.hive.HiveUtil.isVarcharType;
 import static com.facebook.presto.hive.HiveUtil.timestampPartitionKey;
@@ -435,8 +436,8 @@ public class OrcHiveRecordCursor
             Text text = Types.checkType(object, Text.class, "materialized string value");
             slices[column] = Slices.copyOf(Slices.wrappedBuffer(text.getBytes()), 0, text.getLength());
         }
-        else if (isVarcharType(type)) {
-            Text text = Types.checkType(object, HiveVarcharWritable.class, "materialized varchar value").getTextValue();
+        else if (isVarcharType(type) || isCharType(type)) {
+            Text text = Types.checkType(object, HiveBaseCharWritable.class, "materialized varchar/char value").getTextValue();
             slices[column] = Slices.copyOf(Slices.wrappedBuffer(text.getBytes()), 0, text.getLength());
         }
         else if (type.equals(HIVE_BINARY)) {
