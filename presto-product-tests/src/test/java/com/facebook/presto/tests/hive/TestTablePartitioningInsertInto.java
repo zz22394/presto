@@ -92,6 +92,7 @@ public class TestTablePartitioningInsertInto
                 MutableTableRequirement.builder(TARGET_NATION).build());
     }
 
+    // https://bdch-jira.td.teradata.com/browse/SWARM-1160
     @Test(groups = {HIVE_CONNECTOR, SMOKE, QUARANTINE})
     public void selectFromPartitionedNation()
             throws Exception
