@@ -253,9 +253,9 @@ public class TestHiveFileFormats
                     return false;
                 }
 
-                // Parquet does not support DATE, TIMESTAMP, or BINARY
+                // Parquet does not support DATE, or BINARY
                 ObjectInspector objectInspector = testColumn.getObjectInspector();
-                return !hasType(objectInspector, PrimitiveCategory.DATE, PrimitiveCategory.TIMESTAMP, PrimitiveCategory.BINARY);
+                return !hasType(objectInspector, PrimitiveCategory.DATE, PrimitiveCategory.BINARY);
             }
         }));
 
