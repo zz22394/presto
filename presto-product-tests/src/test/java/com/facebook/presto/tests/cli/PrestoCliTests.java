@@ -50,6 +50,7 @@ public class PrestoCliTests
 
     private final List<String> nationTableInteractiveLines;
     private final List<String> nationTableBatchLines;
+    private final List<String> showSessionLines;
 
     @Inject
     @Named("databases.presto.server_address")
@@ -62,6 +63,7 @@ public class PrestoCliTests
     {
         nationTableInteractiveLines = readLines(getResource("com/facebook/presto/tests/cli/interactive_query.results"), UTF_8);
         nationTableBatchLines = readLines(getResource("com/facebook/presto/tests/cli/batch_query.results"), UTF_8);
+        showSessionLines = readLines(getResource("com/facebook/presto/tests/cli/show_session.results"), UTF_8);
     }
 
     @AfterTestWithContext
@@ -97,6 +99,18 @@ public class PrestoCliTests
         presto.waitForPrompt();
         presto.getProcessInput().println("select * from hive.default.nation;");
         assertThat(trimLines(presto.readLinesUntilPrompt())).containsAll(nationTableInteractiveLines);
+    }
+
+    @Test(groups = CLI, timeOut = TIMEOUT)
+    public void shouldShowSession()
+            throws IOException, InterruptedException
+    {
+        launchPrestoCliWithServerArgument();
+        presto.waitForPrompt();
+        presto.getProcessInput().println("SET SESSION distributed_join = true;"); // change distributed_join to true (default: false)
+        assertThat(trimLines(presto.readLinesUntilPrompt())).containsExactly("SET SESSION distributed_join = true;", "SET SESSION");
+        presto.getProcessInput().println("SHOW SESSION;");
+        assertThat(trimLines(presto.readLinesUntilPrompt())).containsAll(showSessionLines);
     }
 
     @Test(groups = CLI, timeOut = TIMEOUT)
