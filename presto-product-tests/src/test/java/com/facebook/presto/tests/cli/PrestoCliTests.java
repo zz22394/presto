@@ -33,6 +33,7 @@ import java.util.List;
 
 import static com.facebook.presto.tests.TestGroups.CLI;
 import static com.google.common.base.MoreObjects.firstNonNull;
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.io.Resources.getResource;
 import static com.google.common.io.Resources.readLines;
 import static com.teradata.tempto.fulfillment.table.hive.tpch.TpchTableDefinitions.NATION;
@@ -106,15 +107,26 @@ public class PrestoCliTests
     {
         launchPrestoCliWithServerArgument();
         presto.waitForPrompt();
+        // presto:default> SET SESSION distributed_join = false;
+        // SET SESSION
         presto.getProcessInput().println("SET SESSION distributed_join = false;"); // change distributed_join to false (default: true)
         assertThat(trimLines(presto.readLinesUntilPrompt())).containsExactly("SET SESSION distributed_join = false;", "SET SESSION");
 
+        // presto:default> SHOW SESSION
+        //              Name              | Value | Default |  Type   |                  Description
+        // -------------------------------+-------+---------+---------+----------------------------------------------------
+        //  distributed_join              | false | true    | boolean | Use a distributed join instead of a broadcast join
         presto.getProcessInput().println("SHOW SESSION;");
-        String distributedJoinLine = presto.readLinesUntilPrompt().stream()
+        List<String> distributedJoinColumnValues = presto.readLinesUntilPrompt().stream()
                 .filter(line -> line.contains("distributed_join"))
-                .findFirst().get();
-        assertThat(Splitter.on("|").trimResults().split(distributedJoinLine))
-                .containsExactly("distributed_join", "false", "true", "boolean", "Use a distributed join instead of a broadcast join");
+                .findFirst()
+                .map(distributedJoinLine -> newArrayList(Splitter.on("|").trimResults().split(distributedJoinLine)))
+                .get();
+        assertThat(distributedJoinColumnValues.get(0)).isEqualTo("distributed_join");
+        assertThat(distributedJoinColumnValues.get(1)).isEqualTo("false");
+        // assertThat(columnValues.get(2)).isEqualTo("false"); // defaults can change in next version
+        assertThat(distributedJoinColumnValues.get(3)).isEqualTo("boolean");
+        // assertThat(columnValues.get(4)).isEqualTo("Use a distributed join instead of a broadcast join"); // description can change in next versions
     }
 
     @Test(groups = CLI, timeOut = TIMEOUT)
