@@ -14,6 +14,7 @@
 package com.facebook.presto.tests.cli;
 
 import com.facebook.presto.cli.Presto;
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.Files;
 import com.google.inject.Inject;
@@ -50,7 +51,6 @@ public class PrestoCliTests
 
     private final List<String> nationTableInteractiveLines;
     private final List<String> nationTableBatchLines;
-    private final List<String> showSessionLines;
 
     @Inject
     @Named("databases.presto.server_address")
@@ -63,7 +63,6 @@ public class PrestoCliTests
     {
         nationTableInteractiveLines = readLines(getResource("com/facebook/presto/tests/cli/interactive_query.results"), UTF_8);
         nationTableBatchLines = readLines(getResource("com/facebook/presto/tests/cli/batch_query.results"), UTF_8);
-        showSessionLines = readLines(getResource("com/facebook/presto/tests/cli/show_session.results"), UTF_8);
     }
 
     @AfterTestWithContext
@@ -107,10 +106,15 @@ public class PrestoCliTests
     {
         launchPrestoCliWithServerArgument();
         presto.waitForPrompt();
-        presto.getProcessInput().println("SET SESSION distributed_join = true;"); // change distributed_join to true (default: false)
-        assertThat(trimLines(presto.readLinesUntilPrompt())).containsExactly("SET SESSION distributed_join = true;", "SET SESSION");
+        presto.getProcessInput().println("SET SESSION distributed_join = false;"); // change distributed_join to false (default: true)
+        assertThat(trimLines(presto.readLinesUntilPrompt())).containsExactly("SET SESSION distributed_join = false;", "SET SESSION");
+
         presto.getProcessInput().println("SHOW SESSION;");
-        assertThat(trimLines(presto.readLinesUntilPrompt())).containsAll(showSessionLines);
+        String distributedJoinLine = presto.readLinesUntilPrompt().stream()
+                .filter(line -> line.contains("distributed_join"))
+                .findFirst().get();
+        assertThat(Splitter.on("|").trimResults().split(distributedJoinLine))
+                .containsExactly("distributed_join", "false", "true", "boolean", "Use a distributed join instead of a broadcast join");
     }
 
     @Test(groups = CLI, timeOut = TIMEOUT)
