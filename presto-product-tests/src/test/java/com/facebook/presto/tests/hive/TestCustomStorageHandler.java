@@ -18,19 +18,43 @@ import com.teradata.tempto.Requirement;
 import com.teradata.tempto.RequirementsProvider;
 import com.teradata.tempto.Requires;
 import com.teradata.tempto.configuration.Configuration;
+import com.teradata.tempto.fulfillment.table.TableDefinitionsRepository;
+import com.teradata.tempto.fulfillment.table.hive.HiveDataSource;
+import com.teradata.tempto.fulfillment.table.hive.HiveTableDefinition;
 import org.testng.annotations.Test;
 
 import static com.facebook.presto.tests.TestGroups.HIVE_CONNECTOR;
 import static com.facebook.presto.tests.TestGroups.HIVE_CONNECTOR_014;
-import static com.facebook.presto.tests.hive.JsonTableDefinition.SIMPLE_JSON_TABLE;
 import static com.teradata.tempto.assertions.QueryAssert.Row.row;
 import static com.teradata.tempto.assertions.QueryAssert.assertThat;
 import static com.teradata.tempto.fulfillment.table.TableRequirements.immutableTable;
+import static com.teradata.tempto.fulfillment.table.hive.InlineDataSource.createResourceDataSource;
 import static com.teradata.tempto.query.QueryExecutor.query;
 
 final class JsonRequirements
         implements RequirementsProvider
 {
+    @TableDefinitionsRepository.RepositoryTableDefinition
+    public static final HiveTableDefinition SIMPLE_JSON_TABLE = simple_json_table_definition();
+
+    private static HiveTableDefinition simple_json_table_definition()
+    {
+        String tableName = "simple_json_table";
+        HiveDataSource dataSource = createResourceDataSource(tableName, "" + System.currentTimeMillis(), "com/facebook/presto/tests/hive/data/json_data/simple_json_table.json");
+        return HiveTableDefinition.builder()
+                .setName(tableName)
+                .setCreateTableDDLTemplate("" +
+                        "CREATE TABLE %NAME%(" +
+                        "   c_string           string," +
+                        "   c_boolean          boolean," +
+                        "   c_double           double," +
+                        ") " +
+                        "ROW FORMAT SERDE 'org.openx.data.jsonserde.JsonSerDe'" +
+                        "LOCATION '%LOCATION%'")
+                .setDataSource(dataSource)
+                .build();
+    }
+
     @Override
     public Requirement getRequirements(Configuration configuration)
     {
@@ -52,7 +76,7 @@ public class TestCustomStorageHandler extends ProductTest
         assertThat(query("SELECT * " +
                 "FROM simple_json_table")).containsOnly(
                 row(
-                        "hello!",
+                        "hello",
                         true,
                         123.456));
     }
