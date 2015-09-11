@@ -121,7 +121,7 @@ public class TestTablePartitioningSelect
         assertProcessedLinesCountEquals(selectFromOnePartitionSql, onePartitionQueryResult, 3);
     }
 
-    private static final long GET_PROCESSED_LINES_COUNT_RETRY_SLEEP = 500;
+    private static final long GET_PROCESSED_LINES_COUNT_RETRY_SLEEP = 1000;
 
     private void assertProcessedLinesCountEquals(String sqlStatement, QueryResult allPartitionsQueryResult, int expected)
             throws SQLException
