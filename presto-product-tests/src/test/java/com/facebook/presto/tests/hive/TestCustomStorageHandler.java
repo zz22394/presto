@@ -22,6 +22,7 @@ import org.testng.annotations.Test;
 
 import static com.facebook.presto.tests.TestGroups.HIVE_CONNECTOR;
 import static com.facebook.presto.tests.TestGroups.HIVE_CONNECTOR_014;
+import static com.facebook.presto.tests.TestGroups.QUARANTINE;
 import static com.facebook.presto.tests.hive.JsonTableDefinition.SIMPLE_JSON_TABLE;
 import static com.teradata.tempto.assertions.QueryAssert.Row.row;
 import static com.teradata.tempto.assertions.QueryAssert.assertThat;
@@ -46,7 +47,7 @@ public class TestCustomStorageHandler extends ProductTest
      */
 
     @Requires(JsonRequirements.class)
-    @Test(groups = {HIVE_CONNECTOR, HIVE_CONNECTOR_014})
+    @Test(groups = {HIVE_CONNECTOR, HIVE_CONNECTOR_014, QUARANTINE})
     public void testSelectFromJsonTable()
     {
         assertThat(query("SELECT * " +
