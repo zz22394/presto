@@ -178,6 +178,10 @@ public class PrestoStatement
             resultSet = new PrestoResultSet(client);
             QueryResults queryResults = client.current();
 
+            if (queryResults.getError() != null) {
+                throw new SQLException(queryResults.getError().getMessage());
+            }
+
             // query statement
             if (queryResults.getUpdateType() == null) {
                 currentResult.set(resultSet);
@@ -371,7 +375,7 @@ public class PrestoStatement
     public int executeUpdate(String sql)
             throws SQLException
     {
-        return Ints.checkedCast(executeLargeUpdate(sql));
+        return Ints.saturatedCast(executeLargeUpdate(sql));
     }
 
     @Override
