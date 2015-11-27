@@ -1,0 +1,83 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Presto Server Installation &mdash; Presto 101t Documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/presto.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '101t',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="Presto 101t Documentation" href="../../index.html" />
+    <link rel="up" title="3.1. Quick Start Guide" href="../quick-start-guide.html" />
+    <link rel="next" title="Running Presto Queries" href="presto-cli-installation.html" />
+    <link rel="prev" title="Presto Port Configuration" href="presto-port-configuration.html" /> 
+  </head>
+  <body>
+<div class="header">
+    <h1 class="heading"><a href="../../index.html">
+        <span>Presto 101t Documentation</span></a></h1>
+    <h2 class="heading"><span>Presto Server Installation</span></h2>
+</div>
+<div class="topnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="presto-port-configuration.html">Presto Port Configuration</a>
+    </span>
+    <span class="right">
+        <a href="presto-cli-installation.html">Running Presto Queries</a> &raquo;
+    </span>
+</p>
+
+</div>
+<div class="content">
+    
+  <div class="section" id="presto-server-installation">
+<h1>Presto Server Installation</h1>
+<p>Prerequisites: <a class="reference internal" href="presto-admin-installation.html#presto-admin-installation-label"><em>Presto Admin Installation</em></a>, <a class="reference internal" href="java-installation.html#java-installation-label"><em>Java 8 Installation</em></a> and <a class="reference internal" href="presto-admin-configuration.html#presto-admin-configuration-label"><em>Presto-Admin Configuration</em></a></p>
+<p>The following describes how to install the Presto query engine on a cluster of nodes using the <tt class="docutils literal"><span class="pre">presto-admin</span></tt> software utility.</p>
+<p>First download <a class="reference external" href="http://teradata-download.s3.amazonaws.com/aster/presto/presto/101t/presto-0.101-1.0.x86_64.rpm">presto-0.101-1.0.x86_64.rpm</a> and copy it to a location accessible by <tt class="docutils literal"><span class="pre">presto-admin</span></tt>. Then, to install Presto, run the following:</p>
+<div class="highlight-sql"><pre>$ sudo ./presto-admin server install &lt;local_path_to_rpm&gt;</pre>
+</div>
+<p>Presto! Presto is now installed on the coordinator and workers specified in your <tt class="docutils literal"><span class="pre">/etc/opt/prestoadmin/config.json</span></tt> file. Before you can issue your first query, you must start Presto:</p>
+<div class="highlight-sql"><pre>$ sudo ./presto-admin server start</pre>
+</div>
+<p>This may take a few seconds, since the command doesn&#8217;t exit until <tt class="docutils literal"><span class="pre">presto-admin</span></tt> verifies that Presto is fully up and ready to receive queries.</p>
+</div>
+
+
+</div>
+<div class="bottomnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="presto-port-configuration.html">Presto Port Configuration</a>
+    </span>
+    <span class="right">
+        <a href="presto-cli-installation.html">Running Presto Queries</a> &raquo;
+    </span>
+</p>
+
+</div>
+
+    <div class="footer">
+    </div>
+  </body>
+</html>

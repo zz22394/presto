@@ -1,0 +1,91 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Running Presto Queries &mdash; Presto 0.115t Documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/presto.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.115t',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="Presto 0.115t Documentation" href="../../index.html" />
+    <link rel="up" title="3.1. Quick Start Guide" href="../quick-start-guide.html" />
+    <link rel="next" title="Troubleshooting" href="troubleshooting-installation.html" />
+    <link rel="prev" title="Presto Server Installation" href="presto-server-installation.html" /> 
+  </head>
+  <body>
+<div class="header">
+    <h1 class="heading"><a href="../../index.html">
+        <span>Presto 0.115t Documentation</span></a></h1>
+    <h2 class="heading"><span>Running Presto Queries</span></h2>
+</div>
+<div class="topnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="presto-server-installation.html">Presto Server Installation</a>
+    </span>
+    <span class="right">
+        <a href="troubleshooting-installation.html">Troubleshooting</a> &raquo;
+    </span>
+</p>
+
+</div>
+<div class="content">
+    
+  <div class="section" id="running-presto-queries">
+<span id="presto-cli-installation-label"></span><h1>Running Presto Queries</h1>
+<p>The Presto CLI provides a terminal-based interactive shell for running queries. The CLI is a self-executing JAR file, which means it acts like a normal UNIX executable.</p>
+<p>Download the <a class="reference external" href="https://repository.sonatype.org/service/local/artifact/maven/content?r=central-proxy&amp;g=com.facebook.presto&amp;a=presto-cli&amp;v=RELEASE">presto-cli</a> and copy it to the location you want to run it from. This location may be any node that has network access to the coordinator. Then rename it to presto and make it executable with chmod +x:</p>
+<div class="highlight-sql"><pre>$ mv presto-cli-0.115-executable.jar presto
+$ chmod +x presto</pre>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Presto must run with Java 8, so if Java 7 is the default on your cluster, you will need to explicitly specify the Java 8 executable. For example, <tt class="docutils literal"><span class="pre">&lt;path_to_java_8_executable&gt;</span> <span class="pre">-jar</span> <span class="pre">presto</span></tt>. It may be helpful to add an alias for the Presto CLI: <tt class="docutils literal"><span class="pre">alias</span> <span class="pre">presto='&lt;path_to_java_8_executable&gt;</span> <span class="pre">-jar</span> <span class="pre">&lt;path_to_presto&gt;'</span></tt>.</p>
+</div>
+<p>By default, <tt class="docutils literal"><span class="pre">presto-admin</span></tt> installs the TPC-H connector for you, which generates TPC-H data on-the-fly.  Using this connector, issue the following commands to run your first Presto query:</p>
+<div class="highlight-sql"><pre>$ ./presto --catalog tpch --schema tiny
+$ select count(*) from lineitem;</pre>
+</div>
+<p>For more on connectors, including how to connect to Hive, see <a class="reference internal" href="../presto-admin-commands.html#connector-add"><em>connector add</em></a>.</p>
+<p>The above command assumes that you installed the Presto CLI on the coordinator, and that the Presto server is on port 8080. If either of these are not the case, then specify the server location in the command:</p>
+<div class="highlight-sql"><pre>$ ./presto --server &lt;host_name&gt;:&lt;port_number&gt; --catalog system</pre>
+</div>
+</div>
+
+
+</div>
+<div class="bottomnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="presto-server-installation.html">Presto Server Installation</a>
+    </span>
+    <span class="right">
+        <a href="troubleshooting-installation.html">Troubleshooting</a> &raquo;
+    </span>
+</p>
+
+</div>
+
+    <div class="footer">
+    </div>
+  </body>
+</html>

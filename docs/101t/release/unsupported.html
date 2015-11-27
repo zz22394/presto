@@ -1,0 +1,164 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>12.1. Release Notes &mdash; Presto 101t Documentation</title>
+    
+    <link rel="stylesheet" href="../_static/presto.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '101t',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Presto 101t Documentation" href="../index.html" />
+    <link rel="up" title="12. Release Notes" href="../release.html" />
+    <link rel="prev" title="12. Release Notes" href="../release.html" /> 
+  </head>
+  <body>
+<div class="header">
+    <h1 class="heading"><a href="../index.html">
+        <span>Presto 101t Documentation</span></a></h1>
+    <h2 class="heading"><span>12.1. Release Notes</span></h2>
+</div>
+<div class="topnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="../release.html">12. Release Notes</a>
+    </span>
+    <span class="right">
+    </span>
+</p>
+
+</div>
+<div class="content">
+    
+  <div class="section" id="release-notes">
+<h1>12.1. Release Notes</h1>
+<p>Presto 101t is equivalent to Presto release 0.101. Below are documented unsupported
+features and known limitations.</p>
+<div class="section" id="unsupported-features">
+<h2>Unsupported Features</h2>
+<p>The following features from Presto 0.101 may work but are not officially supported:</p>
+<blockquote>
+<div><ul>
+<li><p class="first">Installing presto via the tar ball</p>
+</li>
+<li><p class="first">Running presto via the launcher script</p>
+</li>
+<li><p class="first">Queue configuration</p>
+</li>
+<li><p class="first">The following connectors:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Cassandra</li>
+<li>Kafka</li>
+<li>PostgreSQL</li>
+<li>MySQL</li>
+<li>Hive-hadoop1</li>
+<li>Hive-cdh4</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first">ROW data type</p>
+</li>
+<li><dl class="first docutils">
+<dt>Developer guide, including:</dt>
+<dd><ul class="first last simple">
+<li>SPI</li>
+<li>Pluggable functions</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="known-limitations">
+<h2>Known Limitations</h2>
+<blockquote>
+<div><ul class="simple">
+<li>The SQL keyword <tt class="docutils literal"><span class="pre">end</span></tt> is used as a column name in <tt class="docutils literal"><span class="pre">system.runtime.queries</span></tt>, so in order to query from that column, <tt class="docutils literal"><span class="pre">end</span></tt> must be wrapped in quotes.</li>
+<li><tt class="docutils literal"><span class="pre">DECIMAL</span></tt> and <tt class="docutils literal"><span class="pre">NUMERIC</span></tt> datatypes are not supported</li>
+<li><tt class="docutils literal"><span class="pre">FULL</span> <span class="pre">OUTER</span> <span class="pre">JOIN</span></tt> is not supported</li>
+<li><tt class="docutils literal"><span class="pre">NATURAL</span> <span class="pre">JOIN</span></tt> is not supported</li>
+<li><tt class="docutils literal"><span class="pre">SEMI</span> <span class="pre">JOIN</span></tt> is not supported.</li>
+<li>Scalar subqueries are not supported &#8211; e.g. <tt class="docutils literal"><span class="pre">WHERE</span> <span class="pre">x</span> <span class="pre">=</span> <span class="pre">(SELECT</span> <span class="pre">y</span> <span class="pre">FROM</span> <span class="pre">...)</span></tt></li>
+<li>Correlated subqueries are not supported</li>
+<li>Non-equi joins are only supported for inner join &#8211; e.g. <tt class="docutils literal"><span class="pre">&quot;n_name&quot;</span> <span class="pre">&lt;</span> <span class="pre">&quot;p_name&quot;</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">EXISTS</span></tt>, <tt class="docutils literal"><span class="pre">EXCEPT</span></tt>, and <tt class="docutils literal"><span class="pre">INTERSECT</span></tt> are not supported.</li>
+<li><tt class="docutils literal"><span class="pre">DROP</span> <span class="pre">TABLE</span> <span class="pre">IF</span> <span class="pre">EXISTS</span></tt> is not supported.</li>
+<li><tt class="docutils literal"><span class="pre">ROLLUP</span></tt> is not supported</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="hive-datatype-notes">
+<h2>Hive Datatype Notes</h2>
+<p>There are a few caveats for using the Hive connector, in particular related
+to datatype support.</p>
+<p>Columns with the following types are not visible in a table:</p>
+<blockquote>
+<div><ul class="simple">
+<li><tt class="docutils literal"><span class="pre">DECIMAL</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">DECIMAL</span></tt> with parentheses</li>
+<li><tt class="docutils literal"><span class="pre">CHAR</span></tt></li>
+</ul>
+</div></blockquote>
+<p>Some types are only partially supported.</p>
+<blockquote>
+<div><ul class="simple">
+<li><tt class="docutils literal"><span class="pre">VARCHAR</span></tt> is not supported in ORC and RCBinary file formats.</li>
+</ul>
+</div></blockquote>
+<p>Additionally, Presto does not map Hive data types 1-to-1.</p>
+<blockquote>
+<div><ul class="simple">
+<li>All integral types are mapped to <tt class="docutils literal"><span class="pre">BIGINT</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">FLOAT</span></tt> and <tt class="docutils literal"><span class="pre">DOUBLE</span></tt> are mapped to <tt class="docutils literal"><span class="pre">DOUBLE</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">STRING</span></tt> and <tt class="docutils literal"><span class="pre">VARCHAR</span></tt> are mapped to <tt class="docutils literal"><span class="pre">VARCHAR</span></tt></li>
+</ul>
+</div></blockquote>
+<p>Usually, this should not be a problem, but the mapping could be visible if
+column values are passed to Hive UDFs, or through slight differences in mathematical
+functions.</p>
+<p>The granularity of the <tt class="docutils literal"><span class="pre">TIMESTAMP</span></tt> datatype is to milliseconds in Presto, while
+Hive supports microseconds</p>
+<p><tt class="docutils literal"><span class="pre">TIMESTAMP</span></tt> values that do not have an explicit timezone are parsed according to Hive&#8217;s
+<tt class="docutils literal"><span class="pre">hive.time-zone</span></tt> property in the Hive catalog definition. When results are printed to the
+console, the Presto client&#8217;s JVM timezone is used.</p>
+<p><tt class="docutils literal"><span class="pre">TIMESTAMP</span></tt>, <tt class="docutils literal"><span class="pre">DATE</span></tt> and <tt class="docutils literal"><span class="pre">BINARY</span></tt> datatypes are not supported for the Parquet file type.</p>
+</div>
+</div>
+
+
+</div>
+<div class="bottomnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="../release.html">12. Release Notes</a>
+    </span>
+    <span class="right">
+    </span>
+</p>
+
+</div>
+
+    <div class="footer">
+    </div>
+  </body>
+</html>

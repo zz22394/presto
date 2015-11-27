@@ -1,0 +1,85 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>2.1. Hardware Requirements &mdash; Presto 0.115t Documentation</title>
+    
+    <link rel="stylesheet" href="../_static/presto.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.115t',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Presto 0.115t Documentation" href="../index.html" />
+    <link rel="up" title="2. System Requirements" href="../system-requirements.html" />
+    <link rel="next" title="2.2. Software Requirements" href="software-requirements.html" />
+    <link rel="prev" title="2. System Requirements" href="../system-requirements.html" /> 
+  </head>
+  <body>
+<div class="header">
+    <h1 class="heading"><a href="../index.html">
+        <span>Presto 0.115t Documentation</span></a></h1>
+    <h2 class="heading"><span>2.1. Hardware Requirements</span></h2>
+</div>
+<div class="topnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="../system-requirements.html">2. System Requirements</a>
+    </span>
+    <span class="right">
+        <a href="software-requirements.html">2.2. Software Requirements</a> &raquo;
+    </span>
+</p>
+
+</div>
+<div class="content">
+    
+  <div class="section" id="hardware-requirements">
+<h1>2.1. Hardware Requirements</h1>
+<p><strong>Memory</strong></p>
+<p>It is recommended to allocate at least 16 GB of RAM per node for Presto.</p>
+<p><strong>Other Recommendations</strong>
+Presto can be installed on any normally configured Hadoop cluster. YARN should
+be configured to account for resources dedicated to Presto. For example, if a
+node has 64GB of RAM, perhaps you would normally allocate 60GB to YARN.  If you
+install Presto on that node and give Presto 16GB of RAM, then you should
+subtract 16GB from the 60GB and let YARN only allocate 44GB per node. An
+optimized configuration might choose to have separate Presto and Hadoop nodes.
+The optimized configuration allows you to give more memory to Presto, and thus
+perform larger join queries, for example.</p>
+</div>
+
+
+</div>
+<div class="bottomnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="../system-requirements.html">2. System Requirements</a>
+    </span>
+    <span class="right">
+        <a href="software-requirements.html">2.2. Software Requirements</a> &raquo;
+    </span>
+</p>
+
+</div>
+
+    <div class="footer">
+    </div>
+  </body>
+</html>

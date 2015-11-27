@@ -1,0 +1,94 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Presto Admin Installation &mdash; Presto 101t Documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/presto.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '101t',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="Presto 101t Documentation" href="../../index.html" />
+    <link rel="up" title="3.1. Quick Start Guide" href="../quick-start-guide.html" />
+    <link rel="next" title="Presto-Admin Configuration" href="presto-admin-configuration.html" />
+    <link rel="prev" title="3.1. Quick Start Guide" href="../quick-start-guide.html" /> 
+  </head>
+  <body>
+<div class="header">
+    <h1 class="heading"><a href="../../index.html">
+        <span>Presto 101t Documentation</span></a></h1>
+    <h2 class="heading"><span>Presto Admin Installation</span></h2>
+</div>
+<div class="topnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="../quick-start-guide.html">3.1. Quick Start Guide</a>
+    </span>
+    <span class="right">
+        <a href="presto-admin-configuration.html">Presto-Admin Configuration</a> &raquo;
+    </span>
+</p>
+
+</div>
+<div class="content">
+    
+  <div class="section" id="presto-admin-installation">
+<span id="presto-admin-installation-label"></span><h1>Presto Admin Installation</h1>
+<p><em>Prerequisites:</em> <a class="reference external" href="https://www.python.org/downloads">Python 2.6 or Python 2.7</a></p>
+<p>To install <tt class="docutils literal"><span class="pre">presto-admin</span></tt>, first copy the  installer
+<a class="reference external" href="http://teradata-download.s3.amazonaws.com/aster/presto/admin/101t/prestoadmin-0.1.0-offline.tar.bz2">prestoadmin-0.1.0-offline.tar.bz2</a> to the location where you want
+<tt class="docutils literal"><span class="pre">presto-admin</span></tt> to run. The recommended installation location is <tt class="docutils literal"><span class="pre">/opt</span></tt>.
+Note that <tt class="docutils literal"><span class="pre">presto-admin</span></tt> does not have to be on same node(s) where Presto
+will run, though it does need to have SSH access to all of them. Next, extract
+and sudo run the installation script from within the <tt class="docutils literal"><span class="pre">prestoadmin</span></tt> directory.</p>
+<div class="highlight-sql"><pre>$ tar xvf prestoadmin-0.1.0-offline.tar.bz2
+$ cd prestoadmin
+$ sudo ./install-prestoadmin.sh</pre>
+</div>
+<p>The installation script will create a <tt class="docutils literal"><span class="pre">presto-admin-install</span></tt> directory and an
+executable <tt class="docutils literal"><span class="pre">presto-admin</span></tt> script. Make sure to run the installation script
+with sudo. You can verify <tt class="docutils literal"><span class="pre">presto-admin</span></tt> was installed by running the
+<tt class="docutils literal"><span class="pre">presto-admin</span></tt> help.  Please note that it is necessary to run all
+<tt class="docutils literal"><span class="pre">presto-admin</span></tt> commands with sudo.</p>
+<div class="highlight-sql"><pre>$ sudo ./presto-admin --help</pre>
+</div>
+<p>Please note that you should only run one <tt class="docutils literal"><span class="pre">presto-admin</span></tt> command on your
+cluster at a time.</p>
+</div>
+
+
+</div>
+<div class="bottomnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="../quick-start-guide.html">3.1. Quick Start Guide</a>
+    </span>
+    <span class="right">
+        <a href="presto-admin-configuration.html">Presto-Admin Configuration</a> &raquo;
+    </span>
+</p>
+
+</div>
+
+    <div class="footer">
+    </div>
+  </body>
+</html>

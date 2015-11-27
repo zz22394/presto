@@ -1,0 +1,92 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Presto Port Configuration &mdash; Presto 101t Documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/presto.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '101t',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="Presto 101t Documentation" href="../../index.html" />
+    <link rel="up" title="3.1. Quick Start Guide" href="../quick-start-guide.html" />
+    <link rel="next" title="Presto Server Installation" href="presto-server-installation.html" />
+    <link rel="prev" title="Java 8 Installation" href="java-installation.html" /> 
+  </head>
+  <body>
+<div class="header">
+    <h1 class="heading"><a href="../../index.html">
+        <span>Presto 101t Documentation</span></a></h1>
+    <h2 class="heading"><span>Presto Port Configuration</span></h2>
+</div>
+<div class="topnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="java-installation.html">Java 8 Installation</a>
+    </span>
+    <span class="right">
+        <a href="presto-server-installation.html">Presto Server Installation</a> &raquo;
+    </span>
+</p>
+
+</div>
+<div class="content">
+    
+  <div class="section" id="presto-port-configuration">
+<span id="presto-port-configuration-label"></span><h1>Presto Port Configuration</h1>
+<p>By default, Presto configuration uses 8080 for the HTTP port. If the port is already used on a given node on your cluster, that server will fail to start.
+You can check if that port is already in use on a node by running the following on that node:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="n">netstat</span> <span class="o">-</span><span class="n">an</span> <span class="o">|</span><span class="n">grep</span> <span class="mi">8080</span> <span class="o">|</span><span class="n">grep</span> <span class="k">LISTEN</span>
+</pre></div>
+</div>
+<p>It will return nothing if port 8080 is free.</p>
+<p>You can configure the server to use a different port by changing the following properties in <tt class="docutils literal"><span class="pre">config.properties</span></tt> for both coordinator and workers:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="n">http</span><span class="o">-</span><span class="n">server</span><span class="p">.</span><span class="n">http</span><span class="p">.</span><span class="n">port</span><span class="o">=&lt;</span><span class="n">port</span><span class="o">&gt;</span>
+<span class="n">discovery</span><span class="p">.</span><span class="n">uri</span><span class="o">=</span><span class="n">http</span><span class="p">:</span><span class="o">//&lt;</span><span class="n">coordinator_ip_or_host</span><span class="o">&gt;</span><span class="p">:</span><span class="o">&lt;</span><span class="n">port</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>You can add these properties with the new <tt class="docutils literal"><span class="pre">port</span></tt> to the file <tt class="docutils literal"><span class="pre">config.properties</span></tt> under each of the directories <tt class="docutils literal"><span class="pre">/etc/opt/prestoadmin/coordinator</span></tt>
+and <tt class="docutils literal"><span class="pre">/etc/opt/prestoadmin/workers</span></tt> locally, prior to running <a class="reference internal" href="../presto-admin-commands.html#server-install-label"><em>server install</em></a>. You may need to create these two directories.
+If you have already installed Presto using <a class="reference internal" href="../presto-admin-commands.html#server-install-label"><em>server install</em></a> then you
+can reconfigure the cluster to use a new port by updating the <tt class="docutils literal"><span class="pre">config.properties</span></tt> at  <tt class="docutils literal"><span class="pre">/etc/opt/prestoadmin/coordinator</span></tt>
+and <tt class="docutils literal"><span class="pre">/etc/opt/prestoadmin/workers</span></tt> and then running <a class="reference internal" href="../presto-admin-commands.html#configuration-deploy-label"><em>configuration deploy</em></a>.</p>
+<p><tt class="docutils literal"><span class="pre">presto-admin</span></tt> <a class="reference internal" href="../presto-admin-commands.html#server-start-label"><em>server start</em></a> and <a class="reference internal" href="../presto-admin-commands.html#server-restart-label"><em>server restart</em></a> will check if the port configured for the server
+is already in use. If the port is in use on a node, then <tt class="docutils literal"><span class="pre">presto-admin</span></tt> will issue a warning and skip starting the server on that particular node.</p>
+</div>
+
+
+</div>
+<div class="bottomnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="java-installation.html">Java 8 Installation</a>
+    </span>
+    <span class="right">
+        <a href="presto-server-installation.html">Presto Server Installation</a> &raquo;
+    </span>
+</p>
+
+</div>
+
+    <div class="footer">
+    </div>
+  </body>
+</html>

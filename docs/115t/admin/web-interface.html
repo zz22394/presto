@@ -1,0 +1,108 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>7.2. Web Interface &mdash; Presto 0.115t Documentation</title>
+    
+    <link rel="stylesheet" href="../_static/presto.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.115t',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Presto 0.115t Documentation" href="../index.html" />
+    <link rel="up" title="7. Administration" href="../admin.html" />
+    <link rel="next" title="7.3. Tuning Presto" href="tuning.html" />
+    <link rel="prev" title="7.1. Queue Configuration" href="queue.html" /> 
+  </head>
+  <body>
+<div class="header">
+    <h1 class="heading"><a href="../index.html">
+        <span>Presto 0.115t Documentation</span></a></h1>
+    <h2 class="heading"><span>7.2. Web Interface</span></h2>
+</div>
+<div class="topnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="queue.html">7.1. Queue Configuration</a>
+    </span>
+    <span class="right">
+        <a href="tuning.html">7.3. Tuning Presto</a> &raquo;
+    </span>
+</p>
+
+</div>
+<div class="content">
+    
+  <div class="section" id="web-interface">
+<h1>7.2. Web Interface</h1>
+<p>Presto provides a web interface for monitoring and managing queries. This web
+interface is accessible through <tt class="docutils literal"><span class="pre">example.net:8080</span></tt>. Replace <tt class="docutils literal"><span class="pre">example.net:8080</span></tt>
+to match the host and port of the Presto coordinator as specified in <a class="reference internal" href="../configuration/configuration.html#config-properties"><em>Config Properties</em></a></p>
+<p>The main page has a list of queries along with information like unique query id, query text,
+query state, percentage completed, issuing user name and source from which this query
+originated. The most recently run query is at the top of the page.</p>
+<p>For more detailed information of a query the user can simply click the link on the query id.
+The query detail page has a summary section, graphical representation of various stages of the
+query and a list of tasks. Each task id can be clicked to get more information about that task.
+In the summary section there is a button to kill the currently running query in case the user
+decides to do so for an unwanted long running query. There are couple of visualizations available
+in the summary section, task execution and timeline. There is a JSON version of information and
+statistics of the given query which is present in the summary section with the tag <tt class="docutils literal"><span class="pre">Raw</span></tt>. These
+visualizations and other statistics can be used to analyze where time is being spent for a query
+that is not performing as per the expectations.</p>
+<p>Some of the query states are that can be seen on this interface are</p>
+<ul>
+<li><p class="first">FINISHED</p>
+</li>
+<li><p class="first">QUEUED</p>
+</li>
+<li><p class="first">RUNNING</p>
+</li>
+<li><p class="first">FAILED, can be further classified with error types</p>
+<blockquote>
+<div><ul class="simple">
+<li>INSUFFICIENT RESOURCES</li>
+<li>INTERNAL ERROR</li>
+<li>USER CANCELED</li>
+<li>USER ERROR</li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</div>
+
+
+</div>
+<div class="bottomnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="queue.html">7.1. Queue Configuration</a>
+    </span>
+    <span class="right">
+        <a href="tuning.html">7.3. Tuning Presto</a> &raquo;
+    </span>
+</p>
+
+</div>
+
+    <div class="footer">
+    </div>
+  </body>
+</html>

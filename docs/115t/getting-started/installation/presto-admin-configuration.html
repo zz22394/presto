@@ -1,0 +1,111 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Presto-Admin Configuration &mdash; Presto 0.115t Documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/presto.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.115t',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="Presto 0.115t Documentation" href="../../index.html" />
+    <link rel="up" title="3.1. Quick Start Guide" href="../quick-start-guide.html" />
+    <link rel="next" title="Java 8 Installation" href="java-installation.html" />
+    <link rel="prev" title="Presto Admin Installation" href="presto-admin-installation.html" /> 
+  </head>
+  <body>
+<div class="header">
+    <h1 class="heading"><a href="../../index.html">
+        <span>Presto 0.115t Documentation</span></a></h1>
+    <h2 class="heading"><span>Presto-Admin Configuration</span></h2>
+</div>
+<div class="topnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="presto-admin-installation.html">Presto Admin Installation</a>
+    </span>
+    <span class="right">
+        <a href="java-installation.html">Java 8 Installation</a> &raquo;
+    </span>
+</p>
+
+</div>
+<div class="content">
+    
+  <div class="section" id="presto-admin-configuration">
+<span id="presto-admin-configuration-label"></span><h1>Presto-Admin Configuration</h1>
+<p>A Presto cluster consists of a coordinator node and one or more workers nodes. A coordinator and worker may be located on the same node, meaning that you can have a single-node installation of Presto, but having a dedicated node for the coordinator is recommended for better performance, especially on larger clusters.</p>
+<p>In order to use <tt class="docutils literal"><span class="pre">presto-admin</span></tt> to manage software on a cluster of nodes, you must specify a configuration for <tt class="docutils literal"><span class="pre">presto-admin</span></tt>. This configuration indicates the nodes on which to install as well as other credentials.</p>
+<p>To set up a configuration, create a file <tt class="docutils literal"><span class="pre">/etc/opt/prestoadmin/config.json</span></tt> with the content below. Replace the variables denoted with brackets &lt;&gt; with actual values enclosed in quotations. The user specified by <tt class="docutils literal"><span class="pre">username</span></tt> must have sudo access on all of Presto nodes, and <tt class="docutils literal"><span class="pre">presto-admin</span></tt> also must be able to login to all of the nodes via SSH as that user (see <a class="reference internal" href="../ssh-configuration.html#ssh-configuration-label"><em>SSH Configuration</em></a> for details on how to set that up). The file should be owned by root with R/W permissions (i.e. 622).</p>
+<div class="highlight-sql"><pre>{
+"username": "&lt;ssh_user_name&gt;",
+"port": "&lt;ssh_port&gt;",
+"coordinator": "&lt;host_name&gt;",
+"workers": ["&lt;host_name_1&gt;", "&lt;host_name_2&gt;", ... "&lt;host_name_n&gt;"]
+}</pre>
+</div>
+<p>All of the properties are optional. If you include a blank <tt class="docutils literal"><span class="pre">config.json</span></tt> file, the following default configuration is used:</p>
+<div class="highlight-sql"><pre>{
+"username": "root",
+"port": "22",
+"coordinator": "localhost",
+"workers": ["localhost"]
+}</pre>
+</div>
+<p>The above configuration is for a single-node installation of Presto on the same node that <tt class="docutils literal"><span class="pre">presto-admin</span></tt> is installed on. You can also specify some but not all of the properties. For example, for a 6 node cluster with default username and port, a sample <tt class="docutils literal"><span class="pre">config.json</span></tt> would be:</p>
+<div class="highlight-sql"><pre>{
+"coordinator": "master",
+"workers": ["slave1","slave2","slave3","slave4","slave5"]
+}</pre>
+</div>
+<div class="section" id="sudo-password-specification">
+<span id="sudo-password-spec"></span><h2>Sudo Password Specification</h2>
+<p>Please note that if the username you specify is not root, and that user needs to specify a sudo password, you do so in one of two ways. You can specify it on the command line:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="n">sudo</span> <span class="p">.</span><span class="o">/</span><span class="n">presto</span><span class="o">-</span><span class="k">admin</span> <span class="o">&lt;</span><span class="n">command</span><span class="o">&gt;</span> <span class="o">-</span><span class="n">p</span> <span class="o">&lt;</span><span class="n">password</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>Alternatively, you can opt to use an interactive password prompt, which prompts you for the initial value of your password before running any commands:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="n">sudo</span> <span class="p">.</span><span class="o">/</span><span class="n">presto</span><span class="o">-</span><span class="k">admin</span> <span class="o">&lt;</span><span class="n">command</span><span class="o">&gt;</span> <span class="o">-</span><span class="n">I</span>
+<span class="n">Initial</span> <span class="n">value</span> <span class="k">for</span> <span class="n">env</span><span class="p">.</span><span class="n">password</span><span class="p">:</span> <span class="o">&lt;</span><span class="k">type</span> <span class="n">your</span> <span class="n">password</span> <span class="n">here</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>The sudo password for the user must be the same as the SSH password.</p>
+</div>
+</div>
+
+
+</div>
+<div class="bottomnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="presto-admin-installation.html">Presto Admin Installation</a>
+    </span>
+    <span class="right">
+        <a href="java-installation.html">Java 8 Installation</a> &raquo;
+    </span>
+</p>
+
+</div>
+
+    <div class="footer">
+    </div>
+  </body>
+</html>

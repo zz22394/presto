@@ -1,0 +1,132 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>4.1. Readme for CDH VM Sandbox &mdash; Presto 0.115t Documentation</title>
+    
+    <link rel="stylesheet" href="../_static/presto.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.115t',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Presto 0.115t Documentation" href="../index.html" />
+    <link rel="up" title="4. Getting started with the Sandbox VMs" href="../sandbox-vms.html" />
+    <link rel="next" title="4.2. Readme for HDP VM Sandbox" href="readme-hdp.html" />
+    <link rel="prev" title="4. Getting started with the Sandbox VMs" href="../sandbox-vms.html" /> 
+  </head>
+  <body>
+<div class="header">
+    <h1 class="heading"><a href="../index.html">
+        <span>Presto 0.115t Documentation</span></a></h1>
+    <h2 class="heading"><span>4.1. Readme for CDH VM Sandbox</span></h2>
+</div>
+<div class="topnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="../sandbox-vms.html">4. Getting started with the Sandbox VMs</a>
+    </span>
+    <span class="right">
+        <a href="readme-hdp.html">4.2. Readme for HDP VM Sandbox</a> &raquo;
+    </span>
+</p>
+
+</div>
+<div class="content">
+    
+  <div class="section" id="readme-for-cdh-vm-sandbox">
+<h1>4.1. Readme for CDH VM Sandbox</h1>
+<p>This is a VirtualBox sandbox image that can be used to experiment with the Presto distribution.
+The credentials for the VM are:</p>
+<blockquote>
+<div><div class="line-block">
+<div class="line">user: <strong>presto</strong></div>
+<div class="line">password: <strong>presto</strong></div>
+</div>
+</div></blockquote>
+<p>The image is based on CentOS 6.6 and contains the following components:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Presto is installed in <tt class="docutils literal"><span class="pre">/usr/lib/presto</span></tt>. It is set up with Hive, TPCH and JMX connectors. Logs are located in <tt class="docutils literal"><span class="pre">/var/log/presto</span></tt>.</li>
+<li><tt class="docutils literal"><span class="pre">presto-admin</span></tt> is installed in <tt class="docutils literal"><span class="pre">/opt/prestoadmin</span></tt>. You can run presto-admin by executing: <tt class="docutils literal"><span class="pre">/opt/prestoadmin/presto-admin</span></tt>.</li>
+<li>For documentation of the Presto release embedded in the VM see: <a class="reference internal" href="../index.html"><em>Presto Documentation</em></a>.</li>
+</ul>
+</div></blockquote>
+<p>In addition, the image contains:</p>
+<blockquote>
+<div><ul class="simple">
+<li>The Cloudera Hadoop distribution, version 5.4, running in pseudo-distributed mode.</li>
+<li>Hive (set up to use YARN).</li>
+<li>Hive Metastore.</li>
+<li>Zookeeper (used by Hive).</li>
+<li>MySQL (used by Hive Metastore).</li>
+</ul>
+</div></blockquote>
+<p>The following sample tables are loaded to HDFS and are visible from Hive:</p>
+<blockquote>
+<div><ul class="simple">
+<li>TPC-H nation table.</li>
+<li>TPC-H region table.</li>
+</ul>
+</div></blockquote>
+<p>The <tt class="docutils literal"><span class="pre">presto-cli</span></tt> executable JAR can be found in <tt class="docutils literal"><span class="pre">/home/presto</span></tt> and should be used to execute Presto queries.
+Please wait a few moments after the image boots for the Presto service to start.</p>
+<p>Usage example:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="p">[</span><span class="n">presto</span><span class="o">@</span><span class="n">presto</span><span class="o">-</span><span class="n">demo</span><span class="o">-</span><span class="n">cdh</span> <span class="o">~</span><span class="p">]</span><span class="o">#</span> <span class="n">java</span> <span class="o">-</span><span class="n">jar</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">presto</span><span class="o">/</span><span class="n">presto</span><span class="o">-</span><span class="n">cli</span><span class="p">.</span><span class="n">jar</span> <span class="c1">--catalog hive</span>
+<span class="k">show</span> <span class="n">tables</span><span class="p">;</span>
+ <span class="k">Table</span>
+<span class="c1">--------</span>
+ <span class="n">nation</span>
+ <span class="n">region</span>
+<span class="p">(</span><span class="mi">2</span> <span class="k">rows</span><span class="p">)</span>
+
+<span class="n">presto</span><span class="p">:</span><span class="k">default</span><span class="o">&gt;</span> <span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">nation</span><span class="p">;</span>
+<span class="p">...</span>
+</pre></div>
+</div>
+<div class="section" id="jdbc-driver">
+<h2>JDBC Driver</h2>
+<p>You can also find the Presto JDBC JAR on the VM (<tt class="docutils literal"><span class="pre">/home/presto/presto-jdbc.jar</span></tt>). It can be used
+to connect to the Presto server running in the VM from your Java application.</p>
+</div>
+<div class="section" id="hadoop-services-startup">
+<h2>Hadoop Services Startup</h2>
+<p>After the VM boots, some Hadoop services may still not be started. Starting them
+takes a couple of minutes depending on the host machine.</p>
+</div>
+</div>
+
+
+</div>
+<div class="bottomnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="../sandbox-vms.html">4. Getting started with the Sandbox VMs</a>
+    </span>
+    <span class="right">
+        <a href="readme-hdp.html">4.2. Readme for HDP VM Sandbox</a> &raquo;
+    </span>
+</p>
+
+</div>
+
+    <div class="footer">
+    </div>
+  </body>
+</html>
