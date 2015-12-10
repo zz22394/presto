@@ -3,6 +3,6 @@
 --!
 show tables from mysql.test
 --!
--- delimiter: |; trimValues: true; ignoreOrder: true;
+-- delimiter: |; trimValues: true; ignoreOrder: true; ignoreExcessRows: true;
 datatype_jdbc|
 workers_jdbc|

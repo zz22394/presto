@@ -2,6 +2,6 @@
 --!
 show schemas from mysql
 --!
--- delimiter: |; trimValues: true; ignoreOrder: true;
+-- delimiter: |; trimValues: true; ignoreOrder: true; ignoreExcessRows: true;
 test|
 information_schema|

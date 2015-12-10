@@ -3,6 +3,6 @@
 --!
 show tables from postgresql.public
 --!
--- delimiter: |; trimValues: true; ignoreOrder: true;
+-- delimiter: |; trimValues: true; ignoreOrder: true; ignoreExcessRows: true;
 datatype_psql|
 workers_jdbc|
