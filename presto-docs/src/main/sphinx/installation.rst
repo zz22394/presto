@@ -6,6 +6,7 @@ Installation
     :maxdepth: 1
 
     installation/deployment
+    installation/deployment-on-yarn
     installation/cli
     installation/jdbc
     installation/verifier
