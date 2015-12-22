@@ -28,6 +28,7 @@ These configuration options may require tuning in specific situations:
   the join fit in memory on each machine, whereas distributed joins only
   need to fit in distributed memory across all machines. This can also be
   specified on a per-query basis using the ``distributed_join`` session property.
+  This property is enabled by default.
 
 JVM Settings
 ------------
