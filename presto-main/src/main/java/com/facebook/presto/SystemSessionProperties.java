@@ -59,6 +59,9 @@ public final class SystemSessionProperties
     public static final String SPLIT_CONCURRENCY_ADJUSTMENT_INTERVAL = "split_concurrency_adjustment_interval";
     public static final String OPTIMIZE_METADATA_QUERIES = "optimize_metadata_queries";
     public static final String PARSE_DECIMAL_LITERALS_AS_DOUBLE = "parse_decimal_literals_as_double";
+    public static final String REGEX_LIBRARY = "regex_library";
+    public static final String RE2J_DFA_STATES_LIMIT = "re2j_dfa_states_limit";
+    public static final String RE2J_DFA_RETRIES = "re2j_dfa_retries";
 
     private final List<PropertyMetadata<?>> sessionProperties;
 
@@ -80,6 +83,23 @@ public final class SystemSessionProperties
                         "Policy used for scheduling query tasks",
                         queryManagerConfig.getQueryExecutionPolicy(),
                         false),
+                stringSessionProperty(
+                        REGEX_LIBRARY,
+                        "Select the regex library",
+                        "JONI",
+                        false),
+                integerSessionProperty(
+                        RE2J_DFA_STATES_LIMIT,
+                        "Set a DFA states limit",
+                        Integer.MAX_VALUE,
+                        false
+                ),
+                integerSessionProperty(
+                        RE2J_DFA_RETRIES,
+                        "Set a number of DFA retries before switching to NFA",
+                        5,
+                        false
+                ),
                 booleanSessionProperty(
                         OPTIMIZE_HASH_GENERATION,
                         "Compute hash codes for distribution, joins, and aggregations early in query plan",
