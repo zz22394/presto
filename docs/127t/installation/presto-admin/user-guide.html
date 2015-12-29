@@ -1,0 +1,121 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>7. User Guide &mdash; Presto 0.127t Documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/presto.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.127t',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="Presto 0.127t Documentation" href="../../index.html" />
+    <link rel="next" title="7.1. Quick Start Guide" href="quick-start-guide.html" />
+    <link rel="prev" title="6.3. Command Line Interface" href="../cli.html" /> 
+  </head>
+  <body>
+<div class="header">
+    <h1 class="heading"><a href="../../index.html">
+        <span>Presto 0.127t Documentation</span></a></h1>
+    <h2 class="heading"><span>7. User Guide</span></h2>
+</div>
+<div class="topnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="../cli.html">6.3. Command Line Interface</a>
+    </span>
+    <span class="right">
+        <a href="quick-start-guide.html">7.1. Quick Start Guide</a> &raquo;
+    </span>
+</p>
+
+</div>
+<div class="content">
+    
+  <div class="section" id="user-guide">
+<span id="comprehensive-guide-label"></span><h1>7. User Guide</h1>
+<p>A full explanation of the commands and features of <tt class="docutils literal"><span class="pre">presto-admin</span></tt>.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="quick-start-guide.html">7.1. Quick Start Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation/presto-admin-installation.html">Presto Admin Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation/presto-admin-configuration.html">Presto-Admin Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation/java-installation.html">Java 8 Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation/presto-port-configuration.html">Presto Port Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation/presto-server-installation.html">Presto Server Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation/presto-cli-installation.html">Running Presto Queries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation/troubleshooting-installation.html">Troubleshooting</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="installation/advanced-installation-options.html">7.2. Advanced Installation Options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation/advanced-installation-options.html#online-vs-offline-installer">Online vs Offline Installer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation/advanced-installation-options.html#specifying-a-certificate-authority-for-the-online-installer">Specifying a Certificate Authority for the Online Installer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation/advanced-installation-options.html#upgrading-presto-admin">Upgrading Presto-Admin</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ssh-configuration.html">7.3. SSH Configuration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ssh-configuration.html#using-presto-admin-with-passwordless-ssh">Using <tt class="docutils literal"><span class="pre">presto-admin</span></tt> with passwordless SSH</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ssh-configuration.html#using-presto-admin-with-ssh-passwords">Using <tt class="docutils literal"><span class="pre">presto-admin</span></tt> with SSH passwords</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="presto-admin-commands.html">7.4. Presto-Admin Commands</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="presto-admin-commands.html#collect-logs">collect logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="presto-admin-commands.html#collect-query-info">collect query_info</a></li>
+<li class="toctree-l2"><a class="reference internal" href="presto-admin-commands.html#collect-system-info">collect system_info</a></li>
+<li class="toctree-l2"><a class="reference internal" href="presto-admin-commands.html#configuration-deploy">configuration deploy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="presto-admin-commands.html#configuration-show">configuration show</a></li>
+<li class="toctree-l2"><a class="reference internal" href="presto-admin-commands.html#connector-add">connector add</a></li>
+<li class="toctree-l2"><a class="reference internal" href="presto-admin-commands.html#connector-remove">connector remove</a></li>
+<li class="toctree-l2"><a class="reference internal" href="presto-admin-commands.html#package-install">package install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="presto-admin-commands.html#plugin-add-jar">plugin add_jar</a></li>
+<li class="toctree-l2"><a class="reference internal" href="presto-admin-commands.html#script-run">script run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="presto-admin-commands.html#server-install">server install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="presto-admin-commands.html#server-restart">server restart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="presto-admin-commands.html#server-start">server start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="presto-admin-commands.html#server-status">server status</a></li>
+<li class="toctree-l2"><a class="reference internal" href="presto-admin-commands.html#server-stop">server stop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="presto-admin-commands.html#server-uninstall">server uninstall</a></li>
+<li class="toctree-l2"><a class="reference internal" href="presto-admin-commands.html#server-upgrade">server upgrade</a></li>
+<li class="toctree-l2"><a class="reference internal" href="presto-admin-commands.html#topology-show">topology show</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="presto-admin-cli-options.html">7.5. Presto-Admin Command-Line Options</a></li>
+</ul>
+</div>
+</div>
+
+
+</div>
+<div class="bottomnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="../cli.html">6.3. Command Line Interface</a>
+    </span>
+    <span class="right">
+        <a href="quick-start-guide.html">7.1. Quick Start Guide</a> &raquo;
+    </span>
+</p>
+
+</div>
+
+    <div class="footer">
+    </div>
+  </body>
+</html>

@@ -1,0 +1,84 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>13.2. Decimal data type limitations &mdash; Presto 0.127t Documentation</title>
+    
+    <link rel="stylesheet" href="../_static/presto.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.127t',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Presto 0.127t Documentation" href="../index.html" />
+    <link rel="up" title="13. SQL Language" href="../language.html" />
+    <link rel="next" title="14. Migration" href="../migration.html" />
+    <link rel="prev" title="13.1. Data Types" href="types.html" /> 
+  </head>
+  <body>
+<div class="header">
+    <h1 class="heading"><a href="../index.html">
+        <span>Presto 0.127t Documentation</span></a></h1>
+    <h2 class="heading"><span>13.2. Decimal data type limitations</span></h2>
+</div>
+<div class="topnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="types.html">13.1. Data Types</a>
+    </span>
+    <span class="right">
+        <a href="../migration.html">14. Migration</a> &raquo;
+    </span>
+</p>
+
+</div>
+<div class="content">
+    
+  <div class="section" id="decimal-data-type-limitations">
+<h1>13.2. Decimal data type limitations</h1>
+<blockquote>
+<div><ol class="arabic simple">
+<li>Currently only basic arithmetic operators and inequality operators are supported.</li>
+<li>Automatic coercions are only supported between <tt class="docutils literal"><span class="pre">DECIMAL</span></tt> types (where possible).
+Other supported casts must be specified explicitly by the user is SQL.</li>
+<li>Performance of decimal types longer than 17 digits may be not satisfactory.</li>
+<li><tt class="docutils literal"><span class="pre">INSERT</span></tt> flow is not supported for <tt class="docutils literal"><span class="pre">DECIMAL</span></tt> columns.</li>
+<li>Currently only Hive connector supports exposing <tt class="docutils literal"><span class="pre">DECIMAL</span></tt> columns.</li>
+</ol>
+</div></blockquote>
+</div>
+
+
+</div>
+<div class="bottomnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="types.html">13.1. Data Types</a>
+    </span>
+    <span class="right">
+        <a href="../migration.html">14. Migration</a> &raquo;
+    </span>
+</p>
+
+</div>
+
+    <div class="footer">
+    </div>
+  </body>
+</html>

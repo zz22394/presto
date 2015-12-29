@@ -1,0 +1,118 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>7.2. Advanced Installation Options &mdash; Presto 0.127t Documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/presto.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.127t',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="Presto 0.127t Documentation" href="../../../index.html" />
+    <link rel="up" title="7. User Guide" href="../user-guide.html" />
+    <link rel="next" title="7.3. SSH Configuration" href="../ssh-configuration.html" />
+    <link rel="prev" title="Troubleshooting" href="troubleshooting-installation.html" /> 
+  </head>
+  <body>
+<div class="header">
+    <h1 class="heading"><a href="../../../index.html">
+        <span>Presto 0.127t Documentation</span></a></h1>
+    <h2 class="heading"><span>7.2. Advanced Installation Options</span></h2>
+</div>
+<div class="topnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="troubleshooting-installation.html">Troubleshooting</a>
+    </span>
+    <span class="right">
+        <a href="../ssh-configuration.html">7.3. SSH Configuration</a> &raquo;
+    </span>
+</p>
+
+</div>
+<div class="content">
+    
+  <div class="section" id="advanced-installation-options">
+<span id="advanced-installation-options-label"></span><h1>7.2. Advanced Installation Options</h1>
+<div class="section" id="online-vs-offline-installer">
+<h2>Online vs Offline Installer</h2>
+<p>The installer has two different versions: the offline installer &#8211;
+<tt class="docutils literal"><span class="pre">prestoadmin-1.2-offline.tar.bz2</span></tt>&#8211; and the online installer &#8211;
+<tt class="docutils literal"><span class="pre">prestoadmin-1.2-online.tar.bz2</span></tt>. The offline installer includes all of the
+dependencies for <tt class="docutils literal"><span class="pre">presto-admin</span></tt>, so it can be used on a cluster without an
+outside network connection. The offline installer is recommended because it is faster.</p>
+<p>The online installer downloads all of the dependencies when you call <tt class="docutils literal"><span class="pre">./install-prestoadmin.sh</span></tt>.
+You may need to use the online installer if you try to install <tt class="docutils literal"><span class="pre">presto-admin</span></tt> on an unsupported
+operating system, because some of the binary files are dependent on the
+system files of a given operating system. Be aware, though, that there may be other
+operating system dependent differences beyond the installation process for
+unsupported operating system, and <tt class="docutils literal"><span class="pre">presto-admin</span></tt> may not work.</p>
+<p>For instructions on how to build either installer see the
+<a class="reference external" href="https://github.com/prestodb/presto-admin">README</a> in the presto-admin
+repository.</p>
+</div>
+<div class="section" id="specifying-a-certificate-authority-for-the-online-installer">
+<h2>Specifying a Certificate Authority for the Online Installer</h2>
+<p>The online installer downloads its dependencies from <tt class="docutils literal"><span class="pre">pypi.python.org</span></tt>, the
+standard Python location for hosting packages. For some operating systems,
+the certificate for pypi.python.org is not included in the CA cert bundle,
+so our installation scripts specify <tt class="docutils literal"><span class="pre">--trusted-host</span> <span class="pre">pypi.python.org</span></tt> when
+downloading the dependencies.</p>
+<p>If using <tt class="docutils literal"><span class="pre">--trusted-host</span></tt> is not suitable for your security needs, it is
+possible to supply your own certificates to use to authenticate to
+<tt class="docutils literal"><span class="pre">pypi.python.org</span></tt>.  Please note that if these certificates do not work to
+access <tt class="docutils literal"><span class="pre">pypi.python.org</span></tt>, the installation will fail. For example, to install
+with your own certificates:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="n">sudo</span> <span class="p">.</span><span class="o">/</span><span class="n">install</span><span class="o">-</span><span class="n">prestoadmin</span><span class="p">.</span><span class="n">sh</span> <span class="o">&lt;</span><span class="n">path_to_cert</span><span class="o">&gt;/</span><span class="n">cacert</span><span class="p">.</span><span class="n">pem</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="upgrading-presto-admin">
+<h2>Upgrading Presto-Admin</h2>
+<p>Upgrading to a newer version of <tt class="docutils literal"><span class="pre">presto-admin</span></tt> requires deleting the old
+installation and then installing the new version.  The recommended installation
+location is <tt class="docutils literal"><span class="pre">/opt/prestoadmin</span></tt>, but you may have installed it in an
+alternative location.  After you&#8217;ve deleted the <tt class="docutils literal"><span class="pre">prestoadmin</span></tt> directory,
+install the newer version of <tt class="docutils literal"><span class="pre">presto-admin</span></tt> by following the instructions in
+the installation section (see <a class="reference internal" href="presto-admin-installation.html#presto-admin-installation-label"><em>Presto Admin Installation</em></a>). Your
+configuration files located in <tt class="docutils literal"><span class="pre">/etc/opt/prestoadmin</span></tt> will remain intact and
+continue to be used by the newer version of <tt class="docutils literal"><span class="pre">presto-admin</span></tt>.</p>
+</div>
+</div>
+
+
+</div>
+<div class="bottomnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="troubleshooting-installation.html">Troubleshooting</a>
+    </span>
+    <span class="right">
+        <a href="../ssh-configuration.html">7.3. SSH Configuration</a> &raquo;
+    </span>
+</p>
+
+</div>
+
+    <div class="footer">
+    </div>
+  </body>
+</html>

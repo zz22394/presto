@@ -1,0 +1,131 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>6.1. ODBC Drivers &mdash; Presto 0.127t Documentation</title>
+    
+    <link rel="stylesheet" href="../_static/presto.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.127t',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Presto 0.127t Documentation" href="../index.html" />
+    <link rel="up" title="6. Presto Client Software" href="../client-software.html" />
+    <link rel="next" title="6.2. JDBC Driver" href="jdbc.html" />
+    <link rel="prev" title="6. Presto Client Software" href="../client-software.html" /> 
+  </head>
+  <body>
+<div class="header">
+    <h1 class="heading"><a href="../index.html">
+        <span>Presto 0.127t Documentation</span></a></h1>
+    <h2 class="heading"><span>6.1. ODBC Drivers</span></h2>
+</div>
+<div class="topnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="../client-software.html">6. Presto Client Software</a>
+    </span>
+    <span class="right">
+        <a href="jdbc.html">6.2. JDBC Driver</a> &raquo;
+    </span>
+</p>
+
+</div>
+<div class="content">
+    
+  <div class="section" id="odbc-drivers">
+<h1>6.1. ODBC Drivers</h1>
+<p>Presto can be accessed from using one of the Teradata ODBC drivers. The ODBC
+driver is available for Windows, Mac, and Linux. The drivers are available for
+free download from Teradata.</p>
+<div class="section" id="odbc-for-mac">
+<h2>ODBC for Mac</h2>
+<p><em>Requires</em></p>
+<ul class="simple">
+<li>OS X 10.9 or 10.10</li>
+<li>iODBC 3.52.7 or later</li>
+</ul>
+<div class="line-block">
+<div class="line">Download <a class="reference external" href="http://www.teradata.com/presto">Teradata ODBC Driver for Presto Install Guide.pdf</a></div>
+<div class="line">Download <a class="reference external" href="http://www.teradata.com/presto">TeradataPrestoODBC-1.0.0.1001.dmg</a></div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="odbc-for-windows">
+<h2>ODBC for Windows</h2>
+<p><em>Requires</em></p>
+<ul class="simple">
+<li>Microsoft ODBC Driver Manager</li>
+</ul>
+<div class="line-block">
+<div class="line">Download <a class="reference external" href="http://www.teradata.com/presto">Teradata ODBC Driver for Presto Install Guide.pdf</a></div>
+<div class="line">Download (64 bit) <a class="reference external" href="http://www.teradata.com/presto">TeradataPrestoODBC64-1.0.0.1001.msi</a></div>
+<div class="line">Download (32 bit) <a class="reference external" href="http://www.teradata.com/presto">TeradataPrestoODBC32-1.0.0.1001.msi</a></div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="odbc-for-linux">
+<h2>ODBC for Linux</h2>
+<p><em>Requires</em></p>
+<ul class="simple">
+<li>RedHat Enterprise Linux 6.x or or CentOS equivalent</li>
+<li>iODBC 3.52.7 or later, unixODBC 2.3.0 or later</li>
+</ul>
+<div class="line-block">
+<div class="line">Download <a class="reference external" href="http://www.teradata.com/presto">Teradata ODBC Driver for Presto Install Guide.pdf</a></div>
+<div class="line">Download (64) <a class="reference external" href="http://www.teradata.com/presto">TeradataPrestoODBC-64bit-1.0.0.1001.rpm</a></div>
+<div class="line">Download (32) <a class="reference external" href="http://www.teradata.com/presto">TeradataPrestoODBC-32bit-1.0.0.1001.rpm</a></div>
+</div>
+</div>
+<div class="section" id="tableau-customizations">
+<h2>Tableau Customizations</h2>
+<p><strong>Windows Only</strong></p>
+<p>The Teradata Presto ODBC driver is distributed with a Tableau Datasource Connection (TDC) file. The file is used to better the use of Presto and Tableau by customizing the SQL that Tableau sends to Presto via the driver. The TDC will not correct functionality, it will only inform Tableau of the best way to work with the Teradata Presto ODBC driver.</p>
+<div class="line-block">
+<div class="line">After installation of the Teradata Presto ODBC driver, the TDC file is located in:</div>
+<div class="line"><tt class="docutils literal"><span class="pre">C:\Program</span> <span class="pre">Files\Teradata</span> <span class="pre">Presto</span> <span class="pre">ODBC</span> <span class="pre">Driver\lib</span></tt> (64 bit)</div>
+<div class="line">or</div>
+<div class="line"><tt class="docutils literal"><span class="pre">C:\Program</span> <span class="pre">Files</span> <span class="pre">(x86)\Teradata</span> <span class="pre">Presto</span> <span class="pre">ODBC</span> <span class="pre">Driver\lib</span></tt> (32 bit)</div>
+</div>
+<div class="line-block">
+<div class="line">You should copy the TDC file to the location Tableau will look for it:</div>
+<div class="line"><tt class="docutils literal"><span class="pre">C:\Users\&lt;USER_NAME&gt;\Documents\My</span> <span class="pre">Tableau</span> <span class="pre">Repository\Datasources</span></tt></div>
+</div>
+</div>
+</div>
+
+
+</div>
+<div class="bottomnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="../client-software.html">6. Presto Client Software</a>
+    </span>
+    <span class="right">
+        <a href="jdbc.html">6.2. JDBC Driver</a> &raquo;
+    </span>
+</p>
+
+</div>
+
+    <div class="footer">
+    </div>
+  </body>
+</html>

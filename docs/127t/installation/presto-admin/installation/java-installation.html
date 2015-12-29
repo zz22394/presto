@@ -1,0 +1,87 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Java 8 Installation &mdash; Presto 0.127t Documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/presto.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.127t',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="Presto 0.127t Documentation" href="../../../index.html" />
+    <link rel="up" title="7.1. Quick Start Guide" href="../quick-start-guide.html" />
+    <link rel="next" title="Presto Port Configuration" href="presto-port-configuration.html" />
+    <link rel="prev" title="Presto-Admin Configuration" href="presto-admin-configuration.html" /> 
+  </head>
+  <body>
+<div class="header">
+    <h1 class="heading"><a href="../../../index.html">
+        <span>Presto 0.127t Documentation</span></a></h1>
+    <h2 class="heading"><span>Java 8 Installation</span></h2>
+</div>
+<div class="topnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="presto-admin-configuration.html">Presto-Admin Configuration</a>
+    </span>
+    <span class="right">
+        <a href="presto-port-configuration.html">Presto Port Configuration</a> &raquo;
+    </span>
+</p>
+
+</div>
+<div class="content">
+    
+  <div class="section" id="java-8-installation">
+<span id="java-installation-label"></span><h1>Java 8 Installation</h1>
+<p>Prerequisites: <a class="reference internal" href="presto-admin-installation.html#presto-admin-installation-label"><em>Presto Admin Installation</em></a> and <a class="reference internal" href="presto-admin-configuration.html#presto-admin-configuration-label"><em>Presto-Admin Configuration</em></a></p>
+<p>The Oracle Java 1.8 JRE (64-bit), update 45 or higher, is a prerequisite for Presto. If a suitable 64-bit version of Oracle Java 8 is already installed on the cluster, you can skip this step.</p>
+<p>The <tt class="docutils literal"><span class="pre">presto-admin</span></tt> tool simplifies installing Java 8 on all nodes in the Presto cluster. To install the Oracle Java 1.8 (64-bit) RPM for Linux using <tt class="docutils literal"><span class="pre">presto-admin</span></tt>, first download <a class="reference external" href="http://java.com/en/download/linux_manual.jsp">Oracle Java 8</a> and copy it to a location accessible by <tt class="docutils literal"><span class="pre">presto-admin</span></tt>. Next, run the following command to install Java 8 on each node in the Presto cluster.</p>
+<div class="highlight-sql"><pre>$ sudo ./presto-admin package install &lt;local_path_to_java_rpm&gt;</pre>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The <tt class="docutils literal"><span class="pre">server-install-label</span></tt> will look for your Oracle Java 1.8 installation at locations where Java is installed normally using the binary or the RPM based installer. Otherwise, you need to have an environment variable called <tt class="docutils literal"><span class="pre">JAVA8_HOME</span></tt> set with your Java 1.8 install path. If <tt class="docutils literal"><span class="pre">JAVA8_HOME</span></tt> is not set or is pointing to an incompatible version of Java, the installer will look for the <tt class="docutils literal"><span class="pre">JAVA_HOME</span></tt> environment variable for a compatible version of Java. If neither of these environmental variables is set with a compatible version, and <tt class="docutils literal"><span class="pre">presto-admin</span></tt> fails to find Java 8 at any of the normal install locations, then <tt class="docutils literal"><span class="pre">server</span> <span class="pre">install</span></tt> will fail. After successfully running <tt class="docutils literal"><span class="pre">server</span> <span class="pre">install</span></tt> you can find the Java being used by Presto at <tt class="docutils literal"><span class="pre">/etc/presto/env.sh</span></tt>.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If installing Java on SLES, you may need to specify the <tt class="docutils literal"><span class="pre">--nodeps</span></tt> flag, so that the RPM is installed without checking or validating dependencies.</p>
+</div>
+</div>
+
+
+</div>
+<div class="bottomnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="presto-admin-configuration.html">Presto-Admin Configuration</a>
+    </span>
+    <span class="right">
+        <a href="presto-port-configuration.html">Presto Port Configuration</a> &raquo;
+    </span>
+</p>
+
+</div>
+
+    <div class="footer">
+    </div>
+  </body>
+</html>
