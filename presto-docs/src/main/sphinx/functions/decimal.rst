@@ -76,3 +76,4 @@ Casts
     - to and from ``VARCHAR``
     - to and from ``BOOLEAN``
     - to and from ``DECIMAL`` with different precision and scale
+

@@ -128,19 +128,19 @@ public class ColumnJdbcTable
                     tableName.getSchemaName(),
                     tableName.getTableName(),
                     column.getName(),
-                    jdbcDataType(column.getType()),
+                    (long) jdbcDataType(column.getType()),
                     column.getType().getDisplayName(),
-                    0,
-                    0,
+                    0L,
+                    0L,
                     decimalDigits(column.getType()),
-                    10,
+                    10L,
                     DatabaseMetaData.columnNullableUnknown,
                     column.getComment(),
                     null,
                     null,
                     null,
-                    0,
-                    ordinalPosition,
+                    0L,
+                    (long) ordinalPosition,
                     "",
                     null,
                     null,
@@ -190,10 +190,10 @@ public class ColumnJdbcTable
         return Types.JAVA_OBJECT;
     }
 
-    private static Integer decimalDigits(Type type)
+    private static Long decimalDigits(Type type)
     {
         if (type.equals(BIGINT)) {
-            return 19;
+            return 19L;
         }
         return null;
     }

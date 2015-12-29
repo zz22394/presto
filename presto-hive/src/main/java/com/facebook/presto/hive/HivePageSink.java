@@ -57,6 +57,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 import static com.facebook.presto.hive.HiveColumnHandle.SAMPLE_WEIGHT_COLUMN_NAME;
@@ -68,6 +69,7 @@ import static com.facebook.presto.hive.HiveErrorCode.HIVE_TOO_MANY_OPEN_PARTITIO
 import static com.facebook.presto.hive.HiveErrorCode.HIVE_UNSUPPORTED_FORMAT;
 import static com.facebook.presto.hive.HiveErrorCode.HIVE_WRITER_ERROR;
 import static com.facebook.presto.hive.HiveType.toHiveTypes;
+import static com.facebook.presto.hive.HiveUtil.typesMatchForInsert;
 import static com.facebook.presto.hive.HiveWriteUtils.getField;
 import static com.facebook.presto.hive.HiveWriteUtils.getJavaObjectInspectors;
 import static com.google.common.base.MoreObjects.toStringHelper;
@@ -247,10 +249,10 @@ public class HivePageSink
     }
 
     @Override
-    public void appendPage(Page page, Block sampleWeightBlock)
+    public CompletableFuture<?> appendPage(Page page, Block sampleWeightBlock)
     {
         if (page.getPositionCount() == 0) {
-            return;
+            return NOT_BLOCKED;
         }
 
         Block[] dataBlocks = getDataBlocks(page, sampleWeightBlock);
@@ -276,6 +278,7 @@ public class HivePageSink
             buildRow(dataColumnTypes, dataRow, dataBlocks, position);
             writer.addRow(dataRow);
         }
+        return NOT_BLOCKED;
     }
 
     private HiveRecordWriter createWriter(List<Object> partitionRow)
@@ -517,7 +520,8 @@ public class HivePageSink
                 int inputIndex = inputColumnNames.indexOf(columnName);
                 Type inputType = inputColumnTypes.get(inputIndex);
 
-                if (!inputType.equals(fileColumnType)) {
+                // HACK: solve coercion in generic way
+                if (!typesMatchForInsert(fileColumnType, inputType)) {
                     // todo this should be moved to a helper
                     throw new PrestoException(HIVE_PARTITION_SCHEMA_MISMATCH, format("" +
                                     "There is a mismatch between the table and partition schemas. " +

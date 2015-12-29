@@ -13,6 +13,7 @@
  */
 package com.facebook.presto.jdbc;
 
+import com.facebook.presto.plugin.blackhole.BlackHolePlugin;
 import com.facebook.presto.server.testing.TestingPrestoServer;
 import com.facebook.presto.tpch.TpchMetadata;
 import com.facebook.presto.tpch.TpchPlugin;
@@ -25,6 +26,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.DriverManager;
@@ -37,14 +39,22 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static io.airlift.testing.Assertions.assertInstanceOf;
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
+import static java.util.Objects.requireNonNull;
+import static java.util.concurrent.Executors.newCachedThreadPool;
+import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.stream.Collectors.toList;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
@@ -60,6 +70,7 @@ public class TestDriver
     private static final String TEST_CATALOG = "test_catalog";
 
     private TestingPrestoServer server;
+    private ExecutorService executorService;
 
     @BeforeClass
     public void setup()
@@ -69,12 +80,39 @@ public class TestDriver
         server = new TestingPrestoServer();
         server.installPlugin(new TpchPlugin());
         server.createCatalog(TEST_CATALOG, "tpch");
+        server.installPlugin(new BlackHolePlugin());
+        server.createCatalog("blackhole", "blackhole");
+
+        setupTestTables();
+        executorService = newCachedThreadPool();
+    }
+
+    private void setupTestTables()
+            throws SQLException
+    {
+        try (
+                Connection connection = createConnection("blackhole", "blackhole");
+                Statement statement = connection.createStatement()
+        ) {
+            assertEquals(statement.executeUpdate("CREATE TABLE test_table (key BIGINT)"), 0);
+            assertEquals(statement.executeUpdate(
+                    "CREATE TABLE test_cancellation (key BIGINT) " +
+                            "WITH (" +
+                            "   split_count = 1, " +
+                            "   pages_per_split = 1, " +
+                            "   rows_per_page = 1, " +
+                            "   page_processing_delay = '1m'" +
+                            ")"), 0);
+        }
     }
 
     @AfterClass
     public void teardown()
+            throws Exception
     {
         closeQuietly(server);
+        executorService.shutdownNow();
+        executorService.awaitTermination(1, MINUTES);
     }
 
     @Test
@@ -90,10 +128,12 @@ public class TestDriver
                         ", 0.1 _double" +
                         ", true _boolean" +
                         ", cast('hello' as varbinary) _varbinary" +
+                        ", decimal 1234567890.1234567 _decimal_short" +
+                        ", decimal .12345678901234567890123456789012345678 _decimal_long" +
                         ", approx_set(42) _hll")) {
                     ResultSetMetaData metadata = rs.getMetaData();
 
-                    assertEquals(metadata.getColumnCount(), 6);
+                    assertEquals(metadata.getColumnCount(), 8);
 
                     assertEquals(metadata.getColumnLabel(1), "_bigint");
                     assertEquals(metadata.getColumnType(1), Types.BIGINT);
@@ -110,8 +150,14 @@ public class TestDriver
                     assertEquals(metadata.getColumnLabel(5), "_varbinary");
                     assertEquals(metadata.getColumnType(5), Types.LONGVARBINARY);
 
-                    assertEquals(metadata.getColumnLabel(6), "_hll");
-                    assertEquals(metadata.getColumnType(6), Types.JAVA_OBJECT);
+                    assertEquals(metadata.getColumnLabel(6), "_decimal_short");
+                    assertEquals(metadata.getColumnType(6), Types.DECIMAL);
+
+                    assertEquals(metadata.getColumnLabel(7), "_decimal_long");
+                    assertEquals(metadata.getColumnType(7), Types.DECIMAL);
+
+                    assertEquals(metadata.getColumnLabel(8), "_hll");
+                    assertEquals(metadata.getColumnType(8), Types.JAVA_OBJECT);
 
                     assertTrue(rs.next());
 
@@ -146,9 +192,23 @@ public class TestDriver
                     assertEquals(rs.getBytes(5), "hello".getBytes(UTF_8));
                     assertEquals(rs.getBytes("_varbinary"), "hello".getBytes(UTF_8));
 
-                    assertInstanceOf(rs.getObject(6), byte[].class);
+                    assertEquals(rs.getObject(6), new BigDecimal("1234567890.1234567"));
+                    assertEquals(rs.getObject("_decimal_short"), new BigDecimal("1234567890.1234567"));
+                    assertEquals(rs.getBigDecimal(6), new BigDecimal("1234567890.1234567"));
+                    assertEquals(rs.getBigDecimal("_decimal_short"), new BigDecimal("1234567890.1234567"));
+                    assertEquals(rs.getBigDecimal(6, 1), new BigDecimal("1234567890.1"));
+                    assertEquals(rs.getBigDecimal("_decimal_short", 1), new BigDecimal("1234567890.1"));
+
+                    assertEquals(rs.getObject(7), new BigDecimal(".12345678901234567890123456789012345678"));
+                    assertEquals(rs.getObject("_decimal_long"), new BigDecimal(".12345678901234567890123456789012345678"));
+                    assertEquals(rs.getBigDecimal(7), new BigDecimal(".12345678901234567890123456789012345678"));
+                    assertEquals(rs.getBigDecimal("_decimal_long"), new BigDecimal(".12345678901234567890123456789012345678"));
+                    assertEquals(rs.getBigDecimal(7, 6), new BigDecimal(".123457"));
+                    assertEquals(rs.getBigDecimal("_decimal_long", 6), new BigDecimal(".123457"));
+
+                    assertInstanceOf(rs.getObject(8), byte[].class);
                     assertInstanceOf(rs.getObject("_hll"), byte[].class);
-                    assertInstanceOf(rs.getBytes(6), byte[].class);
+                    assertInstanceOf(rs.getBytes(8), byte[].class);
                     assertInstanceOf(rs.getBytes("_hll"), byte[].class);
 
                     assertFalse(rs.next());
@@ -242,7 +302,7 @@ public class TestDriver
     {
         try (Connection connection = createConnection()) {
             try (ResultSet rs = connection.getMetaData().getCatalogs()) {
-                assertEquals(readRows(rs), list(list("system"), list(TEST_CATALOG)));
+                assertEquals(readRows(rs), list(list("blackhole"), list("system"), list(TEST_CATALOG)));
 
                 ResultSetMetaData metadata = rs.getMetaData();
                 assertEquals(metadata.getColumnCount(), 1);
@@ -271,6 +331,10 @@ public class TestDriver
         system.add(list("system", "metadata"));
         system.add(list("system", "runtime"));
 
+        List<List<String>> blackhole = new ArrayList<>();
+        blackhole.add(list("blackhole", "information_schema"));
+        blackhole.add(list("blackhole", "default"));
+
         List<List<String>> test = new ArrayList<>();
         test.add(list(TEST_CATALOG, "information_schema"));
         for (String schema : TpchMetadata.SCHEMA_NAMES) {
@@ -280,6 +344,7 @@ public class TestDriver
         List<List<String>> all = new ArrayList<>();
         all.addAll(system);
         all.addAll(test);
+        all.addAll(blackhole);
 
         try (Connection connection = createConnection()) {
             try (ResultSet rs = connection.getMetaData().getSchemas()) {
@@ -306,6 +371,7 @@ public class TestDriver
             try (ResultSet rs = connection.getMetaData().getSchemas(null, "information_schema")) {
                 assertGetSchemasResult(rs, list(
                         list(TEST_CATALOG, "information_schema"),
+                        list("blackhole", "information_schema"),
                         list("system", "information_schema")));
             }
 
@@ -597,6 +663,12 @@ public class TestDriver
             try (ResultSet rs = connection.getMetaData().getColumns(null, null, "tables", "table_name")) {
                 assertColumnMetadata(rs);
                 assertTrue(rs.next());
+                assertEquals(rs.getString("TABLE_CAT"), "blackhole");
+                assertEquals(rs.getString("TABLE_SCHEM"), "information_schema");
+                assertEquals(rs.getString("TABLE_NAME"), "tables");
+                assertEquals(rs.getString("COLUMN_NAME"), "table_name");
+                assertEquals(rs.getInt("DATA_TYPE"), Types.LONGNVARCHAR);
+                assertTrue(rs.next());
                 assertEquals(rs.getString("TABLE_CAT"), "system");
                 assertEquals(rs.getString("TABLE_SCHEM"), "information_schema");
                 assertEquals(rs.getString("TABLE_NAME"), "tables");
@@ -622,7 +694,7 @@ public class TestDriver
         try (Connection connection = createConnection()) {
             try (ResultSet rs = connection.getMetaData().getColumns(null, "information_schema", "tables", "table_name")) {
                 assertColumnMetadata(rs);
-                assertEquals(readRows(rs).size(), 2);
+                assertEquals(readRows(rs).size(), 3);
             }
         }
 
@@ -816,14 +888,17 @@ public class TestDriver
     }
 
     @Test
-    public void testExecute()
+    public void testExecuteWithQuery()
             throws Exception
     {
         try (Connection connection = createConnection()) {
             try (Statement statement = connection.createStatement()) {
                 assertTrue(statement.execute("SELECT 123 x, 'foo' y, CAST(NULL AS bigint) z"));
                 ResultSet rs = statement.getResultSet();
+
                 assertTrue(rs.next());
+                assertEquals(statement.getUpdateCount(), -1);
+                assertEquals(statement.getLargeUpdateCount(), -1L);
 
                 assertEquals(rs.getLong(1), 123);
                 assertFalse(rs.wasNull());
@@ -843,6 +918,111 @@ public class TestDriver
                 assertFalse(rs.wasNull());
 
                 assertFalse(rs.next());
+            }
+        }
+    }
+
+    @Test
+    public void testExecuteWithInsert()
+            throws Exception
+    {
+        try (Connection connection = createConnection("blackhole", "blackhole")) {
+            try (Statement statement = connection.createStatement()) {
+                assertFalse(statement.execute("INSERT INTO test_table VALUES (1)"));
+
+                assertNull(statement.getResultSet());
+                assertEquals(statement.getUpdateCount(), 1);
+                assertEquals(statement.getLargeUpdateCount(), 1L);
+            }
+        }
+    }
+
+    @Test
+    public void testExecuteUpdateWithDDLStatement()
+            throws Exception
+    {
+        try (Connection connection = createConnection("blackhole", "blackhole")) {
+            try (Statement statement = connection.createStatement()) {
+                assertEquals(statement.executeUpdate("INSERT INTO test_table VALUES (1)"), 1);
+                assertNull(statement.getResultSet());
+                assertEquals(statement.getUpdateCount(), 1);
+                assertEquals(statement.getLargeUpdateCount(), 1L);
+            }
+        }
+    }
+
+    @Test
+    public void testExecuteUpdateWithDMLStatement()
+            throws Exception
+    {
+        try (Connection connection = createConnection("blackhole", "blackhole")) {
+            try (Statement statement = connection.createStatement()) {
+                assertEquals(statement.executeUpdate("CREATE TABLE test_table_2 (key BIGINT)"), 0);
+                assertNull(statement.getResultSet());
+                assertEquals(statement.getUpdateCount(), 0);
+                assertEquals(statement.getLargeUpdateCount(), 0L);
+            }
+        }
+    }
+
+    @Test
+    public void testExecuteUpdateWithQueryStatement()
+            throws Exception
+    {
+        try (Connection connection = createConnection("blackhole", "blackhole")) {
+            try (Statement statement = connection.createStatement()) {
+                try {
+                    statement.executeUpdate("SELECT 123 x, 'foo' y, CAST(NULL AS bigint) z");
+                    fail("Expected SQL exception");
+                }
+                catch (SQLException e) {
+                    assertEquals(e.getMessage(), "Not an update statement: SELECT 123 x, 'foo' y, CAST(NULL AS bigint) z");
+                }
+            }
+        }
+    }
+
+    @Test
+    public void testExecuteQueryWithDDLStatement()
+            throws Exception
+    {
+        try (Connection connection = createConnection("blackhole", "blackhole")) {
+            try (Statement statement = connection.createStatement()) {
+                try {
+                    statement.executeQuery("INSERT INTO test_table VALUES (1)");
+                    fail("Expected SQL exception");
+                }
+                catch (SQLException e) {
+                    assertEquals(e.getMessage(), "Not an query statement: INSERT INTO test_table VALUES (1)");
+                }
+            }
+        }
+    }
+
+    @Test
+    public void testExecuteUpdateCountCurrentResultCleared()
+            throws Exception
+    {
+        try (Connection connection = createConnection("blackhole", "blackhole")) {
+            try (Statement statement = connection.createStatement()) {
+                // update statement
+                assertFalse(statement.execute("INSERT INTO test_table VALUES (1)"));
+                assertNull(statement.getResultSet());
+                assertEquals(statement.getUpdateCount(), 1);
+                assertEquals(statement.getLargeUpdateCount(), 1L);
+
+                // query statement
+                assertTrue(statement.execute("SELECT 123 x, 'foo' y, CAST(NULL AS bigint) z"));
+                assertNotNull(statement.getResultSet());
+                assertEquals(statement.getUpdateCount(), -1);
+                assertEquals(statement.getLargeUpdateCount(), -1L);
+                statement.getResultSet().close();
+
+                // update statement
+                assertFalse(statement.execute("INSERT INTO test_table VALUES (1)"));
+                assertNull(statement.getResultSet());
+                assertEquals(statement.getUpdateCount(), 1);
+                assertEquals(statement.getLargeUpdateCount(), 1L);
             }
         }
     }
@@ -1066,6 +1246,66 @@ public class TestDriver
         String url = format("jdbc:presto://%s/a//", server.getAddress());
         try (Connection ignored = DriverManager.getConnection(url, "test", null)) {
             fail("expected exception");
+        }
+    }
+
+    @Test(timeOut = 70000)
+    public void testQueryCancellation()
+            throws Exception
+    {
+        CountDownLatch queryStarted = new CountDownLatch(1);
+        CountDownLatch queryFinished = new CountDownLatch(1);
+        AtomicReference<String> queryId = new AtomicReference<>();
+        AtomicReference<Throwable> queryFailure = new AtomicReference<>();
+
+        Future<Void> queryFuture = executorService.submit(() -> {
+            try (Connection connection = createConnection("blackhole", "default")) {
+                try (Statement statement = connection.createStatement()) {
+                    try (ResultSet resultSet = statement.executeQuery("SELECT * FROM test_cancellation")) {
+                        queryId.set(resultSet.unwrap(PrestoResultSet.class).getQueryId());
+                        queryStarted.countDown();
+                        try {
+                            resultSet.next();
+                        }
+                        catch (Throwable t) {
+                            queryFailure.set(t);
+                        }
+                        finally {
+                            queryFinished.countDown();
+                        }
+                    }
+                }
+            }
+            return null;
+        });
+
+        queryStarted.await(1, MINUTES);
+        assertNotNull(queryId.get());
+        assertQueryState(queryId.get(), "QUEUED", "PLANNING", "STARTING", "RUNNING");
+        queryFuture.cancel(true);
+        queryFinished.await(1, MINUTES);
+        assertNotNull(queryFailure.get());
+        assertQueryState(queryId.get(), "FAILED");
+    }
+
+    private void assertQueryState(String queryId, String... states)
+            throws SQLException
+    {
+        String queryState = getQueryState(queryId);
+        assertTrue(Arrays.asList(states).contains(queryState));
+    }
+
+    private String getQueryState(String queryId)
+            throws SQLException
+    {
+        String sql = format("select state from system.runtime.queries where query_id='%s'", queryId);
+        try (Connection connection = createConnection()) {
+            try (Statement statement = connection.createStatement()) {
+                try (ResultSet resultSet = statement.executeQuery(sql)) {
+                    assertTrue(resultSet.next(), "Query was not found");
+                    return requireNonNull(resultSet.getString(1));
+                }
+            }
         }
     }
 

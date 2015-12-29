@@ -32,6 +32,7 @@ import com.facebook.presto.sql.tree.CreateTableAsSelect;
 import com.facebook.presto.sql.tree.CreateView;
 import com.facebook.presto.sql.tree.Cube;
 import com.facebook.presto.sql.tree.CurrentTime;
+import com.facebook.presto.sql.tree.DecimalLiteral;
 import com.facebook.presto.sql.tree.Delete;
 import com.facebook.presto.sql.tree.DereferenceExpression;
 import com.facebook.presto.sql.tree.DoubleLiteral;
@@ -131,6 +132,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
 class AstBuilder
@@ -1078,7 +1080,7 @@ class AstBuilder
     @Override
     public Node visitTypeConstructor(SqlBaseParser.TypeConstructorContext context)
     {
-        String type = context.identifier().getText();
+        String type = getType(context.type());
         String value = unquote(context.STRING().getText());
 
         if (type.equalsIgnoreCase("time")) {
@@ -1099,6 +1101,16 @@ class AstBuilder
 
     @Override
     public Node visitDecimalLiteral(SqlBaseParser.DecimalLiteralContext context)
+    {
+        String signString = "";
+        if (context.sign != null && context.sign.getType() == SqlBaseLexer.MINUS) {
+            signString = "-";
+        }
+        return new DecimalLiteral(getLocation(context), String.format("%s%s", signString, context.value.getText()));
+    }
+
+    @Override
+    public Node visitDoubleLiteral(SqlBaseParser.DoubleLiteralContext context)
     {
         return new DoubleLiteral(getLocation(context), context.getText());
     }
@@ -1384,7 +1396,11 @@ class AstBuilder
     private static String getType(SqlBaseParser.TypeContext type)
     {
         if (type.simpleType() != null) {
-            return type.simpleType().getText();
+            String signature = type.simpleType().getText();
+            if (!type.INTEGER_VALUE().isEmpty()) {
+                signature += "(" + type.INTEGER_VALUE().stream().map(Object::toString).collect(joining(", ")) + ")";
+            }
+            return signature;
         }
 
         if (type.ARRAY() != null) {

@@ -1858,6 +1858,22 @@ public abstract class AbstractTestQueries
     }
 
     @Test
+    public void testOuterJoinWithCommonExpression()
+            throws Exception
+    {
+        MaterializedResult actual = computeActual("SELECT count(1), count(one) " +
+                "FROM (values (1, 'a'), (2, 'a')) as l(k, a) " +
+                "LEFT JOIN (select k, 1 one from (values 1) as r(k)) r " +
+                "ON l.k = r.k GROUP BY a");
+
+        MaterializedResult expected = resultBuilder(getSession(), BIGINT, BIGINT)
+                .row(2, 1) // (total rows, # of non null values)
+                .build();
+
+        assertEquals(actual.getMaterializedRows(), expected.getMaterializedRows());
+    }
+
+    @Test
     public void testSimpleLeftJoin()
             throws Exception
     {
@@ -3489,7 +3505,7 @@ public abstract class AbstractTestQueries
         assertQuery("SELECT orderkey, CASE orderstatus WHEN 'O' THEN 'a' END FROM orders");
     }
 
-    @Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = "line 1:67: All CASE results must be the same type: varchar")
+    @Test(expectedExceptions = Exception.class, expectedExceptionsMessageRegExp = "line 1:67: All CASE results must be the same type: varchar\\(1\\)")
     public void testCaseNoElseInconsistentResultType()
         throws Exception
     {
@@ -3908,8 +3924,8 @@ public abstract class AbstractTestQueries
         assertEquals(functions.get("rank").asList().get(0).getField(3), "window");
 
         assertTrue(functions.containsKey("rank"), "Expected function names " + functions + " to contain 'split_part'");
-        assertEquals(functions.get("split_part").asList().get(0).getField(1), "varchar");
-        assertEquals(functions.get("split_part").asList().get(0).getField(2), "varchar, varchar, bigint");
+        assertEquals(functions.get("split_part").asList().get(0).getField(1), "varchar(x)");
+        assertEquals(functions.get("split_part").asList().get(0).getField(2), "varchar(x), varchar, bigint");
         assertEquals(functions.get("split_part").asList().get(0).getField(3), "scalar");
 
         assertFalse(functions.containsKey("like"), "Expected function names " + functions + " not to contain 'like'");
@@ -4873,7 +4889,7 @@ public abstract class AbstractTestQueries
         computeActual("SELECT greatest(rgb(255, 0, 0))");
     }
 
-    @Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = "\\Qline 1:10: Operator NOT_EQUAL(bigint, varchar) not registered\\E")
+    @Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = "\\Qline 1:10: Operator NOT_EQUAL(bigint, varchar(1)) not registered\\E")
     public void testTypeMismatch()
     {
         computeActual("SELECT 1 <> 'x'");

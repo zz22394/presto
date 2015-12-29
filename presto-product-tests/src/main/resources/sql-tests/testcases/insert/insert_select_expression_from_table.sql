@@ -1,8 +1,8 @@
--- database: presto; groups: insert; mutable_tables: datatype|created; tables: datatype
+-- database: presto; groups: insert; mutable_tables: datatype_no_decimal|created; tables: datatype_no_decimal
 -- delimiter: |; ignoreOrder: true; 
 --!
-insert into ${mutableTables.hive.datatype} select 5 * c_bigint, c_double + 15, c_varchar, c_date, c_timestamp, c_boolean from datatype;
-select * from ${mutableTables.hive.datatype}
+insert into ${mutableTables.hive.datatype_no_decimal} select 5 * c_bigint, c_double + 15, c_varchar, c_date, c_timestamp, c_boolean from datatype_no_decimal;
+select * from ${mutableTables.hive.datatype_no_decimal}
 --!
 60|27.25|String1|1999-01-08|1999-01-08 02:05:06|true|
 125|70.52|test|1952-01-05|1989-01-08 04:05:06|false|

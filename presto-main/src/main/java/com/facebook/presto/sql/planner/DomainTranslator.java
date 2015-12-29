@@ -23,7 +23,9 @@ import com.facebook.presto.spi.predicate.Range;
 import com.facebook.presto.spi.predicate.Ranges;
 import com.facebook.presto.spi.predicate.TupleDomain;
 import com.facebook.presto.spi.predicate.ValueSet;
+import com.facebook.presto.spi.type.DecimalType;
 import com.facebook.presto.spi.type.Type;
+import com.facebook.presto.spi.type.VarcharType;
 import com.facebook.presto.sql.analyzer.ExpressionAnalyzer;
 import com.facebook.presto.sql.parser.SqlParser;
 import com.facebook.presto.sql.tree.AstVisitor;
@@ -360,6 +362,16 @@ public final class DomainTranslator
             if (value.getType().equals(BIGINT) && type.equals(DOUBLE)) {
                 value = NullableValue.of(DOUBLE, ((Long) value.getValue()).doubleValue());
             }
+            if (value.getType() instanceof VarcharType && type instanceof VarcharType) {
+                value = NullableValue.of(type, value.getValue());
+            }
+
+            // no support for decimal type in tuple domain for now
+            // support for type aware comparators is needed.
+            if (value.getValue() instanceof DecimalType || type instanceof DecimalType) {
+                return super.visitComparisonExpression(node, complement);
+            }
+
             checkState(value.isNull() || value.getType().equals(type), "INVARIANT: comparison should be working on the same types");
             return createComparisonExtractionResult(normalized.getComparisonType(), symbol, type, value.getValue(), complement);
         }
