@@ -18,6 +18,7 @@ import com.facebook.presto.spi.ConnectorMetadata;
 import com.facebook.presto.spi.ConnectorRecordSetProvider;
 import com.facebook.presto.spi.ConnectorRecordSinkProvider;
 import com.facebook.presto.spi.ConnectorSplitManager;
+import com.facebook.presto.spi.security.ConnectorAccessControl;
 import io.airlift.bootstrap.LifeCycleManager;
 import io.airlift.log.Logger;
 
@@ -35,6 +36,7 @@ public class JdbcConnector
     private final JdbcSplitManager jdbcSplitManager;
     private final JdbcRecordSetProvider jdbcRecordSetProvider;
     private final JdbcRecordSinkProvider jdbcRecordSinkProvider;
+    private final ConnectorAccessControl accessControl;
 
     @Inject
     public JdbcConnector(
@@ -42,13 +44,16 @@ public class JdbcConnector
             JdbcMetadata jdbcMetadata,
             JdbcSplitManager jdbcSplitManager,
             JdbcRecordSetProvider jdbcRecordSetProvider,
-            JdbcRecordSinkProvider jdbcRecordSinkProvider)
+            JdbcHandleResolver jdbcHandleResolver,
+            JdbcRecordSinkProvider jdbcRecordSinkProvider,
+            ConnectorAccessControl accessControl)
     {
         this.lifeCycleManager = requireNonNull(lifeCycleManager, "lifeCycleManager is null");
         this.jdbcMetadata = requireNonNull(jdbcMetadata, "jdbcMetadata is null");
         this.jdbcSplitManager = requireNonNull(jdbcSplitManager, "jdbcSplitManager is null");
         this.jdbcRecordSetProvider = requireNonNull(jdbcRecordSetProvider, "jdbcRecordSetProvider is null");
         this.jdbcRecordSinkProvider = requireNonNull(jdbcRecordSinkProvider, "jdbcRecordSinkProvider is null");
+        this.accessControl = requireNonNull(accessControl, "accessControl is null");
     }
 
     @Override
@@ -73,6 +78,12 @@ public class JdbcConnector
     public ConnectorRecordSinkProvider getRecordSinkProvider()
     {
         return jdbcRecordSinkProvider;
+    }
+
+    @Override
+    public ConnectorAccessControl getAccessControl()
+    {
+        return accessControl;
     }
 
     @Override

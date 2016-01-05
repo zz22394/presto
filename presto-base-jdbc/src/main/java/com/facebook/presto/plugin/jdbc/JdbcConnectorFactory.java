@@ -25,6 +25,7 @@ import io.airlift.bootstrap.Bootstrap;
 
 import java.util.Map;
 
+import static com.facebook.presto.plugin.jdbc.ConditionalModule.installModuleIf;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.Objects.requireNonNull;
@@ -65,7 +66,14 @@ public class JdbcConnectorFactory
         requireNonNull(optionalConfig, "optionalConfig is null");
 
         try (ThreadContextClassLoader ignored = new ThreadContextClassLoader(classLoader)) {
-            Bootstrap app = new Bootstrap(new JdbcModule(connectorId), module);
+            Bootstrap app = new Bootstrap(
+                    new JdbcModule(connectorId),
+                    module,
+                    installModuleIf(
+                            JdbcSecurityConfig.class,
+                            security -> "none".equalsIgnoreCase(security.getSecuritySystem()),
+                            new NoSecurityModule())
+            );
 
             Injector injector = app
                     .strictConfig()
