@@ -32,7 +32,4 @@ public class JdbcSecurityConfig
         this.securitySystem = securitySystem;
         return this;
     }
-    //String getSecuritySystem();
-
-    // JdbcSecurityConfig setSecuritySystem(String securitySystem);
 }

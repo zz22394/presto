@@ -30,6 +30,5 @@ public class PostgreSqlClientModule
     {
         binder.bind(JdbcClient.class).to(PostgreSqlClient.class).in(Scopes.SINGLETON);
         configBinder(binder).bindConfig(BaseJdbcConfig.class);
-    //    binder.bind(JdbcSecurityConfig.class).to(SecurityConfig.class);
     }
 }
