@@ -59,7 +59,7 @@ The credentials for the VM are:</p>
 <div class="line">password: <strong>presto</strong></div>
 </div>
 </div></blockquote>
-<p>The image is based on CentOS 6.6 and contains the following components:</p>
+<p>The image is based on CentOS 6.7 and contains the following components:</p>
 <blockquote>
 <div><ul class="simple">
 <li>Presto is installed in <tt class="docutils literal"><span class="pre">/usr/lib/presto</span></tt>. It is set up with Hive, TPCH and JMX connectors. Logs are located in <tt class="docutils literal"><span class="pre">/var/log/presto</span></tt>.</li>
@@ -87,7 +87,7 @@ The credentials for the VM are:</p>
 <p>The <tt class="docutils literal"><span class="pre">presto-cli</span></tt> executable JAR can be found in <tt class="docutils literal"><span class="pre">/home/presto</span></tt> and should be used to execute Presto queries.
 Please wait a few moments after the image boots for the Presto service to start.</p>
 <p>Usage example:</p>
-<div class="highlight-sql"><div class="highlight"><pre><span class="p">[</span><span class="n">presto</span><span class="o">@</span><span class="n">presto</span><span class="o">-</span><span class="n">demo</span><span class="o">-</span><span class="n">cdh</span> <span class="o">~</span><span class="p">]</span><span class="o">#</span> <span class="n">java</span> <span class="o">-</span><span class="n">jar</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">presto</span><span class="o">/</span><span class="n">presto</span><span class="o">-</span><span class="n">cli</span><span class="p">.</span><span class="n">jar</span> <span class="c1">--catalog hive</span>
+<div class="highlight-sql"><div class="highlight"><pre><span class="p">[</span><span class="n">presto</span><span class="o">@</span><span class="n">presto</span><span class="o">-</span><span class="n">demo</span><span class="o">-</span><span class="n">cdh</span> <span class="o">~</span><span class="p">]</span><span class="o">#</span> <span class="n">java</span> <span class="o">-</span><span class="n">jar</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">presto</span><span class="o">/</span><span class="n">presto</span><span class="o">-</span><span class="n">cli</span><span class="p">.</span><span class="n">jar</span> <span class="c1">--catalog hive --schema default</span>
 <span class="k">show</span> <span class="n">tables</span><span class="p">;</span>
  <span class="k">Table</span>
 <span class="c1">--------</span>
