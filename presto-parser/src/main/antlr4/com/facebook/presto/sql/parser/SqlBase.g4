@@ -72,6 +72,7 @@ statement
         (LIMIT limit=(INTEGER_VALUE | ALL))?                           #showPartitions
     | PREPARE identifier FROM statement                                #prepare
     | DEALLOCATE PREPARE identifier                                    #deallocate
+    | EXECUTE identifier                                               #execute
     ;
 
 query
@@ -582,6 +583,7 @@ ONLY: 'ONLY';
 CALL: 'CALL';
 PREPARE: 'PREPARE';
 DEALLOCATE: 'DEALLOCATE';
+EXECUTE: 'EXECUTE';
 
 NORMALIZE: 'NORMALIZE';
 NFD : 'NFD';

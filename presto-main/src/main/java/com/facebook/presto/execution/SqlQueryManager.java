@@ -22,7 +22,6 @@ import com.facebook.presto.memory.ClusterMemoryManager;
 import com.facebook.presto.spi.PrestoException;
 import com.facebook.presto.sql.parser.ParsingException;
 import com.facebook.presto.sql.parser.ParsingOptions;
-import com.facebook.presto.sql.parser.SqlParser;
 import com.facebook.presto.sql.tree.Explain;
 import com.facebook.presto.sql.tree.Statement;
 import com.facebook.presto.transaction.TransactionManager;
@@ -74,7 +73,7 @@ public class SqlQueryManager
 {
     private static final Logger log = Logger.get(SqlQueryManager.class);
 
-    private final SqlParser sqlParser;
+    private final StatementCreator statementCreator;
 
     private final ExecutorService queryExecutor;
     private final ThreadPoolExecutorMBean queryExecutorMBean;
@@ -103,7 +102,7 @@ public class SqlQueryManager
 
     @Inject
     public SqlQueryManager(
-            SqlParser sqlParser,
+            StatementCreator statementCreator,
             QueryManagerConfig config,
             QueryMonitor queryMonitor,
             QueryQueueManager queueManager,
@@ -112,7 +111,7 @@ public class SqlQueryManager
             TransactionManager transactionManager,
             Map<Class<? extends Statement>, QueryExecutionFactory<?>> executionFactories)
     {
-        this.sqlParser = requireNonNull(sqlParser, "sqlParser is null");
+        this.statementCreator = requireNonNull(statementCreator, "statementCreator is null");
 
         this.executionFactories = requireNonNull(executionFactories, "executionFactories is null");
 
@@ -280,7 +279,7 @@ public class SqlQueryManager
         Statement statement;
         try {
             ParsingOptions parsingOptions = new ParsingOptions().setParseDecimalLiteralsAsDouble(isParseDecimalLiteralsAsDouble(session));
-            statement = sqlParser.createStatement(query, parsingOptions);
+            statement = statementCreator.createStatement(query, session, parsingOptions);
             QueryExecutionFactory<?> queryExecutionFactory = executionFactories.get(statement.getClass());
             if (queryExecutionFactory == null) {
                 throw new PrestoException(NOT_SUPPORTED, "Unsupported statement type: " + statement.getClass().getSimpleName());
