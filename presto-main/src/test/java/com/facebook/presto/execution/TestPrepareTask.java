@@ -64,6 +64,7 @@ public class TestPrepareTask
         assertEquals(statements, ImmutableMap.of("my_query", "SELECT *\nFROM\n  foo\n"));
     }
 
+    @Test
     public void testPrepareNameExists()
     {
         String statementName = "existing_query";
@@ -86,7 +87,7 @@ public class TestPrepareTask
     private Map<String, String> executePrepare(String statementName, Query query, String sqlString, Session session)
     {
         TransactionManager transactionManager = createTestTransactionManager();
-        QueryStateMachine stateMachine = QueryStateMachine.begin(new QueryId("query"), sqlString, session, URI.create("fake://uri"), false, transactionManager, executor);
+        QueryStateMachine stateMachine = QueryStateMachine.begin(new QueryId("query"), sqlString, session, URI.create("fake://uri"), false, transactionManager, metadata, executor);
         Prepare prepare = new Prepare(statementName, query);
         new PrepareTask(new SqlParser()).execute(prepare, transactionManager, metadata, new AllowAllAccessControl(), stateMachine);
         return stateMachine.getAddedPreparedStatements();
