@@ -13,6 +13,7 @@
  */
 package com.facebook.presto.tests;
 
+import com.facebook.presto.Session;
 import com.facebook.presto.metadata.FunctionListBuilder;
 import com.facebook.presto.metadata.SqlFunction;
 import com.facebook.presto.operator.scalar.TestingRowConstructor;
@@ -4129,6 +4130,15 @@ public abstract class AbstractTestQueries
     }
 
     @Test
+    public void testExplainExecute()
+    {
+        Session session = getSession().withPreparedStatement("my_query", "SELECT * FROM orders");
+        String query = "EXECUTE my_query";
+        MaterializedResult result = computeActual(session, "EXPLAIN (TYPE LOGICAL) " + query);
+        assertEquals(getOnlyElement(result.getOnlyColumnAsSet()), getExplainPlan("SELECT * FROM orders", LOGICAL));
+    }
+
+    @Test
     public void testShowCatalogs()
             throws Exception
     {
@@ -6028,5 +6038,22 @@ public abstract class AbstractTestQueries
         assertQuery("SELECT 'something' || NULL");
         assertQuery("SELECT NULL || 'something'");
         assertQuery("SELECT NULL || NULL");
+    }
+
+    @Test
+    public void testExecute()
+    {
+        Session session = getSession().withPreparedStatement("my_query", "select 123, 'abc'");
+        MaterializedResult actual = computeActual(session, "EXECUTE my_query");
+        MaterializedResult expected = resultBuilder(session, BIGINT, VARCHAR)
+                .row(123, "abc")
+                .build();
+        assertEqualsIgnoreOrder(actual, expected);
+    }
+
+    @Test
+    public void testExecuteNoSuchQuery()
+    {
+        assertQueryFails("EXECUTE my_query", "Prepared statement not found: my_query");
     }
 }
