@@ -1430,8 +1430,9 @@ public class TestSqlParser
     public void testPrepare()
     {
         assertStatement("PREPARE myquery FROM select * from foo",
-                        new Prepare("myquery", simpleQuery(selectList(new AllColumns()),
-                                                           table(QualifiedName.of("foo")))));
+                                new Prepare("myquery", simpleQuery(
+                                        selectList(new AllColumns()),
+                                        table(QualifiedName.of("foo")))));
     }
 
     private static void assertCast(String type)
