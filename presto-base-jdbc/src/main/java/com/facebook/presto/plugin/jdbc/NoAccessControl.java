@@ -24,7 +24,6 @@ import static java.util.Objects.requireNonNull;
 public class NoAccessControl
         implements ConnectorAccessControl
 {
-
     @Inject
     public NoAccessControl(JdbcMetadataConfig jdbcMetadataConfig) // Should you crate a class JdbcClientConfig? Is that needed?
     {

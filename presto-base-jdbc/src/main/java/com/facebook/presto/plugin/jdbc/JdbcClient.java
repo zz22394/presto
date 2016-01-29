@@ -61,4 +61,14 @@ public interface JdbcClient
 
     PreparedStatement getPreparedStatement(Connection connection, String sql)
             throws SQLException;
+
+    boolean hasTablePrivilege(SchemaTableName schemaTableName, String user, PostgreSqlPrivilege privilege);
+
+    boolean hasSchemaPrivilege(String schemaName, String user, PostgreSqlPrivilege privilege);
+
+    boolean hasRolePrivilege(String user, String role, PostgreSqlPrivilege privilege);
+
+    boolean isTableOwner(String user, SchemaTableName schemaTableName);
+
+    boolean isDatabaseOwner(String user, String schemaName);
 }

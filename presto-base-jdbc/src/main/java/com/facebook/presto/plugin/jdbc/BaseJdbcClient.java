@@ -397,6 +397,154 @@ public class BaseJdbcClient
         return connection.prepareStatement(sql);
     }
 
+    /*
+    * SqlStandardAccessControl in hive defines checkTablePermission as a private function.
+    * I think this is to restrict the usage of checkTablePermission outside of the class, so that not anyone without sufficient privileges can execute this funciton.
+    * What should we do here for postgres? Should this function be public/protected/private ?
+    */
+    public boolean hasTablePrivilege(SchemaTableName schemaTableName, String user, PostgreSqlPrivilege postgreSqlPrivilege)
+    {
+        boolean hasTablePrivilege = false;
+
+        try {
+            Connection connection = driver.connect(connectionUrl, connectionProperties);
+            Statement statement = connection.createStatement();
+            String privilege;
+
+            if (postgreSqlPrivilege.equals(PostgreSqlPrivilege.SELECT_WITH_GRANT)) {
+                privilege = "SELECT WITH GRANT OPTION";
+            }
+            else {
+                privilege = postgreSqlPrivilege.toString();
+            }
+
+            StringBuilder sql = new StringBuilder()
+                    .append("SELECT has_table_privilege ('")
+                    .append(user)
+                    .append("', '")
+                    .append(schemaTableName.getSchemaName())
+                    .append(".")
+                    .append(schemaTableName.getTableName())
+                    .append("', '")
+                    .append(privilege)
+                    .append("');");
+
+            ResultSet rs = statement.executeQuery(sql.toString());
+            while (rs.next()) {
+                hasTablePrivilege = rs.getBoolean("has_table_privilege");
+                return hasTablePrivilege;
+            }
+        }
+       catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return hasTablePrivilege;
+    }
+
+    public boolean hasSchemaPrivilege(String schemaName, String user, PostgreSqlPrivilege privilege)
+    {
+        boolean hasSchemaPrivilege = false;
+
+        try {
+            Connection connection = driver.connect(connectionUrl, connectionProperties);
+            Statement statement = connection.createStatement();
+            StringBuilder sql = new StringBuilder()
+                    .append("SELECT has_schema_privilege ('")
+                    .append(user)
+                    .append("', '")
+                    .append(schemaName)
+                    .append("', '")
+                    .append(privilege.toString())
+                    .append("');");
+
+            ResultSet rs = statement.executeQuery(sql.toString());
+            while (rs.next()) {
+                hasSchemaPrivilege = rs.getBoolean("has_schema_privilege");
+                return hasSchemaPrivilege;
+            }
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return hasSchemaPrivilege;
+    }
+
+    public boolean hasRolePrivilege(String user, String role, PostgreSqlPrivilege privilege)
+    {
+        boolean hasRolePrivilege = false;
+
+        try {
+            Connection connection = driver.connect(connectionUrl, connectionProperties);
+            Statement statement = connection.createStatement();
+            StringBuilder sql = new StringBuilder()
+                    .append("SELECT pg_has_role ('")
+                    .append(user)
+                    .append("', '")
+                    .append(role)
+                    .append("', '")
+                    .append(privilege.toString())
+                    .append("');");
+
+            ResultSet rs = statement.executeQuery(sql.toString());
+            while (rs.next()) {
+                hasRolePrivilege = rs.getBoolean("has_schema_privilege");
+                return hasRolePrivilege;
+            }
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return hasRolePrivilege;
+    }
+
+    public boolean isTableOwner(String user, SchemaTableName schemaTableName)
+    {
+        try {
+            Connection connection = driver.connect(connectionUrl, connectionProperties);
+            Statement statement = connection.createStatement();
+            StringBuilder sql = new StringBuilder()
+                    .append("SELECT tableowner FROM pg_tables WHERE tablename='")
+                    .append(schemaTableName.getTableName())
+                    .append("' AND schemaname='")
+                    .append(schemaTableName.getSchemaName())
+                    .append("';");
+
+            ResultSet rs = statement.executeQuery(sql.toString());
+            while (rs.next()) {
+                if (user.equals(rs.getString("tableowner"))) {
+                    return true;
+                }
+            }
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean isDatabaseOwner(String user, String schemaName)
+    {
+        try {
+            Connection connection = driver.connect(connectionUrl, connectionProperties);
+            Statement statement = connection.createStatement();
+            StringBuilder sql = new StringBuilder()
+                    .append("SELECT schema_owner FROM information_schema.schemata WHERE schema_name='")
+                    .append(schemaName)
+                    .append("';");
+
+            ResultSet rs = statement.executeQuery(sql.toString());
+            while (rs.next()) {
+                if (user.equals(rs.getString("schema_owner"))) {
+                    return true;
+                }
+            }
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     protected ResultSet getTables(Connection connection, String schemaName, String tableName)
             throws SQLException
     {
