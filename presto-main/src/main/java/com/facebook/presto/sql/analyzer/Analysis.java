@@ -91,6 +91,9 @@ public class Analysis
 
     private Optional<Insert> insert = Optional.empty();
 
+    // for describe input and describe output
+    private boolean isDescribe = false;
+
     public Statement getStatement()
     {
         return statement;
@@ -420,6 +423,16 @@ public class Analysis
     {
         Preconditions.checkState(sampleRatios.containsKey(relation), "Sample ratio missing for %s. Broken analysis?", relation);
         return sampleRatios.get(relation);
+    }
+
+    public boolean isDescribe()
+    {
+        return isDescribe;
+    }
+
+    public void setIsDescribe(boolean isDescribe)
+    {
+        this.isDescribe = isDescribe;
     }
 
     @Immutable
