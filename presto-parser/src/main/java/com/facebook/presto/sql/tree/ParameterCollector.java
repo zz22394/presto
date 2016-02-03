@@ -22,6 +22,11 @@ public class ParameterCollector
 {
     private List<Parameter> parameters = new ArrayList<>();
 
+    private List<Parameter> getParameters()
+    {
+        return this.parameters;
+    }
+
     public int getParameterCount()
     {
         return parameters.size();
@@ -32,5 +37,12 @@ public class ParameterCollector
     {
         parameters.add(node);
         return null;
+    }
+
+    public static List<Parameter> getParameters(Node node)
+    {
+        ParameterCollector collector = new ParameterCollector();
+        collector.process(node, null);
+        return collector.getParameters();
     }
 }
