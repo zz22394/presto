@@ -16,6 +16,7 @@ package com.facebook.presto.sql.rewrite;
 
 import com.facebook.presto.Session;
 import com.facebook.presto.metadata.Metadata;
+import com.facebook.presto.security.AccessControl;
 import com.facebook.presto.sql.analyzer.QueryExplainer;
 import com.facebook.presto.sql.parser.SqlParser;
 import com.facebook.presto.sql.tree.Statement;
@@ -29,21 +30,37 @@ import static java.util.Objects.requireNonNull;
 public final class StatementRewrite
 {
     private static final List<Rewrite> REWRITES = ImmutableList.of(
+            new DescribeInputRewrite(),
+            new DescribeOutputRewrite(),
             new ShowQueriesRewrite(),
             new ExplainRewrite());
 
     private StatementRewrite() {}
 
-    public static Statement rewrite(Session session, Metadata metadata, SqlParser parser, Optional<QueryExplainer> queryExplainer, Statement node)
+    public static Statement rewrite(
+            Session session,
+            Metadata metadata,
+            SqlParser parser,
+            Optional<QueryExplainer> queryExplainer,
+            Statement node,
+            AccessControl accessControl,
+            boolean experimentalSyntaxEnambled)
     {
         for (Rewrite rewrite : REWRITES) {
-            node = requireNonNull(rewrite.rewrite(session, metadata, parser, queryExplainer, node), "Statement rewrite returned null");
+            node = requireNonNull(rewrite.rewrite(session, metadata, parser, queryExplainer, node, accessControl, experimentalSyntaxEnambled), "Statement rewrite returned null");
         }
         return node;
     }
 
     interface Rewrite
     {
-        Statement rewrite(Session session, Metadata metadata, SqlParser parser, Optional<QueryExplainer> queryExplainer, Statement node);
+        Statement rewrite(
+                Session session,
+                Metadata metadata,
+                SqlParser parser,
+                Optional<QueryExplainer> queryExplainer,
+                Statement node,
+                AccessControl accessControl,
+                boolean experimentalSyntaxEnabled);
     }
 }
