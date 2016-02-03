@@ -77,6 +77,7 @@ statement
     | PREPARE identifier FROM statement                                #prepare
     | DEALLOCATE PREPARE identifier                                    #deallocate
     | EXECUTE identifier (USING literal (',' literal)*)?               #execute
+    | DESCRIBE INPUT identifier                                        #describeInput
     ;
 
 query
@@ -594,6 +595,7 @@ CALL: 'CALL';
 PREPARE: 'PREPARE';
 DEALLOCATE: 'DEALLOCATE';
 EXECUTE: 'EXECUTE';
+INPUT: 'INPUT';
 
 NORMALIZE: 'NORMALIZE';
 NFD : 'NFD';
