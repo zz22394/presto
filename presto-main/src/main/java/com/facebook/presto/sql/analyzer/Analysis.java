@@ -95,6 +95,12 @@ public class Analysis
 
     private Optional<Insert> insert = Optional.empty();
 
+    // for describe input and describe output
+    private boolean isDescribe = false;
+    // A row count query (as opposed to a result set query) is one that doesn't return
+    // any data, e.g. DDL (CREATE, ALTER, DROP, ...) and some DML (INSERT, UPDATE, DELETE, ...)
+    private boolean rowCountQuery = false;
+
     public Analysis(Statement root)
     {
         this.root = root;
@@ -486,6 +492,26 @@ public class Analysis
     {
         Preconditions.checkState(sampleRatios.containsKey(relation), "Sample ratio missing for %s. Broken analysis?", relation);
         return sampleRatios.get(relation);
+    }
+
+    public boolean isDescribe()
+    {
+        return isDescribe;
+    }
+
+    public void setIsDescribe(boolean isDescribe)
+    {
+        this.isDescribe = isDescribe;
+    }
+
+    public boolean isRowCountQuery()
+    {
+        return rowCountQuery;
+    }
+
+    public void setRowCountQuery(boolean rowCountQuery)
+    {
+        this.rowCountQuery = rowCountQuery;
     }
 
     @Immutable
