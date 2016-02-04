@@ -52,9 +52,9 @@ import java.util.regex.Pattern;
 
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.DateType.DATE;
-import static com.facebook.presto.spi.type.DecimalType.createDecimalType;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
-import static com.facebook.presto.spi.type.StandardTypes.DECIMAL;
+import static com.facebook.presto.spi.type.FastDecimalType.createDecimalType;
+import static com.facebook.presto.spi.type.StandardTypes.FAST_DECIMAL;
 import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
 import static com.facebook.presto.tpch.Types.checkType;
 import static com.google.common.base.Preconditions.checkState;
@@ -373,7 +373,7 @@ public class TpchMetadata
 
     public static Type getNumericType(TypeSignature numericTypeSignature)
     {
-        if (numericTypeSignature.getBase().equals(DECIMAL)) {
+        if (numericTypeSignature.getBase().equals(FAST_DECIMAL)) {
             long precision = numericTypeSignature.getParameters().get(0).getLongLiteral();
             long scale = numericTypeSignature.getParameters().get(1).getLongLiteral();
             return createDecimalType((int) precision, (int) scale);

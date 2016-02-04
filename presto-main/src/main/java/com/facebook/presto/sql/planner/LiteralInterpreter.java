@@ -21,7 +21,6 @@ import com.facebook.presto.operator.scalar.ScalarFunctionImplementation;
 import com.facebook.presto.operator.scalar.VarbinaryFunctions;
 import com.facebook.presto.spi.ConnectorSession;
 import com.facebook.presto.spi.block.Block;
-import com.facebook.presto.spi.type.DecimalType;
 import com.facebook.presto.spi.type.Type;
 import com.facebook.presto.spi.type.VarcharType;
 import com.facebook.presto.sql.analyzer.SemanticException;
@@ -57,6 +56,7 @@ import java.util.List;
 import static com.facebook.presto.metadata.FunctionKind.SCALAR;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
+import static com.facebook.presto.spi.type.DecimalArithmetic.decimal;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
 import static com.facebook.presto.spi.type.TypeSignature.parseTypeSignature;
 import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
@@ -218,9 +218,9 @@ public final class LiteralInterpreter
         }
 
         @Override
-        protected Object visitDecimalLiteral(DecimalLiteral node, ConnectorSession context)
+        protected Slice visitDecimalLiteral(DecimalLiteral node, ConnectorSession context)
         {
-            return DecimalType.unscaledValueToObject(node.getUnscaledValue(), node.getPrecision());
+            return decimal(node.getUnscaledValue());
         }
 
         @Override

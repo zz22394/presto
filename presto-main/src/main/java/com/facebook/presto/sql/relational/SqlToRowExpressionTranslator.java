@@ -17,7 +17,7 @@ import com.facebook.presto.Session;
 import com.facebook.presto.metadata.FunctionKind;
 import com.facebook.presto.metadata.FunctionRegistry;
 import com.facebook.presto.metadata.Signature;
-import com.facebook.presto.spi.type.DecimalType;
+import com.facebook.presto.spi.type.DecimalArithmetic;
 import com.facebook.presto.spi.type.TimeZoneKey;
 import com.facebook.presto.spi.type.Type;
 import com.facebook.presto.spi.type.TypeManager;
@@ -61,6 +61,7 @@ import com.facebook.presto.sql.tree.WhenClause;
 import com.facebook.presto.type.UnknownType;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import io.airlift.slice.Slice;
 
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -69,7 +70,7 @@ import static com.facebook.presto.metadata.FunctionKind.SCALAR;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
-import static com.facebook.presto.spi.type.ShortDecimalType.createDecimalType;
+import static com.facebook.presto.spi.type.FastDecimalType.createDecimalType;
 import static com.facebook.presto.spi.type.TimeWithTimeZoneType.TIME_WITH_TIME_ZONE;
 import static com.facebook.presto.spi.type.TimestampWithTimeZoneType.TIMESTAMP_WITH_TIME_ZONE;
 import static com.facebook.presto.spi.type.TypeSignature.parseTypeSignature;
@@ -187,9 +188,7 @@ public final class SqlToRowExpressionTranslator
         @Override
         protected RowExpression visitDecimalLiteral(DecimalLiteral node, Void context)
         {
-            Object value;
-            value = DecimalType.unscaledValueToObject(node.getUnscaledValue(), node.getPrecision());
-
+            Slice value = DecimalArithmetic.decimal(node.getUnscaledValue());
             return constant(value, createDecimalType(node.getPrecision(), node.getScale()));
         }
 

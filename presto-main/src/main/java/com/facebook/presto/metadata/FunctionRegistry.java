@@ -81,6 +81,7 @@ import com.facebook.presto.type.DateOperators;
 import com.facebook.presto.type.DateTimeOperators;
 import com.facebook.presto.type.DecimalOperators;
 import com.facebook.presto.type.DoubleOperators;
+import com.facebook.presto.type.FastDecimalOperators;
 import com.facebook.presto.type.HyperLogLogOperators;
 import com.facebook.presto.type.IntervalDayTimeOperators;
 import com.facebook.presto.type.IntervalYearMonthOperators;
@@ -361,6 +362,7 @@ public class FunctionRegistry
                 .scalar(JsonOperators.class)
                 .scalar(FailureFunction.class)
                 .scalar(DecimalOperators.class)
+                .scalar(FastDecimalOperators.class)
                 .functions(IDENTITY_CAST, CAST_FROM_UNKNOWN)
                 .functions(ARRAY_CONTAINS, ARRAY_JOIN, ARRAY_JOIN_WITH_NULL_REPLACEMENT)
                 .functions(ARRAY_MIN, ARRAY_MAX)

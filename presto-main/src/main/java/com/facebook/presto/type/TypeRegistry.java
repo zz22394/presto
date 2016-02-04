@@ -43,6 +43,7 @@ import static com.facebook.presto.spi.type.IntervalDayTimeType.INTERVAL_DAY_TIME
 import static com.facebook.presto.spi.type.IntervalYearMonthType.INTERVAL_YEAR_MONTH;
 import static com.facebook.presto.spi.type.P4HyperLogLogType.P4_HYPER_LOG_LOG;
 import static com.facebook.presto.spi.type.StandardTypes.DECIMAL;
+import static com.facebook.presto.spi.type.StandardTypes.FAST_DECIMAL;
 import static com.facebook.presto.spi.type.TimeType.TIME;
 import static com.facebook.presto.spi.type.TimeWithTimeZoneType.TIME_WITH_TIME_ZONE;
 import static com.facebook.presto.spi.type.TimestampType.TIMESTAMP;
@@ -106,6 +107,7 @@ public final class TypeRegistry
         addType(JSON);
         addParametricType(VarcharParametricType.VARCHAR);
         addParametricType(DecimalParametricType.DECIMAL);
+        addParametricType(FastDecimalParametricType.FAST_DECIMAL);
         addParametricType(ROW);
         addParametricType(ARRAY);
         addParametricType(MAP);
@@ -344,6 +346,19 @@ public final class TypeRegistry
                     ImmutableList.of(TypeSignatureParameter.of(targetPrecision), TypeSignatureParameter.of(targetScale))));
         }
 
+        if (firstType.getBase().equals(FAST_DECIMAL) && secondType.getBase().equals(FAST_DECIMAL)) {
+            long firstPrecision = firstType.getParameters().get(0).getLongLiteral();
+            long secondPrecision = secondType.getParameters().get(0).getLongLiteral();
+            long firstScale = firstType.getParameters().get(1).getLongLiteral();
+            long secondScale = secondType.getParameters().get(1).getLongLiteral();
+            long targetScale = Math.max(firstScale, secondScale);
+            long targetPrecision = Math.max(firstPrecision - firstScale, secondPrecision - secondScale) + targetScale;
+            targetPrecision = Math.min(38, targetPrecision); //we allow potential loss of precision here. Overflow checking is done in operators.
+            return Optional.of(new TypeSignature(
+                    FAST_DECIMAL,
+                    ImmutableList.of(TypeSignatureParameter.of(targetPrecision), TypeSignatureParameter.of(targetScale))));
+        }
+
         if (firstTypeTypeParameters.size() != secondTypeTypeParameters.size()) {
             return Optional.empty();
         }
@@ -432,6 +447,19 @@ public final class TypeRegistry
         }
 
         if (actualType.getBase().equals(DECIMAL) && expectedType.getBase().equals(DECIMAL)) {
+            long actualPrecision = actualType.getParameters().get(0).getLongLiteral();
+            long expectedPrecision = (long) expectedType.getParameters().get(0).getLongLiteral();
+            long actualScale = (long) actualType.getParameters().get(1).getLongLiteral();
+            long expectedScale = (long) expectedType.getParameters().get(1).getLongLiteral();
+
+            if (actualPrecision <= DecimalType.MAX_SHORT_PRECISION ^ expectedPrecision <= DecimalType.MAX_SHORT_PRECISION) {
+                return false;
+            }
+
+            return actualScale == expectedScale && actualPrecision <= expectedPrecision;
+        }
+
+        if (actualType.getBase().equals(FAST_DECIMAL) && expectedType.getBase().equals(FAST_DECIMAL)) {
             long actualPrecision = actualType.getParameters().get(0).getLongLiteral();
             long expectedPrecision = (long) expectedType.getParameters().get(0).getLongLiteral();
             long actualScale = (long) actualType.getParameters().get(1).getLongLiteral();

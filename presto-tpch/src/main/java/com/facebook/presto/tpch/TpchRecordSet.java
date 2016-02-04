@@ -15,9 +15,7 @@ package com.facebook.presto.tpch;
 
 import com.facebook.presto.spi.RecordCursor;
 import com.facebook.presto.spi.RecordSet;
-import com.facebook.presto.spi.type.DecimalType;
-import com.facebook.presto.spi.type.LongDecimalType;
-import com.facebook.presto.spi.type.ShortDecimalType;
+import com.facebook.presto.spi.type.FastDecimalType;
 import com.facebook.presto.spi.type.Type;
 import com.facebook.presto.spi.type.TypeSignature;
 import com.google.common.collect.ImmutableList;
@@ -28,19 +26,21 @@ import io.airlift.tpch.TpchColumnType;
 import io.airlift.tpch.TpchEntity;
 import io.airlift.tpch.TpchTable;
 
-import java.math.BigInteger;
 import java.util.Iterator;
 import java.util.List;
 
-import static com.facebook.presto.spi.type.StandardTypes.DECIMAL;
+import static com.facebook.presto.spi.type.DecimalArithmetic.ZERO;
+import static com.facebook.presto.spi.type.DecimalArithmetic.decimal;
+import static com.facebook.presto.spi.type.DecimalArithmetic.multiply;
+import static com.facebook.presto.spi.type.DecimalArithmetic.tenToNth;
 import static com.facebook.presto.spi.type.StandardTypes.DOUBLE;
+import static com.facebook.presto.spi.type.StandardTypes.FAST_DECIMAL;
 import static com.facebook.presto.spi.type.TypeSignature.parseTypeSignature;
 import static com.facebook.presto.tpch.TpchMetadata.TPCH_GENERATOR_SCALE;
 import static com.facebook.presto.tpch.TpchMetadata.getNumericType;
 import static com.facebook.presto.tpch.TpchMetadata.getPrestoType;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Iterables.transform;
-import static java.math.BigInteger.ZERO;
 import static java.util.Objects.requireNonNull;
 
 public class TpchRecordSet<E extends TpchEntity>
@@ -97,8 +97,7 @@ public class TpchRecordSet<E extends TpchEntity>
         private final List<TpchColumn<E>> columns;
         private final TypeSignature numericTypeSignature;
         private final boolean rescales;
-        private final long rescaleShort;
-        private final BigInteger rescaleLong;
+        private final Slice rescaleLong;
         private E row;
         private boolean closed;
 
@@ -108,15 +107,13 @@ public class TpchRecordSet<E extends TpchEntity>
             this.columns = columns;
             this.numericTypeSignature = numericTypeSignature;
 
-            if (numericTypeSignature.getBase().equals(DECIMAL)) {
-                DecimalType decimalType = (DecimalType) getNumericType(numericTypeSignature);
+            if (numericTypeSignature.getBase().equals(FAST_DECIMAL)) {
+                FastDecimalType decimalType = (FastDecimalType) getNumericType(numericTypeSignature);
                 int rescaleFactor = decimalType.getScale() - TPCH_GENERATOR_SCALE;
-                this.rescaleShort = ShortDecimalType.tenToNth(rescaleFactor);
-                this.rescaleLong = LongDecimalType.tenToNth(rescaleFactor);
+                this.rescaleLong = tenToNth(rescaleFactor);
                 this.rescales = rescaleFactor != 0;
             }
             else {
-                this.rescaleShort = 0L;
                 this.rescaleLong = ZERO;
                 this.rescales = false;
             }
@@ -173,14 +170,6 @@ public class TpchRecordSet<E extends TpchEntity>
             if (tpchColumn.getType() == TpchColumnType.DATE) {
                 return tpchColumn.getDate(row);
             }
-            else if (tpchColumn.getType() == TpchColumnType.DOUBLE) {
-                if (!rescales) {
-                    return tpchColumn.getLong(row);
-                }
-                else {
-                    return tpchColumn.getLong(row) * rescaleShort;
-                }
-            }
 
             return tpchColumn.getLong(row);
         }
@@ -198,13 +187,13 @@ public class TpchRecordSet<E extends TpchEntity>
             checkState(row != null, "No current row");
             TpchColumn<E> tpchColumn = getTpchColumn(field);
             if (tpchColumn.getType() == TpchColumnType.DOUBLE) {
+                Slice value = decimal(tpchColumn.getLong(row));
                 if (!rescales) {
-                    return LongDecimalType.unscaledValueToSlice(tpchColumn.getLong(row));
+                    return value;
                 }
-                else {
-                    BigInteger unscaledValue = BigInteger.valueOf(tpchColumn.getLong(row)).multiply(rescaleLong);
-                    return LongDecimalType.unscaledValueToSlice(unscaledValue);
-                }
+
+                multiply(value, rescaleLong, value);
+                return value;
             }
             return Slices.utf8Slice(tpchColumn.getString(row));
         }

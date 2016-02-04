@@ -53,20 +53,27 @@ public final class NumericBenchmarks
 
     private static void runNumericBenchmarks(LocalQueryRunner localQueryRunner)
     {
-        SimpleLineBenchmarkResultWriter writer = new SimpleLineBenchmarkResultWriter(System.out);
+        SimpleLineBenchmarkResultWriter writer = null; //new SimpleLineBenchmarkResultWriter(System.out);
         numericBenchmarkAdd(localQueryRunner).runBenchmark(writer);
-        numericBenchmarkAdd(localQueryRunner).runBenchmark(writer);
+        numericBenchmarkManyAdd(localQueryRunner).runBenchmark(writer);
         numericBenchmarkSubtract(localQueryRunner).runBenchmark(writer);
         numericBenchmarkMultiply(localQueryRunner).runBenchmark(writer);
         numericBenchmarkDivide(localQueryRunner).runBenchmark(writer);
         numericBenchmarkSingleColumnCount(localQueryRunner).runBenchmark(writer);
         numericBenchmarkTwoColumnsCount(localQueryRunner).runBenchmark(writer);
+        numericBenchmarkEightColumnsCount(localQueryRunner).runBenchmark(writer);
     }
 
     public static SqlBenchmark numericBenchmarkAdd(LocalQueryRunner localQueryRunner)
     {
         return createSqlBenchmark(localQueryRunner, "numericBenchmarkAdd_" + queryNameSuffix(localQueryRunner),
                 "SELECT count(extendedprice + tax) from lineitem");
+    }
+
+    public static SqlBenchmark numericBenchmarkManyAdd(LocalQueryRunner localQueryRunner)
+    {
+        return createSqlBenchmark(localQueryRunner, "numericBenchmarkManyAdd_" + queryNameSuffix(localQueryRunner),
+                "SELECT count(extendedprice + tax + extendedprice + tax + extendedprice + tax + extendedprice + tax) from lineitem");
     }
 
     public static SqlBenchmark numericBenchmarkSubtract(LocalQueryRunner localQueryRunner)
@@ -97,6 +104,12 @@ public final class NumericBenchmarks
     {
         return createSqlBenchmark(localQueryRunner, "numericBenchmarkTwoColumnsCount_" + queryNameSuffix(localQueryRunner),
                 "SELECT count(extendedprice), count(tax) from lineitem");
+    }
+
+    public static SqlBenchmark numericBenchmarkEightColumnsCount(LocalQueryRunner localQueryRunner)
+    {
+        return createSqlBenchmark(localQueryRunner, "numericBenchmarkEightColumnsCount_" + queryNameSuffix(localQueryRunner),
+                "SELECT count(extendedprice), count(tax), count(extendedprice), count(tax), count(extendedprice), count(tax), count(extendedprice), count(tax) from lineitem");
     }
 
     private static String queryNameSuffix(LocalQueryRunner localQueryRunner)
