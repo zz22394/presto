@@ -30,6 +30,7 @@ import com.facebook.presto.spi.ColumnMetadata;
 import com.facebook.presto.spi.PrestoException;
 import com.facebook.presto.spi.SchemaTableName;
 import com.facebook.presto.spi.security.Identity;
+import com.facebook.presto.spi.type.FixedWidthType;
 import com.facebook.presto.spi.type.StandardTypes;
 import com.facebook.presto.spi.type.Type;
 import com.facebook.presto.spi.type.TypeSignature;
@@ -43,6 +44,7 @@ import com.facebook.presto.sql.planner.Symbol;
 import com.facebook.presto.sql.planner.optimizations.CanonicalizeExpressions;
 import com.facebook.presto.sql.tree.AliasedRelation;
 import com.facebook.presto.sql.tree.AllColumns;
+import com.facebook.presto.sql.tree.BooleanLiteral;
 import com.facebook.presto.sql.tree.Cast;
 import com.facebook.presto.sql.tree.ComparisonExpression;
 import com.facebook.presto.sql.tree.CreateTableAsSelect;
@@ -51,6 +53,7 @@ import com.facebook.presto.sql.tree.DefaultTraversalVisitor;
 import com.facebook.presto.sql.tree.Delete;
 import com.facebook.presto.sql.tree.DereferenceExpression;
 import com.facebook.presto.sql.tree.DescribeInput;
+import com.facebook.presto.sql.tree.DescribeOutput;
 import com.facebook.presto.sql.tree.Except;
 import com.facebook.presto.sql.tree.Explain;
 import com.facebook.presto.sql.tree.ExplainFormat;
@@ -283,6 +286,7 @@ class StatementAnalyzer
                 predicate,
                 ordering(ascending("table_name")));
 
+        analysis.setRowCountQuery(true);
         return process(query, context);
     }
 
@@ -298,6 +302,7 @@ class StatementAnalyzer
                 from(node.getCatalog().orElseGet(() -> session.getCatalog().get()), TABLE_SCHEMATA),
                 ordering(ascending("schema_name")));
 
+        analysis.setRowCountQuery(true);
         return process(query, context);
     }
 
@@ -312,6 +317,7 @@ class StatementAnalyzer
                 selectList(new AllColumns()),
                 aliased(new Values(rows), "catalogs", ImmutableList.of("Catalog")));
 
+        analysis.setRowCountQuery(true);
         return process(query, context);
     }
 
@@ -336,7 +342,73 @@ class StatementAnalyzer
                         equal(nameReference("table_name"), new StringLiteral(tableName.getObjectName()))),
                 ordering(ascending("ordinal_position")));
 
+        analysis.setRowCountQuery(true);
         return process(query, context);
+    }
+
+    @Override
+    protected RelationType visitDescribeOutput(DescribeOutput node, AnalysisContext context)
+    {
+        String sqlString = session.getPreparedStatement(node.getName());
+        Statement statement = sqlParser.createStatement(sqlString);
+
+        Analysis queryAnalysis = new Analysis();
+        queryAnalysis.setIsDescribe(true);
+        StatementAnalyzer analyzer = new StatementAnalyzer(queryAnalysis, metadata, sqlParser, accessControl, session, experimentalSyntaxEnabled, queryExplainer);
+        RelationType outputDescriptor = analyzer.process(statement, context);
+        queryAnalysis.setOutputDescriptor(outputDescriptor);
+
+        Row[] rows = outputDescriptor.getVisibleFields().stream().map(field -> createDescribeOutputRow(field, queryAnalysis)).toArray(Row[]::new);
+        Query query = simpleQuery(
+                selectList(nameReference("Column Name"),
+                        nameReference("Table"),
+                        nameReference("Schema"),
+                        nameReference("Connector"),
+                        nameReference("Type"),
+                        nameReference("Type Size"),
+                        nameReference("Aliased"),
+                        nameReference("Row Count Query")),
+                aliased(
+                        values(rows),
+                        "Statement Output",
+                        ImmutableList.of("Column Name", "Table", "Schema", "Connector", "Type", "Type Size", "Aliased", "Row Count Query")));
+        return process(query, context);
+    }
+
+    private Row createDescribeOutputRow(Field field, Analysis analysis)
+    {
+        NullLiteral nullLiteral = new NullLiteral();
+        if (analysis.isRowCountQuery()) {
+            return row(nullLiteral, nullLiteral, nullLiteral, nullLiteral, nullLiteral, nullLiteral, nullLiteral, TRUE_LITERAL);
+        }
+
+        LongLiteral typeSize = new LongLiteral("0");
+        if (field.getType() instanceof FixedWidthType) {
+            typeSize = new LongLiteral(String.valueOf(((FixedWidthType) field.getType()).getFixedSize()));
+        }
+
+        String columnName;
+        if (field.getName().isPresent()) {
+            columnName = field.getName().get();
+        }
+        else {
+            int columnIndex = ImmutableList.copyOf(analysis.getOutputDescriptor().getVisibleFields()).indexOf(field);
+            columnName = "_col" + columnIndex;
+        }
+
+        Optional<QualifiedObjectName> qualifiedOriginTable = field.getQualifiedOriginTable();
+
+        StringLiteral empty = new StringLiteral("");
+
+        return row(
+                new StringLiteral(columnName),
+                (!qualifiedOriginTable.isPresent()) ? empty : new StringLiteral(qualifiedOriginTable.get().getObjectName()),
+                (!qualifiedOriginTable.isPresent()) ? empty : new StringLiteral(qualifiedOriginTable.get().getSchemaName()),
+                (!qualifiedOriginTable.isPresent()) ? empty : new StringLiteral(qualifiedOriginTable.get().getCatalogName()),
+                new StringLiteral(field.getType().getDisplayName()),
+                typeSize,
+                new BooleanLiteral(String.valueOf(field.isAliased())),
+                FALSE_LITERAL);
     }
 
     @Override
@@ -450,6 +522,7 @@ class StatementAnalyzer
                         .build(),
                 showPartitions.getLimit());
 
+        analysis.setRowCountQuery(true);
         return process(query, context);
     }
 
@@ -490,6 +563,7 @@ class StatementAnalyzer
                         ascending("argument_types"),
                         ascending("function_type")));
 
+        analysis.setRowCountQuery(true);
         return process(query, context);
     }
 
@@ -546,6 +620,7 @@ class StatementAnalyzer
                         ImmutableList.of("name", "value", "default", "type", "description", "include")),
                 nameReference("include"));
 
+        analysis.setRowCountQuery(true);
         return process(query, context);
     }
 
@@ -610,6 +685,7 @@ class StatementAnalyzer
                     "Query: [" + Joiner.on(", ").join(queryTypes) + "]");
         }
 
+        analysis.setRowCountQuery(true);
         return new RelationType(Field.newUnqualified("rows", BIGINT));
     }
 
@@ -676,6 +752,7 @@ class StatementAnalyzer
 
         accessControl.checkCanDeleteFromTable(session.getRequiredTransactionId(), session.getIdentity(), tableName);
 
+        analysis.setRowCountQuery(true);
         return new RelationType(Field.newUnqualified("rows", BIGINT));
     }
 
@@ -708,6 +785,7 @@ class StatementAnalyzer
 
         validateColumns(node, descriptor);
 
+        analysis.setRowCountQuery(true);
         return new RelationType(Field.newUnqualified("rows", BIGINT));
     }
 
@@ -732,6 +810,7 @@ class StatementAnalyzer
 
         validateColumns(node, descriptor);
 
+        analysis.setRowCountQuery(true);
         return descriptor;
     }
 
@@ -786,6 +865,7 @@ class StatementAnalyzer
                         "plan",
                         ImmutableList.of("Query Plan")));
 
+        analysis.setRowCountQuery(true);
         return process(query, context);
     }
 
