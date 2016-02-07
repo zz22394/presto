@@ -35,6 +35,7 @@ import com.facebook.presto.spi.PrestoException;
 import com.facebook.presto.spi.SchemaTableName;
 import com.facebook.presto.spi.security.Identity;
 import com.facebook.presto.spi.session.PropertyMetadata;
+import com.facebook.presto.spi.type.FixedWidthType;
 import com.facebook.presto.spi.type.Type;
 import com.facebook.presto.spi.type.TypeSignature;
 import com.facebook.presto.sql.ExpressionUtils;
@@ -46,6 +47,7 @@ import com.facebook.presto.sql.planner.ExpressionInterpreter;
 import com.facebook.presto.sql.planner.NoOpSymbolResolver;
 import com.facebook.presto.sql.planner.Symbol;
 import com.facebook.presto.sql.planner.optimizations.CanonicalizeExpressions;
+import com.facebook.presto.sql.tree.AddColumn;
 import com.facebook.presto.sql.tree.AliasedRelation;
 import com.facebook.presto.sql.tree.AllColumns;
 import com.facebook.presto.sql.tree.ArrayConstructor;
@@ -55,10 +57,12 @@ import com.facebook.presto.sql.tree.ComparisonExpression;
 import com.facebook.presto.sql.tree.CreateTable;
 import com.facebook.presto.sql.tree.CreateTableAsSelect;
 import com.facebook.presto.sql.tree.CreateView;
+import com.facebook.presto.sql.tree.DataDefinitionStatement;
 import com.facebook.presto.sql.tree.DefaultTraversalVisitor;
 import com.facebook.presto.sql.tree.Delete;
 import com.facebook.presto.sql.tree.DereferenceExpression;
 import com.facebook.presto.sql.tree.DescribeInput;
+import com.facebook.presto.sql.tree.DescribeOutput;
 import com.facebook.presto.sql.tree.DoubleLiteral;
 import com.facebook.presto.sql.tree.Except;
 import com.facebook.presto.sql.tree.Explain;
@@ -92,6 +96,7 @@ import com.facebook.presto.sql.tree.Row;
 import com.facebook.presto.sql.tree.SampledRelation;
 import com.facebook.presto.sql.tree.SelectItem;
 import com.facebook.presto.sql.tree.SetOperation;
+import com.facebook.presto.sql.tree.SetSession;
 import com.facebook.presto.sql.tree.ShowCatalogs;
 import com.facebook.presto.sql.tree.ShowColumns;
 import com.facebook.presto.sql.tree.ShowCreate;
@@ -103,6 +108,7 @@ import com.facebook.presto.sql.tree.ShowTables;
 import com.facebook.presto.sql.tree.SimpleGroupBy;
 import com.facebook.presto.sql.tree.SingleColumn;
 import com.facebook.presto.sql.tree.SortItem;
+import com.facebook.presto.sql.tree.StartTransaction;
 import com.facebook.presto.sql.tree.Statement;
 import com.facebook.presto.sql.tree.StringLiteral;
 import com.facebook.presto.sql.tree.Table;
@@ -408,6 +414,71 @@ class StatementAnalyzer
         }
 
         throw new PrestoException(INVALID_TABLE_PROPERTY, format("Failed to convert object of type %s to expression: %s", value.getClass().getName(), value));
+    }
+
+    @Override
+    protected RelationType visitDescribeOutput(DescribeOutput node, AnalysisContext context)
+    {
+        String sqlString = session.getPreparedStatement(node.getName());
+        Statement statement = sqlParser.createStatement(sqlString);
+
+        Analysis queryAnalysis = new Analysis();
+        queryAnalysis.setIsDescribe(true);
+        StatementAnalyzer analyzer = new StatementAnalyzer(queryAnalysis, metadata, sqlParser, accessControl, session, experimentalSyntaxEnabled, queryExplainer);
+        RelationType outputDescriptor = analyzer.process(statement, context);
+        queryAnalysis.setOutputDescriptor(outputDescriptor);
+
+        Row[] rows = outputDescriptor.getVisibleFields().stream().map(field -> createDescribeOutputRow(field, queryAnalysis)).toArray(Row[]::new);
+        Query query = simpleQuery(
+                selectList(nameReference("Column Name"),
+                        nameReference("Table"),
+                        nameReference("Schema"),
+                        nameReference("Connector"),
+                        nameReference("Type"),
+                        nameReference("Type Size"),
+                        nameReference("Aliased"),
+                        nameReference("Row Count Query")),
+                aliased(
+                        values(rows),
+                        "Statement Output",
+                        ImmutableList.of("Column Name", "Table", "Schema", "Connector", "Type", "Type Size", "Aliased", "Row Count Query")));
+        return process(query, context);
+    }
+
+    private Row createDescribeOutputRow(Field field, Analysis analysis)
+    {
+        NullLiteral nullLiteral = new NullLiteral();
+        if (analysis.isRowCountQuery()) {
+            return row(nullLiteral, nullLiteral, nullLiteral, nullLiteral, nullLiteral, nullLiteral, nullLiteral, TRUE_LITERAL);
+        }
+
+        LongLiteral typeSize = new LongLiteral("0");
+        if (field.getType() instanceof FixedWidthType) {
+            typeSize = new LongLiteral(String.valueOf(((FixedWidthType) field.getType()).getFixedSize()));
+        }
+
+        String columnName;
+        if (field.getName().isPresent()) {
+            columnName = field.getName().get();
+        }
+        else {
+            int columnIndex = ImmutableList.copyOf(analysis.getOutputDescriptor().getVisibleFields()).indexOf(field);
+            columnName = "_col" + columnIndex;
+        }
+
+        Optional<QualifiedObjectName> qualifiedOriginTable = field.getQualifiedOriginTable();
+
+        StringLiteral empty = new StringLiteral("");
+
+        return row(
+                new StringLiteral(columnName),
+                (!qualifiedOriginTable.isPresent()) ? empty : new StringLiteral(qualifiedOriginTable.get().getObjectName()),
+                (!qualifiedOriginTable.isPresent()) ? empty : new StringLiteral(qualifiedOriginTable.get().getSchemaName()),
+                (!qualifiedOriginTable.isPresent()) ? empty : new StringLiteral(qualifiedOriginTable.get().getCatalogName()),
+                new StringLiteral(field.getType().getDisplayName()),
+                typeSize,
+                new BooleanLiteral(String.valueOf(field.isAliased())),
+                FALSE_LITERAL);
     }
 
     @Override
@@ -760,6 +831,7 @@ class StatementAnalyzer
                     "Query: [" + Joiner.on(", ").join(queryTypes) + "]");
         }
 
+        analysis.setRowCountQuery(true);
         return new RelationType(Field.newUnqualified("rows", BIGINT));
     }
 
@@ -812,6 +884,7 @@ class StatementAnalyzer
 
         accessControl.checkCanDeleteFromTable(session.getRequiredTransactionId(), session.getIdentity(), tableName);
 
+        analysis.setRowCountQuery(true);
         return new RelationType(Field.newUnqualified("rows", BIGINT));
     }
 
@@ -852,6 +925,7 @@ class StatementAnalyzer
 
         validateColumns(node, descriptor);
 
+        analysis.setRowCountQuery(true);
         return new RelationType(Field.newUnqualified("rows", BIGINT));
     }
 
@@ -877,7 +951,39 @@ class StatementAnalyzer
 
         validateColumns(node, descriptor);
 
+        analysis.setRowCountQuery(true);
         return descriptor;
+    }
+
+    @Override
+    protected RelationType visitDataDefinitionStatement(DataDefinitionStatement node, AnalysisContext context)
+    {
+        analysis.setRowCountQuery(true);
+        return new RelationType(Field.newUnqualified("rows", BIGINT));
+    }
+
+    @Override
+    protected RelationType visitSetSession(SetSession node, AnalysisContext context)
+    {
+        return visitDataDefinitionStatement(node, context);
+    }
+
+    @Override
+    protected RelationType visitAddColumn(AddColumn node, AnalysisContext context)
+    {
+        return visitDataDefinitionStatement(node, context);
+    }
+
+    @Override
+    protected RelationType visitCreateTable(CreateTable node, AnalysisContext context)
+    {
+        return visitDataDefinitionStatement(node, context);
+    }
+
+    @Override
+    protected RelationType visitStartTransaction(StartTransaction node, AnalysisContext context)
+    {
+        return visitDataDefinitionStatement(node, context);
     }
 
     private static void validateColumns(Statement node, RelationType descriptor)
@@ -1836,7 +1942,7 @@ class StatementAnalyzer
                 SingleColumn column = (SingleColumn) item;
 
                 Expression expression = column.getExpression();
-                Optional<String> alias = column.getAlias();
+                Optional<String> fieldName = column.getAlias();
 
                 Optional<QualifiedObjectName> qualifiedOriginTable = Optional.empty();
                 QualifiedName name = null;
@@ -1855,13 +1961,13 @@ class StatementAnalyzer
                     }
                 }
 
-                if (!alias.isPresent()) {
+                if (!fieldName.isPresent()) {
                     if (name != null) {
-                        alias = Optional.of(getLast(name.getOriginalParts()));
+                        fieldName = Optional.of(getLast(name.getOriginalParts()));
                     }
                 }
 
-                outputFields.add(Field.newUnqualified(alias, analysis.getType(expression), qualifiedOriginTable, alias.isPresent())); // TODO don't use analysis as a side-channel. Use outputExpressions to look up the type
+                outputFields.add(Field.newUnqualified(fieldName, analysis.getType(expression), qualifiedOriginTable, column.getAlias().isPresent())); // TODO don't use analysis as a side-channel. Use outputExpressions to look up the type
             }
             else {
                 throw new IllegalArgumentException("Unsupported SelectItem type: " + item.getClass().getName());
