@@ -22,16 +22,17 @@ import com.facebook.presto.operator.scalar.annotations.ScalarFunction;
 import com.facebook.presto.spi.PrestoException;
 import com.facebook.presto.spi.block.Block;
 import com.facebook.presto.spi.type.StandardTypes;
+import com.facebook.presto.type.LiteralParameters;
 import com.facebook.presto.type.SqlType;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.primitives.Doubles;
 import io.airlift.slice.Slice;
 
-import java.math.BigInteger;
-import java.util.List;
 import javax.annotation.Nullable;
 
+import java.math.BigInteger;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static com.facebook.presto.metadata.FunctionKind.SCALAR;
@@ -43,12 +44,12 @@ import static com.facebook.presto.spi.type.Decimals.checkOverflow;
 import static com.facebook.presto.spi.type.Decimals.decodeUnscaledValue;
 import static com.facebook.presto.spi.type.Decimals.encodeUnscaledValue;
 import static com.facebook.presto.spi.type.Decimals.longTenToNth;
+import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
 import static com.facebook.presto.spi.type.StandardTypes.BIGINT;
 import static com.facebook.presto.spi.type.TypeSignature.parseTypeSignature;
+import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
 import static com.facebook.presto.type.DecimalOperators.modulusScalarFunction;
 import static com.facebook.presto.type.DecimalOperators.modulusSignatureBuilder;
-import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
 import static com.facebook.presto.util.Failures.checkCondition;
 import static io.airlift.slice.Slices.utf8Slice;
 import static java.lang.Character.MAX_RADIX;
@@ -106,6 +107,25 @@ public final class MathFunctions
     public static double abs(@SqlType(StandardTypes.DOUBLE) double num)
     {
         return Math.abs(num);
+    }
+
+    @ScalarFunction("abs")
+    @Description("absolute value")
+    public static final class Abs
+    {
+        @LiteralParameters({"p", "s"})
+        @SqlType("decimal(p, s)")
+        public static long absShort(@SqlType("decimal(p, s)") long arg)
+        {
+            return arg > 0 ? arg : -arg;
+        }
+
+        @LiteralParameters({"p", "s"})
+        @SqlType("decimal(p, s)")
+        public static Slice absLong(@SqlType("decimal(p, s)") Slice arg)
+        {
+            return encodeUnscaledValue(decodeUnscaledValue(arg).abs());
+        }
     }
 
     @Description("absolute value")
