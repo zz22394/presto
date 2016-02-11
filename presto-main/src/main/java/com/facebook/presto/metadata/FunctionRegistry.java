@@ -219,6 +219,7 @@ import static com.facebook.presto.operator.scalar.MapSubscriptOperator.MAP_SUBSC
 import static com.facebook.presto.operator.scalar.MapToJsonCast.MAP_TO_JSON;
 import static com.facebook.presto.operator.scalar.MathFunctions.DECIMAL_CEILING_FUNCTIONS;
 import static com.facebook.presto.operator.scalar.MathFunctions.DECIMAL_FLOOR_FUNCTION;
+import static com.facebook.presto.operator.scalar.MathFunctions.DECIMAL_MOD_FUNCTION;
 import static com.facebook.presto.operator.scalar.Re2JCastToRegexpFunction.castCharToRe2JRegexp;
 import static com.facebook.presto.operator.scalar.Re2JCastToRegexpFunction.castVarcharToRe2JRegexp;
 import static com.facebook.presto.operator.scalar.RowEqualOperator.ROW_EQUAL;
@@ -526,7 +527,8 @@ public class FunctionRegistry
                 .function(DECIMAL_AVERAGE_AGGREGATION)
                 .function(DECIMAL_SUM_AGGREGATION)
                 .functions(DECIMAL_CEILING_FUNCTIONS)
-                .function(DECIMAL_FLOOR_FUNCTION);
+                .function(DECIMAL_FLOOR_FUNCTION)
+                .function(DECIMAL_MOD_FUNCTION);
 
         switch (featuresConfig.getRegexLibrary()) {
             case JONI:

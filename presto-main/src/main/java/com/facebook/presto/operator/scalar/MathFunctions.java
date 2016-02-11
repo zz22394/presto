@@ -29,6 +29,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.primitives.Doubles;
 import io.airlift.slice.Slice;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -53,11 +54,14 @@ import static java.lang.Character.MIN_RADIX;
 import static java.lang.Float.floatToRawIntBits;
 import static java.lang.Float.intBitsToFloat;
 import static java.lang.String.format;
+import static java.math.BigDecimal.ROUND_UNNECESSARY;
+import static java.math.BigDecimal.ZERO;
 
 public final class MathFunctions
 {
     public static final SqlScalarFunction[] DECIMAL_CEILING_FUNCTIONS = {decimalCeilingFunction("ceiling"), decimalCeilingFunction("ceil")};
     public static final SqlScalarFunction DECIMAL_FLOOR_FUNCTION = decimalFloorFunction();
+    public static final SqlScalarFunction DECIMAL_MOD_FUNCTION = decimalModFunction();
 
     private MathFunctions() {}
 
@@ -493,6 +497,15 @@ public final class MathFunctions
     public static double mod(@SqlType(StandardTypes.DOUBLE) double num1, @SqlType(StandardTypes.DOUBLE) double num2)
     {
         return num1 % num2;
+    }
+
+    private static SqlScalarFunction decimalModFunction()
+    {
+        Signature signature = modulusSignatureBuilder()
+                .kind(SCALAR)
+                .name("mod")
+                .build();
+        return modulusScalarFunction(signature);
     }
 
     @Description("remainder of given quotient")
