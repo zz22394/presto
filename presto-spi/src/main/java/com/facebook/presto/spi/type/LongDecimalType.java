@@ -30,6 +30,7 @@ import static java.math.BigInteger.TEN;
 public final class LongDecimalType
         extends DecimalType
 {
+    public static final Slice ZERO = unscaledValueToSlice(0L);
     public static final int LONG_DECIMAL_LENGTH = 2 * SIZE_OF_LONG;
     public static final BigInteger MAX_DECIMAL_UNSCALED_VALUE = new BigInteger("99999999999999999999999999999999999999");
     public static final BigInteger MIN_DECIMAL_UNSCALED_VALUE = MAX_DECIMAL_UNSCALED_VALUE.negate();
