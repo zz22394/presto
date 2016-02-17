@@ -381,6 +381,7 @@ public class FunctionRegistry
                 .scalar(FailureFunction.class)
                 .scalar(DecimalOperators.class)
                 .functions(UNKNOWN_OPERATORS)
+                .scalar(DecimalOperators.HashCode.class)
                 .functions(IDENTITY_CAST, CAST_FROM_UNKNOWN)
                 .scalar(ArrayRemoveFunction.class)
                 .scalar(ArrayGreaterThanOperator.class)
