@@ -1602,7 +1602,7 @@ public class TestExpressionCompiler
         }
         return expressions.build();
     }
-    
+
     private void assertExecute(String expression, Type expectedType, Object expected)
     {
         addCallable(new AssertExecuteTask(functionAssertions, expression, expectedType, expected));
