@@ -82,6 +82,10 @@ public class LogicalPlanner
 
     public Plan plan(Analysis analysis)
     {
+        if (analysis.getExplainAnalyze().isPresent()) {
+            throw new PrestoException(NOT_SUPPORTED, "EXPLAIN ANALYZE not yet implemented");
+        }
+
         RelationPlan plan;
         if (analysis.getCreateTableDestination().isPresent()) {
             plan = createTableCreationPlan(analysis);
