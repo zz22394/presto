@@ -117,6 +117,7 @@ import static org.apache.hadoop.hive.metastore.Warehouse.makePartName;
 import static org.apache.hadoop.hive.metastore.api.hive_metastoreConstants.FILE_INPUT_FORMAT;
 import static org.apache.hadoop.hive.serde.serdeConstants.DECIMAL_TYPE_NAME;
 import static org.apache.hadoop.hive.serde.serdeConstants.SERIALIZATION_LIB;
+import static org.apache.hadoop.hive.serde.serdeConstants.VARCHAR_TYPE_NAME;
 import static org.apache.hadoop.hive.serde2.ColumnProjectionUtils.READ_ALL_COLUMNS;
 import static org.apache.hadoop.hive.serde2.ColumnProjectionUtils.READ_COLUMN_IDS_CONF_STR;
 import static org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector.Category;
@@ -137,6 +138,7 @@ public final class HiveUtil
     private static final int DECIMAL_SCALE_GROUP = 2;
 
     private static final String BIG_DECIMAL_POSTFIX = "BD";
+    private static final Pattern SUPPORTED_VARCHAR_TYPE = Pattern.compile(VARCHAR_TYPE_NAME + "\\(\\d+\\)");
 
     static {
         DateTimeParser[] timestampWithoutTimeZoneParser = {
@@ -485,6 +487,11 @@ public final class HiveUtil
         else {
             return Optional.empty();
         }
+    }
+
+    public static boolean isVarcharType(HiveType hiveType)
+    {
+        return SUPPORTED_VARCHAR_TYPE.matcher(hiveType.getHiveTypeName()).matches();
     }
 
     public static boolean isArrayType(Type type)
