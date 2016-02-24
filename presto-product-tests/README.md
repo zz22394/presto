@@ -37,7 +37,7 @@ Product tests are not run by default. To start them use run following command:
 ```
 java -jar target/presto-product-tests-*-executable.jar --config-local file://`pwd`/tempto-configuration-local.yaml
 ```
-or to run tests with mysql, postgres and qurantine group excluded:
+or to run tests with mysql, postgres and qurantine groups excluded:
 ```
 java -jar target/presto-product-tests-*-executable.jar --exclude-groups mysql_connector,postgresql_connector,quarantine --config-local file://`pwd`/tempto-configuration-local.yaml
 ```
