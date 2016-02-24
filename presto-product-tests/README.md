@@ -17,6 +17,12 @@ databases:
     host: 192.168.205.1
 ```
 
+The MySQL and PostgreSQL connector tests require that you setup MySQL and PostgreSQL servers.  If you
+wish to run these tests, you will need to:
+ - install and configuring the database servers
+ - add the connection information for each server to test-configuration-local.yaml
+ - enable the connectors in Presto by uploading the connector configuration files to each node.
+
 ## Running tests
 
 Product tests are not run by default. To start them use run following command:
@@ -114,6 +120,8 @@ Configuration profiles are stored in `presto-product-tests/etc` diretory. There 
     > Note that some tests may run queries too big to fit into docker resource constraints.
     > To exclude these tests from execution you use below switch to run product tests command.
     > `-x big_query,quarantine`
+    > You may also want to exclude MySQL and Postgres connector tests:
+    > `-x mysql_connector,postgresql_connector,big_query,quarantine
 
     You can run product tests from your IDE, all you need to set is to set build directory to ```presto-product-tests/etc```.
 
