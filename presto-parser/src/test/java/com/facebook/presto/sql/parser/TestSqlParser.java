@@ -47,6 +47,7 @@ import com.facebook.presto.sql.tree.ExplainType;
 import com.facebook.presto.sql.tree.Expression;
 import com.facebook.presto.sql.tree.FunctionCall;
 import com.facebook.presto.sql.tree.GenericLiteral;
+import com.facebook.presto.sql.tree.Grant;
 import com.facebook.presto.sql.tree.GroupingSets;
 import com.facebook.presto.sql.tree.Insert;
 import com.facebook.presto.sql.tree.Intersect;
@@ -1074,6 +1075,18 @@ public class TestSqlParser
                 QualifiedName.of("a"),
                 simpleQuery(selectList(new AllColumns()), table(QualifiedName.of("t"))),
                 true));
+    }
+
+    @Test
+    public void testGrant()
+            throws Exception
+    {
+        assertStatement("GRANT INSERT, DELETE ON customer to admin",
+                new Grant(ImmutableList.of("INSERT", "DELETE"), false, QualifiedName.of("customer"), "admin", false));
+        assertStatement("GRANT SELECT ON orders to PUBLIC WITH GRANT OPTION",
+                new Grant(ImmutableList.of("SELECT"), false, QualifiedName.of("orders"), "PUBLIC", true));
+        assertStatement("GRANT ALL PRIVILEGES ON nation to admin",
+                new Grant(ImmutableList.of("SELECT", "DELETE", "INSERT"), false, QualifiedName.of("nation"), "admin", false));
     }
 
     @Test
