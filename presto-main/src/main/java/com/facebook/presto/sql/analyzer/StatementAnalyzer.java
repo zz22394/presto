@@ -1322,6 +1322,7 @@ class StatementAnalyzer
                         ExpressionAnalysis rightExpressionAnalysis = analyzeExpression(rightExpression, right, context);
                         leftJoinInPredicates.addAll(leftExpressionAnalysis.getSubqueryInPredicates());
                         rightJoinInPredicates.addAll(rightExpressionAnalysis.getSubqueryInPredicates());
+                        addCoercionForJoinCriteria(node, leftExpression, rightExpression);
                     }
                     else {
                         // mixed references to both left and right join relation on one side of comparison operator.

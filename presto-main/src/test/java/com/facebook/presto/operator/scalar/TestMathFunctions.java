@@ -21,6 +21,7 @@ import static com.facebook.presto.spi.StandardErrorCode.NUMERIC_VALUE_OUT_OF_RAN
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
+import static com.facebook.presto.spi.type.SqlDecimal.decimal;
 import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
 
 public class TestMathFunctions
@@ -249,7 +250,7 @@ public class TestMathFunctions
     public void testNaN()
     {
         assertFunction("nan()", DOUBLE, Double.NaN);
-        assertFunction("0.0 / 0.0", DOUBLE, Double.NaN);
+        assertFunction("CAST(0.0 as DOUBLE) / CAST(0.0 as DOUBLE)", DOUBLE, Double.NaN);
     }
 
     @Test
@@ -262,9 +263,9 @@ public class TestMathFunctions
     @Test
     public void testIsInfinite()
     {
-        assertFunction("is_infinite(1.0 / 0.0)", BOOLEAN, true);
-        assertFunction("is_infinite(0.0 / 0.0)", BOOLEAN, false);
-        assertFunction("is_infinite(1.0 / 1.0)", BOOLEAN, false);
+        assertFunction("is_infinite(CAST(1.0 as DOUBLE) / CAST(0.0 as DOUBLE))", BOOLEAN, true);
+        assertFunction("is_infinite(CAST(0.0 as DOUBLE) / CAST(0.0 as DOUBLE))", BOOLEAN, false);
+        assertFunction("is_infinite(CAST(1.0 as DOUBLE) / CAST(1.0 as DOUBLE))", BOOLEAN, false);
         assertFunction("is_infinite(NULL)", BOOLEAN, null);
     }
 
@@ -279,8 +280,8 @@ public class TestMathFunctions
     @Test
     public void testIsNaN()
     {
-        assertFunction("is_nan(0.0 / 0.0)", BOOLEAN, true);
-        assertFunction("is_nan(0.0 / 1.0)", BOOLEAN, false);
+        assertFunction("is_nan(CAST(0.0 as DOUBLE) / CAST(0.0 as DOUBLE))", BOOLEAN, true);
+        assertFunction("is_nan(CAST(0.0 as DOUBLE) / CAST(1.0 as DOUBLE))", BOOLEAN, false);
         assertFunction("is_nan(infinity() / infinity())", BOOLEAN, true);
         assertFunction("is_nan(nan())", BOOLEAN, true);
         assertFunction("is_nan(NULL)", BOOLEAN, null);
@@ -433,20 +434,27 @@ public class TestMathFunctions
         assertFunction("greatest(5, 4, CAST(NULL as BIGINT), 3)", BIGINT, null);
 
         // double
-        assertFunction("greatest(1.5, 2.3)", DOUBLE, 2.3);
-        assertFunction("greatest(-1.5, -2.3)", DOUBLE, -1.5);
-        assertFunction("greatest(-1.5, -2.3, -5/3)", DOUBLE, -1.0);
-        assertFunction("greatest(1.5, -1.0 / 0.0, 1.0 / 0.0)", DOUBLE, Double.POSITIVE_INFINITY);
+        assertFunction("greatest(CAST(CAST(1.5 as DOUBLE) as DOUBLE), CAST(2.3 as DOUBLE))", DOUBLE, 2.3);
+        assertFunction("greatest(-CAST(1.5 as DOUBLE), -CAST(2.3 as DOUBLE))", DOUBLE, -1.5);
+        assertFunction("greatest(-CAST(1.5 as DOUBLE), -CAST(2.3 as DOUBLE), -5/3)", DOUBLE, -1.0);
+        assertFunction("greatest(CAST(1.5 as DOUBLE), -CAST(1.0 as DOUBLE) / CAST(0.0 as DOUBLE), CAST(1.0 as DOUBLE) / CAST(0.0 as DOUBLE))", DOUBLE, Double.POSITIVE_INFINITY);
         assertFunction("greatest(5, 4, CAST(NULL as DOUBLE), 3)", DOUBLE, null);
 
+        // decimal
+        assertDecimalFunction("greatest(1.0, 2.0)", decimal("2.0"));
+        assertDecimalFunction("greatest(1.0, -2.0)", decimal("1.0"));
+        assertDecimalFunction("greatest(1.0, 1.1, 1.2, 1.3)", decimal("1.3"));
+
         // mixed
-        assertFunction("greatest(1, 2.0)", DOUBLE, 2.0);
-        assertFunction("greatest(1.0, 2)", DOUBLE, 2.0);
-        assertFunction("greatest(5.0, 4, CAST(NULL as DOUBLE), 3)", DOUBLE, null);
-        assertFunction("greatest(5.0, 4, CAST(NULL as BIGINT), 3)", DOUBLE, null);
+        assertFunction("greatest(1, CAST(2.0 as DOUBLE))", DOUBLE, 2.0);
+        assertFunction("greatest(CAST(1.0 as DOUBLE), 2)", DOUBLE, 2.0);
+        assertFunction("greatest(CAST(5.0 as DOUBLE), 4, CAST(NULL as DOUBLE), 3)", DOUBLE, null);
+        assertFunction("greatest(CAST(5.0 as DOUBLE), 4, CAST(NULL as BIGINT), 3)", DOUBLE, null);
+        assertFunction("greatest(1.0, CAST(2.0 as DOUBLE))", DOUBLE, 2.0);
+        assertDecimalFunction("greatest(5, 4, 3.0, 2)", decimal("0000000000000000005.0"));
 
         // invalid
-        assertInvalidFunction("greatest(1.5, 0.0 / 0.0)", "Invalid argument to greatest(): NaN");
+        assertInvalidFunction("greatest(CAST(1.5 as DOUBLE), CAST(0.0 as DOUBLE) / CAST(0.0 as DOUBLE))", "Invalid argument to greatest(): NaN");
     }
 
     @Test
@@ -461,27 +469,34 @@ public class TestMathFunctions
         assertFunction("least(5, 4, CAST(NULL as BIGINT), 3)", BIGINT, null);
 
         // double
-        assertFunction("least(1.5, 2.3)", DOUBLE, 1.5);
-        assertFunction("least(-1.5, -2.3)", DOUBLE, -2.3);
-        assertFunction("least(-1.5, -2.3, -5/3)", DOUBLE, -2.3);
-        assertFunction("least(1.5, -1.0 / 0.0, 1.0 / 0.0)", DOUBLE, Double.NEGATIVE_INFINITY);
+        assertFunction("least(CAST(1.5 as DOUBLE), CAST(2.3 as DOUBLE))", DOUBLE, 1.5);
+        assertFunction("least(-CAST(1.5 as DOUBLE), -CAST(2.3 as DOUBLE))", DOUBLE, -2.3);
+        assertFunction("least(-CAST(1.5 as DOUBLE), -CAST(2.3 as DOUBLE), -5/3)", DOUBLE, -2.3);
+        assertFunction("least(CAST(1.5 as DOUBLE), -CAST(1.0 as DOUBLE) / CAST(0.0 as DOUBLE), CAST(1.0 as DOUBLE) / CAST(0.0 as DOUBLE))", DOUBLE, Double.NEGATIVE_INFINITY);
         assertFunction("least(5, 4, CAST(NULL as DOUBLE), 3)", DOUBLE, null);
 
+        // decimal
+        assertDecimalFunction("least(1.0, 2.0)", decimal("1.0"));
+        assertDecimalFunction("least(1.0, -2.0)", decimal("-2.0"));
+        assertDecimalFunction("least(1.0, 1.1, 1.2, 1.3)", decimal("1.0"));
+
         // mixed
-        assertFunction("least(1, 2.0)", DOUBLE, 1.0);
-        assertFunction("least(1.0, 2)", DOUBLE, 1.0);
-        assertFunction("least(5.0, 4, CAST(NULL as DOUBLE), 3)", DOUBLE, null);
-        assertFunction("least(5.0, 4, CAST(NULL as BIGINT), 3)", DOUBLE, null);
+        assertFunction("least(1, CAST(2.0 as DOUBLE))", DOUBLE, 1.0);
+        assertFunction("least(CAST(1.0 as DOUBLE), 2)", DOUBLE, 1.0);
+        assertFunction("least(CAST(5.0 as DOUBLE), 4, CAST(NULL as DOUBLE), 3)", DOUBLE, null);
+        assertFunction("least(CAST(5.0 as DOUBLE), 4, CAST(NULL as BIGINT), 3)", DOUBLE, null);
+        assertFunction("least(1.0, CAST(2.0 as DOUBLE))", DOUBLE, 1.0);
+        assertDecimalFunction("least(5, 4, 3.0, 2)", decimal("0000000000000000002.0"));
 
         // invalid
-        assertInvalidFunction("least(1.5, 0.0 / 0.0)", "Invalid argument to least(): NaN");
+        assertInvalidFunction("least(CAST(1.5 as DOUBLE), CAST(0.0 as DOUBLE) / CAST(0.0 as DOUBLE))", "Invalid argument to least(): NaN");
     }
 
     @Test(expectedExceptions = PrestoException.class, expectedExceptionsMessageRegExp = "\\QInvalid argument to greatest(): NaN\\E")
     public void testGreatestWithNaN()
             throws Exception
     {
-        functionAssertions.tryEvaluate("greatest(1.5, 0.0 / 0.0)", DOUBLE);
+        functionAssertions.tryEvaluate("greatest(CAST(1.5 as DOUBLE), CAST(0.0 as DOUBLE) / CAST(0.0 as DOUBLE))", DOUBLE);
     }
 
     @Test
