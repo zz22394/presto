@@ -88,6 +88,14 @@ public class TestArrayOperators
     }
 
     @Test
+    public void testTypeConstructor()
+            throws Exception
+    {
+        assertFunction("ARRAY[INTEGER '7']", new ArrayType(INTEGER), ImmutableList.of(7));
+        assertFunction("ARRAY[DOUBLE '12.34', DOUBLE '56.78']", new ArrayType(DOUBLE), ImmutableList.of(12.34, 56.78));
+    }
+
+    @Test
     public void testArrayElements()
             throws Exception
     {

@@ -59,7 +59,16 @@ public class TestJsonOperators
     }
 
     @Test
-    public void testCastFromIntegrals()
+    public void testTypeConstructor()
+            throws Exception
+    {
+        assertFunction("JSON '123'", JSON, "123");
+        assertFunction("JSON '[4,5,6]'", JSON, "[4,5,6]");
+        assertFunction("JSON '{ \"a\": 789 }'", JSON, "{\"a\":789}");
+    }
+
+    @Test
+    public void testCastFromBigint()
     {
         assertFunction("cast(cast (null as integer) as JSON)", JSON, null);
         assertFunction("cast(cast (null as bigint) as JSON)", JSON, null);
