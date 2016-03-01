@@ -287,7 +287,6 @@ class StatementAnalyzer
                 predicate,
                 ordering(ascending("table_name")));
 
-        analysis.setRowCountQuery(true);
         return process(query, context);
     }
 
@@ -303,7 +302,6 @@ class StatementAnalyzer
                 from(node.getCatalog().orElseGet(() -> session.getCatalog().get()), TABLE_SCHEMATA),
                 ordering(ascending("schema_name")));
 
-        analysis.setRowCountQuery(true);
         return process(query, context);
     }
 
@@ -318,7 +316,6 @@ class StatementAnalyzer
                 selectList(new AllColumns()),
                 aliased(new Values(rows), "catalogs", ImmutableList.of("Catalog")));
 
-        analysis.setRowCountQuery(true);
         return process(query, context);
     }
 
@@ -343,7 +340,6 @@ class StatementAnalyzer
                         equal(nameReference("table_name"), new StringLiteral(tableName.getObjectName()))),
                 ordering(ascending("ordinal_position")));
 
-        analysis.setRowCountQuery(true);
         return process(query, context);
     }
 
@@ -523,7 +519,6 @@ class StatementAnalyzer
                         .build(),
                 showPartitions.getLimit());
 
-        analysis.setRowCountQuery(true);
         return process(query, context);
     }
 
@@ -564,7 +559,6 @@ class StatementAnalyzer
                         ascending("argument_types"),
                         ascending("function_type")));
 
-        analysis.setRowCountQuery(true);
         return process(query, context);
     }
 
@@ -621,7 +615,6 @@ class StatementAnalyzer
                         ImmutableList.of("name", "value", "default", "type", "description", "include")),
                 nameReference("include"));
 
-        analysis.setRowCountQuery(true);
         return process(query, context);
     }
 
@@ -866,7 +859,6 @@ class StatementAnalyzer
                         "plan",
                         ImmutableList.of("Query Plan")));
 
-        analysis.setRowCountQuery(true);
         return process(query, context);
     }
 
@@ -1711,7 +1703,7 @@ class StatementAnalyzer
                 SingleColumn column = (SingleColumn) item;
 
                 Expression expression = column.getExpression();
-                Optional<String> alias = column.getAlias();
+                Optional<String> fieldName = column.getAlias();
 
                 Optional<QualifiedObjectName> qualifiedOriginTable = Optional.empty();
                 QualifiedName name = null;
@@ -1730,13 +1722,13 @@ class StatementAnalyzer
                     }
                 }
 
-                if (!alias.isPresent()) {
+                if (!fieldName.isPresent()) {
                     if (name != null) {
-                        alias = Optional.of(getLast(name.getOriginalParts()));
+                        fieldName = Optional.of(getLast(name.getOriginalParts()));
                     }
                 }
 
-                outputFields.add(Field.newUnqualified(alias, analysis.getType(expression), qualifiedOriginTable, alias.isPresent())); // TODO don't use analysis as a side-channel. Use outputExpressions to look up the type
+                outputFields.add(Field.newUnqualified(fieldName, analysis.getType(expression), qualifiedOriginTable, column.getAlias().isPresent())); // TODO don't use analysis as a side-channel. Use outputExpressions to look up the type
             }
             else {
                 throw new IllegalArgumentException("Unsupported SelectItem type: " + item.getClass().getName());
