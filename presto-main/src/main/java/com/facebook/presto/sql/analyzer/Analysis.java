@@ -99,7 +99,7 @@ public class Analysis
 
     // A row count query (as opposed to a result set query) is one that doesn't return
     // any data, e.g. DDL (CREATE, ALTER, DROP, ...) and some DML (INSERT, UPDATE, DELETE, ...)
-    private boolean rowCountQuery = false;
+    private boolean rowCountQuery;
 
     public Query getQuery()
     {

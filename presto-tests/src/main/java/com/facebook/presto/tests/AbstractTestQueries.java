@@ -5688,6 +5688,49 @@ public abstract class AbstractTestQueries
     }
 
     @Test
+    public void testDescribeOutput()
+    {
+        Session session = getSession().withPreparedStatement("my_query", "select * from nation");
+        MaterializedResult actual = computeActual(session, "DESCRIBE OUTPUT my_query");
+        MaterializedResult expected = resultBuilder(session, VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, BIGINT, BOOLEAN, BOOLEAN)
+                .row("nationkey", "nation", session.getSchema().get(), session.getCatalog().get(), "bigint", 8, false, false)
+                .row("name", "nation", session.getSchema().get(), session.getCatalog().get(), "varchar", 0, false, false)
+                .row("regionkey", "nation", session.getSchema().get(), session.getCatalog().get(), "bigint", 8, false, false)
+                .row("comment", "nation", session.getSchema().get(), session.getCatalog().get(), "varchar", 0, false, false)
+                .build();
+        assertEqualsIgnoreOrder(actual, expected);
+    }
+
+    @Test
+    public void testDescribeOutputRowCountQuery()
+    {
+        Session session = getSession().withPreparedStatement("my_query", "show tables");
+        MaterializedResult actual = computeActual(session, "DESCRIBE OUTPUT my_query");
+        MaterializedResult expected = resultBuilder(session, VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, BIGINT, BOOLEAN, BOOLEAN)
+                .row(null, null, null, null, null, null, null, true)
+                .build();
+        assertEqualsIgnoreOrder(actual, expected);
+    }
+
+    @Test
+    public void testDescribeOutputOnAliasedColumnsAndExpressions()
+    {
+        Session session = getSession().withPreparedStatement("my_query", "select count(*) as this_is_aliased, 1 + 2 from nation");
+        MaterializedResult actual = computeActual(session, "DESCRIBE OUTPUT my_query");
+        MaterializedResult expected = resultBuilder(session, VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, BIGINT, BOOLEAN, BOOLEAN)
+                .row("this_is_aliased", "", "", "", "bigint", 8, true, false)
+                .row("_col1", "", "", "", "bigint", 8, false, false)
+                .build();
+        assertEqualsIgnoreOrder(actual, expected);
+    }
+
+    @Test
+    public void testDescribeOutputNoSuchQuery()
+    {
+        assertQueryFails("DESCRIBE OUTPUT my_query", "Prepared statement not found: my_query");
+    }
+
+    @Test
     public void testDecimalCoercions()
             throws Exception
     {
@@ -5732,72 +5775,5 @@ public abstract class AbstractTestQueries
         assertQuery("SELECT 'something' || NULL");
         assertQuery("SELECT NULL || 'something'");
         assertQuery("SELECT NULL || NULL");
-    }
-
-    @Test
-    public void testDescribeOutput()
-    {
-        Session session = getSession().withPreparedStatement("my_query", "select * from nation");
-        MaterializedResult actual = computeActual(session, "DESCRIBE OUTPUT my_query");
-        MaterializedResult expected = resultBuilder(session, VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, BIGINT, BOOLEAN, BOOLEAN)
-                .row("nationkey", "nation", session.getSchema().get(), session.getCatalog().get(), "bigint", 8, false, false)
-                .row("name", "nation", session.getSchema().get(), session.getCatalog().get(), "varchar", 0, false, false)
-                .row("regionkey", "nation", session.getSchema().get(), session.getCatalog().get(), "bigint", 8, false, false)
-                .row("comment", "nation", session.getSchema().get(), session.getCatalog().get(), "varchar", 0, false, false)
-                .build();
-        assertEqualsIgnoreOrder(actual, expected);
-    }
-
-    @Test
-    public void testDescribeOutputNamedAndUnnamed()
-    {
-        Session session = getSession().withPreparedStatement("my_query", "select 1, name, regionkey as my_alias from nation");
-        MaterializedResult actual = computeActual(session, "DESCRIBE OUTPUT my_query");
-        MaterializedResult expected = resultBuilder(session, VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, BIGINT, BOOLEAN, BOOLEAN)
-                .row("_col0", "", "", "", "bigint", 8, false, false)
-                .row("name", "nation", session.getSchema().get(), session.getCatalog().get(), "varchar", 0, false, false)
-                .row("my_alias", "nation", session.getSchema().get(), session.getCatalog().get(), "bigint", 8, true, false)
-                .build();
-        assertEqualsIgnoreOrder(actual, expected);
-    }
-
-    @Test
-    public void testDescribeOutputRowCountQuery()
-    {
-        Session session = getSession().withPreparedStatement("my_query", "CREATE TABLE foo AS SELECT * FROM nation");
-        MaterializedResult actual = computeActual(session, "DESCRIBE OUTPUT my_query");
-        MaterializedResult expected = resultBuilder(session, VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, BIGINT, BOOLEAN, BOOLEAN)
-                .row(null, null, null, null, null, null, null, true)
-                .build();
-        assertEqualsIgnoreOrder(actual, expected);
-    }
-
-    @Test
-    public void testDescribeOutputShowTables()
-    {
-        Session session = getSession().withPreparedStatement("my_query", "SHOW TABLES");
-        MaterializedResult actual = computeActual(session, "DESCRIBE OUTPUT my_query");
-        MaterializedResult expected = resultBuilder(session, VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, BIGINT, BOOLEAN, BOOLEAN)
-                .row("Table", "tables", "information_schema", session.getCatalog().get(), "varchar", 0, true, false)
-                .build();
-        assertEqualsIgnoreOrder(actual, expected);
-    }
-
-    @Test
-    public void testDescribeOutputOnAliasedColumnsAndExpressions()
-    {
-        Session session = getSession().withPreparedStatement("my_query", "select count(*) as this_is_aliased, 1 + 2 from nation");
-        MaterializedResult actual = computeActual(session, "DESCRIBE OUTPUT my_query");
-        MaterializedResult expected = resultBuilder(session, VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, BIGINT, BOOLEAN, BOOLEAN)
-                .row("this_is_aliased", "", "", "", "bigint", 8, true, false)
-                .row("_col1", "", "", "", "bigint", 8, false, false)
-                .build();
-        assertEqualsIgnoreOrder(actual, expected);
-    }
-
-    @Test
-    public void testDescribeOutputNoSuchQuery()
-    {
-        assertQueryFails("DESCRIBE OUTPUT my_query", "Prepared statement not found: my_query");
     }
 }
