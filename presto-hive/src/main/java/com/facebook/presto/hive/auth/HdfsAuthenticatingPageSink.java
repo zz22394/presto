@@ -21,6 +21,7 @@ import com.facebook.presto.spi.block.Block;
 import io.airlift.slice.Slice;
 
 import java.util.Collection;
+import java.util.concurrent.CompletableFuture;
 
 public class HdfsAuthenticatingPageSink
         implements ConnectorPageSink
@@ -37,9 +38,9 @@ public class HdfsAuthenticatingPageSink
     }
 
     @Override
-    public void appendPage(Page page, Block sampleWeightBlock)
+    public CompletableFuture<?> appendPage(Page page, Block sampleWeightBlock)
     {
-        authentication.doAs(connectorSession.getUser(), () -> targetPageSink.appendPage(page, sampleWeightBlock));
+        return authentication.doAs(connectorSession.getUser(), () -> targetPageSink.appendPage(page, sampleWeightBlock));
     }
 
     @Override
