@@ -39,6 +39,8 @@ public class FeaturesConfig
 
     private String resourceGroupManager = FILE_BASED_RESOURCE_GROUP_MANAGER;
 
+    private boolean parseDecimalLiteralsAsDouble;
+
     @NotNull
     public String getResourceGroupManager()
     {
@@ -207,6 +209,18 @@ public class FeaturesConfig
     public FeaturesConfig setDictionaryAggregation(boolean dictionaryAggregation)
     {
         this.dictionaryAggregation = dictionaryAggregation;
+        return this;
+    }
+
+    public boolean isParseDecimalLiteralsAsDouble()
+    {
+        return parseDecimalLiteralsAsDouble;
+    }
+
+    @Config("parse-decimal-literals-as-double")
+    public FeaturesConfig setParseDecimalLiteralsAsDouble(boolean parseDecimalLiteralsAsDouble)
+    {
+        this.parseDecimalLiteralsAsDouble = parseDecimalLiteralsAsDouble;
         return this;
     }
 }
