@@ -71,6 +71,7 @@ public class FeaturesConfig
     private int spillerThreads = 4;
 
     private boolean charPadSpaces = false;
+    private boolean parseDecimalLiteralsAsDouble;
 
     @NotNull
     public String getResourceGroupManager()
@@ -343,6 +344,18 @@ public class FeaturesConfig
     public FeaturesConfig setCharPadSpaces(boolean charPadSpaces)
     {
         this.charPadSpaces = charPadSpaces;
+        return this;
+    }
+
+    public boolean isParseDecimalLiteralsAsDouble()
+    {
+        return parseDecimalLiteralsAsDouble;
+    }
+
+    @Config("parse-decimal-literals-as-double")
+    public FeaturesConfig setParseDecimalLiteralsAsDouble(boolean parseDecimalLiteralsAsDouble)
+    {
+        this.parseDecimalLiteralsAsDouble = parseDecimalLiteralsAsDouble;
         return this;
     }
 }

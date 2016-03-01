@@ -54,12 +54,12 @@ public class TestFeaturesConfig
                 .setRe2JDfaStatesLimit(Integer.MAX_VALUE)
                 .setRe2JDfaRetries(5)
                 .setResourceGroupManager(FILE_BASED_RESOURCE_GROUP_MANAGER)
-                .setResourceGroupManager(FILE_BASED_RESOURCE_GROUP_MANAGER)
                 .setOperatorMemoryLimitBeforeSpill(DataSize.valueOf("0MB"))
                 .setSpillerImplementation(BINARY_FILE)
                 .setSpillerSpillPath(Paths.get(System.getProperty("java.io.tmpdir"), "presto", "spills").toString())
                 .setSpillerThreads(4)
-                .setCharPadSpaces(false));
+                .setCharPadSpaces(false)
+                .setParseDecimalLiteralsAsDouble(false));
     }
 
     @Test
@@ -88,6 +88,7 @@ public class TestFeaturesConfig
                 .put("experimental.spiller-implementation", "custom")
                 .put("experimental.spiller-spill-path", "/tmp/custom/spill/path")
                 .put("experimental.spiller-threads", "42")
+                .put("parse-decimal-literals-as-double", "true")
                 .build();
         Map<String, String> properties = new ImmutableMap.Builder<String, String>()
                 .put("experimental-syntax-enabled", "true")
@@ -112,6 +113,7 @@ public class TestFeaturesConfig
                 .put("experimental.spiller-implementation", "custom")
                 .put("experimental.spiller-spill-path", "/tmp/custom/spill/path")
                 .put("experimental.spiller-threads", "42")
+                .put("parse-decimal-literals-as-double", "true")
                 .build();
 
         FeaturesConfig expected = new FeaturesConfig()
@@ -132,12 +134,12 @@ public class TestFeaturesConfig
                 .setRe2JDfaStatesLimit(42)
                 .setRe2JDfaRetries(42)
                 .setResourceGroupManager("test")
-                .setResourceGroupManager("test")
                 .setOperatorMemoryLimitBeforeSpill(DataSize.valueOf("100MB"))
                 .setSpillerImplementation("custom")
                 .setSpillerSpillPath("/tmp/custom/spill/path")
                 .setSpillerThreads(42)
-                .setCharPadSpaces(true);
+                .setCharPadSpaces(true)
+                .setParseDecimalLiteralsAsDouble(true);
 
         assertFullMapping(properties, expected);
         assertDeprecatedEquivalence(FeaturesConfig.class, properties, propertiesLegacy);

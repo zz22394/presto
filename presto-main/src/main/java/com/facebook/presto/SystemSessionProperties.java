@@ -64,6 +64,7 @@ public final class SystemSessionProperties
     public static final String QUERY_PRIORITY = "query_priority";
     public static final String OPERATOR_MEMORY_LIMIT_BEFORE_SPILL = "operator_memory_limit_before_spill";
     public static final String MAX_ENTRIES_BEFORE_SPILL = "max_entries_before_spill";
+    public static final String PARSE_DECIMAL_LITERALS_AS_DOUBLE = "parse_decimal_literals_as_double";
 
     private final List<PropertyMetadata<?>> sessionProperties;
 
@@ -236,7 +237,12 @@ public final class SystemSessionProperties
                         MAX_ENTRIES_BEFORE_SPILL,
                         "Experimental: Limit max number of entries before spill",
                         0L,
-                        true));
+                        true),
+                booleanSessionProperty(
+                        PARSE_DECIMAL_LITERALS_AS_DOUBLE,
+                        "Parse decimal literals as DOUBLE instead of DECIMAL",
+                        featuresConfig.isParseDecimalLiteralsAsDouble(),
+                        false));
     }
 
     public List<PropertyMetadata<?>> getSessionProperties()
@@ -373,5 +379,10 @@ public final class SystemSessionProperties
         Long maxEntriesBeforeSpill = session.getProperty(MAX_ENTRIES_BEFORE_SPILL, Long.class);
         checkArgument(maxEntriesBeforeSpill >= 0, "%s must be positive", MAX_ENTRIES_BEFORE_SPILL);
         return maxEntriesBeforeSpill;
+    }
+
+    public static boolean isParseDecimalLiteralsAsDouble(Session session)
+    {
+        return session.getProperty(PARSE_DECIMAL_LITERALS_AS_DOUBLE, Boolean.class);
     }
 }
