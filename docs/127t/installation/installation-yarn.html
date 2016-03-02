@@ -649,10 +649,21 @@ for more details on failure policy.</p>
 <p>This is an optional feature and is not required to run Presto in YARN.
 To guarantee that a certain set of nodes are reserved for deploying
 Presto or to configure a particular node for a component type we can
-make use of YARN label expressions.</p>
+make use of YARN label expressions. To create and assign node to labels refer the below link.
+<a class="reference external" href="http://docs.hortonworks.com/HDPDocuments/HDP2/HDP-2.3.0/bk_yarn_resource_mgt/content/ch_node_labels.html">http://docs.hortonworks.com/HDPDocuments/HDP2/HDP-2.3.0/bk_yarn_resource_mgt/content/ch_node_labels.html</a></p>
+<p>Let&#8217;s say you have an 8 node cluster with</p>
 <ul class="simple">
-<li>First assign the nodes/subset of nodes with appropriate labels. See
-<a class="reference external" href="http://docs.hortonworks.com/HDPDocuments/HDP2/HDP-2.3.0/bk_yarn_resource_mgt/content/ch_node_labels.html">http://docs.hortonworks.com/HDPDocuments/HDP2/HDP-2.3.0/bk_yarn_resource_mgt/content/ch_node_labels.html</a></li>
+<li>3 master nodes - m1, m2, m3</li>
+<li>3 data nodes - d1, d2, d3</li>
+<li>2 edge nodes - e1, e2 (edge nodes are basically nodes with various client like Hbase, Hive, Oozie, etc)</li>
+</ul>
+<p>Note: YARN labels can only be assigned to nodes which have YARN NodeManager service running on them. Generally data nodes are the nodes which have NodeManager service running.
+Without yarn labels, when we deploy presto-on-yarn the presto-coordinator/worker can be on any of the nodes d1, d2, d3.
+In case, we want coordinator to be always on d1 and workers on d2 and d3, we can create 2 yarn labels namely &#8220;Coordinator&#8221; and &#8220;Worker&#8221;</p>
+<p>Assign Coordinator to d1 and Worker to d2 and d3. Now Presto coordinator will be always be running on d1.
+For assigning YARN labels to nodes, you can either use the Ambari Slider View( Create App &#8211;&gt; Allocate Resource &#8211;&gt; YARN Labels) or add the label expression to resources.json if installing using Slider cli.</p>
+<ul class="simple">
+<li>First assign the nodes/subset of nodes with appropriate labels.</li>
 <li>Then set the components in <tt class="docutils literal"><span class="pre">resource.json</span></tt> with
 <tt class="docutils literal"><span class="pre">yarn.label.expression</span></tt> to have labels to be used when allocating
 containers for Presto.</li>
