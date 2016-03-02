@@ -18,6 +18,7 @@ import com.facebook.presto.spi.PageBuilder;
 import com.facebook.presto.spi.block.Block;
 import com.facebook.presto.spi.block.BlockBuilder;
 import com.facebook.presto.spi.block.SortOrder;
+import com.facebook.presto.spi.type.BigintType;
 import com.facebook.presto.spi.type.Type;
 import com.facebook.presto.sql.gen.JoinCompiler;
 import com.facebook.presto.sql.gen.OrderingCompiler;
@@ -337,7 +338,8 @@ public class PagesIndex
                 LookupSource lookupSource = lookupSourceFactory.createLookupSource(
                         valueAddresses,
                         ImmutableList.<List<Block>>copyOf(channels),
-                        hashChannel);
+                        hashChannel,
+                        joinChannels);
 
                 return lookupSource;
             }
@@ -354,7 +356,12 @@ public class PagesIndex
                 hashChannel,
                 filterFunction);
 
-        return new InMemoryJoinHash(valueAddresses, hashStrategy);
+        if (types.size() == 1 && types.get(0).equals(BigintType.BIGINT)) {
+            return new BigintInMemoryJoinHash(valueAddresses, hashStrategy, ImmutableList.copyOf(channels), joinChannels);
+        }
+        else {
+            return new InMemoryJoinHash(valueAddresses, hashStrategy, ImmutableList.copyOf(channels), joinChannels);
+        }
     }
 
     @Override
