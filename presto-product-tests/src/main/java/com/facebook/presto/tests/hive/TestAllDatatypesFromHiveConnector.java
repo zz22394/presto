@@ -91,11 +91,8 @@ public class TestAllDatatypesFromHiveConnector
         }
     }
 
-    /**
-     * TODO: Must be removed from quarantine once DECIMAL implementation will be merged
-     */
     @Requires(TextRequirements.class)
-    @Test(groups = {HIVE_CONNECTOR, SMOKE, QUARANTINE})
+    @Test(groups = {HIVE_CONNECTOR, SMOKE})
     public void testSelectAllDatatypesTextFile()
             throws SQLException
     {
@@ -125,11 +122,8 @@ public class TestAllDatatypesFromHiveConnector
         );
     }
 
-    /**
-     * TODO: Must be removed from quarantine once DECIMAL implementation will be merged
-     */
     @Requires(OrcRequirements.class)
-    @Test(groups = {HIVE_CONNECTOR, QUARANTINE})
+    @Test(groups = {HIVE_CONNECTOR})
     public void testSelectAllDatatypesOrc()
             throws SQLException
     {
@@ -157,11 +151,8 @@ public class TestAllDatatypesFromHiveConnector
                         "kot binarny".getBytes()));
     }
 
-    /**
-     * TODO: Must be removed from quarantine once DECIMAL implementation will be merged
-     */
     @Requires(RcfileRequirements.class)
-    @Test(groups = {HIVE_CONNECTOR, QUARANTINE})
+    @Test(groups = {HIVE_CONNECTOR})
     public void testSelectAllDatatypesRcfile()
             throws SQLException
     {
@@ -231,11 +222,8 @@ public class TestAllDatatypesFromHiveConnector
         );
     }
 
-    /**
-     * TODO: Must be removed from quarantine once DECIMAL implementation will be merged
-     */
     @Requires(ParquetRequirements.class)
-    @Test(groups = {HIVE_CONNECTOR, QUARANTINE})
+    @Test(groups = {HIVE_CONNECTOR})
     public void testSelectAllDatatypesParquetFile()
             throws SQLException
     {
