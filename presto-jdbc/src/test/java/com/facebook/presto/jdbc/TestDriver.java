@@ -20,6 +20,8 @@ import com.facebook.presto.tpch.TpchPlugin;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.airlift.log.Logging;
+import io.airlift.testing.Assertions;
+import io.airlift.units.Duration;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.testng.annotations.AfterClass;
@@ -49,12 +51,15 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static io.airlift.testing.Assertions.assertInstanceOf;
+import static io.airlift.units.Duration.nanosSince;
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
 import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.Executors.newCachedThreadPool;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.MINUTES;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.toList;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
@@ -82,7 +87,18 @@ public class TestDriver
         server.createCatalog(TEST_CATALOG, "tpch");
         server.installPlugin(new BlackHolePlugin());
         server.createCatalog("blackhole", "blackhole");
+        waitForNodeRefresh(server);
         setupTestTables();
+    }
+
+    private static void waitForNodeRefresh(TestingPrestoServer server)
+            throws InterruptedException
+    {
+        long start = System.nanoTime();
+        while (server.refreshNodes().getActiveNodes().size() < 1) {
+            Assertions.assertLessThan(nanosSince(start), new Duration(10, SECONDS));
+            MILLISECONDS.sleep(10);
+        }
     }
 
     private void setupTestTables()
