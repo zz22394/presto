@@ -383,7 +383,7 @@ public class TestAnalyzer
     }
 
     @Test
-    public void testNonEquiOuterJoin()
+    public void testNonEquiInnerJoin()
             throws Exception
     {
         analyze("SELECT * FROM t1 LEFT JOIN t2 ON t1.a + t2.a = 1");
