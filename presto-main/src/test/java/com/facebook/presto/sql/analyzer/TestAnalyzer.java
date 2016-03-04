@@ -383,12 +383,11 @@ public class TestAnalyzer
     }
 
     @Test
-    public void testNonEquiOuterJoin()
+    public void testNonEquiJoin()
             throws Exception
     {
-        analyze("SELECT * FROM t1 LEFT JOIN t2 ON t1.a + t2.a = 1");
-        analyze("SELECT * FROM t1 RIGHT JOIN t2 ON t1.a + t2.a = 1");
-        analyze("SELECT * FROM t1 LEFT JOIN t2 ON t1.a = t2.a OR t1.b = t2.b");
+        assertFails(NOT_SUPPORTED, "SELECT * FROM t1 JOIN t2 ON t1.a + t2.a = 1");
+        assertFails(NOT_SUPPORTED, "SELECT * FROM t1 JOIN t2 ON t1.a = t2.a OR t1.b = t2.b");
     }
 
     @Test
@@ -855,14 +854,14 @@ public class TestAnalyzer
     public void testNotNullInJoinClause()
             throws Exception
     {
-        analyze("SELECT * FROM (VALUES (1)) a (x) JOIN (VALUES (2)) b ON a.x IS NOT NULL");
+        assertFails(NOT_SUPPORTED, "SELECT * FROM (VALUES (1)) a (x) JOIN (VALUES (2)) b ON a.x IS NOT NULL");
     }
 
     @Test
     public void testIfInJoinClause()
             throws Exception
     {
-        analyze("SELECT * FROM (VALUES (1)) a (x) JOIN (VALUES (2)) b ON IF(a.x = 1, true, false)");
+        assertFails(NOT_SUPPORTED, "SELECT * FROM (VALUES (1)) a (x) JOIN (VALUES (2)) b ON IF(a.x = 1, true, false)");
     }
 
     @Test
