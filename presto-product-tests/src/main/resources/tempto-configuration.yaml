@@ -5,7 +5,7 @@ hdfs:
     port: 50070
 
 presto_rest:
-  base_uri: http://${databases.presto.server_address}/
+  base_uri: http://${databases.presto.host}:8080/
 
 databases:
   default:
