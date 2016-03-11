@@ -33,6 +33,7 @@ import com.facebook.presto.sql.tree.CreateView;
 import com.facebook.presto.sql.tree.Cube;
 import com.facebook.presto.sql.tree.CurrentTime;
 import com.facebook.presto.sql.tree.Deallocate;
+import com.facebook.presto.sql.tree.DecimalLiteral;
 import com.facebook.presto.sql.tree.Delete;
 import com.facebook.presto.sql.tree.DereferenceExpression;
 import com.facebook.presto.sql.tree.DescribeInput;
@@ -164,7 +165,7 @@ public class TestSqlParser
 
     @Test
     public void testBinaryLiteral()
-        throws Exception
+            throws Exception
     {
         assertExpression("x' '", new BinaryLiteral(""));
         assertExpression("x''", new BinaryLiteral(""));
@@ -209,8 +210,8 @@ public class TestSqlParser
             throws Exception
     {
         assertExpression("ARRAY [1, 2][1]", new SubscriptExpression(
-                        new ArrayConstructor(ImmutableList.<Expression>of(new LongLiteral("1"), new LongLiteral("2"))),
-                        new LongLiteral("1"))
+                new ArrayConstructor(ImmutableList.<Expression>of(new LongLiteral("1"), new LongLiteral("2"))),
+                new LongLiteral("1"))
         );
         try {
             assertExpression("CASE WHEN TRUE THEN ARRAY[1,2] END[1]", null);
@@ -649,6 +650,22 @@ public class TestSqlParser
     }
 
     @Test
+    public void testDecimal()
+            throws Exception
+    {
+        assertExpression("DECIMAL '12.34'", new DecimalLiteral("12.34"));
+        assertExpression("DECIMAL '12.'", new DecimalLiteral("12."));
+        assertExpression("DECIMAL '12'", new DecimalLiteral("12"));
+        assertExpression("DECIMAL '.34'", new DecimalLiteral(".34"));
+        assertExpression("DECIMAL '+12.34'", new DecimalLiteral("+12.34"));
+        assertExpression("DECIMAL '+12'", new DecimalLiteral("+12"));
+        assertExpression("DECIMAL '-12.34'", new DecimalLiteral("-12.34"));
+        assertExpression("DECIMAL '-12'", new DecimalLiteral("-12"));
+        assertExpression("DECIMAL '+.34'", new DecimalLiteral("+.34"));
+        assertExpression("DECIMAL '-.34'", new DecimalLiteral("-.34"));
+    }
+
+    @Test
     public void testTime()
             throws Exception
     {
@@ -900,7 +917,7 @@ public class TestSqlParser
 
     @Test
     public void testSelectWithGroupBy()
-        throws Exception
+            throws Exception
     {
         assertStatement("SELECT * FROM table1 GROUP BY a",
                 new Query(
@@ -974,8 +991,8 @@ public class TestSqlParser
                                 Optional.of(new GroupBy(false, ImmutableList.of(
                                         new GroupingSets(
                                                 ImmutableList.of(ImmutableList.of(QualifiedName.of("a"), QualifiedName.of("b")),
-                                                ImmutableList.of(QualifiedName.of("a")),
-                                                ImmutableList.of())),
+                                                        ImmutableList.of(QualifiedName.of("a")),
+                                                        ImmutableList.of())),
                                         new Cube(ImmutableList.of(QualifiedName.of("c"))),
                                         new Rollup(ImmutableList.of(QualifiedName.of("d")))))),
                                 Optional.empty(),
@@ -1405,19 +1422,19 @@ public class TestSqlParser
     {
         assertStatement("CALL foo()", new Call(QualifiedName.of("foo"), ImmutableList.of()));
         assertStatement("CALL foo(123, a => 1, b => 'go', 456)", new Call(QualifiedName.of("foo"), ImmutableList.of(
-                        new CallArgument(new LongLiteral("123")),
-                        new CallArgument("a", new LongLiteral("1")),
-                        new CallArgument("b", new StringLiteral("go")),
-                        new CallArgument(new LongLiteral("456")))));
+                new CallArgument(new LongLiteral("123")),
+                new CallArgument("a", new LongLiteral("1")),
+                new CallArgument("b", new StringLiteral("go")),
+                new CallArgument(new LongLiteral("456")))));
     }
 
     @Test
     public void testPrepare()
     {
         assertStatement("PREPARE myquery FROM select * from foo",
-                                new Prepare("myquery", simpleQuery(
-                                        selectList(new AllColumns()),
-                                        table(QualifiedName.of("foo")))));
+                new Prepare("myquery", simpleQuery(
+                        selectList(new AllColumns()),
+                        table(QualifiedName.of("foo")))));
     }
 
     @Test
