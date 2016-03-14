@@ -59,25 +59,7 @@ public class SignatureBinder
         if (!boundVariables.isPresent()) {
             return Optional.empty();
         }
-
-        List<TypeSignature> functionArgumentSignatures = declaredSignature.getArgumentTypes();
-        List<TypeSignature> boundArgumentSignatures = bindVariables(functionArgumentSignatures, boundVariables.get());
-        if (declaredSignature.isVariableArity()) {
-            boundArgumentSignatures = fillInMissingVariableArguments(boundArgumentSignatures, actualArgumentTypes);
-        }
-
-        TypeSignature functionReturnTypeSignature = declaredSignature.getReturnType();
-        TypeSignature boundReturnTypeSignature = bindVariables(functionReturnTypeSignature, boundVariables.get());
-
-        return Optional.of(new Signature(
-                declaredSignature.getName(),
-                declaredSignature.getKind(),
-                ImmutableList.of(),
-                ImmutableList.of(),
-                boundReturnTypeSignature,
-                boundArgumentSignatures,
-                false
-        ));
+        return Optional.of(bindVariables(declaredSignature, boundVariables.get(), actualArgumentTypes.size()));
     }
 
     public Optional<BoundVariables> matchAndBindSignatureVariables(List<? extends Type> actualArgumentTypes)
@@ -395,20 +377,35 @@ public class SignatureBinder
         return boundVariables.getTypeVariables().keySet().equals(typeVariableConstraints.keySet());
     }
 
-    private List<TypeSignature> fillInMissingVariableArguments(
-            List<TypeSignature> boundArgumentSignatures,
-            List<? extends Type> actualArgumentTypes)
+    public static Signature bindVariables(Signature signature, BoundVariables boundVariables, int arity)
     {
-        int variableArityParametersCount = actualArgumentTypes.size() - declaredSignature.getArgumentTypes().size();
-        if (variableArityParametersCount > 0 && !boundArgumentSignatures.isEmpty()) {
+        List<TypeSignature> argumentSignatures = fillInMissingVariableArguments(signature.getArgumentTypes(), arity);
+        List<TypeSignature> boundArgumentSignatures = bindVariables(argumentSignatures, boundVariables);
+        TypeSignature boundReturnTypeSignature = bindVariables(signature.getReturnType(), boundVariables);
+
+        return new Signature(
+                signature.getName(),
+                signature.getKind(),
+                ImmutableList.of(),
+                ImmutableList.of(),
+                boundReturnTypeSignature,
+                boundArgumentSignatures,
+                false
+        );
+    }
+
+    private static List<TypeSignature> fillInMissingVariableArguments(List<TypeSignature> argumentSignatures, int arity)
+    {
+        int variableArityArgumentsCount = arity - argumentSignatures.size();
+        if (variableArityArgumentsCount > 0 && !argumentSignatures.isEmpty()) {
             ImmutableList.Builder<TypeSignature> builder = ImmutableList.builder();
-            builder.addAll(boundArgumentSignatures);
-            for (int i = 0; i < variableArityParametersCount; i++) {
-                builder.add(getLast(boundArgumentSignatures));
+            builder.addAll(argumentSignatures);
+            for (int i = 0; i < variableArityArgumentsCount; i++) {
+                builder.add(getLast(argumentSignatures));
             }
             return builder.build();
         }
-        return boundArgumentSignatures;
+        return argumentSignatures;
     }
 
     public static List<TypeSignature> bindVariables(List<TypeSignature> typeSignatures, BoundVariables boundVariables)

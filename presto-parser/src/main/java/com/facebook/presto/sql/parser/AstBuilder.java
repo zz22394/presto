@@ -126,6 +126,7 @@ import com.facebook.presto.sql.tree.TimeLiteral;
 import com.facebook.presto.sql.tree.TimestampLiteral;
 import com.facebook.presto.sql.tree.TransactionAccessMode;
 import com.facebook.presto.sql.tree.TransactionMode;
+import com.facebook.presto.sql.tree.TryExpression;
 import com.facebook.presto.sql.tree.Union;
 import com.facebook.presto.sql.tree.Unnest;
 import com.facebook.presto.sql.tree.Use;
@@ -150,6 +151,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.google.common.collect.Iterables.getOnlyElement;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
 
@@ -652,23 +654,16 @@ class AstBuilder
     @Override
     public Node visitGrant(SqlBaseParser.GrantContext context)
     {
-        String grantee;
-        if (context.PUBLIC() != null) {
-            grantee = "PUBLIC";
-        }
-        else {
-            grantee = context.grantee.getText();
-        }
+        String grantee = context.grantee.getText();
 
-        List<String> privileges;
-        if (context.ALL() != null && context.PRIVILEGES() != null) {
-            //List all privileges  declared in 'Privilege' enum in SPI
-            privileges = ImmutableList.of("SELECT", "DELETE", "INSERT");
+        Optional<List<String>> privileges;
+        if (context.ALL() != null) {
+            privileges = Optional.empty();
         }
         else {
-            privileges = context.privilege().stream()
-                    .map(privilegeContext -> getPrivilege(privilegeContext))
-                    .collect(toList());
+            privileges = Optional.of(context.privilege().stream()
+                    .map(SqlBaseParser.PrivilegeContext::getText)
+                    .collect(toList()));
         }
         return new Grant(
                 getLocation(context),
@@ -677,22 +672,6 @@ class AstBuilder
                 getQualifiedName(context.qualifiedName()),
                 grantee,
                 context.OPTION() != null);
-    }
-
-    private String getPrivilege(SqlBaseParser.PrivilegeContext context)
-    {
-        if (context.SELECT() != null) {
-            return "SELECT";
-        }
-        else if (context.DELETE() != null) {
-            return "DELETE";
-        }
-        else if (context.INSERT() != null) {
-            return "INSERT";
-        }
-        else {
-            throw new IllegalArgumentException("Unsupported Privilege: " + context.getText());
-        }
     }
 
     // ***************** boolean expressions ******************
@@ -1158,6 +1137,12 @@ class AstBuilder
             check(!distinct, "DISTINCT not valid for 'coalesce' function", context);
 
             return new CoalesceExpression(getLocation(context), visit(context.expression(), Expression.class));
+        }
+        if (name.toString().equalsIgnoreCase("try")) {
+            check(!window.isPresent(), "OVER clause not valid for 'try' function", context);
+            check(!distinct, "DISTINCT not valid for 'try' function", context);
+
+            return new TryExpression(getLocation(context), (Expression) visit(getOnlyElement(context.expression())));
         }
 
         return new FunctionCall(

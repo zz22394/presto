@@ -126,6 +126,8 @@ public class TestTableWriterOperator
 
         assertEquals(operator.isBlocked().isDone(), false);
 
+        assertEquals(operator.needsInput(), false);
+
         operator.addInput(rowPagesBuilder(BIGINT).row(42).build().get(0));
     }
 

@@ -1081,12 +1081,14 @@ public class TestSqlParser
     public void testGrant()
             throws Exception
     {
-        assertStatement("GRANT INSERT, DELETE ON customer to admin",
-                new Grant(ImmutableList.of("INSERT", "DELETE"), false, QualifiedName.of("customer"), "admin", false));
-        assertStatement("GRANT SELECT ON orders to PUBLIC WITH GRANT OPTION",
-                new Grant(ImmutableList.of("SELECT"), false, QualifiedName.of("orders"), "PUBLIC", true));
-        assertStatement("GRANT ALL PRIVILEGES ON nation to admin",
-                new Grant(ImmutableList.of("SELECT", "DELETE", "INSERT"), false, QualifiedName.of("nation"), "admin", false));
+        assertStatement("GRANT INSERT, DELETE ON t TO u",
+                new Grant(Optional.of(ImmutableList.of("INSERT", "DELETE")), false, QualifiedName.of("t"), "u", false));
+        assertStatement("GRANT SELECT ON t TO PUBLIC WITH GRANT OPTION",
+                new Grant(Optional.of(ImmutableList.of("SELECT")), false, QualifiedName.of("t"), "PUBLIC", true));
+        assertStatement("GRANT ALL PRIVILEGES ON t TO u",
+                new Grant(Optional.empty(), false, QualifiedName.of("t"), "u", false));
+        assertStatement("GRANT taco ON t TO PUBLIC WITH GRANT OPTION",
+                new Grant(Optional.of(ImmutableList.of("taco")), false, QualifiedName.of("t"), "PUBLIC", true));
     }
 
     @Test

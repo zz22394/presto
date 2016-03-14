@@ -28,6 +28,7 @@ import com.facebook.presto.spi.ConnectorTableLayoutResult;
 import com.facebook.presto.spi.ConnectorTableMetadata;
 import com.facebook.presto.spi.ConnectorViewDefinition;
 import com.facebook.presto.spi.Constraint;
+import com.facebook.presto.spi.DiscretePredicates;
 import com.facebook.presto.spi.PrestoException;
 import com.facebook.presto.spi.SchemaTableName;
 import com.facebook.presto.spi.SchemaTablePrefix;
@@ -35,7 +36,6 @@ import com.facebook.presto.spi.TableNotFoundException;
 import com.facebook.presto.spi.ViewNotFoundException;
 import com.facebook.presto.spi.predicate.NullableValue;
 import com.facebook.presto.spi.predicate.TupleDomain;
-import com.facebook.presto.spi.security.Identity;
 import com.facebook.presto.spi.security.Privilege;
 import com.facebook.presto.spi.type.TypeManager;
 import com.google.common.annotations.VisibleForTesting;
@@ -1245,7 +1245,11 @@ public class HiveMetadata
         HivePartitionResult hivePartitionResult = partitionManager.getPartitions(session, metastore, tableHandle, constraint.getSummary());
 
         return ImmutableList.of(new ConnectorTableLayoutResult(
-                getTableLayout(session, new HiveTableLayoutHandle(handle.getClientId(), hivePartitionResult.getPartitions(), hivePartitionResult.getEnforcedConstraint())),
+                getTableLayout(session, new HiveTableLayoutHandle(
+                        handle.getClientId(),
+                        ImmutableList.copyOf(hivePartitionResult.getPartitionColumns()),
+                        hivePartitionResult.getPartitions(),
+                        hivePartitionResult.getEnforcedConstraint())),
                 hivePartitionResult.getUnenforcedConstraint()));
     }
 
@@ -1253,6 +1257,7 @@ public class HiveMetadata
     public ConnectorTableLayout getTableLayout(ConnectorSession session, ConnectorTableLayoutHandle layoutHandle)
     {
         HiveTableLayoutHandle hiveLayoutHandle = checkType(layoutHandle, HiveTableLayoutHandle.class, "layoutHandle");
+        List<ColumnHandle> partitionColumns = hiveLayoutHandle.getPartitionColumns();
         List<TupleDomain<ColumnHandle>> partitionDomains = hiveLayoutHandle.getPartitions().get().stream()
                 .map(HivePartition::getTupleDomain)
                 .collect(toList());
@@ -1261,18 +1266,24 @@ public class HiveMetadata
         if (!partitionDomains.isEmpty()) {
             predicate = TupleDomain.columnWiseUnion(partitionDomains);
         }
+
+        Optional<DiscretePredicates> discretePredicates = Optional.empty();
+        if (!partitionColumns.isEmpty()) {
+            discretePredicates = Optional.of(new DiscretePredicates(partitionColumns, partitionDomains));
+        }
+
         return new ConnectorTableLayout(
                 hiveLayoutHandle,
                 Optional.empty(),
                 predicate,
                 Optional.empty(),
                 Optional.empty(),
-                Optional.of(partitionDomains),
+                discretePredicates,
                 ImmutableList.of());
     }
 
     @Override
-    public void grantTablePrivileges(ConnectorSession session, SchemaTableName schemaTableName, Set<Privilege> privileges, Identity identity, boolean grantOption)
+    public void grantTablePrivileges(ConnectorSession session, SchemaTableName schemaTableName, Set<Privilege> privileges, String grantee, boolean grantOption)
     {
         String schemaName = schemaTableName.getSchemaName();
 
@@ -1282,7 +1293,7 @@ public class HiveMetadata
                 .map(privilege -> new PrivilegeGrantInfo(privilege.name().toLowerCase(), 0, session.getUser(), PrincipalType.USER, grantOption))
                 .collect(toSet());
 
-        metastore.grantTablePrivileges(schemaName, tableName, identity, privilegeGrantInfoSet);
+        metastore.grantTablePrivileges(schemaName, tableName, grantee, privilegeGrantInfoSet);
     }
 
     @Override
@@ -1387,7 +1398,7 @@ public class HiveMetadata
         List<FieldSchema> tableColumns = table.getSd().getCols();
         ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
         for (FieldSchema field : concat(tableColumns, table.getPartitionKeys())) {
-            if (field.getComment() != null) {
+            if ((field.getComment() != null) && !field.getComment().equals("from deserializer")) {
                 builder.put(field.getName(), field.getComment());
             }
         }
@@ -1396,7 +1407,6 @@ public class HiveMetadata
         return handle -> new ColumnMetadata(
                 handle.getName(),
                 typeManager.getType(handle.getTypeSignature()),
-                handle.isPartitionKey(),
                 annotateColumnComment(columnComment.get(handle.getName()), handle.isPartitionKey()),
                 false);
     }

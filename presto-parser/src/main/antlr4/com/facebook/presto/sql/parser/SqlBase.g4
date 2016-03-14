@@ -49,7 +49,7 @@ statement
     | CALL qualifiedName '(' (callArgument (',' callArgument)*)? ')'   #call
     | GRANT
         (privilege (',' privilege)* | ALL PRIVILEGES)
-        ON (TABLE)? qualifiedName TO (grantee=identifier | PUBLIC)
+        ON TABLE? qualifiedName TO grantee=identifier
         (WITH GRANT OPTION)?                                           #grant
     | EXPLAIN ('(' explainOption (',' explainOption)* ')')? statement  #explain
     | SHOW TABLES ((FROM | IN) qualifiedName)? (LIKE pattern=STRING)?  #showTables
@@ -376,7 +376,7 @@ callArgument
     ;
 
 privilege
-    : SELECT | DELETE | INSERT | value=identifier
+    : SELECT | DELETE | INSERT | identifier
     ;
 
 qualifiedName
@@ -413,6 +413,7 @@ nonReserved
     | SET | RESET
     | VIEW | REPLACE
     | IF | NULLIF | COALESCE
+    | TRY
     | normalForm
     | POSITION
     | NO | DATA
@@ -532,6 +533,7 @@ TEXT: 'TEXT';
 GRAPHVIZ: 'GRAPHVIZ';
 LOGICAL: 'LOGICAL';
 DISTRIBUTED: 'DISTRIBUTED';
+TRY: 'TRY';
 CAST: 'CAST';
 TRY_CAST: 'TRY_CAST';
 SHOW: 'SHOW';

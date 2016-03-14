@@ -23,7 +23,6 @@ import com.facebook.presto.spi.PrestoException;
 import com.facebook.presto.spi.SchemaNotFoundException;
 import com.facebook.presto.spi.SchemaTableName;
 import com.facebook.presto.spi.TableNotFoundException;
-import com.facebook.presto.spi.security.Identity;
 import com.google.common.base.Throwables;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -63,7 +62,6 @@ import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -886,7 +884,7 @@ public class CachingHiveMetastore
     }
 
     @Override
-    public void grantTablePrivileges(String databaseName, String tableName, Identity identity, Set<PrivilegeGrantInfo> privilegeGrantInfoSet)
+    public void grantTablePrivileges(String databaseName, String tableName, String grantee, Set<PrivilegeGrantInfo> privilegeGrantInfoSet)
     {
         try {
             retry()
@@ -895,7 +893,7 @@ public class CachingHiveMetastore
                         try (HiveMetastoreClient metastoreClient = clientProvider.createMetastoreClient()) {
                             PrincipalType principalType;
 
-                            if (metastoreClient.getRoleNames().contains(identity.getUser())) {
+                            if (metastoreClient.getRoleNames().contains(grantee)) {
                                 principalType = ROLE;
                             }
                             else {
@@ -906,7 +904,7 @@ public class CachingHiveMetastore
                             for (PrivilegeGrantInfo privilegeGrantInfo : privilegeGrantInfoSet) {
                                 privilegeBagBuilder.add(
                                         new HiveObjectPrivilege(new HiveObjectRef(HiveObjectType.TABLE, databaseName, tableName, null, null),
-                                        identity.getUser(),
+                                        grantee,
                                         principalType,
                                         privilegeGrantInfo));
                             }
@@ -927,7 +925,7 @@ public class CachingHiveMetastore
             throw Throwables.propagate(e);
         }
         finally {
-            userTablePrivileges.invalidate(new UserTableKey(identity.getUser(), tableName, databaseName));
+            userTablePrivileges.invalidate(new UserTableKey(grantee, tableName, databaseName));
         }
     }
 
@@ -937,10 +935,7 @@ public class CachingHiveMetastore
         try (HiveMetastoreClient metastoreClient = clientProvider.createMetastoreClient()) {
             PrincipalPrivilegeSet principalPrivilegeSet = metastoreClient.getPrivilegeSet(new HiveObjectRef(HiveObjectType.TABLE, databaseName, tableName, null, null), user, null);
 
-            Iterator<PrivilegeGrantInfo> privilegeGrantInfoIterator = principalPrivilegeSet.getUserPrivileges().get(user).iterator();
-
-            while (privilegeGrantInfoIterator.hasNext()) {
-                PrivilegeGrantInfo privilegeGrantInfo = privilegeGrantInfoIterator.next();
+            for (PrivilegeGrantInfo privilegeGrantInfo : principalPrivilegeSet.getUserPrivileges().get(user)) {
                 if (privilegeGrantInfo.getPrivilege().equalsIgnoreCase(hivePrivilege.name()) && privilegeGrantInfo.isGrantOption()) {
                     return true;
                 }
@@ -949,12 +944,6 @@ public class CachingHiveMetastore
         }
         catch (TException e) {
             throw new PrestoException(HIVE_METASTORE_ERROR, e);
-        }
-        catch (Exception e) {
-            if (e instanceof InterruptedException) {
-                Thread.currentThread().interrupt();
-            }
-            throw Throwables.propagate(e);
         }
     }
 

@@ -28,7 +28,6 @@ import com.facebook.presto.spi.ConnectorViewDefinition;
 import com.facebook.presto.spi.Constraint;
 import com.facebook.presto.spi.SchemaTableName;
 import com.facebook.presto.spi.SchemaTablePrefix;
-import com.facebook.presto.spi.security.Identity;
 import com.facebook.presto.spi.security.Privilege;
 import io.airlift.slice.Slice;
 
@@ -282,10 +281,10 @@ public class ClassLoaderSafeConnectorMetadata
     }
 
     @Override
-    public void grantTablePrivileges(ConnectorSession session, SchemaTableName tableName, Set<Privilege> privileges, Identity identity, boolean grantOption)
+    public void grantTablePrivileges(ConnectorSession session, SchemaTableName tableName, Set<Privilege> privileges, String grantee, boolean grantOption)
     {
         try (ThreadContextClassLoader ignored = new ThreadContextClassLoader(classLoader)) {
-            delegate.grantTablePrivileges(session, tableName, privileges, identity, grantOption);
+            delegate.grantTablePrivileges(session, tableName, privileges, grantee, grantOption);
         }
     }
 

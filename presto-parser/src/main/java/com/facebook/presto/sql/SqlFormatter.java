@@ -882,8 +882,13 @@ public final class SqlFormatter
         {
             builder.append("GRANT ");
 
-            builder.append(node.getPrivileges().stream()
-                    .collect(Collectors.joining(", ")));
+            if (node.getPrivileges().isPresent()) {
+                builder.append(node.getPrivileges().get().stream()
+                        .collect(Collectors.joining(", ")));
+            }
+            else {
+                builder.append("ALL PRIVILEGES");
+            }
 
             builder.append(" ON ");
             if (node.isTable()) {

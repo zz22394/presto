@@ -254,7 +254,7 @@ public class TestHiveFileFormats
         }
     }
 
-    @Test(enabled = false)
+    @Test
     public void testParquetPageSource()
             throws Exception
     {

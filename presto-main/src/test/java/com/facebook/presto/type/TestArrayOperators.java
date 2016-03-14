@@ -533,7 +533,7 @@ public class TestArrayOperators
     }
 
     @Test
-    void testDistinct()
+    public void testDistinct()
             throws Exception
     {
         assertFunction("ARRAY_DISTINCT(ARRAY [])", new ArrayType(UNKNOWN), ImmutableList.of());

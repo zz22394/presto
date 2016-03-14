@@ -30,7 +30,7 @@ import static com.facebook.presto.hive.metastore.HivePrivilege.GRANT;
 import static com.facebook.presto.hive.metastore.HivePrivilege.INSERT;
 import static com.facebook.presto.hive.metastore.HivePrivilege.OWNERSHIP;
 import static com.facebook.presto.hive.metastore.HivePrivilege.SELECT;
-import static com.facebook.presto.hive.metastore.HivePrivilege.parsePrestoPrivilege;
+import static com.facebook.presto.hive.metastore.HivePrivilege.toHivePrivilege;
 import static com.facebook.presto.spi.security.AccessDeniedException.denyAddColumn;
 import static com.facebook.presto.spi.security.AccessDeniedException.denyCreateTable;
 import static com.facebook.presto.spi.security.AccessDeniedException.denyCreateView;
@@ -183,8 +183,12 @@ public class SqlStandardAccessControl
     @Override
     public void checkCanGrantTablePrivilege(Identity identity, Privilege privilege, SchemaTableName tableName)
     {
-        if (!checkTablePermission(identity, tableName, OWNERSHIP) &&
-                !metastore.hasPrivilegeWithGrantOptionOnTable(identity.getUser(), tableName.getSchemaName(), tableName.getTableName(), parsePrestoPrivilege(privilege))) {
+        if (checkTablePermission(identity, tableName, OWNERSHIP)) {
+            return;
+        }
+
+        HivePrivilege hivePrivilege = toHivePrivilege(privilege);
+        if (hivePrivilege == null || !metastore.hasPrivilegeWithGrantOptionOnTable(identity.getUser(), tableName.getSchemaName(), tableName.getTableName(), hivePrivilege)) {
             denyGrantTablePrivilege(privilege.name(), tableName.toString());
         }
     }

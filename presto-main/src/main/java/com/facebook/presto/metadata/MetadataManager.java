@@ -36,7 +36,6 @@ import com.facebook.presto.spi.connector.ConnectorPartitioningHandle;
 import com.facebook.presto.spi.connector.ConnectorTransactionHandle;
 import com.facebook.presto.spi.predicate.NullableValue;
 import com.facebook.presto.spi.predicate.TupleDomain;
-import com.facebook.presto.spi.security.Identity;
 import com.facebook.presto.spi.security.Privilege;
 import com.facebook.presto.spi.type.Type;
 import com.facebook.presto.spi.type.TypeManager;
@@ -421,7 +420,7 @@ public class MetadataManager
 
                 ImmutableList.Builder<ColumnMetadata> columns = ImmutableList.builder();
                 for (ViewColumn column : deserializeView(entry.getValue().getViewData()).getColumns()) {
-                    columns.add(new ColumnMetadata(column.getName(), column.getType(), false));
+                    columns.add(new ColumnMetadata(column.getName(), column.getType()));
                 }
 
                 tableColumns.put(tableName, columns.build());
@@ -700,12 +699,12 @@ public class MetadataManager
     }
 
     @Override
-    public void grantTablePrivileges(Session session, QualifiedObjectName tableName, Set<Privilege> privileges, Identity identity, boolean grantOption)
+    public void grantTablePrivileges(Session session, QualifiedObjectName tableName, Set<Privilege> privileges, String grantee, boolean grantOption)
     {
         ConnectorEntry entry = connectorsByCatalog.get(tableName.getCatalogName());
         checkArgument(entry != null, "Catalog %s does not exist", tableName.getCatalogName());
         ConnectorMetadata metadata = entry.getMetadata(session);
-        metadata.grantTablePrivileges(session.toConnectorSession(entry.getCatalog()), tableName.asSchemaTableName(), privileges, identity, grantOption);
+        metadata.grantTablePrivileges(session.toConnectorSession(entry.getCatalog()), tableName.asSchemaTableName(), privileges, grantee, grantOption);
     }
 
     @Override

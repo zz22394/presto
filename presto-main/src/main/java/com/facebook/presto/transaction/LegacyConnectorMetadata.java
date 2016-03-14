@@ -32,7 +32,6 @@ import com.facebook.presto.spi.SchemaTableName;
 import com.facebook.presto.spi.SchemaTablePrefix;
 import com.facebook.presto.spi.connector.ConnectorMetadata;
 import com.facebook.presto.spi.predicate.TupleDomain;
-import com.facebook.presto.spi.security.Identity;
 import com.facebook.presto.spi.security.Privilege;
 import io.airlift.slice.Slice;
 
@@ -262,9 +261,9 @@ public class LegacyConnectorMetadata
     }
 
     @Override
-    public void grantTablePrivileges(ConnectorSession session, SchemaTableName tableName, Set<Privilege> privileges, Identity identity, boolean grantOption)
+    public void grantTablePrivileges(ConnectorSession session, SchemaTableName tableName, Set<Privilege> privileges, String grantee, boolean grantOption)
     {
-        metadata.grantTablePrivileges(session, tableName, privileges, identity, grantOption);
+        metadata.grantTablePrivileges(session, tableName, privileges, grantee, grantOption);
     }
 
     private void setRollback(Runnable action)

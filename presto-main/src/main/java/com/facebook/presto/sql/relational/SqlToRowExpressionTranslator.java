@@ -57,6 +57,7 @@ import com.facebook.presto.sql.tree.StringLiteral;
 import com.facebook.presto.sql.tree.SubscriptExpression;
 import com.facebook.presto.sql.tree.TimeLiteral;
 import com.facebook.presto.sql.tree.TimestampLiteral;
+import com.facebook.presto.sql.tree.TryExpression;
 import com.facebook.presto.sql.tree.WhenClause;
 import com.facebook.presto.type.UnknownType;
 import com.google.common.collect.ImmutableList;
@@ -104,6 +105,7 @@ import static com.facebook.presto.util.DateTimeUtils.parseTimestampWithTimeZone;
 import static com.facebook.presto.util.DateTimeUtils.parseTimestampWithoutTimeZone;
 import static com.facebook.presto.util.DateTimeUtils.parseYearMonthInterval;
 import static com.facebook.presto.util.ImmutableCollectors.toImmutableList;
+import static io.airlift.slice.SliceUtf8.countCodePoints;
 import static io.airlift.slice.Slices.utf8Slice;
 import static java.util.Objects.requireNonNull;
 
@@ -196,9 +198,7 @@ public final class SqlToRowExpressionTranslator
         @Override
         protected RowExpression visitStringLiteral(StringLiteral node, Void context)
         {
-            String value = node.getValue();
-            int lengthInCodePoints = value.codePointCount(0, value.length());
-            return constant(node.getSlice(), createVarcharType(lengthInCodePoints));
+            return constant(node.getSlice(), createVarcharType(countCodePoints(node.getSlice())));
         }
 
         @Override
@@ -480,6 +480,12 @@ public final class SqlToRowExpressionTranslator
             }
 
             return call(Signatures.ifSignature(types.get(node)), types.get(node), arguments.build());
+        }
+
+        @Override
+        protected RowExpression visitTryExpression(TryExpression node, Void context)
+        {
+            return call(Signatures.trySignature(types.get(node)), types.get(node), process(node.getInnerExpression(), context));
         }
 
         @Override

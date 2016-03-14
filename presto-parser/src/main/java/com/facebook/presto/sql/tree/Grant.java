@@ -25,32 +25,33 @@ import static java.util.Objects.requireNonNull;
 public class Grant
         extends Statement
 {
-    private final List<String> privileges;
+    private final Optional<List<String>> privileges; // missing means ALL PRIVILEGES
     private final boolean table;
     private final QualifiedName tableName;
     private final String grantee;
     private final boolean withGrantOption;
 
-    public Grant(List<String> privileges, boolean table, QualifiedName tableName, String grantee, boolean withGrantOption)
+    public Grant(Optional<List<String>> privileges, boolean table, QualifiedName tableName, String grantee, boolean withGrantOption)
     {
         this(Optional.empty(), privileges, table, tableName, grantee, withGrantOption);
     }
 
-    public Grant(NodeLocation location, List<String> privileges, boolean table, QualifiedName tableName, String grantee, boolean withGrantOption)
+    public Grant(NodeLocation location, Optional<List<String>> privileges, boolean table, QualifiedName tableName, String grantee, boolean withGrantOption)
     {
         this(Optional.of(location), privileges, table, tableName, grantee, withGrantOption);
     }
-    private Grant(Optional<NodeLocation> location, List<String> privileges, boolean table, QualifiedName tableName, String grantee, boolean withGrantOption)
+    private Grant(Optional<NodeLocation> location, Optional<List<String>> privileges, boolean table, QualifiedName tableName, String grantee, boolean withGrantOption)
     {
         super(location);
-        this.privileges = ImmutableList.copyOf(requireNonNull(privileges, "privileges is null"));
+        requireNonNull(privileges, "privileges is null");
+        this.privileges = privileges.map(ImmutableList::copyOf);
         this.table = table;
         this.tableName = requireNonNull(tableName, "tableName is null");
         this.grantee = requireNonNull(grantee, "grantee is null");
         this.withGrantOption = withGrantOption;
     }
 
-    public List<String> getPrivileges()
+    public Optional<List<String>> getPrivileges()
     {
         return privileges;
     }

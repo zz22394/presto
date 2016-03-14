@@ -45,7 +45,7 @@ public enum HivePrivilege
         return ImmutableSet.of();
     }
 
-    public static HivePrivilege parsePrestoPrivilege(Privilege privilege)
+    public static HivePrivilege toHivePrivilege(Privilege privilege)
     {
         switch (privilege) {
             case SELECT:

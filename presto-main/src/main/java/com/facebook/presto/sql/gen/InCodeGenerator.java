@@ -43,13 +43,13 @@ import java.util.Set;
 
 import static com.facebook.presto.bytecode.control.LookupSwitch.lookupSwitchBuilder;
 import static com.facebook.presto.bytecode.expression.BytecodeExpressions.constantFalse;
+import static com.facebook.presto.bytecode.expression.BytecodeExpressions.constantTrue;
 import static com.facebook.presto.bytecode.instruction.JumpInstruction.jump;
 import static com.facebook.presto.metadata.OperatorType.EQUAL;
 import static com.facebook.presto.metadata.OperatorType.HASH_CODE;
 import static com.facebook.presto.metadata.Signature.internalOperator;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
-import static com.facebook.presto.sql.gen.BytecodeUtils.ifWasNullClearPopAndGoto;
 import static com.facebook.presto.sql.gen.BytecodeUtils.ifWasNullPopAndGoto;
 import static com.facebook.presto.sql.gen.BytecodeUtils.invoke;
 import static com.facebook.presto.sql.gen.BytecodeUtils.loadConstant;
@@ -279,7 +279,7 @@ public class InCodeGenerator
             Collection<BytecodeNode> testValues,
             boolean checkForNulls)
     {
-        Variable caseWasNull = null;
+        Variable caseWasNull = null; // caseWasNull is set to true the first time a null in `testValues` is encountered
         if (checkForNulls) {
             caseWasNull = scope.createTempVariable(boolean.class);
         }
@@ -319,15 +319,15 @@ public class InCodeGenerator
                     .append(testNode);
 
             if (checkForNulls) {
-                IfStatement caseWasNullCheck = new IfStatement("if one of the case arguments was null and not match than return null");
-                caseWasNullCheck.condition(wasNull);
-                caseWasNullCheck.ifTrue(new BytecodeBlock()
-                        .append(wasNull)
-                        .putVariable(caseWasNull)
-                );
-                test.condition()
-                        .append(caseWasNullCheck)
-                        .append(ifWasNullClearPopAndGoto(scope, elseLabel, void.class, type.getJavaType(), type.getJavaType()));
+                IfStatement wasNullCheck = new IfStatement("if wasNull, set caseWasNull to true, clear wasNull, pop 2 values of type, and goto next test value");
+                wasNullCheck.condition(wasNull);
+                wasNullCheck.ifTrue(new BytecodeBlock()
+                        .append(caseWasNull.set(constantTrue()))
+                        .append(wasNull.set(constantFalse()))
+                        .pop(type.getJavaType())
+                        .pop(type.getJavaType())
+                        .gotoLabel(elseLabel));
+                test.condition().append(wasNullCheck);
             }
             test.condition()
                     .append(invoke(equalsFunction, EQUAL.name()));

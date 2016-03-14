@@ -13,7 +13,6 @@
  */
 package com.facebook.presto.hive.metastore;
 
-import com.facebook.presto.spi.security.Identity;
 import org.apache.hadoop.hive.metastore.api.Database;
 import org.apache.hadoop.hive.metastore.api.Partition;
 import org.apache.hadoop.hive.metastore.api.PrivilegeGrantInfo;
@@ -76,7 +75,7 @@ public interface HiveMetastore
 
     Set<HivePrivilege> getTablePrivileges(String user, String databaseName, String tableName);
 
-    void grantTablePrivileges(String databaseName, String tableName, Identity identity, Set<PrivilegeGrantInfo> privilegeGrantInfoSet);
+    void grantTablePrivileges(String databaseName, String tableName, String grantee, Set<PrivilegeGrantInfo> privilegeGrantInfoSet);
 
     boolean hasPrivilegeWithGrantOptionOnTable(String user, String databaseName, String tableName, HivePrivilege hivePrivilege);
 

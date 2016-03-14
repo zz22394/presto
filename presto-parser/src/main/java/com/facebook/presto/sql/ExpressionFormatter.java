@@ -66,6 +66,7 @@ import com.facebook.presto.sql.tree.SubqueryExpression;
 import com.facebook.presto.sql.tree.SubscriptExpression;
 import com.facebook.presto.sql.tree.TimeLiteral;
 import com.facebook.presto.sql.tree.TimestampLiteral;
+import com.facebook.presto.sql.tree.TryExpression;
 import com.facebook.presto.sql.tree.WhenClause;
 import com.facebook.presto.sql.tree.Window;
 import com.facebook.presto.sql.tree.WindowFrame;
@@ -374,6 +375,12 @@ public final class ExpressionFormatter
             }
             builder.append(")");
             return builder.toString();
+        }
+
+        @Override
+        protected String visitTryExpression(TryExpression node, Boolean unmangleNames)
+        {
+            return "TRY(" + process(node.getInnerExpression(), unmangleNames) + ")";
         }
 
         @Override

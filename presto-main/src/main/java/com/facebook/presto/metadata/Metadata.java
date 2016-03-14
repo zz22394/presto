@@ -19,7 +19,6 @@ import com.facebook.presto.spi.ColumnMetadata;
 import com.facebook.presto.spi.Constraint;
 import com.facebook.presto.spi.block.BlockEncodingSerde;
 import com.facebook.presto.spi.predicate.TupleDomain;
-import com.facebook.presto.spi.security.Identity;
 import com.facebook.presto.spi.security.Privilege;
 import com.facebook.presto.spi.type.Type;
 import com.facebook.presto.spi.type.TypeManager;
@@ -237,7 +236,7 @@ public interface Metadata
     /**
      * Grants the specified privilege to the specified user on the specified table
      */
-    void grantTablePrivileges(Session session, QualifiedObjectName tableName, Set<Privilege> privileges, Identity identity, boolean grantOption);
+    void grantTablePrivileges(Session session, QualifiedObjectName tableName, Set<Privilege> privileges, String grantee, boolean grantOption);
 
     FunctionRegistry getFunctionRegistry();
 

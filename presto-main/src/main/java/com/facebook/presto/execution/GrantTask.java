@@ -18,14 +18,12 @@ import com.facebook.presto.metadata.Metadata;
 import com.facebook.presto.metadata.QualifiedObjectName;
 import com.facebook.presto.metadata.TableHandle;
 import com.facebook.presto.security.AccessControl;
-import com.facebook.presto.spi.security.Identity;
 import com.facebook.presto.spi.security.Privilege;
 import com.facebook.presto.sql.analyzer.SemanticException;
 import com.facebook.presto.sql.tree.Grant;
 import com.facebook.presto.transaction.TransactionManager;
+import com.google.common.collect.ImmutableSet;
 
-import java.security.Principal;
-import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -33,10 +31,11 @@ import java.util.concurrent.CompletableFuture;
 import static com.facebook.presto.metadata.MetadataUtil.createQualifiedObjectName;
 import static com.facebook.presto.sql.analyzer.SemanticErrorCode.INVALID_PRIVILEGE;
 import static com.facebook.presto.sql.analyzer.SemanticErrorCode.MISSING_TABLE;
+import static com.facebook.presto.util.ImmutableCollectors.toImmutableSet;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 
 public class GrantTask
-    implements DataDefinitionTask<Grant>
+        implements DataDefinitionTask<Grant>
 {
     @Override
     public String getName()
@@ -54,22 +53,34 @@ public class GrantTask
             throw new SemanticException(MISSING_TABLE, statement, "Table '%s' does not exist", tableName);
         }
 
-        Set<Privilege> privileges = new HashSet<>();
-
-        for (String privilege : statement.getPrivileges()) {
-            if (!Privilege.contains(privilege)) {
-                throw new SemanticException(INVALID_PRIVILEGE, statement, "Unknown privilege: '%s'", privilege);
-            }
-
-            accessControl.checkCanGrantTablePrivilege(session.getIdentity(), Enum.valueOf(Privilege.class, privilege), tableName);
-
-            privileges.add(Enum.valueOf(Privilege.class, privilege));
+        Set<Privilege> privileges;
+        if (statement.getPrivileges().isPresent()) {
+            privileges = statement.getPrivileges().get().stream()
+                    .map(privilege -> parsePrivilege(statement, privilege))
+                    .collect(toImmutableSet());
+        }
+        else {
+            // All privileges
+            privileges = ImmutableSet.copyOf(Privilege.values());
         }
 
-        Identity identity = new Identity(statement.getGrantee(), Optional.<Principal>empty());
+        // verify current identity has permissions to grant permissions
+        for (Privilege privilege : privileges) {
+            accessControl.checkCanGrantTablePrivilege(session.getIdentity(), privilege, tableName);
+        }
 
-        metadata.grantTablePrivileges(session, tableName, privileges, identity, statement.isWithGrantOption());
-
+        metadata.grantTablePrivileges(session, tableName, privileges, statement.getGrantee(), statement.isWithGrantOption());
         return completedFuture(null);
+    }
+
+    private static Privilege parsePrivilege(Grant statement, String privilegeString)
+    {
+        for (Privilege privilege : Privilege.values()) {
+            if (privilege.name().equalsIgnoreCase(privilegeString)) {
+                return privilege;
+            }
+        }
+
+        throw new SemanticException(INVALID_PRIVILEGE, statement, "Unknown privilege: '%s'", privilegeString);
     }
 }

@@ -16,6 +16,7 @@ package com.facebook.presto.metadata;
 import com.facebook.presto.operator.Description;
 import com.facebook.presto.operator.aggregation.InternalAggregationFunction;
 import com.facebook.presto.operator.scalar.JsonPath;
+import com.facebook.presto.operator.scalar.ReflectionParametricScalar;
 import com.facebook.presto.operator.scalar.ScalarFunction;
 import com.facebook.presto.operator.scalar.ScalarOperator;
 import com.facebook.presto.operator.window.ReflectionWindowFunctionSupplier;
@@ -242,13 +243,19 @@ public class FunctionListBuilder
 
     private FunctionListBuilder processScalarsInClass(Class<?> clazz)
     {
+        ScalarFunction scalarAnnotation = clazz.getAnnotation(ScalarFunction.class);
+        ScalarOperator operatorAnnotation = clazz.getAnnotation(ScalarOperator.class);
+        if (scalarAnnotation != null || operatorAnnotation != null) {
+            addFunction(ReflectionParametricScalar.parseDefinition(clazz));
+            return this;
+        }
         try {
             boolean foundOne = false;
             for (Method method : clazz.getMethods()) {
                 foundOne = processScalarFunction(method) || foundOne;
                 foundOne = processScalarOperator(method) || foundOne;
             }
-            checkArgument(foundOne, "Expected class %s to contain at least one method annotated with @%s", clazz.getName(), ScalarFunction.class.getSimpleName());
+            checkArgument(foundOne, "Expected class %s to be annotated with @%s, or contain at least one method annotated with @%s", clazz.getName(), ScalarFunction.class.getSimpleName(), ScalarFunction.class.getSimpleName());
         }
         catch (IllegalAccessException e) {
             throw Throwables.propagate(e);
