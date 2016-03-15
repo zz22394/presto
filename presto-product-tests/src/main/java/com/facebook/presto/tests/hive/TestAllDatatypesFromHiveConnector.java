@@ -202,6 +202,7 @@ public class TestAllDatatypesFromHiveConnector
 
     private void assertColumnTypes(QueryResult queryResult)
     {
+        Connection connection = defaultQueryExecutor().getConnection();
         assertThat(queryResult).hasColumns(
                 TINYINT,
                 SMALLINT,
