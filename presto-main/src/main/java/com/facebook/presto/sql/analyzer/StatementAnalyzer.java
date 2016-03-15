@@ -14,6 +14,7 @@
 package com.facebook.presto.sql.analyzer;
 
 import com.facebook.presto.Session;
+import com.facebook.presto.execution.StatementCreator;
 import com.facebook.presto.metadata.FunctionKind;
 import com.facebook.presto.metadata.Metadata;
 import com.facebook.presto.metadata.QualifiedObjectName;
@@ -38,6 +39,7 @@ import com.facebook.presto.spi.type.StandardTypes;
 import com.facebook.presto.spi.type.Type;
 import com.facebook.presto.spi.type.TypeSignature;
 import com.facebook.presto.sql.ExpressionUtils;
+import com.facebook.presto.sql.SqlFormatter;
 import com.facebook.presto.sql.parser.ParsingException;
 import com.facebook.presto.sql.parser.ParsingOptions;
 import com.facebook.presto.sql.parser.SqlParser;
@@ -53,12 +55,14 @@ import com.facebook.presto.sql.tree.Cast;
 import com.facebook.presto.sql.tree.ComparisonExpression;
 import com.facebook.presto.sql.tree.CreateTableAsSelect;
 import com.facebook.presto.sql.tree.CreateView;
+import com.facebook.presto.sql.tree.DataDefinitionStatement;
 import com.facebook.presto.sql.tree.DefaultTraversalVisitor;
 import com.facebook.presto.sql.tree.Delete;
 import com.facebook.presto.sql.tree.DereferenceExpression;
 import com.facebook.presto.sql.tree.DescribeInput;
 import com.facebook.presto.sql.tree.DescribeOutput;
 import com.facebook.presto.sql.tree.Except;
+import com.facebook.presto.sql.tree.Execute;
 import com.facebook.presto.sql.tree.Explain;
 import com.facebook.presto.sql.tree.ExplainFormat;
 import com.facebook.presto.sql.tree.ExplainOption;
@@ -822,6 +826,13 @@ class StatementAnalyzer
         return descriptor;
     }
 
+    @Override
+    protected RelationType visitDataDefinitionStatement(DataDefinitionStatement node, AnalysisContext context)
+    {
+        analysis.setRowCountQuery(true);
+        return new RelationType(Field.newUnqualified("rows", BIGINT));
+    }
+
     private static void validateColumns(Statement node, RelationType descriptor)
     {
         // verify that all column names are specified and unique
@@ -881,11 +892,20 @@ class StatementAnalyzer
     {
         switch (planFormat) {
             case GRAPHVIZ:
-                return queryExplainer.get().getGraphvizPlan(session, node.getStatement(), planType);
+                return queryExplainer.get().getGraphvizPlan(session, unwrapStatementToExplain(node), planType);
             case TEXT:
-                return queryExplainer.get().getPlan(session, node.getStatement(), planType);
+                return queryExplainer.get().getPlan(session, unwrapStatementToExplain(node), planType);
         }
         throw new IllegalArgumentException("Invalid Explain Format: " + planFormat.toString());
+    }
+
+    private Statement unwrapStatementToExplain(Explain node)
+    {
+        Statement statement = node.getStatement();
+        if (statement instanceof Execute) {
+            statement = new StatementCreator(sqlParser).createStatement(SqlFormatter.formatSql(statement), session);
+        }
+        return statement;
     }
 
     @Override
@@ -1852,7 +1872,8 @@ class StatementAnalyzer
                 .collect(toImmutableList());
 
         // is this an aggregation query?
-        if (!groupingSets.isEmpty()) {
+        // skip describe queries because if there are parameters involved we can't verify equality
+        if (!groupingSets.isEmpty() && !analysis.isDescribe()) {
             // ensure SELECT, ORDER BY and HAVING are constant with respect to group
             // e.g, these are all valid expressions:
             //     SELECT f(a) GROUP BY a

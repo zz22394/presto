@@ -3955,6 +3955,15 @@ public abstract class AbstractTestQueries
     }
 
     @Test
+    public void testExplainExecute()
+    {
+        Session session = getSession().withPreparedStatement("my_query", "SELECT * FROM orders");
+        String query = "EXECUTE my_query";
+        MaterializedResult result = computeActual(session, "EXPLAIN (TYPE LOGICAL) " + query);
+        assertEquals(getOnlyElement(result.getOnlyColumnAsSet()), getExplainPlan("SELECT * FROM orders", LOGICAL));
+    }
+
+    @Test
     public void testShowCatalogs()
             throws Exception
     {
@@ -5778,6 +5787,20 @@ public abstract class AbstractTestQueries
     }
 
     @Test
+    public void testExecuteWithGrouping()
+    {
+        String query = "SELECT a + ?, count(1) FROM (VALUES 1, 2, 3, 2) t(a) GROUP BY a + ? HAVING count(1) > ?";
+        Session session = getSession().withPreparedStatement("my_query", query);
+        MaterializedResult actual = computeActual(session, "EXECUTE my_query USING 1, 1, 0");
+        MaterializedResult expected = resultBuilder(session, BIGINT, VARCHAR)
+                .row(2, 1)
+                .row(3, 2)
+                .row(4, 1)
+                .build();
+        assertEqualsIgnoreOrder(actual, expected);
+    }
+
+    @Test
     public void testExecuteNoSuchQuery()
     {
         assertQueryFails("EXECUTE my_query", "Prepared statement not found: my_query");
@@ -5791,6 +5814,19 @@ public abstract class AbstractTestQueries
         MaterializedResult expected = resultBuilder(session, BIGINT, VARCHAR)
                 .row(0, "unknown")
                 .row(1, "bigint")
+                .build();
+        assertEqualsIgnoreOrder(actual, expected);
+    }
+
+    @Test
+    public void testDescribeInputParametersInGrouping()
+    {
+        Session session = getSession().withPreparedStatement("my_query", "select count(nationkey), regionkey + ? from nation group by regionkey + ? order by regionkey + ?");
+        MaterializedResult actual = computeActual(session, "DESCRIBE INPUT my_query");
+        MaterializedResult expected = resultBuilder(session, BIGINT, VARCHAR)
+                .row(0, "bigint")
+                .row(1, "bigint")
+                .row(2, "bigint")
                 .build();
         assertEqualsIgnoreOrder(actual, expected);
     }
@@ -5890,6 +5926,17 @@ public abstract class AbstractTestQueries
     public void testDescribeOutputRowCountQuery()
     {
         Session session = getSession().withPreparedStatement("my_query", "CREATE TABLE foo AS SELECT * FROM nation");
+        MaterializedResult actual = computeActual(session, "DESCRIBE OUTPUT my_query");
+        MaterializedResult expected = resultBuilder(session, VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, BIGINT, BOOLEAN, BOOLEAN)
+                .row(null, null, null, null, null, null, null, true)
+                .build();
+        assertEqualsIgnoreOrder(actual, expected);
+    }
+
+    @Test
+    public void testDescribeOutputDataDefinitionQuery()
+    {
+        Session session = getSession().withPreparedStatement("my_query", "SET SESSION optimize_hash_generation=false");
         MaterializedResult actual = computeActual(session, "DESCRIBE OUTPUT my_query");
         MaterializedResult expected = resultBuilder(session, VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, BIGINT, BOOLEAN, BOOLEAN)
                 .row(null, null, null, null, null, null, null, true)

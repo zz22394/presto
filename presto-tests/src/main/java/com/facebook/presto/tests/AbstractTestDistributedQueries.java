@@ -316,13 +316,14 @@ public abstract class AbstractTestDistributedQueries
         assertUpdate("INSERT INTO test_insert (orderdate) VALUES (DATE '2001-01-01')", 1);
         assertUpdate("INSERT INTO test_insert (orderkey, orderdate) VALUES (-2, DATE '2001-01-02')", 1);
         assertUpdate("INSERT INTO test_insert (orderdate, orderkey) VALUES (DATE '2001-01-03', -3)", 1);
+        assertUpdate("INSERT INTO test_insert (orderdate, orderkey) SELECT null, 2", 1);
 
         assertQuery("SELECT * FROM test_insert", query
                 + " UNION ALL SELECT null, -1"
                 + " UNION ALL SELECT DATE '2001-01-01', null"
                 + " UNION ALL SELECT DATE '2001-01-02', -2"
-                + " UNION ALL SELECT DATE '2001-01-03', -3");
-
+                + " UNION ALL SELECT DATE '2001-01-03', -3"
+                + " UNION ALL SELECT null, 2");
         assertUpdate("DROP TABLE test_insert");
     }
 
