@@ -151,6 +151,7 @@ import static com.facebook.presto.metadata.MetadataUtil.createQualifiedObjectNam
 import static com.facebook.presto.spi.StandardErrorCode.INVALID_FUNCTION_ARGUMENT;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
+import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
 import static com.facebook.presto.sql.QueryUtil.aliased;
 import static com.facebook.presto.sql.QueryUtil.aliasedName;
 import static com.facebook.presto.sql.QueryUtil.aliasedNullToEmpty;
@@ -204,6 +205,7 @@ import static com.facebook.presto.sql.tree.BooleanLiteral.FALSE_LITERAL;
 import static com.facebook.presto.sql.tree.BooleanLiteral.TRUE_LITERAL;
 import static com.facebook.presto.sql.tree.ComparisonExpression.Type.EQUAL;
 import static com.facebook.presto.sql.tree.ExplainFormat.Type.TEXT;
+import static com.facebook.presto.sql.tree.ExplainType.Type.DISTRIBUTED;
 import static com.facebook.presto.sql.tree.ExplainType.Type.LOGICAL;
 import static com.facebook.presto.sql.tree.FrameBound.Type.CURRENT_ROW;
 import static com.facebook.presto.sql.tree.FrameBound.Type.FOLLOWING;
@@ -856,6 +858,17 @@ class StatementAnalyzer
     protected RelationType visitExplain(Explain node, AnalysisContext context)
             throws SemanticException
     {
+        if (node.isAnalyze()) {
+            if (node.getOptions().stream().anyMatch(option -> !option.equals(new ExplainType(DISTRIBUTED)))) {
+                throw new SemanticException(NOT_SUPPORTED, node, "EXPLAIN ANALYZE only supports TYPE DISTRIBUTED option");
+            }
+            process(node.getStatement(), context);
+            analysis.setExplainAnalyze(node);
+            analysis.setUpdateType(null);
+            RelationType type = new RelationType(Field.newUnqualified("Query Plan", VARCHAR));
+            analysis.setOutputDescriptor(node, type);
+            return type;
+        }
         checkState(queryExplainer.isPresent(), "query explainer not available");
         ExplainType.Type planType = LOGICAL;
         ExplainFormat.Type planFormat = TEXT;

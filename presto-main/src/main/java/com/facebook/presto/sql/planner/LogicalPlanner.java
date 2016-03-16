@@ -28,12 +28,14 @@ import com.facebook.presto.sql.analyzer.RelationType;
 import com.facebook.presto.sql.planner.PartitionFunctionBinding.PartitionFunctionArgumentBinding;
 import com.facebook.presto.sql.planner.optimizations.PlanOptimizer;
 import com.facebook.presto.sql.planner.plan.DeleteNode;
+import com.facebook.presto.sql.planner.plan.ExplainAnalyzeNode;
 import com.facebook.presto.sql.planner.plan.LimitNode;
 import com.facebook.presto.sql.planner.plan.OutputNode;
 import com.facebook.presto.sql.planner.plan.PlanNode;
 import com.facebook.presto.sql.planner.plan.ProjectNode;
 import com.facebook.presto.sql.planner.plan.TableFinishNode;
 import com.facebook.presto.sql.planner.plan.TableWriterNode;
+import com.facebook.presto.sql.tree.Explain;
 import com.facebook.presto.sql.tree.Expression;
 import com.facebook.presto.sql.tree.NullLiteral;
 import com.google.common.collect.ImmutableList;
@@ -94,6 +96,14 @@ public class LogicalPlanner
         }
         else {
             plan = createRelationPlan(analysis);
+        }
+
+        if (analysis.getExplainAnalyze().isPresent()) {
+            Explain explainAnalyze = analysis.getExplainAnalyze().get();
+            RelationType descriptor = analysis.getOutputDescriptor(explainAnalyze);
+            Symbol outputSymbol = symbolAllocator.newSymbol(descriptor.getFieldByIndex(0));
+            ExplainAnalyzeNode root = new ExplainAnalyzeNode(idAllocator.getNextId(), plan.getRoot(), outputSymbol);
+            plan = new RelationPlan(root, descriptor, ImmutableList.of(outputSymbol), Optional.empty());
         }
 
         PlanNode root = createOutputPlan(plan, analysis);
