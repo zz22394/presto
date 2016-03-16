@@ -74,6 +74,7 @@ import com.facebook.presto.operator.scalar.MapNotEqualOperator;
 import com.facebook.presto.operator.scalar.MapToMapCast;
 import com.facebook.presto.operator.scalar.MapValues;
 import com.facebook.presto.operator.scalar.MathFunctions;
+import com.facebook.presto.operator.scalar.PrestoTypeOfFunction;
 import com.facebook.presto.operator.scalar.Re2JCastToRegexpFunction;
 import com.facebook.presto.operator.scalar.Re2JRegexpFunctions;
 import com.facebook.presto.operator.scalar.ScalarFunctionImplementation;
@@ -418,6 +419,7 @@ public class FunctionRegistry
                 .scalar(ArrayDistinctFunction.class)
                 .scalar(ArrayConcatFunction.class)
                 .scalar(ArrayNotEqualOperator.class)
+                .scalar(PrestoTypeOfFunction.class)
                 .scalar(ArrayEqualOperator.class)
                 .scalar(ArrayHashCodeOperator.class)
                 .scalar(ArrayIntersectFunction.class)
