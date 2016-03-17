@@ -291,6 +291,7 @@ public class PagesIndex
         int pageIndex = decodeSliceIndex(pageAddress);
         int pagePosition = decodePosition(pageAddress);
 
+        // hack null passed ass allBlocks as this is not needed for users of this method
         return pagesHashStrategy.positionEqualsRow(pageIndex, pagePosition, rowPosition, row);
     }
 
@@ -304,10 +305,15 @@ public class PagesIndex
 
     public LookupSource createLookupSource(List<Integer> joinChannels)
     {
-        return createLookupSource(joinChannels, Optional.empty());
+        return createLookupSource(joinChannels, Optional.empty(), Optional.empty());
     }
 
     public PagesHashStrategy createPagesHashStrategy(List<Integer> joinChannels, Optional<Integer> hashChannel)
+    {
+        return createPagesHashStrategy(joinChannels, hashChannel, Optional.empty());
+    }
+
+    public PagesHashStrategy createPagesHashStrategy(List<Integer> joinChannels, Optional<Integer> hashChannel, Optional<JoinFilterFunction> joinFilterFunction)
     {
         try {
             return joinCompiler.compilePagesHashStrategyFactory(types, joinChannels)
@@ -318,23 +324,26 @@ public class PagesIndex
         }
 
         // if compilation fails, use interpreter
-        return new SimplePagesHashStrategy(types, ImmutableList.<List<Block>>copyOf(channels), joinChannels, hashChannel);
+        return new SimplePagesHashStrategy(types, ImmutableList.<List<Block>>copyOf(channels), joinChannels, hashChannel, joinFilterFunction);
     }
 
-    public LookupSource createLookupSource(List<Integer> joinChannels, Optional<Integer> hashChannel)
+    public LookupSource createLookupSource(List<Integer> joinChannels, Optional<Integer> hashChannel, Optional<JoinFilterFunction> filterFunction)
     {
-        try {
-            LookupSourceFactory lookupSourceFactory = joinCompiler.compileLookupSourceFactory(types, joinChannels);
+        if (!filterFunction.isPresent()) {
+            // temporary hack
+            try {
+                LookupSourceFactory lookupSourceFactory = joinCompiler.compileLookupSourceFactory(types, joinChannels);
 
-            LookupSource lookupSource = lookupSourceFactory.createLookupSource(
-                    valueAddresses,
-                    ImmutableList.<List<Block>>copyOf(channels),
-                    hashChannel);
+                LookupSource lookupSource = lookupSourceFactory.createLookupSource(
+                        valueAddresses,
+                        ImmutableList.<List<Block>>copyOf(channels),
+                        hashChannel);
 
-            return lookupSource;
-        }
-        catch (Exception e) {
-            log.error(e, "Lookup source compile failed for types=%s error=%s", types, e);
+                return lookupSource;
+            }
+            catch (Exception e) {
+                log.error(e, "Lookup source compile failed for types=%s error=%s", types, e);
+            }
         }
 
         // if compilation fails
@@ -342,7 +351,8 @@ public class PagesIndex
                 types,
                 ImmutableList.<List<Block>>copyOf(channels),
                 joinChannels,
-                hashChannel);
+                hashChannel,
+                filterFunction);
 
         return new InMemoryJoinHash(valueAddresses, hashStrategy);
     }
