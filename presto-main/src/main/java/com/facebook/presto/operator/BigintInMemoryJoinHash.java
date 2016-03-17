@@ -150,22 +150,22 @@ public final class BigintInMemoryJoinHash
     }
 
     @Override
-    public long getJoinPosition(int position, Page page, int rawHash)
+    public long getJoinPosition(int position, Page hashChannelsPage, Page allChannelsPage, int rawHash)
     {
-        return getJoinPosition(position, page);
+        return getJoinPosition(position, hashChannelsPage, allChannelsPage);
     }
 
     @Override
-    public long getJoinPosition(int position, Page page)
+    public long getJoinPosition(int position, Page hashChannelsPage, Page allChannelsPage)
     {
         long probeValue;
         boolean isNull;
-        if (page.getBlock(0).isNull(position)) {
+        if (hashChannelsPage.getBlock(0).isNull(position)) {
             probeValue = Long.MIN_VALUE;
             isNull = true;
         }
         else {
-            probeValue = BIGINT.getLong(page.getBlock(0), position);
+            probeValue = BIGINT.getLong(hashChannelsPage.getBlock(0), position);
             isNull = false;
         }
         int hashPosition = getHashPosition(probeValue, mask);
@@ -184,7 +184,7 @@ public final class BigintInMemoryJoinHash
     }
 
     @Override
-    public final long getNextJoinPosition(long currentPosition)
+    public final long getNextJoinPosition(long currentPosition, int probePosition, Page allProbeChannelsPage)
     {
         if (!positionLinks.isPresent()) {
             return -1;
