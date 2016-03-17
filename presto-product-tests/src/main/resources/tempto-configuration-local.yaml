@@ -1,0 +1,8 @@
+
+databases:
+  hive:
+    host: hadoop-master
+
+  presto:
+    host: localhost
+

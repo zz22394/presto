@@ -74,18 +74,17 @@ public class PartitionedLookupSource
         return Arrays.stream(lookupSources).mapToDouble(LookupSource::getExpectedHashCollisions).sum();
     }
 
-    @Override
-    public long getJoinPosition(int position, Page page)
+    public long getJoinPosition(int position, Page hashChannelsPage, Page allChannelsPage)
     {
-        return getJoinPosition(position, page, hashGenerator.hashPosition(position, page));
+        return getJoinPosition(position, hashChannelsPage, allChannelsPage, hashGenerator.hashPosition(position, hashChannelsPage));
     }
 
     @Override
-    public long getJoinPosition(int position, Page page, int rawHash)
+    public long getJoinPosition(int position, Page hashChannelsPage, Page allChannelsPage, int rawHash)
     {
         int partition = murmurHash3(rawHash) & partitionMask;
         LookupSource lookupSource = lookupSources[partition];
-        long joinPosition = lookupSource.getJoinPosition(position, page, rawHash);
+        long joinPosition = lookupSource.getJoinPosition(position, hashChannelsPage, allChannelsPage, rawHash);
         if (joinPosition < 0) {
             return joinPosition;
         }
@@ -93,12 +92,12 @@ public class PartitionedLookupSource
     }
 
     @Override
-    public long getNextJoinPosition(long partitionedJoinPosition)
+    public long getNextJoinPosition(long currentJoinPosition, int probePosition, Page allProbeChannelsPage)
     {
-        int partition = (int) (partitionedJoinPosition & partitionMask);
-        long joinPosition = partitionedJoinPosition >>> lookupSources.length;
+        int partition = (int) (currentJoinPosition & partitionMask);
+        long joinPosition = currentJoinPosition >>> lookupSources.length;
         LookupSource lookupSource = lookupSources[partition];
-        long nextJoinPosition = lookupSource.getNextJoinPosition(joinPosition);
+        long nextJoinPosition = lookupSource.getNextJoinPosition(joinPosition, probePosition, allProbeChannelsPage);
         if (nextJoinPosition < 0) {
             return nextJoinPosition;
         }
