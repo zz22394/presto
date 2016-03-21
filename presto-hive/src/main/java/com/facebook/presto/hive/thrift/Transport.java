@@ -13,6 +13,7 @@
  */
 package com.facebook.presto.hive.thrift;
 
+import com.facebook.presto.hive.authentication.HiveMetastoreAuthentication;
 import com.google.common.net.HostAndPort;
 import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
@@ -27,11 +28,14 @@ import java.net.SocketAddress;
 
 public final class Transport
 {
-    public static TTransport create(String host, int port, HostAndPort socksProxy, int timeoutMillis)
+    public static TTransport create(String host, int port, HostAndPort socksProxy, int timeoutMillis, HiveMetastoreAuthentication authentication)
             throws TTransportException
     {
         try {
-            return new TTransportWrapper(createRaw(host, port, socksProxy, timeoutMillis), host);
+            TTransport rawTransport = createRaw(host, port, socksProxy, timeoutMillis);
+            TTransport authenticatedTransport = authentication.authenticate(rawTransport, host);
+            authenticatedTransport.open();
+            return new TTransportWrapper(authenticatedTransport, host);
         }
         catch (TTransportException e) {
             throw rewriteException(e, host);
@@ -44,16 +48,7 @@ public final class Transport
             throws TTransportException
     {
         if (socksProxy == null) {
-            TTransport transport = new TSocket(host, port, timeoutMillis);
-
-            try {
-                transport.open();
-                return transport;
-            }
-            catch (Throwable t) {
-                transport.close();
-                throw t;
-            }
+            return new TSocket(host, port, timeoutMillis);
         }
 
         Socket socks = createSocksSocket(socksProxy);
