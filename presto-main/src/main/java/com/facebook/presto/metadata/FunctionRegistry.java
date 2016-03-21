@@ -221,6 +221,7 @@ import static com.facebook.presto.operator.scalar.MathFunctions.DECIMAL_CEILING_
 import static com.facebook.presto.operator.scalar.MathFunctions.DECIMAL_FLOOR_FUNCTION;
 import static com.facebook.presto.operator.scalar.MathFunctions.DECIMAL_MOD_FUNCTION;
 import static com.facebook.presto.operator.scalar.MathFunctions.DECIMAL_ROUND_FUNCTIONS;
+import static com.facebook.presto.operator.scalar.MathFunctions.DECIMAL_TRUNCATE_FUNCTION;
 import static com.facebook.presto.operator.scalar.Re2JCastToRegexpFunction.castCharToRe2JRegexp;
 import static com.facebook.presto.operator.scalar.Re2JCastToRegexpFunction.castVarcharToRe2JRegexp;
 import static com.facebook.presto.operator.scalar.RowEqualOperator.ROW_EQUAL;
@@ -530,7 +531,8 @@ public class FunctionRegistry
                 .functions(DECIMAL_CEILING_FUNCTIONS)
                 .function(DECIMAL_FLOOR_FUNCTION)
                 .function(DECIMAL_MOD_FUNCTION)
-                .functions(DECIMAL_ROUND_FUNCTIONS);
+                .functions(DECIMAL_ROUND_FUNCTIONS)
+                .function(DECIMAL_TRUNCATE_FUNCTION);
 
         switch (featuresConfig.getRegexLibrary()) {
             case JONI:
