@@ -62,6 +62,7 @@ import static java.math.BigInteger.ZERO;
 
 public final class MathFunctions
 {
+    public static final SqlScalarFunction DECIMAL_TRUNCATE_FUNCTION = decimalTruncateNFunction();
     public static final SqlScalarFunction[] DECIMAL_CEILING_FUNCTIONS = {decimalCeilingFunction("ceiling"), decimalCeilingFunction("ceil")};
     public static final SqlScalarFunction DECIMAL_FLOOR_FUNCTION = decimalFloorFunction();
     public static final SqlScalarFunction DECIMAL_MOD_FUNCTION = decimalModFunction();
@@ -837,9 +838,8 @@ public final class MathFunctions
         Signature signature = Signature.builder()
                 .kind(SCALAR)
                 .name("truncate")
-                .literalParameters("num_precision", "num_scale")
-                .argumentTypes("decimal(num_precision,num_scale)", BIGINT)
-                .returnType("decimal(num_precision,num_scale)")
+                .argumentTypes(parseTypeSignature("decimal(num_precision,num_scale)", ImmutableSet.of("num_precision", "num_scale")), parseTypeSignature(BIGINT))
+                .returnType(parseTypeSignature("decimal(num_precision,num_scale)", ImmutableSet.of("num_precision", "num_scale")))
                 .build();
         return SqlScalarFunction.builder(MathFunctions.class)
                 .signature(signature)
