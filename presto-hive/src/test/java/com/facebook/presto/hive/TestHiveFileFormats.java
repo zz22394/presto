@@ -112,7 +112,7 @@ public class TestHiveFileFormats
         File file = File.createTempFile("presto_test", "rc-text");
         try {
             FileSplit split = createTestFile(file.getAbsolutePath(), outputFormat, serde, null, testColumns, NUM_ROWS);
-            testCursorProvider(new ColumnarTextHiveRecordCursorProvider(), split, inputFormat, serde, testColumns, NUM_ROWS);
+            testCursorProvider(new ColumnarTextHiveRecordCursorProvider(HDFS_ENVIRONMENT), split, inputFormat, serde, testColumns, NUM_ROWS);
             testCursorProvider(new GenericHiveRecordCursorProvider(), split, inputFormat, serde, testColumns, NUM_ROWS);
         }
         finally {
@@ -157,7 +157,7 @@ public class TestHiveFileFormats
         File file = File.createTempFile("presto_test", "rc-binary");
         try {
             FileSplit split = createTestFile(file.getAbsolutePath(), outputFormat, serde, null, testColumns, NUM_ROWS);
-            testCursorProvider(new ColumnarBinaryHiveRecordCursorProvider(), split, inputFormat, serde, testColumns, NUM_ROWS);
+            testCursorProvider(new ColumnarBinaryHiveRecordCursorProvider(HDFS_ENVIRONMENT), split, inputFormat, serde, testColumns, NUM_ROWS);
             testCursorProvider(new GenericHiveRecordCursorProvider(), split, inputFormat, serde, testColumns, NUM_ROWS);
         }
         finally {
