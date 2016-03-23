@@ -237,25 +237,33 @@ public class HivePageSink
     @Override
     public Collection<Slice> finish()
     {
-        ImmutableList.Builder<Slice> partitionUpdates = ImmutableList.builder();
-        for (HiveRecordWriter writer : writers) {
-            if (writer != null) {
-                writer.commit();
-                PartitionUpdate partitionUpdate = writer.getPartitionUpdate();
-                partitionUpdates.add(wrappedBuffer(partitionUpdateCodec.toJsonBytes(partitionUpdate)));
+        // Must be wrapped in doAs entirely
+        // Implicit FileSystem initializations are possible in HiveRecordWriter#commit -> RecordWriter#close
+        return hdfsEnvironment.doAs(session.getUser(), () -> {
+            ImmutableList.Builder<Slice> partitionUpdates = ImmutableList.builder();
+            for (HiveRecordWriter writer : writers) {
+                if (writer != null) {
+                    writer.commit();
+                    PartitionUpdate partitionUpdate = writer.getPartitionUpdate();
+                    partitionUpdates.add(wrappedBuffer(partitionUpdateCodec.toJsonBytes(partitionUpdate)));
+                }
             }
-        }
-        return partitionUpdates.build();
+            return partitionUpdates.build();
+        });
     }
 
     @Override
     public void abort()
     {
-        for (HiveRecordWriter writer : writers) {
-            if (writer != null) {
-                writer.rollback();
+        // Must be wrapped in doAs entirely
+        // Implicit FileSystem initializations are possible in HiveRecordWriter#rollback -> RecordWriter#close
+        hdfsEnvironment.doAs(session.getUser(), () -> {
+            for (HiveRecordWriter writer : writers) {
+                if (writer != null) {
+                    writer.rollback();
+                }
             }
-        }
+        });
     }
 
     @Override
@@ -276,20 +284,25 @@ public class HivePageSink
             writers = Arrays.copyOf(writers, pageIndexer.getMaxIndex() + 1);
         }
 
-        for (int position = 0; position < page.getPositionCount(); position++) {
-            int writerIndex = indexes[position];
-            HiveRecordWriter writer = writers[writerIndex];
-            if (writer == null) {
-                for (int field = 0; field < partitionBlocks.length; field++) {
-                    Object value = getField(partitionColumnTypes.get(field), partitionBlocks[field], position);
-                    partitionRow.set(field, value);
+        // Must be wrapped in doAs entirely
+        // Implicit FileSystem initializations are possible in HiveRecordWriter#addRow or #createWriter
+        hdfsEnvironment.doAs(session.getUser(), () -> {
+            for (int position = 0; position < page.getPositionCount(); position++) {
+                int writerIndex = indexes[position];
+                HiveRecordWriter writer = writers[writerIndex];
+                if (writer == null) {
+                    for (int field = 0; field < partitionBlocks.length; field++) {
+                        Object value = getField(partitionColumnTypes.get(field), partitionBlocks[field], position);
+                        partitionRow.set(field, value);
+                    }
+                    writer = createWriter(partitionRow);
+                    writers[writerIndex] = writer;
                 }
-                writer = createWriter(partitionRow);
-                writers[writerIndex] = writer;
-            }
 
-            writer.addRow(dataBlocks, position);
-        }
+                writer.addRow(dataBlocks, position);
+            }
+        });
+
         return NOT_BLOCKED;
     }
 
