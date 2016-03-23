@@ -13,6 +13,7 @@
  */
 package com.facebook.presto.hive.parquet;
 
+import com.facebook.presto.hive.HdfsEnvironment;
 import com.facebook.presto.hive.HiveClientConfig;
 import com.facebook.presto.hive.HiveColumnHandle;
 import com.facebook.presto.hive.HivePageSourceFactory;
@@ -28,6 +29,7 @@ import com.facebook.presto.spi.type.TypeManager;
 import com.facebook.presto.spi.type.TypeSignature;
 import com.google.common.collect.ImmutableSet;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.joda.time.DateTimeZone;
 import parquet.hadoop.metadata.BlockMetaData;
@@ -75,17 +77,19 @@ public class ParquetPageSourceFactory
 
     private final TypeManager typeManager;
     private final boolean useParquetColumnNames;
+    private final HdfsEnvironment hdfsEnvironment;
 
     @Inject
-    public ParquetPageSourceFactory(TypeManager typeManager, HiveClientConfig config)
+    public ParquetPageSourceFactory(TypeManager typeManager, HiveClientConfig config, HdfsEnvironment hdfsEnvironment)
     {
-        this(typeManager, requireNonNull(config, "hiveClientConfig is null").isUseParquetColumnNames());
+        this(typeManager, requireNonNull(config, "hiveClientConfig is null").isUseParquetColumnNames(), hdfsEnvironment);
     }
 
-    public ParquetPageSourceFactory(TypeManager typeManager, boolean useParquetColumnNames)
+    public ParquetPageSourceFactory(TypeManager typeManager, boolean useParquetColumnNames, HdfsEnvironment hdfsEnvironment)
     {
         this.typeManager = requireNonNull(typeManager, "typeManager is null");
         this.useParquetColumnNames = useParquetColumnNames;
+        this.hdfsEnvironment = requireNonNull(hdfsEnvironment, "hdfsEnvironment is null");
     }
 
     @Override
@@ -114,6 +118,8 @@ public class ParquetPageSourceFactory
         }
 
         return Optional.of(createParquetPageSource(
+                hdfsEnvironment,
+                session.getUser(),
                 configuration,
                 path,
                 start,
@@ -129,6 +135,8 @@ public class ParquetPageSourceFactory
     }
 
     public static ParquetPageSource createParquetPageSource(
+            HdfsEnvironment hdfsEnvironment,
+            String user,
             Configuration configuration,
             Path path,
             long start,
@@ -142,9 +150,11 @@ public class ParquetPageSourceFactory
             boolean predicatePushdownEnabled,
             TupleDomain<HiveColumnHandle> effectivePredicate)
     {
-        ParquetDataSource dataSource = buildHdfsParquetDataSource(path, configuration, start, length);
+        ParquetDataSource dataSource = null;
         try {
-            ParquetMetadata parquetMetadata = ParquetMetadataReader.readFooter(configuration, path);
+            FileSystem fileSystem = hdfsEnvironment.getFileSystem(user, path, configuration);
+            dataSource = buildHdfsParquetDataSource(fileSystem, path, start, length);
+            ParquetMetadata parquetMetadata = ParquetMetadataReader.readFooter(fileSystem, path);
             FileMetaData fileMetaData = parquetMetadata.getFileMetaData();
             MessageType fileSchema = fileMetaData.getSchema();
 
@@ -166,8 +176,9 @@ public class ParquetPageSourceFactory
 
             if (predicatePushdownEnabled) {
                 ParquetPredicate parquetPredicate = buildParquetPredicate(columns, effectivePredicate, fileMetaData.getSchema(), typeManager);
+                final ParquetDataSource finalDataSource = dataSource;
                 blocks = blocks.stream()
-                        .filter(block -> predicateMatches(parquetPredicate, block, configuration, dataSource, requestedSchema, effectivePredicate))
+                        .filter(block -> predicateMatches(parquetPredicate, block, configuration, finalDataSource, requestedSchema, effectivePredicate))
                         .collect(toList());
             }
 
@@ -195,7 +206,9 @@ public class ParquetPageSourceFactory
         }
         catch (Exception e) {
             try {
-                dataSource.close();
+                if (dataSource != null) {
+                    dataSource.close();
+                }
             }
             catch (IOException ignored) {
             }
