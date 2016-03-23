@@ -16,6 +16,7 @@ package com.facebook.presto.hive;
 import com.facebook.presto.hive.HiveWriteUtils.FieldSetter;
 import com.facebook.presto.hive.metastore.HiveMetastore;
 import com.facebook.presto.spi.ConnectorPageSink;
+import com.facebook.presto.spi.ConnectorSession;
 import com.facebook.presto.spi.Page;
 import com.facebook.presto.spi.PageIndexer;
 import com.facebook.presto.spi.PageIndexerFactory;
@@ -126,6 +127,8 @@ public class HivePageSink
     private final boolean immutablePartitions;
     private final boolean compress;
 
+    private final ConnectorSession session;
+
     private HiveRecordWriter[] writers = new HiveRecordWriter[0];
 
     public HivePageSink(
@@ -145,7 +148,8 @@ public class HivePageSink
             int maxOpenPartitions,
             boolean immutablePartitions,
             boolean compress,
-            JsonCodec<PartitionUpdate> partitionUpdateCodec)
+            JsonCodec<PartitionUpdate> partitionUpdateCodec,
+            ConnectorSession session)
     {
         this.schemaName = requireNonNull(schemaName, "schemaName is null");
         this.tableName = requireNonNull(tableName, "tableName is null");
@@ -226,6 +230,8 @@ public class HivePageSink
             Path hdfsEnvironmentPath = locationService.writePathRoot(locationHandle).orElseGet(() -> locationService.targetPathRoot(locationHandle));
             conf = new JobConf(hdfsEnvironment.getConfiguration(hdfsEnvironmentPath));
         }
+
+        this.session = requireNonNull(session, "session is null");
     }
 
     @Override
@@ -334,7 +340,7 @@ public class HivePageSink
                 if (partitionName.isPresent() && !target.equals(write)) {
                     // When target path is different from write path,
                     // verify that the target directory for the partition does not already exist
-                    if (HiveWriteUtils.pathExists(hdfsEnvironment, target)) {
+                    if (HiveWriteUtils.pathExists(session.getUser(), hdfsEnvironment, target)) {
                         throw new PrestoException(HIVE_PATH_ALREADY_EXISTS, format("Target directory for new partition '%s' of table '%s.%s' already exists: %s",
                                 partitionName,
                                 schemaName,

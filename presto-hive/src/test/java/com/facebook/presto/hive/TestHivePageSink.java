@@ -14,6 +14,7 @@
 package com.facebook.presto.hive;
 
 import com.facebook.presto.GroupByHashPageIndexerFactory;
+import com.facebook.presto.hive.authentication.SimpleHdfsAuthentication;
 import com.facebook.presto.hive.metastore.HiveMetastore;
 import com.facebook.presto.hive.metastore.InMemoryHiveMetastore;
 import com.facebook.presto.spi.ConnectorPageSink;
@@ -249,6 +250,6 @@ public class TestHivePageSink
 
     private static HdfsEnvironment createHdfsEnvironment(HiveClientConfig config)
     {
-        return new HdfsEnvironment(new HiveHdfsConfiguration(new HdfsConfigurationUpdater(config)), config);
+        return new HdfsEnvironment(new HiveHdfsConfiguration(new HdfsConfigurationUpdater(config)), config, new SimpleHdfsAuthentication());
     }
 }
