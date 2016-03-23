@@ -61,6 +61,7 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.TimeZone;
 
+import static com.facebook.presto.hive.HiveTestUtils.HDFS_ENVIRONMENT;
 import static com.facebook.presto.hive.HiveTestUtils.SESSION;
 import static com.facebook.presto.hive.HiveTestUtils.TYPE_MANAGER;
 import static com.facebook.presto.hive.HiveTestUtils.getTypes;
@@ -132,7 +133,7 @@ public class TestHiveFileFormats
         file.delete();
         try {
             FileSplit split = createTestFile(file.getAbsolutePath(), outputFormat, serde, null, TEST_COLUMNS, NUM_ROWS);
-            testPageSourceFactory(new RcFilePageSourceFactory(TYPE_MANAGER), split, inputFormat, serde, TEST_COLUMNS);
+            testPageSourceFactory(new RcFilePageSourceFactory(TYPE_MANAGER, HDFS_ENVIRONMENT), split, inputFormat, serde, TEST_COLUMNS);
         }
         finally {
             //noinspection ResultOfMethodCallIgnored
@@ -177,7 +178,7 @@ public class TestHiveFileFormats
         file.delete();
         try {
             FileSplit split = createTestFile(file.getAbsolutePath(), outputFormat, serde, null, TEST_COLUMNS, NUM_ROWS);
-            testPageSourceFactory(new RcFilePageSourceFactory(TYPE_MANAGER), split, inputFormat, serde, TEST_COLUMNS);
+            testPageSourceFactory(new RcFilePageSourceFactory(TYPE_MANAGER, HDFS_ENVIRONMENT), split, inputFormat, serde, TEST_COLUMNS);
         }
         finally {
             //noinspection ResultOfMethodCallIgnored
@@ -197,7 +198,7 @@ public class TestHiveFileFormats
         file.delete();
         try {
             FileSplit split = createTestFile(file.getAbsolutePath(), outputFormat, serde, null, TEST_COLUMNS, NUM_ROWS);
-            testPageSourceFactory(new OrcPageSourceFactory(TYPE_MANAGER, false), split, inputFormat, serde, TEST_COLUMNS);
+            testPageSourceFactory(new OrcPageSourceFactory(TYPE_MANAGER, false, HDFS_ENVIRONMENT), split, inputFormat, serde, TEST_COLUMNS);
         }
         finally {
             //noinspection ResultOfMethodCallIgnored
@@ -220,7 +221,7 @@ public class TestHiveFileFormats
             // Reverse the order of the columns to test access by name, not by index
             List<TestColumn> reversedColumns = Lists.reverse(TEST_COLUMNS);
             TestingConnectorSession session = new TestingConnectorSession(new HiveSessionProperties(new HiveClientConfig()).getSessionProperties());
-            testPageSourceFactory(new OrcPageSourceFactory(TYPE_MANAGER, true), split, inputFormat, serde, reversedColumns, session);
+            testPageSourceFactory(new OrcPageSourceFactory(TYPE_MANAGER, true, HDFS_ENVIRONMENT), split, inputFormat, serde, reversedColumns, session);
         }
         finally {
             //noinspection ResultOfMethodCallIgnored
@@ -242,7 +243,7 @@ public class TestHiveFileFormats
         file.delete();
         try {
             FileSplit split = createTestFile(file.getAbsolutePath(), outputFormat, serde, null, testColumns, NUM_ROWS);
-            HiveRecordCursorProvider cursorProvider = new ParquetRecordCursorProvider(false);
+            HiveRecordCursorProvider cursorProvider = new ParquetRecordCursorProvider(false, HDFS_ENVIRONMENT);
             testCursorProvider(cursorProvider, split, inputFormat, serde, testColumns, NUM_ROWS);
         }
         finally {
@@ -267,7 +268,7 @@ public class TestHiveFileFormats
         try {
             FileSplit split = createTestFile(file.getAbsolutePath(), outputFormat, serde, null, writeColumns, NUM_ROWS);
             //use parquet name-based access
-            HiveRecordCursorProvider cursorProvider = new ParquetRecordCursorProvider(true);
+            HiveRecordCursorProvider cursorProvider = new ParquetRecordCursorProvider(true, HDFS_ENVIRONMENT);
             testCursorProvider(cursorProvider, split, inputFormat, serde, readColumns, NUM_ROWS);
         }
         finally {
@@ -295,7 +296,7 @@ public class TestHiveFileFormats
             FileSplit split = createTestFile(file.getAbsolutePath(), outputFormat, serde, null, testColumns, NUM_ROWS);
             TestingConnectorSession session = new TestingConnectorSession(
                     new HiveSessionProperties(new HiveClientConfig().setParquetOptimizedReaderEnabled(true)).getSessionProperties());
-            testPageSourceFactory(new ParquetPageSourceFactory(TYPE_MANAGER, false), split, inputFormat, serde, testColumns, session);
+            testPageSourceFactory(new ParquetPageSourceFactory(TYPE_MANAGER, false, HDFS_ENVIRONMENT), split, inputFormat, serde, testColumns, session);
         }
         finally {
             //noinspection ResultOfMethodCallIgnored
@@ -319,7 +320,7 @@ public class TestHiveFileFormats
             FileSplit split = createTestFile(file.getAbsolutePath(), outputFormat, serde, null, testColumns, NUM_ROWS);
             // Reverse the order of the columns to test access by name, not by index
             Collections.reverse(testColumns);
-            HiveRecordCursorProvider cursorProvider = new ParquetRecordCursorProvider(true);
+            HiveRecordCursorProvider cursorProvider = new ParquetRecordCursorProvider(true, HDFS_ENVIRONMENT);
             testCursorProvider(cursorProvider, split, inputFormat, serde, testColumns, NUM_ROWS);
         }
         finally {
@@ -387,7 +388,7 @@ public class TestHiveFileFormats
         SerDe serde = new ParquetHiveSerDe();
         File file = new File(this.getClass().getClassLoader().getResource("addressbook.parquet").getPath());
         FileSplit split = new FileSplit(new Path(file.getAbsolutePath()), 0, file.length(), new String[0]);
-        HiveRecordCursorProvider cursorProvider = new ParquetRecordCursorProvider(false);
+        HiveRecordCursorProvider cursorProvider = new ParquetRecordCursorProvider(false, HDFS_ENVIRONMENT);
         testCursorProvider(cursorProvider, split, inputFormat, serde, testColumns, 1);
     }
 
@@ -408,7 +409,7 @@ public class TestHiveFileFormats
         file.delete();
         try {
             FileSplit split = createTestFile(file.getAbsolutePath(), outputFormat, serde, null, testColumns, NUM_ROWS);
-            testPageSourceFactory(new DwrfPageSourceFactory(TYPE_MANAGER), split, inputFormat, serde, testColumns);
+            testPageSourceFactory(new DwrfPageSourceFactory(TYPE_MANAGER, HDFS_ENVIRONMENT), split, inputFormat, serde, testColumns);
         }
         finally {
             //noinspection ResultOfMethodCallIgnored

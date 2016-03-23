@@ -14,7 +14,6 @@
 package com.facebook.presto.hive;
 
 import com.facebook.presto.GroupByHashPageIndexerFactory;
-import com.facebook.presto.hive.authentication.SimpleHdfsAuthentication;
 import com.facebook.presto.hive.metastore.HiveMetastore;
 import com.facebook.presto.hive.metastore.InMemoryHiveMetastore;
 import com.facebook.presto.spi.ConnectorPageSink;
@@ -193,7 +192,7 @@ public class TestHivePageSink
         splitProperties.setProperty("columns", Joiner.on(',').join(getColumnHandles().stream().map(HiveColumnHandle::getName).collect(toList())));
         splitProperties.setProperty("columns.types", Joiner.on(',').join(getColumnHandles().stream().map(HiveColumnHandle::getHiveType).map(HiveType::getHiveTypeName).collect(toList())));
         HiveSplit split = new HiveSplit(CLIENT_ID, SCHEMA_NAME, TABLE_NAME, "", "file:///" + outputFile.getAbsolutePath(), 0, outputFile.length(), splitProperties, ImmutableList.of(), ImmutableList.of(), false, TupleDomain.all());
-        HivePageSourceProvider provider = new HivePageSourceProvider(config, createHdfsEnvironment(config), getDefaultHiveRecordCursorProvider(config), getDefaultHiveDataStreamFactories(config), TYPE_MANAGER);
+        HivePageSourceProvider provider = new HivePageSourceProvider(config, HiveTestUtils.createTestHdfsEnvironment(config), getDefaultHiveRecordCursorProvider(config), getDefaultHiveDataStreamFactories(config), TYPE_MANAGER);
         return provider.createPageSource(transaction, getSession(config), split, ImmutableList.copyOf(getColumnHandles()));
     }
 
@@ -202,7 +201,7 @@ public class TestHivePageSink
         LocationHandle locationHandle = new LocationHandle(outputPath, Optional.of(outputPath), false);
         HiveOutputTableHandle handle = new HiveOutputTableHandle(CLIENT_ID, SCHEMA_NAME, TABLE_NAME, getColumnHandles(), "test", locationHandle, config.getHiveStorageFormat(), config.getHiveStorageFormat(), ImmutableList.of(), "test", ImmutableMap.of());
         JsonCodec<PartitionUpdate> partitionUpdateCodec = JsonCodec.jsonCodec(PartitionUpdate.class);
-        HdfsEnvironment hdfsEnvironment = createHdfsEnvironment(config);
+        HdfsEnvironment hdfsEnvironment = HiveTestUtils.createTestHdfsEnvironment(config);
         HivePageSinkProvider provider = new HivePageSinkProvider(hdfsEnvironment, metastore, new GroupByHashPageIndexerFactory(), TYPE_MANAGER, config, new HiveLocationService(metastore, hdfsEnvironment), partitionUpdateCodec);
         return provider.createPageSink(transaction, getSession(config), handle);
     }
@@ -246,10 +245,5 @@ public class TestHivePageSink
             default:
                 throw new UnsupportedOperationException();
         }
-    }
-
-    private static HdfsEnvironment createHdfsEnvironment(HiveClientConfig config)
-    {
-        return new HdfsEnvironment(new HiveHdfsConfiguration(new HdfsConfigurationUpdater(config)), config, new SimpleHdfsAuthentication());
     }
 }
