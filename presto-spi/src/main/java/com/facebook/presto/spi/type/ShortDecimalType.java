@@ -60,7 +60,7 @@ public final class ShortDecimalType
     }
 
     @Override
-    public int hash(Block block, int position)
+    public long hash(Block block, int position)
     {
         return Long.hashCode(block.getLong(position, 0));
     }
