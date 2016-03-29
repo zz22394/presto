@@ -4,18 +4,21 @@ Teradata Additions
 
 The following are additions that Teradata has added to Facebook's 0.127 release of presto
 
-General Fixes
--------------
+Prepared Statements
+-------------------
+Add support for Prepared statements and parameters via sql syntax.
 
-* Remove buggy optimization to prune redundant projections because it produced wrong results.
+    * :ref:`prepare`
+    * :ref:`deallocate-prepare`
+    * :ref:`execute`
+    * :ref:`describe-input`
+    * :ref:`describe-output`
 
-Datatypes
----------
 
-* Experimental support for the decimal datatype
-
-RPM Fixes
----------
-* The presto rpm now works with all versions of rpm after and including 4.6.  And has a separate rpm
-  for rpm versions before 4.6
-* Fix rpm upgrade
+Regular Expressions
+-------------------
+Add support for running regular expression functions using the more efficent re2j-td library by setting the session
+variable ``regex_library`` to RE2J.  The memory footprint can be adjusted by setting ``re2j_dfa_states_limit``.
+Additionally, the number of times the re2j library falls back from its DFA algorithm to the NFA algorithm (due to
+hitting the states limit) before immediately starting with the NFA algorithm can be set with the ``re2j_dfa_retries``
+session variable.
