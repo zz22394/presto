@@ -32,6 +32,7 @@ import org.apache.hadoop.hive.serde2.typeinfo.MapTypeInfo;
 import org.apache.hadoop.hive.serde2.typeinfo.PrimitiveTypeInfo;
 import org.apache.hadoop.hive.serde2.typeinfo.StructTypeInfo;
 import org.apache.hadoop.hive.serde2.typeinfo.TypeInfo;
+import org.apache.hadoop.hive.serde2.typeinfo.VarcharTypeInfo;
 
 import javax.annotation.Nonnull;
 
@@ -49,7 +50,8 @@ import static com.facebook.presto.spi.type.DecimalType.createDecimalType;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
 import static com.facebook.presto.spi.type.TimestampType.TIMESTAMP;
 import static com.facebook.presto.spi.type.VarbinaryType.VARBINARY;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
+import static com.facebook.presto.spi.type.VarcharType.createVarcharType;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
@@ -265,7 +267,6 @@ public final class HiveType
     {
         switch (typeInfo.getCategory()) {
             case PRIMITIVE:
-                PrimitiveObjectInspector.PrimitiveCategory primitiveCategory = ((PrimitiveTypeInfo) typeInfo).getPrimitiveCategory();
                 Type primitiveType = getPrimitiveType((PrimitiveTypeInfo) typeInfo);
                 if (primitiveType == null) {
                     break;
@@ -295,9 +296,10 @@ public final class HiveType
         throw new PrestoException(NOT_SUPPORTED, format("Unsupported Hive type: %s", typeInfo));
     }
 
-    public static Type getPrimitiveType(PrimitiveTypeInfo typeInfo)
+    private static Type getPrimitiveType(PrimitiveTypeInfo primitiveTypeInfo)
     {
-        switch (typeInfo.getPrimitiveCategory()) {
+        PrimitiveObjectInspector.PrimitiveCategory primitiveCategory = primitiveTypeInfo.getPrimitiveCategory();
+        switch (primitiveCategory) {
             case BOOLEAN:
                 return BOOLEAN;
             case BYTE:
@@ -313,9 +315,9 @@ public final class HiveType
             case DOUBLE:
                 return DOUBLE;
             case STRING:
-                return VARCHAR;
+                return createUnboundedVarcharType();
             case VARCHAR:
-                return VARCHAR;
+                return createVarcharType(((VarcharTypeInfo) primitiveTypeInfo).getLength());
             case DATE:
                 return DATE;
             case TIMESTAMP:
@@ -323,7 +325,7 @@ public final class HiveType
             case BINARY:
                 return VARBINARY;
             case DECIMAL:
-                DecimalTypeInfo decimalTypeInfo = (DecimalTypeInfo) typeInfo;
+                DecimalTypeInfo decimalTypeInfo = (DecimalTypeInfo) primitiveTypeInfo;
                 return createDecimalType(decimalTypeInfo.precision(), decimalTypeInfo.scale());
             default:
                 return null;
