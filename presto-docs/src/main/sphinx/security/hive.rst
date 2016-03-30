@@ -42,7 +42,7 @@ properties file using the following properties:
 ================================================== ============================================================ ==========
 Property Name                                      Description                                                  Default
 ================================================== ============================================================ ==========
-``hive.metastore.authentication.type``             One of ``SIMPLE`` or ``SASL``.  When using the default value ``SIMPLE`` 
+``hive.metastore.authentication.type``             One of ``SIMPLE`` or ``SASL``.  When using the default value ``SIMPLE``
                                                    of ``SIMPLE``, Kerberos authentication is disabled and no
                                                    other properties need to be configured.
 
@@ -104,12 +104,19 @@ file using the following properties:
 ================================================== ============================================================ ==========
 Property Name                                      Description                                                  Default
 ================================================== ============================================================ ==========
-``hive.hdfs.authentication.type``                  One of ``SIMPLE`` or ``KERBEROS``.  When using the default   ``SIMPLE``
+``hive.hdfs.authentication.type``                  One of ``SIMPLE``, ``KERBEROS``, ``SIMPLE_IMPERSONATION``,   ``SIMPLE``
+                                                   or ``KERBEROS_IMPERSONATION``.  When using the default
                                                    value of ``SIMPLE``, Kerberos authentication is disabled and
                                                    no other properties need to be configured.
 
                                                    When set to ``KERBEROS``, the Hive connector authenticates
                                                    to HDFS using Kerberos.
+
+                                                   :ref:`SIMPLE_IMPERSONATION
+                                                   <hive-security-simple-impersonation>` and
+                                                   :ref:`KERBEROS_IMPERSONATION
+                                                   <hive-security-kerberos-impersonation>` are discussed
+                                                   separately.
 
 ``hive.hdfs.presto.principal``                     The Kerberos principal that Presto will use when connecting
                                                    to HDFS.
@@ -176,10 +183,9 @@ HDFS Permissions and ACLs are explained in the `HDFS Permissions Guide
 
 .. code-block:: none
 
-    hive.hdfs.authentication.type=SIMPLE
-    hive.hdfs.impersonation=true
+    hive.hdfs.authentication.type=SIMPLE_IMPERSONATION
 
-When using ``SIMPLE`` authentication with impersonation, Presto impersonates
+When using simple authentication with impersonation, Presto impersonates
 the user who is running the query when accessing HDFS. The user Presto is
 running as must be allowed to impersonate this user, as discussed in the
 section :ref:`configuring-hadoop-impersonation`. Kerberos is not used.
@@ -191,12 +197,11 @@ section :ref:`configuring-hadoop-impersonation`. Kerberos is not used.
 
 .. code-block:: none
 
-    hive.hdfs.authentication.type=KERBEROS
-    hive.hdfs.impersonation=true
+    hive.hdfs.authentication.type=KERBEROS_IMPERSONATION
     hive.hdfs.presto.principal=presto@EXAMPLE.COM
     hive.hdfs.presto.keytab=/etc/presto/hdfs.keytab
 
-When using ``KERBEROS`` authentication with impersonation, Presto impersonates
+When using Kerberos authentication with impersonation, Presto impersonates
 the user who is running the query when accessing HDFS. The principal
 specified by the ``hive.hdfs.presto.principal`` property must be allowed to
 impersonate this user, as discussed in the section
