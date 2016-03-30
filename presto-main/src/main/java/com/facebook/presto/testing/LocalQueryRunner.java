@@ -492,11 +492,12 @@ public class LocalQueryRunner
     private MaterializedResult executeInternal(Session session, @Language("SQL") String sql)
     {
         lock.readLock().lock();
+        List<Driver> drivers = ImmutableList.of();
         try {
             MaterializedOutputFactory outputFactory = new MaterializedOutputFactory();
 
             TaskContext taskContext = createTaskContext(executor, session);
-            List<Driver> drivers = createDrivers(session, sql, outputFactory, taskContext);
+            drivers = createDrivers(session, sql, outputFactory, taskContext);
 
             boolean done = false;
             while (!done) {
@@ -514,6 +515,9 @@ public class LocalQueryRunner
         }
         finally {
             lock.readLock().unlock();
+            for (Driver driver : drivers) {
+                driver.close();
+            }
         }
     }
 

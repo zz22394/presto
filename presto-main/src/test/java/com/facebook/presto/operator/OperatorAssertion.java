@@ -20,6 +20,7 @@ import com.facebook.presto.spi.block.BlockBuilder;
 import com.facebook.presto.spi.block.BlockBuilderStatus;
 import com.facebook.presto.spi.type.Type;
 import com.facebook.presto.testing.MaterializedResult;
+import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
@@ -58,6 +59,21 @@ public final class OperatorAssertion
     }
 
     public static List<Page> toPages(Operator operator, Iterator<Page> input)
+    {
+        try {
+            return toPagesSafe(operator, input);
+        }
+        finally {
+            try {
+                operator.close();
+            }
+            catch (Exception e) {
+                throw Throwables.propagate(e);
+            }
+        }
+    }
+
+    private static List<Page> toPagesSafe(Operator operator, Iterator<Page> input)
     {
         ImmutableList.Builder<Page> outputPages = ImmutableList.builder();
 
