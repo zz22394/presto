@@ -1,0 +1,148 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>5. Presto Server Installation &mdash; Presto 0.141t Documentation</title>
+    
+    <link rel="stylesheet" href="_static/presto.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.141t',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Presto 0.141t Documentation" href="index.html" />
+    <link rel="next" title="Automated Installation with Ambari" href="installation/installation-ambari.html" />
+    <link rel="prev" title="4.3. Airpal" href="sandboxes/airpal.html" /> 
+  </head>
+  <body>
+<div class="header">
+    <h1 class="heading"><a href="index.html">
+        <span>Presto 0.141t Documentation</span></a></h1>
+    <h2 class="heading"><span>5. Presto Server Installation</span></h2>
+</div>
+<div class="topnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="sandboxes/airpal.html">4.3. Airpal</a>
+    </span>
+    <span class="right">
+        <a href="installation/installation-ambari.html">Automated Installation with Ambari</a> &raquo;
+    </span>
+</p>
+
+</div>
+<div class="content">
+    
+  <div class="section" id="presto-server-installation">
+<h1>5. Presto Server Installation</h1>
+<p>There are several ways to install and deploy Presto depending on your requirements and preference.</p>
+<div class="section" id="automated-installation-with-ambari-2-1">
+<h2>5.1. Automated Installation with Ambari 2.1</h2>
+<p>Install and manage Presto using <a class="reference external" href="https://ambari.apache.org/">Apache Ambari</a>.</p>
+<div class="line-block">
+<div class="line"><a class="reference internal" href="installation/installation-ambari.html"><em>Installation Instructions</em></a></div>
+<div class="line">Download <strong>presto_ambari_pkg.141t.tar.gz</strong> from <a class="reference external" href="http://www.teradata.com/presto">www.teradata.com/presto.</a></div>
+</div>
+<p><em>Requires</em>:</p>
+<ul class="simple">
+<li>Ambari 2.1 (on Java 8)</li>
+<li>Oracle Java JDK 1.8 (64-bit)</li>
+<li>Red Hat Enterprise Linux 6.x (64-bit) or CentOS equivalent</li>
+<li>HDP 2.x</li>
+<li>Python 2.6 or 2.7</li>
+<li>Minimum 16GB RAM per node allocated for Presto</li>
+</ul>
+</div>
+<hr class="docutils" />
+<div class="section" id="automated-installation-with-ambari-2-1-with-yarn-integration">
+<h2>5.2. Automated Installation with Ambari 2.1 with YARN integration</h2>
+<p>Install and manage Presto integrated with YARN using the <a class="reference external" href="https://slider.incubator.apache.org/">Apache Slider</a> view for <a class="reference external" href="https://ambari.apache.org/">Apache Ambari</a>.</p>
+<div class="line-block">
+<div class="line"><a class="reference internal" href="installation/installation-yarn.html"><em>Installation Instructions</em></a></div>
+<div class="line">Download the YARN Presto package included in <strong>presto_server_pkg.141t.tar.gz</strong> from <a class="reference external" href="http://www.teradata.com/presto">www.teradata.com/presto.</a></div>
+</div>
+<p><em>Requires</em>:</p>
+<ul class="simple">
+<li>Ambari 2.1 (on Java 8)</li>
+<li>Oracle Java JDK 1.8 (64-bit)</li>
+<li>Red Hat Enterprise Linux 6.x (64-bit) or CentOS equivalent</li>
+<li>HDP 2.2 (Presto-YARN integration requires Hadoop 2.6 which is on HDP 2.2)</li>
+<li>Python 2.6 or 2.7</li>
+<li>Minimum 16GB RAM per node allocated for Presto</li>
+</ul>
+</div>
+<hr class="docutils" />
+<div class="section" id="manual-installation-via-presto-admin">
+<h2>5.3. Manual Installation via Presto-Admin</h2>
+<p>Install and manage Presto manually using Presto-Admin.</p>
+<div class="line-block">
+<div class="line"><a class="reference internal" href="installation/installation-presto-admin.html"><em>Installation Instructions</em></a></div>
+<div class="line">Download <strong>presto_server_pkg.141t.tar.gz</strong> from <a class="reference external" href="http://www.teradata.com/presto">www.teradata.com/presto.</a></div>
+</div>
+<p><em>Requires</em>:</p>
+<ul class="simple">
+<li>RedHat Enterprise Linux 6.x (64-bit) or CentOS equivalent</li>
+<li>Oracle Java JDK 1.8 (64-bit)</li>
+<li>CDH 5.x or HDP 2.x</li>
+<li>Python 2.6 or 2.7</li>
+<li>Minimum 16GB RAM per node allocated for Presto</li>
+</ul>
+</div>
+<hr class="docutils" />
+<div class="section" id="manual-installation-with-yarn-integration">
+<h2>5.4. Manual Installation with YARN integration</h2>
+<p>Install and manage Presto integrated with YARN manually using <a class="reference external" href="https://slider.incubator.apache.org/">Apache Slider</a>.</p>
+<div class="line-block">
+<div class="line"><a class="reference internal" href="installation/installation-yarn.html"><em>Installation Instructions</em></a></div>
+<div class="line">Download the YARN Presto package included in <strong>presto_server_pkg.141t.tar.gz</strong> from <a class="reference external" href="http://www.teradata.com/presto">www.teradata.com/presto.</a></div>
+<div class="line">Download <a class="reference external" href="http://www.teradata.com/presto">slider-assembly-0.80.0-incubating-all.tar.gz</a></div>
+</div>
+<p><em>Requires</em>:</p>
+<ul class="simple">
+<li>RedHat Enterprise Linux 6.x (64-bit) or CentOS equivalent</li>
+<li>Oracle Java JDK 1.8 (64-bit)</li>
+<li>CDH 5.4 or HDP 2.2 (Presto-YARN integreation requires Hadoop 2.6 which is on CDH 5.4, HDP 2.2)</li>
+<li>Apache Slider 0.80.0</li>
+<li>Python 2.6 or 2.7</li>
+<li>Minimum 16GB RAM per node allocated for Presto</li>
+</ul>
+<div class="toctree-wrapper compound">
+</div>
+<hr class="docutils" />
+</div>
+</div>
+
+
+</div>
+<div class="bottomnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="sandboxes/airpal.html">4.3. Airpal</a>
+    </span>
+    <span class="right">
+        <a href="installation/installation-ambari.html">Automated Installation with Ambari</a> &raquo;
+    </span>
+</p>
+
+</div>
+
+    <div class="footer">
+    </div>
+  </body>
+</html>

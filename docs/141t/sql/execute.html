@@ -1,0 +1,112 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>12.29. EXECUTE &mdash; Presto 0.141t Documentation</title>
+    
+    <link rel="stylesheet" href="../_static/presto.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.141t',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Presto 0.141t Documentation" href="../index.html" />
+    <link rel="up" title="12. SQL Statement Syntax" href="../sql.html" />
+    <link rel="next" title="12.30. DEALLOCATE PREPARE" href="deallocate-prepare.html" />
+    <link rel="prev" title="12.28. PREPARE" href="prepare.html" /> 
+  </head>
+  <body>
+<div class="header">
+    <h1 class="heading"><a href="../index.html">
+        <span>Presto 0.141t Documentation</span></a></h1>
+    <h2 class="heading"><span>12.29. EXECUTE</span></h2>
+</div>
+<div class="topnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="prepare.html">12.28. PREPARE</a>
+    </span>
+    <span class="right">
+        <a href="deallocate-prepare.html">12.30. DEALLOCATE PREPARE</a> &raquo;
+    </span>
+</p>
+
+</div>
+<div class="content">
+    
+  <div class="section" id="execute">
+<span id="id1"></span><h1>12.29. EXECUTE</h1>
+<div class="section" id="synopsis">
+<h2>Synopsis</h2>
+<div class="highlight-none"><div class="highlight"><pre>EXECUTE statement_name [USING parameter1[, parameter2, ...]]
+</pre></div>
+</div>
+</div>
+<div class="section" id="description">
+<h2>Description</h2>
+<p>Executes a prepared statement with the name <tt class="docutils literal"><span class="pre">statement_name</span></tt>. Parameter values
+are defined in the USING clause.</p>
+</div>
+<div class="section" id="examples">
+<h2>Examples</h2>
+<ul>
+<li><p class="first">Execute a query with no parameters:</p>
+<p>Let <tt class="docutils literal"><span class="pre">my_select1</span></tt> be the name of the prepared statement <tt class="docutils literal"><span class="pre">SELECT</span> <span class="pre">name</span> <span class="pre">FROM</span> <span class="pre">nation</span></tt>.</p>
+<p>The command below will execute the query:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="k">EXECUTE</span> <span class="n">my_select1</span><span class="p">;</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Execute a query with a single parameter:</p>
+<p>Let <tt class="docutils literal"><span class="pre">my_select2</span></tt> be the name of the prepared statement <tt class="docutils literal"><span class="pre">SELECT</span> <span class="pre">name</span> <span class="pre">FROM</span> <span class="pre">nation</span> <span class="pre">WHERE</span> <span class="pre">regionkey</span> <span class="pre">=</span> <span class="pre">?</span></tt>.</p>
+<p>The command below will execute <tt class="docutils literal"><span class="pre">SELECT</span> <span class="pre">name</span> <span class="pre">FROM</span> <span class="pre">nation</span> <span class="pre">WHERE</span> <span class="pre">regionkey</span> <span class="pre">=</span> <span class="pre">1</span></tt>:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="k">EXECUTE</span> <span class="n">my_select2</span> <span class="k">USING</span> <span class="mi">1</span><span class="p">;</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Execute a query with two parameters:</p>
+<p>Let <tt class="docutils literal"><span class="pre">my_select3</span></tt> be the name of the prepared statement
+<tt class="docutils literal"><span class="pre">SELECT</span> <span class="pre">name</span> <span class="pre">FROM</span> <span class="pre">nation</span> <span class="pre">WHERE</span> <span class="pre">regionkey</span> <span class="pre">=</span> <span class="pre">?</span> <span class="pre">and</span> <span class="pre">nationkey</span> <span class="pre">&lt;</span> <span class="pre">?</span></tt>.</p>
+<p>The command below will execute <tt class="docutils literal"><span class="pre">SELECT</span> <span class="pre">name</span> <span class="pre">from</span> <span class="pre">nation</span> <span class="pre">WHERE</span> <span class="pre">regionkey</span> <span class="pre">=</span> <span class="pre">1</span> <span class="pre">AND</span> <span class="pre">nationkey</span> <span class="pre">&lt;</span> <span class="pre">3</span></tt>:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="k">EXECUTE</span> <span class="n">my_select3</span> <span class="k">USING</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">;</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+
+
+</div>
+<div class="bottomnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="prepare.html">12.28. PREPARE</a>
+    </span>
+    <span class="right">
+        <a href="deallocate-prepare.html">12.30. DEALLOCATE PREPARE</a> &raquo;
+    </span>
+</p>
+
+</div>
+
+    <div class="footer">
+    </div>
+  </body>
+</html>

@@ -1,0 +1,179 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>6.1. Presto on EMR &mdash; Presto 0.141t Documentation</title>
+    
+    <link rel="stylesheet" href="../_static/presto.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.141t',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Presto 0.141t Documentation" href="../index.html" />
+    <link rel="up" title="6. Presto on AWS" href="../aws.html" />
+    <link rel="next" title="7. Presto Client Software" href="../client-software.html" />
+    <link rel="prev" title="6. Presto on AWS" href="../aws.html" /> 
+  </head>
+  <body>
+<div class="header">
+    <h1 class="heading"><a href="../index.html">
+        <span>Presto 0.141t Documentation</span></a></h1>
+    <h2 class="heading"><span>6.1. Presto on EMR</span></h2>
+</div>
+<div class="topnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="../aws.html">6. Presto on AWS</a>
+    </span>
+    <span class="right">
+        <a href="../client-software.html">7. Presto Client Software</a> &raquo;
+    </span>
+</p>
+
+</div>
+<div class="content">
+    
+  <div class="section" id="presto-on-emr">
+<h1>6.1. Presto on EMR</h1>
+<p>We support deploying Presto on EMR version 4.3.0 or greater. For instructions
+on how to run and install presto-admin on EMR refer to the EMR specific notes
+in the installation and configuration sections of the presto-admin
+<a class="reference internal" href="../installation/presto-admin/quick-start-guide.html"><em>Quick Start Guide</em></a>.</p>
+<div class="section" id="resizing-an-emr-cluster-using-presto-admin">
+<h2>Resizing an EMR cluster using presto-admin</h2>
+<p>Only the number of EMR core (slave) nodes can be resized. Migration of the
+Presto coordinator to a different EMR master node is not supported. The
+steps below assume a working installation of presto-admin.</p>
+<div class="section" id="adding-a-node">
+<h3>Adding a node</h3>
+<p>1. Using the AWS console or the AWS CLI tool, resize your EMR cluster by
+adding a core node. The AWS documentation on this can be found
+<a class="reference external" href="http://docs.aws.amazon.com/ElasticMapReduce/latest/ManagementGuide/emr-manage-resize.html">here</a>.</p>
+<p>2. Add the FQDN of the new node to the presto-admin topology file.
+By default this file is located at <tt class="docutils literal"><span class="pre">/etc/opt/prestoadmin/config.json</span></tt>.</p>
+<p>3. To install Presto on the new node, run the following two presto-admin
+commands. The first one is only needed if Java 8 is not already installed on your
+new node:</p>
+<div class="highlight-bash"><div class="highlight"><pre>sudo /path/to/presto-admin -i /path/to/your.pem package install -H new_node_fqdn /path/to/jdk8.rpm
+sudo /path/to/presto-admin -i /path/to/your.pem server install -H new_node_fqdn /path/to/presto-server.rpm
+</pre></div>
+</div>
+<p>4. In order to take advantage of the extra resources of the new node, you
+may need to edit some of the Presto memory settings (for example
+<tt class="docutils literal"><span class="pre">query.max.memory</span></tt>). For more information on configuring Presto using
+presto-admin please refer to the Configuration section of the presto-admin
+<a class="reference internal" href="../installation/presto-admin/quick-start-guide.html"><em>Quick Start Guide</em></a>.</p>
+<p>5. If you made configuration changes, make sure to deploy those changes to
+all nodes:</p>
+<div class="highlight-bash"><div class="highlight"><pre>sudo /path/to/presto-admin -i /path/to/your.pem configuration deploy
+</pre></div>
+</div>
+<p>6. If you did not make any configuration changes in step 4 then just start
+Presto on the new node:</p>
+<div class="highlight-bash"><div class="highlight"><pre>sudo /path/to/presto-admin -i /path/to/your.pem server start -H new_node_fqdn
+</pre></div>
+</div>
+<p>If you did make configuration changes in step 4 then all nodes need to be restarted
+(note that you don&#8217;t need to also start the new node because it is now part
+of the topology and it will be started as part of the restart):</p>
+<div class="highlight-bash"><div class="highlight"><pre>sudo /path/to/presto-admin -i /path/to/your.pem server restart
+</pre></div>
+</div>
+<ol class="arabic simple" start="7">
+<li>To verify that the new node was correctly started run:</li>
+</ol>
+<div class="highlight-bash"><div class="highlight"><pre>sudo /path/to/presto-admin -i /path/to/your.pem server status
+</pre></div>
+</div>
+</div>
+<div class="section" id="removing-a-node">
+<h3>Removing a node</h3>
+<ol class="arabic simple">
+<li>Stop Presto on the worker node you would like to remove:</li>
+</ol>
+<div class="highlight-bash"><div class="highlight"><pre>sudo /path/to/presto-admin -i /path/to/your.pem server stop -H node_to_remove_fqdn
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li>Uninstall Presto from the worker node:</li>
+</ol>
+<div class="highlight-bash"><div class="highlight"><pre>sudo /path/to/presto-admin -i /path/to/your.pem server uninstall -H node_to_remove_fqdn
+</pre></div>
+</div>
+<p>3. Remove the FQDN of the node you would like to remove from the presto-admin
+topology file. By default this file is located at <tt class="docutils literal"><span class="pre">/etc/opt/prestoadmin/</span>
+<span class="pre">config.json</span></tt>.</p>
+<p>4. To adjust your Presto installation to the decrease in resources you
+may need to edit some of the Presto memory settings (for example
+<tt class="docutils literal"><span class="pre">query.max.memory</span></tt>). For more information on configuring Presto using
+presto-admin please refer to the Configuration section of the presto-admin
+<a class="reference internal" href="../installation/presto-admin/quick-start-guide.html"><em>Quick Start Guide</em></a>.</p>
+<p>5. If you made configuration changes, make sure to deploy those changes to
+all nodes and then restarting them by running:</p>
+<div class="highlight-bash"><div class="highlight"><pre>sudo /path/to/presto-admin -i /path/to/your.pem configuration deploy
+sudo /path/to/presto-admin -i /path/to/your.pem server restart
+</pre></div>
+</div>
+<ol class="arabic simple" start="6">
+<li>Terminate the node using the AWS console or the AWS CLI tool.</li>
+</ol>
+</div>
+</div>
+<div class="section" id="troubleshooting">
+<h2>Troubleshooting</h2>
+<ul class="simple">
+<li>If you are using the RPM for installing Presto, make sure you download and use the RPM built for RPM Package Manager version &gt; 4.6. If you are using an RPM which is not compatible with an EMR node, you may get the following error during installation:</li>
+</ul>
+<div class="highlight-none"><div class="highlight"><pre>headerRead failed: hdr load: BAD
+</pre></div>
+</div>
+<ul class="simple">
+<li>EMR deploys hive 1.0.0 version which has a bug with ALTER TABLE..RENAME TO command. When running this command in Presto using the Hive connector, you may run into the following:</li>
+</ul>
+<div class="highlight-none"><div class="highlight"><pre>presto:default&gt; ALTER TABLE test_table RENAME TO new_test_table;
+
+Query 20160322_155117_00002_ai777 failed: InvalidOperationException(message:Unable to access old location hdfs://node:8020/user/hive/warehouse/test_table for table default.test_table)
+</pre></div>
+</div>
+<p>You can workaround this issue by changing the ownership of the <tt class="docutils literal"><span class="pre">/user/hive/warehouse</span></tt> directory to <tt class="docutils literal"><span class="pre">hive:hadoop</span></tt> as shown below:</p>
+<div class="highlight-none"><div class="highlight"><pre>hadoop dfs -chown hive:hadoop -R /user/hive/warehouse/test_table
+</pre></div>
+</div>
+</div>
+</div>
+
+
+</div>
+<div class="bottomnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="../aws.html">6. Presto on AWS</a>
+    </span>
+    <span class="right">
+        <a href="../client-software.html">7. Presto Client Software</a> &raquo;
+    </span>
+</p>
+
+</div>
+
+    <div class="footer">
+    </div>
+  </body>
+</html>

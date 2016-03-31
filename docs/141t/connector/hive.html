@@ -1,0 +1,659 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>11.2. Hive Connector &mdash; Presto 0.141t Documentation</title>
+    
+    <link rel="stylesheet" href="../_static/presto.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.141t',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Presto 0.141t Documentation" href="../index.html" />
+    <link rel="up" title="11. Connectors" href="../connector.html" />
+    <link rel="next" title="11.3. JMX Connector" href="jmx.html" />
+    <link rel="prev" title="11.1. Black Hole Connector" href="blackhole.html" /> 
+  </head>
+  <body>
+<div class="header">
+    <h1 class="heading"><a href="../index.html">
+        <span>Presto 0.141t Documentation</span></a></h1>
+    <h2 class="heading"><span>11.2. Hive Connector</span></h2>
+</div>
+<div class="topnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="blackhole.html">11.1. Black Hole Connector</a>
+    </span>
+    <span class="right">
+        <a href="jmx.html">11.3. JMX Connector</a> &raquo;
+    </span>
+</p>
+
+</div>
+<div class="content">
+    
+  <div class="section" id="hive-connector">
+<h1>11.2. Hive Connector</h1>
+<p>The Hive connector allows querying data stored in a Hive
+data warehouse. Hive is a combination of three components:</p>
+<ul class="simple">
+<li>Data files in varying formats that are typically stored in the
+Hadoop Distributed File System (HDFS) or in Amazon S3.</li>
+<li>Metadata about how the data files are mapped to schemas and tables.
+This metadata is stored in a database such as MySQL and is accessed
+via the Hive metastore service.</li>
+<li>A query language called HiveQL. This query language is executed
+on a distributed computing framework such as MapReduce or Tez.</li>
+</ul>
+<p>Presto only uses the first two components: the data and the metadata.
+It does not use HiveQL or any part of Hive&#8217;s execution environment.</p>
+<div class="section" id="supported-file-types">
+<h2>Supported File Types</h2>
+<p>The following file types are supported for the Hive connector:</p>
+<ul class="simple">
+<li>ORC</li>
+<li>RCFile</li>
+<li>TEXT</li>
+<li>Parquet</li>
+</ul>
+</div>
+<div class="section" id="configuration">
+<h2>Configuration</h2>
+<p>Presto includes Hive connectors for multiple versions of Hadoop:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">hive-hadoop2</span></tt>: Apache Hadoop 2.x</li>
+<li><tt class="docutils literal"><span class="pre">hive-cdh5</span></tt>: Cloudera CDH 5</li>
+</ul>
+<p>Create <tt class="docutils literal"><span class="pre">/etc/presto/catalog/hive.properties</span></tt> with the following contents
+to mount the <tt class="docutils literal"><span class="pre">hive-hadoop2</span></tt> connector as the <tt class="docutils literal"><span class="pre">hive</span></tt> catalog,
+replacing <tt class="docutils literal"><span class="pre">hive-hadoop2</span></tt> with the proper connector for your version
+of Hadoop and <tt class="docutils literal"><span class="pre">example.net:9083</span></tt> with the correct host and port
+for your Hive metastore Thrift service:</p>
+<div class="highlight-none"><div class="highlight"><pre>connector.name=hive-hadoop2
+hive.metastore.uri=thrift://example.net:9083
+</pre></div>
+</div>
+<p>Additionally, you should add the following property to <tt class="docutils literal"><span class="pre">jvm.config</span></tt>, replacing &lt;hdfs_username&gt; with your hdfs user name:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="o">-</span><span class="n">DHADOOP_USER_NAME</span><span class="o">=&lt;</span><span class="n">hdfs_username</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<div class="section" id="multiple-hive-clusters">
+<h3>Multiple Hive Clusters</h3>
+<p>You can have as many catalogs as you need, so if you have additional
+Hive clusters, simply add another properties file to <tt class="docutils literal"><span class="pre">/etc/presto/catalog</span></tt>
+with a different name (making sure it ends in <tt class="docutils literal"><span class="pre">.properties</span></tt>). For
+example, if you name the property file <tt class="docutils literal"><span class="pre">sales.properties</span></tt>, Presto
+will create a catalog named <tt class="docutils literal"><span class="pre">sales</span></tt> using the configured connector.</p>
+</div>
+<div class="section" id="hdfs-configuration">
+<h3>HDFS Configuration</h3>
+<p>For basic setups, Presto configures the HDFS client automatically and
+does not require any configuration files. In some cases, such as when using
+federated HDFS or NameNode high availability, it is necessary to specify
+additional HDFS client options in order to access your HDFS cluster. To do so,
+add the <tt class="docutils literal"><span class="pre">hive.config.resources</span></tt> property to reference your HDFS config files:</p>
+<div class="highlight-none"><div class="highlight"><pre>hive.config.resources=/etc/hadoop/conf/core-site.xml,/etc/hadoop/conf/hdfs-site.xml
+</pre></div>
+</div>
+<p>Only specify additional configuration files if necessary for your setup.
+We also recommend reducing the configuration files to have the minimum
+set of required properties, as additional properties may cause problems.</p>
+<p>The configuration files must exist on all Presto nodes. If you are
+referencing existing Hadoop config files, make sure to copy them to
+any Presto nodes that are not running Hadoop.</p>
+</div>
+<div class="section" id="hdfs-permissions">
+<h3>HDFS Permissions</h3>
+<p>Before running any <tt class="docutils literal"><span class="pre">CREATE</span> <span class="pre">TABLE</span></tt> or <tt class="docutils literal"><span class="pre">CREATE</span> <span class="pre">TABLE</span> <span class="pre">...</span> <span class="pre">AS</span></tt> statements
+for Hive tables in Presto, you need to check that the operating system user
+running the Presto server has access to the Hive warehouse directory on HDFS. The Hive warehouse
+directory is specified by the configuration variable <tt class="docutils literal"><span class="pre">hive.metastore.warehouse.dir</span></tt>
+in <tt class="docutils literal"><span class="pre">hive-site.xml</span></tt>, and the default value is <tt class="docutils literal"><span class="pre">/user/hive/warehouse</span></tt>. If that
+is not the case, either add the following to <tt class="docutils literal"><span class="pre">jvm.config</span></tt> on all of the nodes:
+<tt class="docutils literal"><span class="pre">-DHADOOP_USER_NAME=USER</span></tt>, where <tt class="docutils literal"><span class="pre">USER</span></tt> is an operating system user that has proper
+permissions for the Hive warehouse directory, or start the Presto server as a user with
+similar permissions. The <tt class="docutils literal"><span class="pre">hive</span></tt> user generally works as <tt class="docutils literal"><span class="pre">USER</span></tt>, since Hive is often
+started with the <tt class="docutils literal"><span class="pre">hive</span></tt> user. If you run into HDFS permissions problems on
+<tt class="docutils literal"><span class="pre">CREATE</span> <span class="pre">TABLE</span> <span class="pre">...</span> <span class="pre">AS</span></tt>, remove <tt class="docutils literal"><span class="pre">/tmp/presto-*</span></tt> on HDFS, fix the user as described
+above, then restart all of the Presto servers.</p>
+</div>
+</div>
+<div class="section" id="configuration-properties">
+<h2>Configuration Properties</h2>
+<table border="1" class="docutils">
+<colgroup>
+<col width="41%" />
+<col width="49%" />
+<col width="10%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Property Name</th>
+<th class="head">Description</th>
+<th class="head">Default</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">hive.metastore.uri</span></tt></td>
+<td>The URI(s) of the Hive metastore to connect to using the
+Thrift protocol. If multiple URIs are provided, the first
+URI is used by default and the rest of the URIs are
+fallback metastores. This property is required.
+Example: <tt class="docutils literal"><span class="pre">thrift://192.0.2.3:9083</span></tt> or
+<tt class="docutils literal"><span class="pre">thrift://192.0.2.3:9083,thrift://192.0.2.4:9083</span></tt></td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">hive.config.resources</span></tt></td>
+<td>An optional comma-separated list of HDFS
+configuration files. These files must exist on the
+machines running Presto. Only specify this if
+absolutely necessary to access HDFS.
+Example: <tt class="docutils literal"><span class="pre">/etc/hdfs-site.xml</span></tt></td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">hive.storage-format</span></tt></td>
+<td>The default file format used when creating new tables.</td>
+<td><tt class="docutils literal"><span class="pre">RCBINARY</span></tt></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">hive.force-local-scheduling</span></tt></td>
+<td>See in <a class="reference internal" href="#force-local-scheduling"><em>tuning section</em></a></td>
+<td><tt class="docutils literal"><span class="pre">false</span></tt></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">hive.allow-drop-table</span></tt></td>
+<td>Allow the Hive connector to drop tables.</td>
+<td><tt class="docutils literal"><span class="pre">false</span></tt></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">hive.allow-rename-table</span></tt></td>
+<td>Allow the Hive connector to rename tables.</td>
+<td><tt class="docutils literal"><span class="pre">false</span></tt></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">hive.respect-table-format</span></tt></td>
+<td>Should new partitions be written using the existing table
+format or the default Presto format?</td>
+<td><tt class="docutils literal"><span class="pre">true</span></tt></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">hive.immutable-partitions</span></tt></td>
+<td>Can new data be inserted into existing partitions?</td>
+<td><tt class="docutils literal"><span class="pre">false</span></tt></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">hive.max-partitions-per-writers</span></tt></td>
+<td>Maximum number of partitions per writer.</td>
+<td>100</td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="amazon-s3-configuration">
+<h3>Amazon S3 Configuration</h3>
+<p>The Hive connector also allows querying data stored in Amazon S3.</p>
+<p>To access tables stored in S3, you must specify the AWS credential properties
+<tt class="docutils literal"><span class="pre">hive.s3.aws-access-key</span></tt> and <tt class="docutils literal"><span class="pre">hive.s3.aws-secret-key</span></tt>. Alternatively, you can use
+<tt class="docutils literal"><span class="pre">hive.s3.use-instance-credentials</span></tt> which if set to true, enables retrieving temporary
+<a class="reference external" href="http://docs.aws.amazon.com/AWSSdkDocsJava/latest/DeveloperGuide/java-dg-roles.html">instance profile</a>
+AWS credentials.</p>
+</div>
+</div>
+<div class="section" id="sql-limitation-for-s3-tables">
+<h2>SQL Limitation for S3 tables</h2>
+<p>The SQL support for S3 tables is the same as for HDFS tables. Presto does not support creating external
+tables in Hive (both HDFS and S3). If you want to create a table in Hive with data in S3, you have to do it from
+<a class="reference external" href="https://cwiki.apache.org/confluence/display/Hive/HiveAws+HivingS3nRemotely">Hive</a>.</p>
+<p>Also, <tt class="docutils literal"><span class="pre">CREATE</span> <span class="pre">TABLE..AS</span> <span class="pre">query</span></tt>, where <tt class="docutils literal"><span class="pre">query</span></tt> is a <tt class="docutils literal"><span class="pre">SELECT</span></tt> query on the S3 table will not create the table
+on S3. If you want to load data back to S3, you need to use <tt class="docutils literal"><span class="pre">INSERT</span> <span class="pre">INTO</span></tt> command.</p>
+</div>
+<div class="section" id="id1">
+<h2>Configuration Properties</h2>
+<table border="1" class="docutils">
+<colgroup>
+<col width="40%" />
+<col width="48%" />
+<col width="11%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Property Name</th>
+<th class="head">Description</th>
+<th class="head">Default</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">hive.s3.aws-access-key</span></tt></td>
+<td>AWS Access key.</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">hive.s3.aws-secret-key</span></tt></td>
+<td>AWS Secret key.</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">hive.s3.use-instance-credentials</span></tt></td>
+<td>Instance profile credentials to use. This property is unused
+if default credential properties are added.</td>
+<td><tt class="docutils literal"><span class="pre">true</span></tt></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">hive.s3.connect-timeout</span></tt></td>
+<td>Amount of time that the HTTP connection will wait to
+establish a connection before giving up.</td>
+<td><tt class="docutils literal"><span class="pre">5s</span></tt></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">hive.s3.socket-timeout</span></tt></td>
+<td>Amount of time to wait for data to be transferred over an
+established, open connection before the connection times
+out and is closed.</td>
+<td><tt class="docutils literal"><span class="pre">5s</span></tt></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">hive.s3.max-error-retries</span></tt></td>
+<td>Maximum retry count for retriable errors.</td>
+<td><tt class="docutils literal"><span class="pre">10</span></tt></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">hive.s3.max-connections</span></tt></td>
+<td>See <a class="reference internal" href="#s3-max-connections"><em>tuning section</em></a>.</td>
+<td><tt class="docutils literal"><span class="pre">500</span></tt></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">hive.s3.ssl.enabled</span></tt></td>
+<td>Protocol to connect to AWS (HTTP or HTTPS).</td>
+<td><tt class="docutils literal"><span class="pre">true</span></tt></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">hive.s3.pin-client-to-current-region</span></tt></td>
+<td>Use current AWS region.</td>
+<td><tt class="docutils literal"><span class="pre">false</span></tt></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">hive.s3.max-backoff-time</span></tt></td>
+<td>Maximum value of sleep time allowed during data read retry
+mechanism. Uses exponential backoff pattern ranging from
+1s to this value.</td>
+<td><tt class="docutils literal"><span class="pre">10</span> <span class="pre">minutes</span></tt></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">hive.s3.max-retry-time</span></tt></td>
+<td>Retries read attempt till this threshold is reached or
+<tt class="docutils literal"><span class="pre">hive.s3.max-client-retries</span></tt> value is crossed.</td>
+<td><tt class="docutils literal"><span class="pre">10</span> <span class="pre">minutes</span></tt></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">hive.s3.max-client-retries</span></tt></td>
+<td>Reader fails if either <tt class="docutils literal"><span class="pre">hive.s3.max-retry-time</span></tt>
+is reached or the number of attempts hits this value.</td>
+<td><tt class="docutils literal"><span class="pre">3</span></tt></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">hive.s3.multipart.min-file-size</span></tt></td>
+<td>See <a class="reference internal" href="#s3-multipart-min-file"><em>tuning section</em></a>.</td>
+<td><tt class="docutils literal"><span class="pre">16MB</span></tt></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">hive.s3.multipart.min-part-size</span></tt></td>
+<td>See <a class="reference internal" href="#s3-multipart-min-part"><em>tuning section</em></a>.</td>
+<td><tt class="docutils literal"><span class="pre">5MB</span></tt></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">hive.s3.sse.enabled</span></tt></td>
+<td>Enable S3 server side encryption.</td>
+<td><tt class="docutils literal"><span class="pre">false</span></tt></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">hive.s3.staging-directory</span></tt></td>
+<td>Temporary directory for staging files before uploading
+to S3.</td>
+<td><tt class="docutils literal"><span class="pre">/tmp</span></tt></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="querying-hive-tables">
+<h2>Querying Hive Tables</h2>
+<p>The following table is an example Hive table from the <a class="reference external" href="https://cwiki.apache.org/confluence/display/Hive/Tutorial#Tutorial-UsageandExamples">Hive Tutorial</a>.
+It can be created in Hive (not in Presto) using the following
+Hive <tt class="docutils literal"><span class="pre">CREATE</span> <span class="pre">TABLE</span></tt> command:</p>
+<div class="highlight-none"><div class="highlight"><pre>hive&gt; CREATE TABLE page_view (
+    &gt;   viewTime INT,
+    &gt;   userid BIGINT,
+    &gt;   page_url STRING,
+    &gt;   referrer_url STRING,
+    &gt;   ip STRING COMMENT &#39;IP Address of the User&#39;)
+    &gt; COMMENT &#39;This is the page view table&#39;
+    &gt; PARTITIONED BY (dt STRING, country STRING)
+    &gt; STORED AS SEQUENCEFILE;
+OK
+Time taken: 3.644 seconds
+</pre></div>
+</div>
+<p>Assuming that this table was created in the <tt class="docutils literal"><span class="pre">web</span></tt> schema in
+Hive, this table can be described in Presto:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="k">DESCRIBE</span> <span class="n">hive</span><span class="p">.</span><span class="n">web</span><span class="p">.</span><span class="n">page_view</span><span class="p">;</span>
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>    Column    |  Type   | Null | Partition Key |        Comment
+--------------+---------+------+---------------+------------------------
+ viewtime     | bigint  | true | false         |
+ userid       | bigint  | true | false         |
+ page_url     | varchar | true | false         |
+ referrer_url | varchar | true | false         |
+ ip           | varchar | true | false         | IP Address of the User
+ dt           | varchar | true | true          |
+ country      | varchar | true | true          |
+(7 rows)
+</pre></div>
+</div>
+<p>This table can then be queried in Presto:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">hive</span><span class="p">.</span><span class="n">web</span><span class="p">.</span><span class="n">page_view</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="hive-connector-limitations">
+<h2>Hive Connector Limitations</h2>
+<ul class="simple">
+<li><a class="reference internal" href="../sql/delete.html"><em>DELETE</em></a> : Only supports <tt class="docutils literal"><span class="pre">DELETE</span></tt> where one or more partitions are deleted entirely using condition on partitioning columns.</li>
+</ul>
+</div>
+<div class="section" id="character-data-types">
+<h2>Character data types</h2>
+<dl class="docutils">
+<dt>Hive supports three character data types:</dt>
+<dd><ul class="first last simple">
+<li><tt class="docutils literal"><span class="pre">STRING</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">CHAR(n)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">VARCHAR(n)</span></tt></li>
+</ul>
+</dd>
+</dl>
+<p>Currently columns for all those data types are exposed in presto as unparametrized <tt class="docutils literal"><span class="pre">VARCHAR</span></tt> type.
+This implies semantic inconsistencies for columns defined as <tt class="docutils literal"><span class="pre">CHAR(x)</span></tt> between Hive and Presto.</p>
+<p>Following example documents basic semantic differences:</p>
+<p><strong>Create table in Hive</strong></p>
+<div class="highlight-none"><div class="highlight"><pre>hive&gt; create table string_test (c char(5), v varchar(5), s string) stored as orc;
+hive&gt; insert into string_test values (&#39;ala&#39;, &#39;ala&#39;, &#39;ala&#39;), (&#39;ala &#39;, &#39;ala &#39;, &#39;ala &#39;);
+</pre></div>
+</div>
+<p><strong>Query the table in Hive</strong></p>
+<div class="highlight-none"><div class="highlight"><pre>hive&gt; select concat(&#39;x&#39;, c, &#39;x&#39;), concat(&#39;x&#39;, v, &#39;x&#39;), concat(&#39;x&#39;, s, &#39;x&#39;), length(c), length(v), length(s) from string_test;
+OK
+xalax       xalax    xalax   3      3       3
+xalax       xala x   xala x  3      4       4
+</pre></div>
+</div>
+<p><strong>Query the table in Presto</strong></p>
+<div class="highlight-none"><div class="highlight"><pre>presto:default&gt; select concat(&#39;x&#39;,c,&#39;x&#39;), concat(&#39;x&#39;, v, &#39;x&#39;), concat(&#39;x&#39;, s, &#39;x&#39;), length(c), length(v), length(s) from string_test;
+  _col0  | _col1  | _col2  | _col3 | _col4 | _col5
+---------+--------+--------+-------+-------+-------
+ xala  x | xalax  | xalax  |     5 |     3 |     3
+ xala  x | xala x | xala x |     5 |     4 |     4
+</pre></div>
+</div>
+<p>Also for <tt class="docutils literal"><span class="pre">CHAR(x)</span></tt> datatype padding whitespace should not be taken into consideration during comparisons.
+So <tt class="docutils literal"><span class="pre">'ala</span>&nbsp; <span class="pre">'</span></tt> should be equal to <tt class="docutils literal"><span class="pre">'ala</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="pre">'</span></tt>. This is currently not the case in Presto.</p>
+<dl class="docutils">
+<dt><strong>Note:</strong> Ultimately Presto presto will implement native <tt class="docutils literal"><span class="pre">CHAR(x)</span></tt> data type. It will follow ANSI SQL semantics which differs from</dt>
+<dd>Hive&#8217;s. This will cause backward incompatibilities of queries using Hive&#8217;s <tt class="docutils literal"><span class="pre">CHAR(x)</span></tt> columns.</dd>
+</dl>
+</div>
+<div class="section" id="tuning">
+<span id="tuning-pref-hive"></span><h2>Tuning</h2>
+<p>The following configuration properties may have an impact on connector performance:</p>
+<div class="section" id="hive-assume-canonical-partition-keys">
+<h3><tt class="docutils literal"><span class="pre">hive.assume-canonical-partition-keys</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Boolean</span></tt></li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">false</span></tt></li>
+<li><strong>Description:</strong> Disable optimized metastore partition fetching for non-string partition keys. Setting this property allows to avoid ignoring data with non-canonical partition values.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="hive-domain-compaction-threshold">
+<h3><tt class="docutils literal"><span class="pre">hive.domain-compaction-threshold</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Integer</span></tt> (at least <tt class="docutils literal"><span class="pre">1</span></tt>)</li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">100</span></tt></li>
+<li><strong>Description:</strong> Maximum number of ranges allowed in a tuple domain without compacting it. Higher value will cause more data fragmentation but allows to use row skipping feature when reading ORC data. Setting this value higher may have large impact on <tt class="docutils literal"><span class="pre">IN</span></tt> and <tt class="docutils literal"><span class="pre">OR</span></tt> clauses performance in scenarios making use of row skipping.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="hive-force-local-scheduling">
+<span id="force-local-scheduling"></span><h3><tt class="docutils literal"><span class="pre">hive.force-local-scheduling</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Boolean</span></tt></li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">false</span></tt></li>
+<li><strong>Description:</strong> Force splits to be scheduled on the same node (ignoring normal node selection procedures) as the Hadoop DataNode process serving the split data. This is useful for installations where Presto is collocated with every DataNode and may increase queries time significantly. The drawback may be that if some data are accessed more often, the utilization of some nodes may be low even if the whole system is heavy loaded. See also <a class="reference internal" href="../admin/tuning.html#node-scheduler-network-topology"><em>node-scheduler.network-topology</em></a> if less strict constrain is preferred - especially if some nodes are overloaded and other are not fully utilized.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="hive-max-initial-split-size">
+<h3><tt class="docutils literal"><span class="pre">hive.max-initial-split-size</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">String</span></tt> (data size)</li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">hive.max-split-size</span></tt> / <tt class="docutils literal"><span class="pre">2</span></tt> (<tt class="docutils literal"><span class="pre">32</span> <span class="pre">MB</span></tt>)</li>
+<li><strong>Description:</strong> This property describes max size of each of initially created splits for a single query. The logic of initial splits is described in <tt class="docutils literal"><span class="pre">hive.max-initial-splits</span></tt> property. Changing this value changes what is considered small query. Higher value causes smaller parallelism for small queries. Lower value increases concurrency for them. This is max size, as the real size may be lower when end of blocks in single DataNode is reached.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="hive-max-initial-splits">
+<h3><tt class="docutils literal"><span class="pre">hive.max-initial-splits</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Integer</span></tt></li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">200</span></tt></li>
+<li><strong>Description:</strong> This property describes how many splits may be initially created for a single query. The initial splits are created to allow better concurrency for small queries. Hive connector will create first <tt class="docutils literal"><span class="pre">hive.max-initial-splits</span></tt> splits with size of <tt class="docutils literal"><span class="pre">hive.max-initial-split-size</span></tt> instead of <tt class="docutils literal"><span class="pre">hive.max-split-size</span></tt>. Having this value higher will force more splits to have smaller size effectively increasing definition of what is considered small query in database.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="hive-max-outstanding-splits">
+<h3><tt class="docutils literal"><span class="pre">hive.max-outstanding-splits</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Integer</span></tt> (at least <tt class="docutils literal"><span class="pre">1</span></tt>)</li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">1000</span></tt></li>
+<li><strong>Description:</strong> Limit of number of splits waiting to be served by split source. After reaching this limit writers will stop writing new splits to split source until some of them are used by workers. Higher value will increase memory usage, but will allow to concentrate all IO at one time which may be much faster and increase resources utilization.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="hive-max-partitions-per-writers">
+<h3><tt class="docutils literal"><span class="pre">hive.max-partitions-per-writers</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Integer</span></tt> (at least <tt class="docutils literal"><span class="pre">1</span></tt>)</li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">100</span></tt></li>
+<li><strong>Description:</strong> Maximum number of partitions per writer. If higher number of partitions per writer will be required to complete query, the query will fail. By manipulating this value one may change how large queries are meant to be dropped from DB which may help with error detection.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="hive-max-split-iterator-threads">
+<h3><tt class="docutils literal"><span class="pre">hive.max-split-iterator-threads</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Integer</span></tt> (at least <tt class="docutils literal"><span class="pre">1</span></tt>)</li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">1000</span></tt></li>
+<li><strong>Description:</strong> This property describes how many threads may be used to iterate through splits when loading them to the worker nodes. Higher value may increase parallelism, but high concurrency may cause time being wasted on context switching.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="hive-max-split-size">
+<h3><tt class="docutils literal"><span class="pre">hive.max-split-size</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">String</span></tt> (data size)</li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">64</span> <span class="pre">MB</span></tt></li>
+<li><strong>Description:</strong> This value describes max size of split that is created after using all <tt class="docutils literal"><span class="pre">hive-max-initial-split-size</span></tt> of initial splits. The logic of initial splits is described in <tt class="docutils literal"><span class="pre">hive.max-initial-splits</span></tt>. Having this value higher causes smaller parallelism which may be desirable when queries are very large and cluster is stable allowing to process data locally more efficiently without wasting time for context switching, synchronization and data collecting. The optimal value should be aligned with average query size in system.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="hive-metastore-partition-batch-size-max">
+<h3><tt class="docutils literal"><span class="pre">hive.metastore.partition-batch-size.max</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Integer</span></tt> (at least <tt class="docutils literal"><span class="pre">1</span></tt>)</li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">100</span></tt></li>
+<li><strong>Description:</strong> This together with <tt class="docutils literal"><span class="pre">hive.metastore.partition-batch-size.min</span></tt> defines range of partition sizes read from Hive. First partition is always of size <tt class="docutils literal"><span class="pre">hive.metastore.partition-batch-size.min</span></tt> and each following partition is two times bigger then previous up to <tt class="docutils literal"><span class="pre">hive.mestastore.partition-batch-size.max</span></tt> (the formula for <tt class="docutils literal"><span class="pre">n</span></tt> partition size is min(<tt class="docutils literal"><span class="pre">hive.metastore.partition-batch-size.max</span></tt>, (<tt class="docutils literal"><span class="pre">2``^``n</span></tt>) * <tt class="docutils literal"><span class="pre">hive.metastore.partition-batch-size.min</span></tt>)). This algorithm allows to adjust partition size live to what is required. If size of queries in system differs siginificantly, then this range should be extended to better adjust to processed case. In case of cluster working with queries with about the same size, both values may be same for maximal attunement giving slight edge in processing time.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="hive-metastore-partition-batch-size-min">
+<h3><tt class="docutils literal"><span class="pre">hive.metastore.partition-batch-size.min</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Integer</span></tt> (at least <tt class="docutils literal"><span class="pre">1</span></tt>)</li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">10</span></tt></li>
+<li><strong>Description:</strong> See <tt class="docutils literal"><span class="pre">hive.metastore.partition-batch-size.max</span></tt>.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="hive-optimized-reader-enabled">
+<h3><tt class="docutils literal"><span class="pre">hive.optimized-reader.enabled</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Boolean</span></tt></li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">false</span></tt></li>
+<li><strong>Description:</strong> <em>Deprecated</em> Enables number of reader improvements introduced by alternative ORC implementation. The new reader supports vectorized reads, lazy loading, and predicate push down, all of which make the reader more efficient and typically reduces wall clock time for a query. However as the code has changed significantly it may or may not introduce some minor issues, so it can be disabled if some  problems with environment are noticed.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="hive-orc-max-buffer-size">
+<h3><tt class="docutils literal"><span class="pre">hive.orc.max-buffer-size</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">String</span></tt> (data size)</li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">8</span> <span class="pre">MB</span></tt></li>
+<li><strong>Description:</strong> Serves as default value for <tt class="docutils literal"><span class="pre">orc_max_buffer_size</span></tt> and <tt class="docutils literal"><span class="pre">orc_stream_buffer_size</span></tt> session properties defining max size of ORC read or streaming operators. Higher value will allow bigger chunks to be processed but will decrease concurrency level.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="hive-orc-max-merge-distance">
+<h3><tt class="docutils literal"><span class="pre">hive.orc.max-merge-distance</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">String</span></tt> (data size)</li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">1</span> <span class="pre">MB</span></tt></li>
+<li><strong>Description:</strong> Serves as default value for <tt class="docutils literal"><span class="pre">orc_max_merge_distance</span></tt> session property. Defines maximum size of gap between two reads to merge into a single read. The reads may be merged if distance between requested data ranges in data source is smaller or equal to this value.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="hive-orc-stream-buffer-size">
+<h3><tt class="docutils literal"><span class="pre">hive.orc.stream-buffer-size</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">String</span></tt> (data size)</li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">8</span> <span class="pre">MB</span></tt></li>
+<li><strong>Description:</strong> <em>Unused</em></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="hive-parquet-optimized-reader-enabled">
+<span id="parquet-optimized-reader"></span><h3><tt class="docutils literal"><span class="pre">hive.parquet-optimized-reader.enabled</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Boolean</span></tt></li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">false</span></tt></li>
+<li><strong>Description:</strong> <em>Deprecated</em> Serves as default value for <tt class="docutils literal"><span class="pre">parquet_optimized_reader_enabled</span></tt> session property. Enables number of reader improvements introduced by alternative parquet implementation. The new reader supports vectorized reads, lazy loading, and predicate push down, all of which make the reader more efficient and typically reduces wall clock time for a query. However as the code has changed significantly it may or may not introduce some minor issues, so it can be disabled if some  problems with environment are noticed. This property enables/disables all optimizations except of predicate pushdown as it is managed by <tt class="docutils literal"><span class="pre">hive.parquet-predicate-pushdown.enabled</span></tt> property.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="hive-parquet-predicate-pushdown-enabled">
+<h3><tt class="docutils literal"><span class="pre">hive.parquet-predicate-pushdown.enabled</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Boolean</span></tt></li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">false</span></tt></li>
+<li><strong>Description:</strong> <em>Deprecated</em> Serves as default value for <tt class="docutils literal"><span class="pre">parquet_predicate_pushdown_enabled</span></tt> sesssion property. See <a class="reference internal" href="#parquet-optimized-reader"><em>hive.parquet-optimized-reader.enabled</em></a>.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="hive-parquet-use-column-names">
+<h3><tt class="docutils literal"><span class="pre">hive.parquet.use-column-names</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Boolean</span></tt></li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">false</span></tt></li>
+<li><strong>Description:</strong> Access Parquet columns using names from the file. By default, columns in Parquet files are accessed by their ordinal position in the Hive table definition. Setting this property allows to use columns names recorded in the Parquet file instead.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="hive-s3-max-connections">
+<span id="s3-max-connections"></span><h3><tt class="docutils literal"><span class="pre">hive.s3.max-connections</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Integer</span></tt> (at least <tt class="docutils literal"><span class="pre">1</span></tt>)</li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">500</span></tt></li>
+<li><strong>Description:</strong> This value the maximum number of connections to S3. How many connection to S3 cluster may be open at the same time by the S3 driver. Higher value may increase network utilization when cluster is used on high speed network. However higher value relies more on S3 servers being well configured for high parallelism.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="hive-s3-multipart-min-file-size">
+<span id="s3-multipart-min-file"></span><h3><tt class="docutils literal"><span class="pre">hive.s3.multipart.min-file-size</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">String</span></tt> (data size, at least <tt class="docutils literal"><span class="pre">16</span> <span class="pre">MB</span></tt>)</li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">16</span> <span class="pre">MB</span></tt></li>
+<li><strong>Description:</strong> Minimum file size for an S3 multipart upload. This property describes how big file must be to be uploaded to S3 cluster using multipart feature. Amazon recommendation is to use <tt class="docutils literal"><span class="pre">100</span> <span class="pre">MB</span></tt> value here, however lower value may allow to increase upload parallelism and can decrease <tt class="docutils literal"><span class="pre">data</span> <span class="pre">lost</span></tt>/<tt class="docutils literal"><span class="pre">data</span> <span class="pre">sent</span></tt> ratio in unstable network conditions.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="hive-s3-multipart-min-part-size">
+<span id="s3-multipart-min-part"></span><h3><tt class="docutils literal"><span class="pre">hive.s3.multipart.min-part-size</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">String</span></tt> (data size, at least <tt class="docutils literal"><span class="pre">5</span> <span class="pre">MB</span></tt>)</li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">5</span> <span class="pre">MB</span></tt></li>
+<li><strong>Description:</strong> Defines the minimum part size for upload parts. Decreasing the minimum part size causes multipart uploads to be split into a larger number of smaller parts. Setting this value too low has a negative effect on transfer speeds, causing extra latency and network communication for each part.</li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="custom-storage-handlers">
+<h2>Custom Storage Handlers</h2>
+<p>Hive tables can use custom storage handlers to support alternative data formats.
+To query from Hive tables that use custom storage handlers, you will need the
+JARs containing the storage handler classes.  Copy the storage handler JARs to
+the connector plugin directory on all nodes, restart the presto servers, and
+then query the table as you would any other Hive table.  You can copy the
+jar across the cluster using presto-admin&#8217;s <tt class="docutils literal"><span class="pre">plugin</span> <span class="pre">add_jar</span></tt> command and
+restart servers by using the <tt class="docutils literal"><span class="pre">server</span> <span class="pre">restart</span></tt> command.</p>
+<p>For example, if the plugin directory is located at
+<tt class="docutils literal"><span class="pre">/usr/lib/presto/lib/plugin</span></tt>, and you want to use the <tt class="docutils literal"><span class="pre">hive-hadoop2</span></tt>
+connector to query from a table that uses a storage handler available
+in <tt class="docutils literal"><span class="pre">/tmp/my-classes.jar</span></tt>:</p>
+<ol class="arabic">
+<li><p class="first">Copy <tt class="docutils literal"><span class="pre">my-classes.jar</span></tt> into <tt class="docutils literal"><span class="pre">/usr/lib/presto/lib/plugin/hive-hadoop2</span></tt>
+on all nodes of the cluster.</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="n">sudo</span> <span class="p">.</span><span class="o">/</span><span class="n">presto</span><span class="o">-</span><span class="k">admin</span> <span class="n">plugin</span> <span class="n">add_jar</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">my</span><span class="o">-</span><span class="n">classes</span><span class="p">.</span><span class="n">jar</span> <span class="n">hive</span><span class="o">-</span><span class="n">hadoop2</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Restart your presto-servers:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="n">sudo</span> <span class="p">.</span><span class="o">/</span><span class="n">presto</span><span class="o">-</span><span class="k">admin</span> <span class="n">server</span> <span class="k">restart</span>
+</pre></div>
+</div>
+</li>
+</ol>
+<p>Then you can query from the table as you would any other Hive table in Presto.</p>
+</div>
+</div>
+
+
+</div>
+<div class="bottomnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="blackhole.html">11.1. Black Hole Connector</a>
+    </span>
+    <span class="right">
+        <a href="jmx.html">11.3. JMX Connector</a> &raquo;
+    </span>
+</p>
+
+</div>
+
+    <div class="footer">
+    </div>
+  </body>
+</html>

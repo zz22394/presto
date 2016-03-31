@@ -1,0 +1,106 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>12.28. PREPARE &mdash; Presto 0.141t Documentation</title>
+    
+    <link rel="stylesheet" href="../_static/presto.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.141t',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Presto 0.141t Documentation" href="../index.html" />
+    <link rel="up" title="12. SQL Statement Syntax" href="../sql.html" />
+    <link rel="next" title="12.29. EXECUTE" href="execute.html" />
+    <link rel="prev" title="12.27. VALUES" href="values.html" /> 
+  </head>
+  <body>
+<div class="header">
+    <h1 class="heading"><a href="../index.html">
+        <span>Presto 0.141t Documentation</span></a></h1>
+    <h2 class="heading"><span>12.28. PREPARE</span></h2>
+</div>
+<div class="topnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="values.html">12.27. VALUES</a>
+    </span>
+    <span class="right">
+        <a href="execute.html">12.29. EXECUTE</a> &raquo;
+    </span>
+</p>
+
+</div>
+<div class="content">
+    
+  <div class="section" id="prepare">
+<span id="id1"></span><h1>12.28. PREPARE</h1>
+<div class="section" id="synopsis">
+<h2>Synopsis</h2>
+<div class="highlight-none"><div class="highlight"><pre>PREPARE statement_name FROM statement
+</pre></div>
+</div>
+</div>
+<div class="section" id="description">
+<h2>Description</h2>
+<p>Prepares a statement for execution later. Prepared statements are queries that
+are saved on a per-session basis with a given name. The statement can include
+parameters in place of literals to be filled in at execution time. Parameters
+are represented by question marks.</p>
+</div>
+<div class="section" id="examples">
+<h2>Examples</h2>
+<p>Prepare a select query:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="k">PREPARE</span> <span class="n">my_select1</span>
+<span class="k">FROM</span> <span class="k">SELECT</span> <span class="o">*</span> <span class="k">from</span> <span class="n">NATION</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Prepare a select query that includes parameters. The values to compare with
+regionkey and nationkey will be filled in with the <a class="reference internal" href="execute.html#execute"><em>EXECUTE</em></a> statement:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="k">PREPARE</span> <span class="n">my_select2</span>
+<span class="k">FROM</span> <span class="k">SELECT</span> <span class="n">name</span> <span class="k">FROM</span> <span class="n">nation</span> <span class="k">WHERE</span> <span class="n">regionkey</span> <span class="o">=</span> <span class="o">?</span> <span class="k">and</span> <span class="n">nationkey</span> <span class="o">&lt;</span> <span class="o">?</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Prepare an insert:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="k">PREPARE</span> <span class="n">my_insert</span>
+<span class="k">FROM</span> <span class="k">INSERT</span> <span class="k">INTO</span> <span class="n">cities</span> <span class="k">VALUES</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;San Francisco&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+</div>
+<div class="bottomnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="values.html">12.27. VALUES</a>
+    </span>
+    <span class="right">
+        <a href="execute.html">12.29. EXECUTE</a> &raquo;
+    </span>
+</p>
+
+</div>
+
+    <div class="footer">
+    </div>
+  </body>
+</html>

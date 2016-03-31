@@ -1,0 +1,97 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Installing Presto Admin &mdash; Presto 0.141t Documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/presto.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.141t',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="Presto 0.141t Documentation" href="../../../index.html" />
+    <link rel="up" title="8.1. Quick Start Guide" href="../quick-start-guide.html" />
+    <link rel="next" title="Configuring Presto-Admin" href="presto-admin-configuration.html" />
+    <link rel="prev" title="8.1. Quick Start Guide" href="../quick-start-guide.html" /> 
+  </head>
+  <body>
+<div class="header">
+    <h1 class="heading"><a href="../../../index.html">
+        <span>Presto 0.141t Documentation</span></a></h1>
+    <h2 class="heading"><span>Installing Presto Admin</span></h2>
+</div>
+<div class="topnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="../quick-start-guide.html">8.1. Quick Start Guide</a>
+    </span>
+    <span class="right">
+        <a href="presto-admin-configuration.html">Configuring Presto-Admin</a> &raquo;
+    </span>
+</p>
+
+</div>
+<div class="content">
+    
+  <div class="section" id="installing-presto-admin">
+<span id="presto-admin-installation-label"></span><h1>Installing Presto Admin</h1>
+<p><em>Prerequisites:</em> <a class="reference external" href="https://www.python.org/downloads">Python 2.6 or Python 2.7</a></p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">For Amazon EMR, use the online installer instead of the offline installer (see <a class="reference internal" href="advanced-installation-options.html#advanced-installation-options-label"><em>Advanced Installation Options</em></a>).</p>
+</div>
+<p>To install <tt class="docutils literal"><span class="pre">presto-admin</span></tt>:</p>
+<p>1. Copy the installer <tt class="docutils literal"><span class="pre">prestoadmin-1.3-offline.tar.bz2</span></tt> to the location where you want
+<tt class="docutils literal"><span class="pre">presto-admin</span></tt> to run. The recommended installation location is <tt class="docutils literal"><span class="pre">/opt</span></tt>. Note that <tt class="docutils literal"><span class="pre">presto-admin</span></tt> does not have to be on the same node(s) where Presto will run, though it does need to have SSH access to all of the nodes in the cluster.</p>
+<p>2. Extract and sudo run the installation script from within the <tt class="docutils literal"><span class="pre">prestoadmin</span></tt> directory.</p>
+<div class="highlight-sql"><pre>$ tar xvf prestoadmin-1.3-offline.tar.bz2
+$ cd prestoadmin
+$ sudo ./install-prestoadmin.sh</pre>
+</div>
+<p>The installation script will create a <tt class="docutils literal"><span class="pre">presto-admin-install</span></tt> directory and an
+executable <tt class="docutils literal"><span class="pre">presto-admin</span></tt> script. Make sure to run the installation script
+with sudo.</p>
+<p>3. Verify that <tt class="docutils literal"><span class="pre">presto-admin</span></tt> was installed properly by running the
+<tt class="docutils literal"><span class="pre">presto-admin</span></tt> help.  Please note that it is necessary to run all
+<tt class="docutils literal"><span class="pre">presto-admin</span></tt> commands with sudo:</p>
+<div class="highlight-sql"><pre>$ sudo ./presto-admin --help</pre>
+</div>
+<p>Please note that you should only run one <tt class="docutils literal"><span class="pre">presto-admin</span></tt> command on your
+cluster at a time.</p>
+</div>
+
+
+</div>
+<div class="bottomnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="../quick-start-guide.html">8.1. Quick Start Guide</a>
+    </span>
+    <span class="right">
+        <a href="presto-admin-configuration.html">Configuring Presto-Admin</a> &raquo;
+    </span>
+</p>
+
+</div>
+
+    <div class="footer">
+    </div>
+  </body>
+</html>

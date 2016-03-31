@@ -1,0 +1,229 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>17.1. Unsupported Features and Known Limitations &mdash; Presto 0.141t Documentation</title>
+    
+    <link rel="stylesheet" href="../_static/presto.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.141t',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Presto 0.141t Documentation" href="../index.html" />
+    <link rel="up" title="17. Release Notes" href="../release.html" />
+    <link rel="next" title="17.2. Teradata Additions" href="teradata-additions.html" />
+    <link rel="prev" title="17. Release Notes" href="../release.html" /> 
+  </head>
+  <body>
+<div class="header">
+    <h1 class="heading"><a href="../index.html">
+        <span>Presto 0.141t Documentation</span></a></h1>
+    <h2 class="heading"><span>17.1. Unsupported Features and Known Limitations</span></h2>
+</div>
+<div class="topnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="../release.html">17. Release Notes</a>
+    </span>
+    <span class="right">
+        <a href="teradata-additions.html">17.2. Teradata Additions</a> &raquo;
+    </span>
+</p>
+
+</div>
+<div class="content">
+    
+  <div class="section" id="unsupported-features-and-known-limitations">
+<h1>17.1. Unsupported Features and Known Limitations</h1>
+<p>Presto 141t is equivalent to Presto release 0.141, with some additional features. Below
+are documented unsupported features and known limitations.</p>
+<div class="section" id="unsupported-functionality">
+<h2>Unsupported Functionality</h2>
+<p>Some functionality from Presto 0.141 may work but is not officially supported by Teradata.</p>
+<ul class="simple">
+<li>The installation method as documented on <a class="reference external" href="https://prestodb.io/docs/0.141/installation/deployment.html">prestodb.io</a>. Refer to the documentation for Teradata&#8217;s <a class="reference internal" href="../release.html"><em>server-installation installation</em></a> instead.</li>
+<li>Web Connector for Tableau</li>
+<li>The following connectors:<ul>
+<li>Cassandra</li>
+<li>Kafka</li>
+<li>Redis</li>
+<li>Hive-hadoop1</li>
+<li>Hive-cdh4</li>
+</ul>
+</li>
+<li>Developing Plugins</li>
+</ul>
+</div>
+<div class="section" id="beta-features">
+<h2>Beta Features</h2>
+<p>Decimal support is currently in Beta stage. <a class="reference internal" href="../language/decimal_limitations.html"><em>See list of known limitations</em></a>.</p>
+</div>
+<div class="section" id="sql-dml-ddl-limitations">
+<h2>SQL/DML/DDL Limitations</h2>
+<blockquote>
+<div><ul class="simple">
+<li>The SQL keyword <tt class="docutils literal"><span class="pre">end</span></tt> is used as a column name in <tt class="docutils literal"><span class="pre">system.runtime.queries</span></tt>, so in order to query from that column, <tt class="docutils literal"><span class="pre">end</span></tt> must be wrapped in quotes</li>
+<li><tt class="docutils literal"><span class="pre">NATURAL</span> <span class="pre">JOIN</span></tt> is not supported</li>
+<li>Correlated subqueries are not supported</li>
+<li>Non-equi joins are only supported for inner join &#8211; e.g. <tt class="docutils literal"><span class="pre">&quot;n_name&quot;</span> <span class="pre">&lt;</span> <span class="pre">&quot;p_name&quot;</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">EXISTS</span></tt>, <tt class="docutils literal"><span class="pre">EXCEPT</span></tt>, and <tt class="docutils literal"><span class="pre">INTERSECT</span></tt> are not supported</li>
+<li><tt class="docutils literal"><span class="pre">ROLLUP</span></tt>, <tt class="docutils literal"><span class="pre">CUBE</span></tt>, <tt class="docutils literal"><span class="pre">GROUPING</span> <span class="pre">SETS</span></tt> are not supported</li>
+<li><tt class="docutils literal"><span class="pre">LIMIT</span> <span class="pre">ALL</span></tt> and <tt class="docutils literal"><span class="pre">OFFSET</span></tt> are not supported</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="hive-connector-limitations">
+<h2>Hive Connector Limitations</h2>
+<p>Teradata supports data stored in the following formats:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Text files</li>
+<li>ORC</li>
+<li>RCFILE</li>
+<li>PARQUET</li>
+</ul>
+</div></blockquote>
+<div class="section" id="hive-to-presto-data-type-mapping">
+<h3>Hive to Presto data type mapping</h3>
+<p>Presto does not map Hive data types 1-to-1:</p>
+<blockquote>
+<div><ul class="simple">
+<li>All integral types are mapped to <tt class="docutils literal"><span class="pre">BIGINT</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">FLOAT</span></tt> and <tt class="docutils literal"><span class="pre">DOUBLE</span></tt> are mapped to <tt class="docutils literal"><span class="pre">DOUBLE</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">STRING</span></tt> and <tt class="docutils literal"><span class="pre">VARCHAR</span></tt> are mapped to <tt class="docutils literal"><span class="pre">VARCHAR</span></tt></li>
+</ul>
+</div></blockquote>
+<p>These mappings may be visible if column values are passed to Hive UDFs or through slight
+differences in mathematical operations.</p>
+<p>Because <tt class="docutils literal"><span class="pre">FLOAT</span></tt> values are mapped to <tt class="docutils literal"><span class="pre">DOUBLE</span></tt>, the user may see unexpected results.
+For example, a Hive data file containing a <tt class="docutils literal"><span class="pre">FLOAT</span></tt> column with value <tt class="docutils literal"><span class="pre">123.345</span></tt>, will
+be presented to the user as a double whose string representation is <tt class="docutils literal"><span class="pre">123.34500122070312</span></tt>.</p>
+</div>
+<div class="section" id="timestamp-limitations">
+<h3>TIMESTAMP limitations</h3>
+<p>Presto supports a granularity of milliseconds for the <tt class="docutils literal"><span class="pre">TIMESTAMP</span></tt> datatype, while Hive
+supports microseconds.</p>
+<p><tt class="docutils literal"><span class="pre">TIMESTAMP</span></tt> values in tables are parsed according to the server&#8217;s timezone. If this is not what you want, you must
+start Presto in the UTC timezone. To do this, set the JVM timezone to UTC: <tt class="docutils literal"><span class="pre">-Duser.timezone=UTC</span></tt> and also add the
+following property in  the Hive connector properties file: <tt class="docutils literal"><span class="pre">hive.time-zone=UTC</span></tt>.</p>
+<p>Presto&#8217;s method for declaring timestamps with/with out timezone is not sql standard. In Presto, both are declared using
+the word <tt class="docutils literal"><span class="pre">TIMESTAMP</span></tt>, e.g. <tt class="docutils literal"><span class="pre">TIMESTAMP</span> <span class="pre">'2003-12-10</span> <span class="pre">10:32:02.1212'</span></tt> or <tt class="docutils literal"><span class="pre">TIMESTAMP</span> <span class="pre">'2003-12-10</span> <span class="pre">10:32:02.1212</span> <span class="pre">UTC'</span></tt>.
+The timestamp is determined to be with or without timezone depending on whether you include a time zone at the end of
+the timestamp. In other systems, timestamps are explicitly declared as <tt class="docutils literal"><span class="pre">TIMESTAMP</span> <span class="pre">WITH</span> <span class="pre">TIME</span> <span class="pre">ZONE</span></tt> or
+<tt class="docutils literal"><span class="pre">TIMESTAMP</span> <span class="pre">WITHOUT</span> <span class="pre">TIME</span> <span class="pre">ZONE</span></tt> (with <tt class="docutils literal"><span class="pre">TIMESTAMP</span></tt> being an alias for one of them). In these systems, if you declare a
+<tt class="docutils literal"><span class="pre">TIMESTAMP</span> <span class="pre">WITHOUT</span> <span class="pre">TIMEZONE</span></tt>, and your string has a timezone at the end, it is silently ignored. If you declare a
+<tt class="docutils literal"><span class="pre">TIMESTAMP</span> <span class="pre">WITH</span> <span class="pre">TIME</span> <span class="pre">ZONE</span></tt> and no time zone is included, the string is interpreted in the user time zone.</p>
+</div>
+<div class="section" id="insert-into-values-limitations">
+<h3>INSERT INTO ... VALUES limitations</h3>
+<p>The data types must be exact, i.e. must use <tt class="docutils literal"><span class="pre">2.0</span></tt> for <tt class="docutils literal"><span class="pre">double</span></tt>, <tt class="docutils literal"><span class="pre">cast('2015-1-1'</span> <span class="pre">as</span> <span class="pre">date)</span></tt> for <tt class="docutils literal"><span class="pre">date</span></tt>, and you must supply a value for every column.</p>
+</div>
+<div class="section" id="insert-into-select-limitations">
+<h3>INSERT INTO ... SELECT limitations</h3>
+<p>INSERT INTO creates unreadable data (unreadable both by Hive and Presto) if a Hive table has a schema for which Presto
+only interprets some of the columns (e.g. due to unsupported data types).  This is because the generated file on HDFS
+will not match the Hive table schema.</p>
+<p>If called through JDBC, executeUpdate does not return the count of rows inserted.</p>
+</div>
+<div class="section" id="hive-parquet-issues">
+<h3>Hive Parquet Issues</h3>
+<p>PARQUET support in Hive imposes more limitations than the other file types.</p>
+<blockquote>
+<div><ul class="simple">
+<li><tt class="docutils literal"><span class="pre">DATE</span></tt> and <tt class="docutils literal"><span class="pre">BINARY</span></tt> datatypes are not supported</li>
+<li>Although``FLOAT`` column was mapped to <tt class="docutils literal"><span class="pre">DOUBLE</span></tt> through Presto the value for <tt class="docutils literal"><span class="pre">123.345</span></tt> was exposed as <tt class="docutils literal"><span class="pre">DOUBLE</span> <span class="pre">123.345</span></tt> in Presto.</li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="postgresql-and-mysql-connectors-limitations">
+<h2>PostgreSQL and MySQL Connectors Limitations</h2>
+<div class="section" id="known-bugs">
+<h3>Known Bugs</h3>
+<div class="line-block">
+<div class="line">PostgreSQL connector <tt class="docutils literal"><span class="pre">describe</span> <span class="pre">table</span></tt> reports <tt class="docutils literal"><span class="pre">Table</span> <span class="pre">has</span> <span class="pre">no</span> <span class="pre">supported</span> <span class="pre">column</span> <span class="pre">types</span></tt> inappropriately.</div>
+<div class="line"><a class="reference external" href="https://github.com/facebook/presto/issues/4082">https://github.com/facebook/presto/issues/4082</a></div>
+</div>
+</div>
+<div class="section" id="security">
+<h3>Security</h3>
+<p>Presto connects to MySQL and PostgreSQL using the credentials specified in the properties file.  The credentials are
+used to authenticate the users while establishing the connection.  Presto runs queries as the &#8220;presto&#8221; service user and
+does not pass down user information to MySQL or PostgreSQL connectors.</p>
+</div>
+<div class="section" id="datatypes">
+<h3>Datatypes</h3>
+<p>PostgreSQL and MySQL each support a wide variety of datatypes (PostgreSQL datatypes, MySQL datatypes).  Many of these
+types are not supported in Presto.  Table columns that are defined using an unsupported type are not visible to Presto
+users.  These columns are not shown when <tt class="docutils literal"><span class="pre">describe</span> <span class="pre">table</span></tt> or <tt class="docutils literal"><span class="pre">select</span> <span class="pre">*</span></tt> SQL statements are executed.</p>
+</div>
+<div class="section" id="create-table">
+<h3>CREATE TABLE</h3>
+<div class="line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">CREATE</span> <span class="pre">TABLE</span> <span class="pre">(...)</span></tt> does not work, but <tt class="docutils literal"><span class="pre">CREATE</span> <span class="pre">TABLE</span> <span class="pre">AS</span> <span class="pre">SELECT</span></tt> does.</div>
+</div>
+</div>
+<div class="section" id="insert-into">
+<h3>INSERT INTO</h3>
+<div class="line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">INSERT</span> <span class="pre">INTO</span></tt> is not supported</div>
+</div>
+</div>
+<div class="section" id="drop-table">
+<h3>DROP TABLE</h3>
+<div class="line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">DROP</span> <span class="pre">TABLE</span></tt> is not supported.</div>
+</div>
+</div>
+<div class="section" id="limited-sql-push-down">
+<h3>Limited SQL push-down</h3>
+<p>Presto does not &#8220;push-down&#8221; aggregate calculations to PostgreSQL or MySQL.  This means that when a user executes a
+simple query such as <tt class="docutils literal"><span class="pre">SELECT</span> <span class="pre">COUNT(*)</span> <span class="pre">FROM</span> <span class="pre">lineitem</span></tt> the entire table will be retrieved and the aggregate calculated
+by Presto.  If the table is large or the network slow, this may take a very long time.</p>
+</div>
+<div class="section" id="mysql-catalogs">
+<h3>MySQL Catalogs</h3>
+<p>MySQL catalog names are mapped to Presto schema names.</p>
+</div>
+</div>
+<div class="section" id="teradata-jdbc-driver">
+<h2>Teradata JDBC Driver</h2>
+<p>The Teradata JDBC driver does not support batch queries.</p>
+</div>
+</div>
+
+
+</div>
+<div class="bottomnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="../release.html">17. Release Notes</a>
+    </span>
+    <span class="right">
+        <a href="teradata-additions.html">17.2. Teradata Additions</a> &raquo;
+    </span>
+</p>
+
+</div>
+
+    <div class="footer">
+    </div>
+  </body>
+</html>

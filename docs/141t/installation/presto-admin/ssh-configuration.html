@@ -1,0 +1,111 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>8.5. SSH Configuration &mdash; Presto 0.141t Documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/presto.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.141t',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="Presto 0.141t Documentation" href="../../index.html" />
+    <link rel="up" title="8. User Guide" href="user-guide.html" />
+    <link rel="next" title="8.6. Presto-Admin Commands" href="presto-admin-commands.html" />
+    <link rel="prev" title="8.4. Configuring the Presto Port" href="installation/presto-port-configuration.html" /> 
+  </head>
+  <body>
+<div class="header">
+    <h1 class="heading"><a href="../../index.html">
+        <span>Presto 0.141t Documentation</span></a></h1>
+    <h2 class="heading"><span>8.5. SSH Configuration</span></h2>
+</div>
+<div class="topnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="installation/presto-port-configuration.html">8.4. Configuring the Presto Port</a>
+    </span>
+    <span class="right">
+        <a href="presto-admin-commands.html">8.6. Presto-Admin Commands</a> &raquo;
+    </span>
+</p>
+
+</div>
+<div class="content">
+    
+  <div class="section" id="ssh-configuration">
+<span id="ssh-configuration-label"></span><h1>8.5. SSH Configuration</h1>
+<p>In order to run <tt class="docutils literal"><span class="pre">presto-admin</span></tt>, the node that is running <tt class="docutils literal"><span class="pre">presto-admin</span></tt> must be able to connect to all of the nodes running Presto via SSH. <tt class="docutils literal"><span class="pre">presto-admin</span></tt> makes the SSH connection with the username and port specified in <tt class="docutils literal"><span class="pre">/etc/opt/prestoadmin/config.json</span></tt>. Even if you have a single-node installation, <tt class="docutils literal"><span class="pre">ssh</span> <span class="pre">username&#64;localhost</span></tt> needs to work properly.</p>
+<p>There are two ways to configure SSH: with keys so that you can use passwordless SSH, or with passwords. If your cluster already has passwordless SSH configured, you can skip this step. If you are intending to use <tt class="docutils literal"><span class="pre">presto-admin</span></tt> with passwords, take a look at the documentation below, because there are several ways to specify the password.</p>
+<div class="section" id="using-presto-admin-with-passwordless-ssh">
+<h2>Using <tt class="docutils literal"><span class="pre">presto-admin</span></tt> with passwordless SSH</h2>
+<p>In order to set up passwordless SSH, you must first generate keys with no passphrase on the node running <tt class="docutils literal"><span class="pre">presto-admin</span></tt>:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="n">ssh</span><span class="o">-</span><span class="n">keygen</span> <span class="o">-</span><span class="n">t</span> <span class="n">rsa</span> <span class="o">-</span><span class="n">P</span> <span class="s1">&#39;&#39;</span> <span class="o">-</span><span class="n">f</span> <span class="o">~/</span><span class="p">.</span><span class="n">ssh</span><span class="o">/</span><span class="n">id_rsa</span>
+</pre></div>
+</div>
+<p>Copy the public key to all of the coordinator and worker nodes:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="n">ssh</span> <span class="o">&lt;</span><span class="n">username</span><span class="o">&gt;@&lt;</span><span class="n">ip</span><span class="o">&gt;</span> <span class="ss">&quot;mkdir -p ~/.ssh &amp;&amp; chmod 700 ~/.ssh&quot;</span>
+<span class="n">scp</span> <span class="o">~/</span><span class="p">.</span><span class="n">ssh</span><span class="o">/</span><span class="n">id_rsa</span><span class="p">.</span><span class="n">pub</span> <span class="o">&lt;</span><span class="n">username</span><span class="o">&gt;@&lt;</span><span class="n">ip</span><span class="o">&gt;</span><span class="p">:</span><span class="o">~/</span><span class="p">.</span><span class="n">ssh</span><span class="o">/</span><span class="n">id_rsa</span><span class="p">.</span><span class="n">pub</span>
+</pre></div>
+</div>
+<p>Log into all of those nodes and copy the public key to the authorized key file:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="n">ssh</span> <span class="o">&lt;</span><span class="n">username</span><span class="o">&gt;@&lt;</span><span class="n">ip</span><span class="o">&gt;</span> <span class="ss">&quot;cat ~/.ssh/id_rsa.pub &gt;&gt; ~/.ssh/authorized_keys &amp;&amp; chmod 600 ~/.ssh/authorized_keys&quot;</span>
+</pre></div>
+</div>
+<p>Once you have passwordless SSH set up, you can just run <tt class="docutils literal"><span class="pre">presto-admin</span></tt> commands as they appear in the documentation. If your private key is not in <tt class="docutils literal"><span class="pre">~/.ssh</span></tt>, it is possible to specify one or several private keys using the -i CLI option:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="n">sudo</span> <span class="p">.</span><span class="o">/</span><span class="n">presto</span><span class="o">-</span><span class="k">admin</span> <span class="o">&lt;</span><span class="n">command</span><span class="o">&gt;</span> <span class="o">-</span><span class="n">i</span> <span class="o">&lt;</span><span class="n">path_to_private_key</span><span class="o">&gt;</span> <span class="o">-</span><span class="n">i</span> <span class="o">&lt;</span><span class="n">path_to_second_private_key</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>Please also note that it is not common for servers to allow passwordless SSH to root because of security concerns, so it is preferable for your SSH user not to be root.</p>
+</div>
+<div class="section" id="using-presto-admin-with-ssh-passwords">
+<h2>Using <tt class="docutils literal"><span class="pre">presto-admin</span></tt> with SSH passwords</h2>
+<p>If you do not want to set up passwordless SSH on your cluster, it is possible to use <tt class="docutils literal"><span class="pre">presto-admin</span></tt> with SSH passwords. However, you will need to add a password argument to the <tt class="docutils literal"><span class="pre">presto-admin</span></tt> commands as they appear in the documentation. There are several options. To specify a password on the CLI in plaintext:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="n">sudo</span> <span class="p">.</span><span class="o">/</span><span class="n">presto</span><span class="o">-</span><span class="k">admin</span> <span class="o">&lt;</span><span class="n">command</span><span class="o">&gt;</span> <span class="o">-</span><span class="n">p</span> <span class="o">&lt;</span><span class="n">password</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>However, from a security perspective, it is preferable not to type your password in plaintext. Thus, it is also possible to add an interactive password prompt, which prompts you for the initial value of your password before running any commands:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="n">sudo</span> <span class="p">.</span><span class="o">/</span><span class="n">presto</span><span class="o">-</span><span class="k">admin</span> <span class="o">&lt;</span><span class="n">command</span><span class="o">&gt;</span> <span class="o">-</span><span class="n">I</span>
+<span class="n">Initial</span> <span class="n">value</span> <span class="k">for</span> <span class="n">env</span><span class="p">.</span><span class="n">password</span><span class="p">:</span> <span class="o">&lt;</span><span class="k">type</span> <span class="n">your</span> <span class="n">password</span> <span class="n">here</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>If you do not specify a password, the command will fail with a parallel execution failure, since, by default, <tt class="docutils literal"><span class="pre">presto-admin</span></tt> runs in parallel and cannot prompt for a password while running in parallel. If you specify the <tt class="docutils literal"><span class="pre">--serial</span></tt> option for <tt class="docutils literal"><span class="pre">presto-admin</span></tt>, <tt class="docutils literal"><span class="pre">presto-admin</span></tt> will prompt you for a password if it cannot connect.</p>
+<p>Please note that the SSH password for the user specified in <tt class="docutils literal"><span class="pre">/etc/opt/prestoadmin/config.json</span></tt> must match the sudo password for that user.</p>
+</div>
+</div>
+
+
+</div>
+<div class="bottomnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="installation/presto-port-configuration.html">8.4. Configuring the Presto Port</a>
+    </span>
+    <span class="right">
+        <a href="presto-admin-commands.html">8.6. Presto-Admin Commands</a> &raquo;
+    </span>
+</p>
+
+</div>
+
+    <div class="footer">
+    </div>
+  </body>
+</html>

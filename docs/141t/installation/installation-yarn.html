@@ -1,0 +1,781 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Presto on Yarn-based cluster &mdash; Presto 0.141t Documentation</title>
+    
+    <link rel="stylesheet" href="../_static/presto.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.141t',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Presto 0.141t Documentation" href="../index.html" />
+    <link rel="up" title="5. Presto Server Installation" href="../server-installation.html" />
+    <link rel="next" title="Manual Installation with Presto Admin" href="installation-presto-admin.html" />
+    <link rel="prev" title="Automated Installation with Ambari" href="installation-ambari.html" /> 
+  </head>
+  <body>
+<div class="header">
+    <h1 class="heading"><a href="../index.html">
+        <span>Presto 0.141t Documentation</span></a></h1>
+    <h2 class="heading"><span>Presto on Yarn-based cluster</span></h2>
+</div>
+<div class="topnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="installation-ambari.html">Automated Installation with Ambari</a>
+    </span>
+    <span class="right">
+        <a href="installation-presto-admin.html">Manual Installation with Presto Admin</a> &raquo;
+    </span>
+</p>
+
+</div>
+<div class="content">
+    
+  <div class="section" id="presto-on-yarn-based-cluster">
+<h1><a class="toc-backref" href="#id1">Presto on Yarn-based cluster</a></h1>
+<div class="contents topic" id="presto-yarn-integration">
+<p class="topic-title first">Presto YARN Integration</p>
+<ul class="simple">
+<li><a class="reference internal" href="#presto-on-yarn-based-cluster" id="id1">Presto on Yarn-based cluster</a><ul>
+<li><a class="reference internal" href="#presto-yarn-slider-package" id="id2">Presto-YARN Slider package</a></li>
+<li><a class="reference internal" href="#presto-yarn-deployment" id="id3">Presto-YARN deployment</a><ul>
+<li><a class="reference internal" href="#pre-requisities" id="id4">Pre-requisities</a></li>
+<li><a class="reference internal" href="#presto-app-package-configuration" id="id5">Presto App Package configuration</a><ul>
+<li><a class="reference internal" href="#appconfig-json" id="id6">appConfig.json</a></li>
+<li><a class="reference internal" href="#resources-json" id="id7">resources.json</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#manual-installation-via-slider" id="id8">Manual Installation via Slider</a><ul>
+<li><a class="reference internal" href="#additional-slider-commands" id="id9">Additional Slider commands</a><ul>
+<li><a class="reference internal" href="#check-the-status" id="id10">Check the status</a></li>
+<li><a class="reference internal" href="#destroy-the-app-and-re-create" id="id11">Destroy the app and re-create</a></li>
+<li><a class="reference internal" href="#flex-ible-app" id="id12">&#8216;Flex&#8217;ible app</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#installation-using-ambari-slider-view" id="id13">Installation using Ambari Slider View</a><ul>
+<li><a class="reference internal" href="#reconfiguration-in-slider-view" id="id14">Reconfiguration in Slider View</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#presto-installation-directory-structure" id="id15">Presto Installation Directory Structure</a></li>
+<li><a class="reference internal" href="#advanced-configuration" id="id16">Advanced Configuration</a><ul>
+<li><a class="reference internal" href="#configuring-memory-and-cpu" id="id17">Configuring memory and CPU</a></li>
+<li><a class="reference internal" href="#failure-policy" id="id18">Failure policy</a></li>
+<li><a class="reference internal" href="#using-yarn-label" id="id19">Using YARN label</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#debugging-and-logging" id="id20">Debugging and Logging</a></li>
+<li><a class="reference internal" href="#links" id="id21">Links</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="presto-yarn-slider-package">
+<h2><a class="toc-backref" href="#id2">Presto-YARN Slider package</a></h2>
+<p>Presto can be installed on Yarn-based cluster. Presto integration with yarn is
+provided by using <a class="reference external" href="https://slider.incubator.apache.org/">Apache Slider</a>. To install presto on yarn cluster first you
+need to have Presto Slider <a class="reference external" href="https:www.teradata.com/presto">package</a>. Once you have a package you go to
+<a class="reference external" href="#presto-yarn-deployment">Presto-YARN deployment</a>.</p>
+<blockquote>
+<div></div></blockquote>
+</div>
+<div class="section" id="presto-yarn-deployment">
+<h2><a class="toc-backref" href="#id3">Presto-YARN deployment</a></h2>
+<p>Presto on YARN can be set up either manually using Apache Slider or via
+Ambari Slider Views if you are planning to use HDP distribution.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Please note that all example files refered in below section comes from:
+<a class="reference external" href="https://github.com/prestodb/presto-yarn/">https://github.com/prestodb/presto-yarn/</a></p>
+</div>
+<div class="section" id="pre-requisities">
+<h3><a class="toc-backref" href="#id4">Pre-requisities</a></h3>
+<ul class="simple">
+<li>A cluster with HDP 2.2+ or CDH5.4+ installed</li>
+<li>Apache Slider 0.80.0</li>
+<li>JDK 1.8</li>
+<li>Zookeeper</li>
+<li>openssl &gt;= 1.0.1e-16</li>
+<li>Ambari (optional) 2.1</li>
+</ul>
+</div>
+<div class="section" id="presto-app-package-configuration">
+<h3><a class="toc-backref" href="#id5">Presto App Package configuration</a></h3>
+<p>There are some sample configuration options files available at
+<tt class="docutils literal"><span class="pre">presto-yarn-package/src/main/resources</span></tt> directory in the repository.
+<tt class="docutils literal"><span class="pre">appConfig.json</span></tt> and <tt class="docutils literal"><span class="pre">resources-[singlenode|mutlinode].json</span></tt> files
+are the two major configuration files you need to configure before you
+can get Presto running on YARN. Copy the
+<tt class="docutils literal"><span class="pre">presto-yarn-package/src/main/resources/appConfig.json</span></tt> and
+<tt class="docutils literal"><span class="pre">presto-yarn-package/src/main/resources/resources-[singlenode|multinode].json</span></tt>
+to a local file at a location where you are planning to run Slider. Name
+them as <tt class="docutils literal"><span class="pre">appConfig.json</span></tt> and <tt class="docutils literal"><span class="pre">resources.json</span></tt>. Update these sample
+json files with whatever configurations you want to have for Presto. If
+you are ok with the default values in the sample file you can just use
+them as-is.</p>
+<p>The &#8220;default&#8221; values listed for the sections
+<a class="reference external" href="#appconfig-json">appConfig.json</a> and <a class="reference external" href="#resources-json">resources.json</a> are
+from <tt class="docutils literal"><span class="pre">presto-yarn-package/src/main/resources/appConfig.json</span></tt> and
+<tt class="docutils literal"><span class="pre">presto-yarn-package/src/main/resources/resources-multinode.json</span></tt>
+files respectively. These default values will also be used for
+installation using <a class="reference external" href="#installation-using-ambari-slider-view">Ambari</a> Slider View.</p>
+<p><tt class="docutils literal"><span class="pre">Note</span></tt>: If you are planning to use Ambari for your installation skip
+to this <a class="reference external" href="#installation-using-ambari-slider-view">section</a>. Changing these files manually is
+needed only if you are going to install Presto on YARN manually using
+Slider. If installing via Ambari, you can change these configurations
+from the Slider view.</p>
+<p>Follow the steps here and configure the presto-yarn configuration files
+to match your cluster requirements. Optional ones are marked (optional).
+Please do not change any variables other than the ones listed below.</p>
+<div class="section" id="appconfig-json">
+<h4><a class="toc-backref" href="#id6">appConfig.json</a></h4>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">site.global.app_user</span></tt> (default - <tt class="docutils literal"><span class="pre">yarn</span></tt>): This is the user which
+will be launching the YARN application for Presto. So all the Slider
+commands (using <tt class="docutils literal"><span class="pre">bin/slider</span></tt> script) will be run as this user. Make
+sure that you have a HDFS home directory created for the
+<tt class="docutils literal"><span class="pre">app_user</span></tt>. Eg: for user <tt class="docutils literal"><span class="pre">yarn</span></tt> create <tt class="docutils literal"><span class="pre">/user/yarn</span></tt> with
+<tt class="docutils literal"><span class="pre">yarn</span></tt> user as an owner.</li>
+</ul>
+<div class="highlight-sql"><div class="highlight"><pre><span class="n">hdfs</span> <span class="n">dfs</span> <span class="o">-</span><span class="n">mkdir</span> <span class="o">-</span><span class="n">p</span> <span class="o">/</span><span class="k">user</span><span class="o">/</span><span class="n">yarn</span>
+<span class="n">hdfs</span> <span class="n">dfs</span> <span class="o">-</span><span class="n">chown</span> <span class="n">yarn</span><span class="p">:</span><span class="n">yarn</span> <span class="o">/</span><span class="k">user</span><span class="o">/</span><span class="n">yarn</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">Note</span></tt>: For operations involving Hive connector in Presto, especially
+INSERT, ALTER TABLE etc, it may require that the user running Presto has
+access to HDFS directories like Hive warehouse directories. So make sure
+that the <tt class="docutils literal"><span class="pre">app_user</span></tt> you set has appropriate access permissions to
+those HDFS directories. For eg: <tt class="docutils literal"><span class="pre">/apps/hive/warehouse</span></tt> is usually
+where Presto user will need access for various DML operations involving
+Hive connector and is owned by <tt class="docutils literal"><span class="pre">hdfs</span></tt> in most cases. In that case, one
+way to fix the permission issue is to set <tt class="docutils literal"><span class="pre">site.global.app_user</span></tt> to
+user <tt class="docutils literal"><span class="pre">hdfs</span></tt> and also create <tt class="docutils literal"><span class="pre">/user/hdfs</span></tt> directory in HDFS if not
+already there (as above). You will also need to run any slider
+scripts(bin/slider) as user <tt class="docutils literal"><span class="pre">hdfs</span></tt> in this case.</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">site.global.user_group</span></tt> (default - <tt class="docutils literal"><span class="pre">hadoop</span></tt>): The group owning
+the application.</li>
+<li><tt class="docutils literal"><span class="pre">site.global.data_dir</span></tt> (default - <tt class="docutils literal"><span class="pre">/var/lib/presto/data</span></tt>): The
+data directory configured should be pre-created on all nodes and must
+be owned by user <tt class="docutils literal"><span class="pre">yarn</span></tt>, otherwise slider will fail to start Presto
+with permission errors.</li>
+<li><tt class="docutils literal"><span class="pre">site.global.config_dir</span></tt> (default - <tt class="docutils literal"><span class="pre">/var/lib/presto/etc</span></tt>): The
+configuration directory on the cluster where the Presto config files
+node.properties, jvm.config, config.properties and connector
+configuration files are deployed. These files will have configuration
+values created from templates
+<tt class="docutils literal"><span class="pre">presto-yarn-package/package/templates/*.j2</span></tt> and other relevant
+<tt class="docutils literal"><span class="pre">appConfig.json</span></tt> parameters.</li>
+<li><tt class="docutils literal"><span class="pre">site.global.singlenode</span></tt> (default - <tt class="docutils literal"><span class="pre">true</span></tt>): If set to true, the
+node used act as both coordinator and worker (singlenode mode). For
+multi-node set up, this should be set to false.</li>
+<li><tt class="docutils literal"><span class="pre">site.global.presto_query_max_memory</span></tt> (default - <tt class="docutils literal"><span class="pre">50GB</span></tt>): This
+will be used as <tt class="docutils literal"><span class="pre">query.max-memory</span></tt> in Presto&#8217;s config.properties
+file.</li>
+<li><tt class="docutils literal"><span class="pre">site.global.presto_query_max_memory_per_node</span></tt> (default - <tt class="docutils literal"><span class="pre">1GB</span></tt>):
+This will be used as <tt class="docutils literal"><span class="pre">query.max-memory-per-node</span></tt> in Presto&#8217;s
+config.properties file.</li>
+<li><tt class="docutils literal"><span class="pre">site.global.presto_server_port</span></tt> (default - <tt class="docutils literal"><span class="pre">8080</span></tt>): Presto
+server&#8217;s http port.</li>
+<li><tt class="docutils literal"><span class="pre">site.global.catalog</span></tt> (optional) (default - configures <tt class="docutils literal"><span class="pre">tpch</span></tt>
+connector): It should be of the format (note the single quotes around
+each value) - {&#8216;connector1&#8217; : [&#8216;key1=value1&#8217;, &#8216;key2=value2&#8217;..],
+&#8216;connector2&#8217; : [&#8216;key1=value1&#8217;, &#8216;key2=value2&#8217;..]..}. This will create
+files connector1.properties, connector2.properties for Presto with
+entries key1=value1 etc.</li>
+</ul>
+<div class="highlight-sql"><div class="highlight"><pre><span class="ss">&quot;site.global.catalog&quot;</span><span class="p">:</span> <span class="ss">&quot;{&#39;hive&#39;: [&#39;connector.name=hive-cdh5&#39;, &#39;hive.metastore.uri=thrift://${NN_HOST}:9083&#39;], &#39;tpch&#39;: [&#39;connector.name=tpch&#39;]}&quot;</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">Note</span></tt>: The <tt class="docutils literal"><span class="pre">NN_HOST</span></tt> used in <tt class="docutils literal"><span class="pre">hive.metastore.uri</span></tt> is a variable
+for your HDFS Namenode and this expects that your hive metastore is up
+and running on your HDFS Namenode host. You do not have to replace that
+with your actual Namenode hostname. This variable will be substituted
+with your Namenode hostname during runtime. If you have hive metastore
+running elsewhere make sure you update <tt class="docutils literal"><span class="pre">NN_HOST</span></tt> with the appropriate
+hostname.</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">site.global.jvm_args</span></tt> (default - as in example below): This
+configures Presto <tt class="docutils literal"><span class="pre">jvm.config</span></tt> file and default heapsize is
+<tt class="docutils literal"><span class="pre">1GB</span></tt>. Since Presto needs the <tt class="docutils literal"><span class="pre">jvm.config</span></tt> format to be a list of
+options, one per line, this property must be a String representation
+of list of strings. Each entry of this list will be a new line in
+your jvm.config. For example the configuration should look like:</li>
+</ul>
+<div class="highlight-sql"><div class="highlight"><pre><span class="ss">&quot;site.global.jvm_args&quot;</span><span class="p">:</span> <span class="ss">&quot;[&#39;-server&#39;, &#39;-Xmx1024M&#39;, &#39;-XX:+UseG1GC&#39;, &#39;-XX:G1HeapRegionSize=32M&#39;, &#39;-XX:+UseGCOverheadLimit&#39;, &#39;-XX:+ExplicitGCInvokesConcurrent&#39;, &#39;-XX:+HeapDumpOnOutOfMemoryError&#39;, &#39;-XX:OnOutOfMemoryError=kill -9 %p&#39;]&quot;</span><span class="p">,</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">site.global.additional_node_properties</span></tt> and
+<tt class="docutils literal"><span class="pre">site.global.additional_config_properties</span></tt> (optional) (default -
+None): Presto launched via Slider will use <tt class="docutils literal"><span class="pre">config.properties</span></tt> and
+<tt class="docutils literal"><span class="pre">node.properties</span></tt> created from templates
+<tt class="docutils literal"><span class="pre">presto-yarn-package/package/templates/config.properties*.j2</span></tt> and
+<tt class="docutils literal"><span class="pre">presto-yarn-package/package/target/node.properties.j2</span></tt>
+respectively. If you want to add any additional properties to these
+configuration files, add <tt class="docutils literal"><span class="pre">site.global.additional_config_properties</span></tt>
+and <tt class="docutils literal"><span class="pre">site.global.additional_node_properties</span></tt> to your
+<tt class="docutils literal"><span class="pre">appConfig.json</span></tt>. The value of these has to be a string
+representation of an array of entries (key=value) that has to go to
+the <tt class="docutils literal"><span class="pre">.properties</span></tt> file. Eg:</li>
+</ul>
+<div class="highlight-sql"><div class="highlight"><pre><span class="ss">&quot;site.global.additional_config_properties&quot;</span><span class="p">:</span> <span class="ss">&quot;[&#39;task.max-worker-threads=50&#39;, &#39;distributed-joins-enabled=true&#39;]&quot;</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">site.global.plugin</span></tt> (optional) (default - None): This allows you
+to add any additional jars you want to copy to plugin
+<tt class="docutils literal"><span class="pre">presto-server-&lt;version&gt;/plugin/&lt;connector&gt;</span></tt> directory in addition
+to what is already available there. It should be of the format
+{&#8216;connector1&#8217; : [&#8216;jar1&#8217;, &#8216;jar2&#8217;..], &#8216;connector2&#8217; : [&#8216;jar3&#8217;,
+&#8216;jar4&#8217;..]..}. This will copy jar1, jar2 to Presto plugin directory at
+plugin/connector1 directory and jar3, jar4 at plugin/connector2
+directory. Make sure you have the plugin jars you want to add to
+Presto available at
+<tt class="docutils literal"><span class="pre">presto-yarn-package/src/main/slider/package/plugins/</span></tt> prior to
+building the presto-yarn app package and thus the app package built
+<tt class="docutils literal"><span class="pre">presto-yarn-package-&lt;version&gt;-&lt;presto-version&gt;.zip</span></tt> will have the
+jars under <tt class="docutils literal"><span class="pre">package/plugins</span></tt> directory.</li>
+</ul>
+<div class="highlight-sql"><div class="highlight"><pre><span class="ss">&quot;site.global.plugin&quot;</span><span class="p">:</span> <span class="ss">&quot;{&#39;ml&#39;: [&#39;presto-ml-${presto.version}.jar&#39;]}&quot;</span><span class="p">,</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">java_home</span></tt> (default - <tt class="docutils literal"><span class="pre">/usr/lib/jvm/java</span></tt>): Presto requires Java
+1.8. So make jdk8 the default java or add it to <tt class="docutils literal"><span class="pre">java_home</span></tt> here</li>
+<li>Variables in <tt class="docutils literal"><span class="pre">appConfig.json</span></tt> like <tt class="docutils literal"><span class="pre">${COORDINATOR_HOST}</span></tt>,
+<tt class="docutils literal"><span class="pre">${AGENT_WORK_ROOT}</span></tt> etc. do not need any substitution and will be
+appropriately configured during runtime.</li>
+</ul>
+</div>
+<div class="section" id="resources-json">
+<h4><a class="toc-backref" href="#id7">resources.json</a></h4>
+<p>The configuration here can be added either globally (for COORDINATOR and
+WORKER) or for each component. Refer <a class="reference external" href="#advanced-configuration">configuration</a>
+section for further details.</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">yarn.vcores</span></tt> (default - <tt class="docutils literal"><span class="pre">1</span></tt>): By default this is set globally.</li>
+<li><tt class="docutils literal"><span class="pre">yarn.component.instances</span></tt> (default - <tt class="docutils literal"><span class="pre">1</span></tt> for COORDINATOR and
+<tt class="docutils literal"><span class="pre">3</span></tt> for WORKER): The multinode
+<tt class="docutils literal"><span class="pre">presto-yarn-package/src/main/resources/resources-multinode.json</span></tt>
+sample file is now configured for a 4 node cluster where there will
+be 1 coordinator and 3 workers with strict placement policy, meaning,
+there will be one component instance running on every node
+irrespective of failure history. If there are insufficient number of
+nodemanager nodes in your cluster to accomodate the number of workers
+requested, the application launch will fail. The number of workers
+could be <tt class="docutils literal"><span class="pre">number</span> <span class="pre">of</span> <span class="pre">nodemanagers</span> <span class="pre">in</span> <span class="pre">your</span> <span class="pre">cluster</span> <span class="pre">-</span> <span class="pre">1</span></tt>, with 1 node
+reserved for the coordinator, if you want Presto to be on all YARN
+nodes.
+If you want to deploy Presto on a single node
+(<tt class="docutils literal"><span class="pre">site.global.singlenode</span></tt> set to true), make sure you set 1 for the
+COORDINATOR and just not add the WORKER component section (Refer
+<tt class="docutils literal"><span class="pre">presto-yarn-package/src/main/resources/resources-singlenode.json</span></tt>).
+You can also just set <tt class="docutils literal"><span class="pre">yarn.component.instances</span></tt> to 0 for WORKER in
+this case.</li>
+<li><tt class="docutils literal"><span class="pre">yarn.memory</span></tt> (default - <tt class="docutils literal"><span class="pre">1500MB</span></tt>): The heapsize defined as -Xmx
+of <tt class="docutils literal"><span class="pre">site.global.jvm_args</span></tt> in <tt class="docutils literal"><span class="pre">appConfig.json</span></tt>, is used by the
+Presto JVM itself. Slider suggests that the value of <tt class="docutils literal"><span class="pre">yarn.memory</span></tt>
+must be bigger than this heapsize. The value of <tt class="docutils literal"><span class="pre">yarn.memory</span></tt> MUST
+be bigger than the heap size allocated to any JVM and Slider suggests
+using atleast 50% more appears to work, though some experimentation
+will be needed.</li>
+<li><tt class="docutils literal"><span class="pre">yarn.label.expression</span></tt> (optional) (default - <tt class="docutils literal"><span class="pre">coordinator</span></tt> for
+COORDINATOR and <tt class="docutils literal"><span class="pre">worker</span></tt> for WORKER``): See <a class="reference external" href="#using-yarn-label">label</a>
+section for details.</li>
+</ul>
+<p>Now you are ready to deploy Presto on YARN either manually or via
+Ambari.</p>
+</div>
+</div>
+<div class="section" id="manual-installation-via-slider">
+<h3><a class="toc-backref" href="#id8">Manual Installation via Slider</a></h3>
+<ul class="simple">
+<li>Download the slider 0.80.0 installation file from
+<a class="reference external" href="http://slider.incubator.apache.org/index.html">http://slider.incubator.apache.org/index.html</a> to one of your nodes in
+the cluster</li>
+</ul>
+<div class="highlight-sql"><div class="highlight"><pre><span class="n">tar</span> <span class="o">-</span><span class="n">xvf</span> <span class="n">slider</span><span class="o">-</span><span class="mi">0</span><span class="p">.</span><span class="mi">80</span><span class="p">.</span><span class="mi">0</span><span class="o">-</span><span class="n">incubating</span><span class="o">-</span><span class="k">all</span><span class="p">.</span><span class="n">tar</span><span class="p">.</span><span class="n">gz</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li>Now configure Slider with JAVA_HOME and HADOOP_CONF_DIR in
+<tt class="docutils literal"><span class="pre">slider-0.80.0-incubating/conf/slider-env.sh</span></tt></li>
+</ul>
+<div class="highlight-sql"><div class="highlight"><pre><span class="n">export</span> <span class="n">JAVA_HOME</span><span class="o">=/</span><span class="n">usr</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">jvm</span><span class="o">/</span><span class="n">java</span>
+<span class="n">export</span> <span class="n">HADOOP_CONF_DIR</span><span class="o">=/</span><span class="n">etc</span><span class="o">/</span><span class="n">hadoop</span><span class="o">/</span><span class="n">conf</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li>Configure zookeeper in <tt class="docutils literal"><span class="pre">conf/slider-client.xml</span></tt>. In case zookeper
+is listening on <tt class="docutils literal"><span class="pre">master:2181</span></tt> you need to add there the following
+section:</li>
+</ul>
+<div class="highlight-sql"><div class="highlight"><pre><span class="o">&lt;</span><span class="n">property</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">name</span><span class="o">&gt;</span><span class="n">slider</span><span class="p">.</span><span class="n">zookeeper</span><span class="p">.</span><span class="n">quorum</span><span class="o">&lt;/</span><span class="n">name</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">value</span><span class="o">&gt;</span><span class="n">master</span><span class="p">:</span><span class="mi">2181</span><span class="o">&lt;/</span><span class="n">value</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">property</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li>Configure path where slide packages will be installed</li>
+</ul>
+<div class="highlight-sql"><div class="highlight"><pre><span class="o">&lt;</span><span class="n">property</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">name</span><span class="o">&gt;</span><span class="n">fs</span><span class="p">.</span><span class="n">defaultFS</span><span class="o">&lt;/</span><span class="n">name</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">value</span><span class="o">&gt;</span><span class="n">hdfs</span><span class="p">:</span><span class="o">//</span><span class="n">master</span><span class="o">/&lt;/</span><span class="n">value</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">property</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li>Make sure the user running slider, which should be same as
+<tt class="docutils literal"><span class="pre">site.global.app_user</span></tt> in <tt class="docutils literal"><span class="pre">appConfig.json</span></tt>, has a home dir in
+HDFS (See note <a class="reference external" href="#appconfig-json">here</a>).</li>
+</ul>
+<div class="highlight-sql"><pre>su hdfs
+$ hdfs dfs -mkdir -p /user/&lt;user&gt;
+$ hdfs dfs -chown &lt;user&gt;:&lt;user&gt; -R /user/&lt;user&gt;</pre>
+</div>
+<ul class="simple">
+<li>Now run slider as</li>
+</ul>
+<p>For more details on <a class="reference external" href="#appconfig-json">appConfig.json</a> and
+<a class="reference external" href="#resources-json">resources.json</a> follow <a class="reference external" href="#advanced-configuration">configuration</a>
+section.</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="n">su</span> <span class="o">&lt;</span><span class="k">user</span><span class="o">&gt;</span>
+<span class="n">cd</span> <span class="n">slider</span><span class="o">-</span><span class="mi">0</span><span class="p">.</span><span class="mi">80</span><span class="p">.</span><span class="mi">0</span><span class="o">-</span><span class="n">incubating</span>
+<span class="n">bin</span><span class="o">/</span><span class="n">slider</span> <span class="n">package</span> <span class="c1">--install --name PRESTO --package ../presto-yarn-package-*.zip</span>
+<span class="n">bin</span><span class="o">/</span><span class="n">slider</span> <span class="k">create</span> <span class="n">presto1</span> <span class="c1">--template appConfig.json --resources resources.json (using modified .json files as per your requirement)</span>
+</pre></div>
+</div>
+<p>This should start your application, and you can see it under the Yarn
+ResourceManager webUI.</p>
+<div class="section" id="additional-slider-commands">
+<h4><a class="toc-backref" href="#id9">Additional Slider commands</a></h4>
+<p>Some additional slider commands to manage your existing Presto
+application.</p>
+<div class="section" id="check-the-status">
+<h5><a class="toc-backref" href="#id10">Check the status</a></h5>
+<p>If you want to check the status of running application you run the
+following, and you will have status printed to a file <tt class="docutils literal"><span class="pre">status_file</span></tt></p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="n">bin</span><span class="o">/</span><span class="n">slider</span> <span class="n">status</span> <span class="n">presto1</span> <span class="c1">--out status_file</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="destroy-the-app-and-re-create">
+<h5><a class="toc-backref" href="#id11">Destroy the app and re-create</a></h5>
+<p>If you want to re-create the app due to some failures or you want to
+reconfigure Presto (eg: add a new connector)</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="n">bin</span><span class="o">/</span><span class="n">slider</span> <span class="k">destroy</span> <span class="n">presto1</span>
+<span class="n">bin</span><span class="o">/</span><span class="n">slider</span> <span class="k">create</span> <span class="n">presto1</span> <span class="c1">--template appConfig.json --resources resources.json</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="flex-ible-app">
+<h5><a class="toc-backref" href="#id12">&#8216;Flex&#8217;ible app</a></h5>
+<p>Flex the number of Presto workers to the new value. If greater than
+before, new copies of the worker will be requested. If less, component
+instances will be destroyed.</p>
+<p>Changes are immediate and depend on the availability of resources in the
+YARN cluster. Make sure while flex that there are extra nodes
+available(if adding) with YARN nodemanagers running and also Presto data
+directory pre-created/owned by <tt class="docutils literal"><span class="pre">yarn</span></tt> user. Also make sure these nodes
+do not have a Presto component already running, which may cause flex-ing
+to deploy worker on these nodes and eventually failing.</p>
+<p>eg: Asumme there are 2 nodes (with YARN nodemanagers running) in the
+cluster and you initially deployed only one of the nodes with Presto via
+Slider. If you want to deploy and start Presto WORKER component on the
+second node (assuming it meets all resource requirements) and thus have
+the total number of WORKERS to be 2, then run:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="n">bin</span><span class="o">/</span><span class="n">slider</span> <span class="n">flex</span> <span class="n">presto1</span> <span class="c1">--component WORKER 2</span>
+</pre></div>
+</div>
+<p>Please note that if your cluster already had 3 WORKER nodes running, the
+above command will destroy one of them and retain 2 WORKERs.</p>
+</div>
+</div>
+</div>
+<div class="section" id="installation-using-ambari-slider-view">
+<h3><a class="toc-backref" href="#id13">Installation using Ambari Slider View</a></h3>
+<p>You can also deploy Presto in Yarn via Ambari. Ambari provides Slider
+integration and also supports deploying any Slider application package
+using Slider &#8216;views&#8217;. Slider View for Ambari delivers an integrated
+experience for deploying and managing Slider apps from Ambari Web.</p>
+<p>The steps for deploying Presto on Yarn via Slider views in Ambari are:</p>
+<ul class="simple">
+<li>Install Ambari server. You may refer:
+<a class="reference external" href="http://docs.hortonworks.com/HDPDocuments/Ambari-2.1.0.0/bk_Installing_HDP_AMB/content/ch_Installing_Ambari.html">http://docs.hortonworks.com/HDPDocuments/Ambari-2.1.0.0/bk_Installing_HDP_AMB/content/ch_Installing_Ambari.html</a>.</li>
+<li>Copy the app package
+<tt class="docutils literal"><span class="pre">presto-yarn-package-&lt;version&gt;-&lt;presto-version&gt;.zip</span></tt> to
+<tt class="docutils literal"><span class="pre">/var/lib/ambari-server/resources/apps/</span></tt> directory on your Ambari
+server node. Restart ambari-server.</li>
+<li>Now Log In to Apache Ambari, <tt class="docutils literal"><span class="pre">http://ambariserver_ip:8080</span></tt>
+#username-admin password-admin</li>
+<li>Name your cluster, provide the configuration of the cluster and
+follow the steps on the WebUI.</li>
+<li>Customize/configure the services and install them. A minimum of HDFS,
+YARN, Zookeeper is required for Slider to work. You must also also
+select Slider to be installed.</li>
+<li>Once you have all the services up and running on the cluster, you can
+configure Slider in Ambari to manage your application by creating a
+&#8220;View&#8221;. Go to <tt class="docutils literal"><span class="pre">admin</span></tt> (top right corner) -&gt; <tt class="docutils literal"><span class="pre">Manage</span> <span class="pre">Ambari</span></tt> and
+then from the left pane select <tt class="docutils literal"><span class="pre">Views</span></tt>.</li>
+<li>There, create a Slider View by populating all the necessary fields
+with a preferred instance name (eg: Slider). <tt class="docutils literal"><span class="pre">ambari.server.url</span></tt>
+can be of the format -
+<tt class="docutils literal"><span class="pre">http://&lt;ambari-server-url&gt;:8080/api/v1/clusters/&lt;clustername&gt;</span></tt>,
+where <tt class="docutils literal"><span class="pre">&lt;clustername&gt;</span></tt> is what you have named your Ambari cluster.</li>
+<li>Select the &#8220;Views&#8221; control icon in the upper right, select the
+instance you created in the previous step, eg: &#8220;Slider&#8221;.</li>
+<li>Now click <tt class="docutils literal"><span class="pre">Create</span> <span class="pre">App</span></tt> to create a new Presto YARN application.</li>
+<li>Provide details of the Presto service. By default, the UI will be
+populated with the values you have in the <tt class="docutils literal"><span class="pre">*-default.json</span></tt> files in
+your <tt class="docutils literal"><span class="pre">presto-yarn-package-*.zip</span></tt>.</li>
+<li>The app name should be of lower case, eg: presto1, and also set all
+the configuration here as per your cluster requirement. See
+<a class="reference external" href="#presto-app-package-configuration">here</a> for explanation on each configuration
+variable.</li>
+<li>Prepare HDFS for Slider. The user directory you create here should be
+for the same user you set in <tt class="docutils literal"><span class="pre">global.app_user</span></tt> field. If the
+<tt class="docutils literal"><span class="pre">app_user</span></tt> is going to be <tt class="docutils literal"><span class="pre">yarn</span></tt> then do:</li>
+</ul>
+<p><tt class="docutils literal"><span class="pre">su</span> <span class="pre">hdfs</span> <span class="pre">hdfs</span> <span class="pre">dfs</span> <span class="pre">-mkdir</span> <span class="pre">-p</span> <span class="pre">/user/yarn</span> <span class="pre">hdfs</span> <span class="pre">dfs</span> <span class="pre">-chown</span> <span class="pre">yarn:yarn</span> <span class="pre">/user/yarn</span></tt></p>
+<ul class="simple">
+<li>Make sure you change the <tt class="docutils literal"><span class="pre">global.presto_server_port</span></tt> from 8080 to
+some other unused port, since Ambari by default uses 8080.</li>
+<li>Make sure the data directory in the UI (added in
+<tt class="docutils literal"><span class="pre">appConfig-default.json</span></tt> eg: <tt class="docutils literal"><span class="pre">/var/lib/presto/</span></tt>) is pre-created
+on all nodes and the directory must be owned by <tt class="docutils literal"><span class="pre">global.app_user</span></tt>,
+otherwise slider will fail to start Presto with permission errors.</li>
+<li>If you want to add any additional Custom properties, use Custom
+property section. Additional properties supported as of now are
+<tt class="docutils literal"><span class="pre">site.global.plugin</span></tt>, <tt class="docutils literal"><span class="pre">site.global.additional_config_properties</span></tt>
+and <tt class="docutils literal"><span class="pre">site.global.additional_node_properties</span></tt>. See
+<a class="reference external" href="#presto-app-package-configuration">section</a> above for requirements and format of
+these properties.</li>
+<li>Click Finish. This will basically do the equivalent of
+<tt class="docutils literal"><span class="pre">package</span>&nbsp; <span class="pre">--install</span></tt> and <tt class="docutils literal"><span class="pre">create</span></tt> you do via the bin/slider
+script. Once successfully deployed, you will see the Yarn application
+started for Presto.</li>
+<li>You can manage the application lifecycle (e.g. start, stop, flex,
+destroy) from the View UI.</li>
+</ul>
+<div class="section" id="reconfiguration-in-slider-view">
+<h4><a class="toc-backref" href="#id14">Reconfiguration in Slider View</a></h4>
+<p>Once the application is launched if you want to update the configuration
+of Presto (eg: add a new connector), first go to <tt class="docutils literal"><span class="pre">Actions</span></tt> on the
+Slider View instance screen and stop the running application.</p>
+<p>Once the running YARN application is stopped, under <tt class="docutils literal"><span class="pre">Actions</span></tt> you will
+have an option to <tt class="docutils literal"><span class="pre">Destroy</span></tt> the existing Presto instance running via
+Slider. <tt class="docutils literal"><span class="pre">Destroy</span></tt> the existing one and re-create a new app
+(<tt class="docutils literal"><span class="pre">Create</span> <span class="pre">App</span></tt> button) with whatever updates you want to make to the
+configuration.</p>
+</div>
+</div>
+<div class="section" id="presto-installation-directory-structure">
+<h3><a class="toc-backref" href="#id15">Presto Installation Directory Structure</a></h3>
+<p>If you use Slider scripts or use Ambari slider view to set up Presto on
+YARN, Presto is going to be installed using the Presto server tarball
+(and not the rpm). Installation happens when the YARN application is
+launched and you can find the Presto server installation directory under
+the <tt class="docutils literal"><span class="pre">yarn.nodemanager.local-dirs</span></tt> on your YARN nodemanager nodes. If
+for example, your <tt class="docutils literal"><span class="pre">yarn.nodemanager.local-dirs</span></tt> is
+<tt class="docutils literal"><span class="pre">/mnt/hadoop/nm-local-dirs</span></tt> and <tt class="docutils literal"><span class="pre">app_user</span></tt> is <tt class="docutils literal"><span class="pre">yarn</span></tt>, you can find
+Presto is installated under
+<tt class="docutils literal"><span class="pre">/mnt/hadoop-hdfs/nm-local-dir/usercache/yarn/appcache/application_&lt;id&gt;/container_&lt;id&gt;/app/install/presto-server-&lt;version&gt;</span></tt>.
+The first part of this path (till the container_id) is called the
+AGENT_WORK_ROOT in Slider and so in terms of that, Presto is available
+under <tt class="docutils literal"><span class="pre">AGENT_WORK_ROOT/app/install/presto-server-&lt;version&gt;</span></tt>.</p>
+<p>Normally for a tarball installed Presto the catalog, plugin and lib
+directories will be subdirectories under the main presto-server
+installation directory. The same case here, the catalog directory is at
+<tt class="docutils literal"><span class="pre">AGENT_WORK_ROOT/app/install/presto-server-&lt;version&gt;/etc/catalog</span></tt>,
+plugin and lib directories are created under
+<tt class="docutils literal"><span class="pre">AGENT_WORK_ROOT/app/install/presto-server-&lt;version&gt;/plugin</span></tt> and
+<tt class="docutils literal"><span class="pre">AGENT_WORK_ROOT/app/install/presto-server-&lt;version&gt;/lib</span></tt> directories
+respectively. The launcher scripts used to start the Presto Server will
+be at <tt class="docutils literal"><span class="pre">AGENT_WORK_ROOT/app/install/presto-server-&lt;version&gt;/bin</span></tt>
+directory.</p>
+<p>The Presto logs are available at locations based on your configuration
+for data directory. If you have it configured at
+<tt class="docutils literal"><span class="pre">/var/lib/presto/data</span></tt> in <tt class="docutils literal"><span class="pre">appConfig.json</span></tt> then you will have Presto
+logs at <tt class="docutils literal"><span class="pre">/var/lib/presto/data/var/log/</span></tt>.</p>
+</div>
+<div class="section" id="advanced-configuration">
+<h3><a class="toc-backref" href="#id16">Advanced Configuration</a></h3>
+<p>A little deeper explanation on various configuration options available.</p>
+<div class="section" id="configuring-memory-and-cpu">
+<h4><a class="toc-backref" href="#id17">Configuring memory and CPU</a></h4>
+<p>Memory and CPU related configuration properties must be modified as per
+your cluster configuration and requirements.</p>
+<p><tt class="docutils literal"><span class="pre">Memory</span></tt></p>
+<p><tt class="docutils literal"><span class="pre">yarn.memory</span></tt> in <tt class="docutils literal"><span class="pre">resources.json</span></tt> declares the amount of memory to
+ask for in YARN containers. It should be defined for each component,
+COORDINATOR and WORKER based on the expected memory consumption,
+measured in MB. A YARN cluster is usually configured with a minimum
+container allocation, set in <tt class="docutils literal"><span class="pre">yarn-site.xml</span></tt> by the configuration
+parameter <tt class="docutils literal"><span class="pre">yarn.scheduler.minimum-allocation-mb</span></tt>. It will also have a
+maximum size set in <tt class="docutils literal"><span class="pre">yarn.scheduler.maximum-allocation-mb</span></tt>. Asking for
+more than this will result in the request being rejected.</p>
+<p>The heapsize defined as -Xmx of <tt class="docutils literal"><span class="pre">site.global.jvm_args</span></tt> in
+<tt class="docutils literal"><span class="pre">appConfig.json</span></tt>, is used by the Presto JVM itself. Slider suggests
+that the value of <tt class="docutils literal"><span class="pre">yarn.memory</span></tt> must be bigger than this heapsize. The
+value of <tt class="docutils literal"><span class="pre">yarn.memory</span></tt> MUST be bigger than the heap size allocated to
+any JVM and Slider suggests using atleast 50% more appears to work,
+though some experimentation will be needed.</p>
+<p>In addition, set other memory specific properties
+<tt class="docutils literal"><span class="pre">presto_query_max_memory</span></tt> and <tt class="docutils literal"><span class="pre">presto_query_max_memory_per_node</span></tt> in
+<tt class="docutils literal"><span class="pre">appConfig.json</span></tt> as you would set the properties <tt class="docutils literal"><span class="pre">query.max-memory</span></tt>
+and <tt class="docutils literal"><span class="pre">query.max-memory-per-node</span></tt> in Presto&#8217;s config.properties.</p>
+<p><tt class="docutils literal"><span class="pre">CPU</span></tt></p>
+<p>Slider also supports configuring the YARN virtual cores to use for the
+process which can be defined per component. <tt class="docutils literal"><span class="pre">yarn.vcores</span></tt> declares the
+number of &#8220;virtual cores&#8221; to request. Ask for more vcores if your
+process needs more CPU time.</p>
+<p>See
+<a class="reference external" href="http://slider.incubator.apache.org/docs/configuration/resources.html#core">http://slider.incubator.apache.org/docs/configuration/resources.html#core</a>
+for more details.</p>
+<p><tt class="docutils literal"><span class="pre">CGroups</span> <span class="pre">in</span> <span class="pre">YARN</span></tt></p>
+<p>If you are using CPU scheduling (using the DominantResourceCalculator),
+you should also use CGroups to constrain and manage CPU processes.
+CGroups compliments CPU scheduling by providing CPU resource isolation.
+With CGroups strict enforcement turned on, each CPU process gets only
+the resources it asks for. This way, we can guarantee that containers
+hosting Presto services is assigned with a percentage of CPU. If you
+have another process that needs to run on a node that also requires CPU
+resources, you can lower the percentage of CPU allocated to YARN to free
+up resources for the other process.</p>
+<p>See Hadoop documentation on how to configure CGroups in YARN:
+<a class="reference external" href="https://hadoop.apache.org/docs/current/hadoop-yarn/hadoop-yarn-site/NodeManagerCgroups.html">https://hadoop.apache.org/docs/current/hadoop-yarn/hadoop-yarn-site/NodeManagerCgroups.html</a>.
+Once you have CGroups configured, Presto on YARN containers will be
+configured in the CGroups hierarchy like any other YARN application
+containers.</p>
+<p>Slider can also define YARN queues to submit the application creation
+request to, which can set the priority, resource limits and other values
+of the application. But this configuration is global to Slider and
+defined in <tt class="docutils literal"><span class="pre">conf/slider-client.xml</span></tt>. You can define the queue name and
+also the priority within the queue. All containers created in the Slider
+cluster will share this same queue.</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="o">&lt;</span><span class="n">property</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">name</span><span class="o">&gt;</span><span class="n">slider</span><span class="p">.</span><span class="n">yarn</span><span class="p">.</span><span class="n">queue</span><span class="o">&lt;/</span><span class="n">name</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">value</span><span class="o">&gt;</span><span class="k">default</span><span class="o">&lt;/</span><span class="n">value</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">property</span><span class="o">&gt;</span>
+
+<span class="o">&lt;</span><span class="n">property</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">name</span><span class="o">&gt;</span><span class="n">slider</span><span class="p">.</span><span class="n">yarn</span><span class="p">.</span><span class="n">queue</span><span class="p">.</span><span class="n">priority</span><span class="o">&lt;/</span><span class="n">name</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">value</span><span class="o">&gt;</span><span class="mi">1</span><span class="o">&lt;/</span><span class="n">value</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">property</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="failure-policy">
+<h4><a class="toc-backref" href="#id18">Failure policy</a></h4>
+<p>Follow this section if you want to change the default Slider failure
+policy. Yarn containers hosting Presto may fail due to some
+misconfiguration in Presto or some other conflicts. The number of times
+the component may fail within a failure window is defined in
+<tt class="docutils literal"><span class="pre">resources.json</span></tt>.</p>
+<p>The related properties are:</p>
+<ul class="simple">
+<li>The duration of a failure window, a time period in which failures are
+counted. The related properties are
+<tt class="docutils literal"><span class="pre">yarn.container.failure.window.days</span></tt>,
+<tt class="docutils literal"><span class="pre">yarn.container.failure.window.hours</span></tt>,
+<tt class="docutils literal"><span class="pre">yarn.container.failure.window.minutes</span></tt> and should be set in the
+global section as it relates just to slider. The default value is
+<tt class="docutils literal"><span class="pre">yarn.container.failure.window.hours=6</span></tt>. The initial window is
+measured from the start of the slider application master —once the
+duration of that window is exceeded, all failure counts are reset,
+and the window begins again.</li>
+<li>The maximum number of failures of any component in this time period.
+<tt class="docutils literal"><span class="pre">yarn.container.failure.threshold</span></tt> is the property for this and in
+most cases, should be set proportional to the the number of instances
+of the component. For Presto clusters, where there will be one
+coordinator and some number of workers it is reasonable to have a
+failure threshold for workers more than that of coordinator. This is
+because a higher failure rate of worker nodes is to be expected if
+the cause of the failure is due to the underlying hardware. At the
+same time the threshold should be low enough to detect any Presto
+configuration issues causing the workers to fail rapidly and breach
+the threshold sooner.</li>
+</ul>
+<p>These failure thresholds are all heuristics. When initially configuring
+an application instance, low thresholds reduce the disruption caused by
+components which are frequently failing due to configuration problems.
+In a production application, large failure thresholds and/or shorter
+windows ensures that the application is resilient to transient failures
+of the underlying YARN cluster and hardware.</p>
+<p>Based on the placement policy there are two more failure related
+properties you can set.</p>
+<ul class="simple">
+<li>The configuration property <tt class="docutils literal"><span class="pre">yarn.node.failure.threshold</span></tt> defines
+how &#8220;unreliable&#8221; a node must be before it is skipped for placement
+requests. This is only used for the default
+yarn.component.placement.policy where unreliable nodes are avoided.</li>
+<li><tt class="docutils literal"><span class="pre">yarn.placement.escalate.seconds</span></tt> is the timeout after which slider
+will escalate the request of pending containers to be launched on
+other nodes. For strict placement policy where the requested
+components are deployed on all nodes, this property is irrelevant.
+For other placement policies this property is relevant and the higher
+the cost of migrating a component instance from one host to another,
+the longer value of escalation timeout is recommended. Thus slider
+will wait longer before the component instance is escalated to be
+started on other nodes. During restart, for cases where redeploying
+the component instances on the same node as before is beneficial (due
+to locality of data or similar reasons), a higher escalation timeout
+is recommended.</li>
+</ul>
+<p>Take a look here:
+<a class="reference external" href="http://slider.incubator.apache.org/docs/configuration/resources.html#failurepolicy">http://slider.incubator.apache.org/docs/configuration/resources.html#failurepolicy</a>
+for more details on failure policy.</p>
+</div>
+<div class="section" id="using-yarn-label">
+<h4><a class="toc-backref" href="#id19">Using YARN label</a></h4>
+<p>This is an optional feature and is not required to run Presto in YARN.
+To guarantee that a certain set of nodes are reserved for deploying
+Presto or to configure a particular node for a component type we can
+make use of YARN label expressions.</p>
+<ul class="simple">
+<li>First assign the nodes/subset of nodes with appropriate labels. See
+<a class="reference external" href="http://docs.hortonworks.com/HDPDocuments/HDP2/HDP-2.3.0/bk_yarn_resource_mgt/content/ch_node_labels.html">http://docs.hortonworks.com/HDPDocuments/HDP2/HDP-2.3.0/bk_yarn_resource_mgt/content/ch_node_labels.html</a></li>
+<li>Then set the components in <tt class="docutils literal"><span class="pre">resource.json</span></tt> with
+<tt class="docutils literal"><span class="pre">yarn.label.expression</span></tt> to have labels to be used when allocating
+containers for Presto.</li>
+<li>Create the application using
+<tt class="docutils literal"><span class="pre">bin/slider</span> <span class="pre">create</span> <span class="pre">..</span> <span class="pre">--queue</span> <span class="pre">&lt;queuename&gt;</span></tt>. <tt class="docutils literal"><span class="pre">queuename</span></tt> will be
+the queue defined in step one for the appropriate label.</li>
+</ul>
+<p>If a label expression is specified for the slider-appmaster component
+then it also becomes the default label expression for all component.
+Sample <tt class="docutils literal"><span class="pre">resources.json</span></tt> may look like:</p>
+<div class="highlight-sql"><pre>"COORDINATOR": {
+  "yarn.role.priority": "1",
+  "yarn.component.instances": "1",
+  "yarn.component.placement.policy": "1",
+  "yarn.label.expression":"coordinator"
+},
+"WORKER": {
+  "yarn.role.priority": "2",
+  "yarn.component.instances": "2",
+  "yarn.component.placement.policy": "1",
+  "yarn.label.expression":"worker"
+}</pre>
+</div>
+<p>where coordinator and worker are the node labels created and configured
+with a scheduler queue in YARN</p>
+</div>
+</div>
+</div>
+<div class="section" id="debugging-and-logging">
+<h2><a class="toc-backref" href="#id20">Debugging and Logging</a></h2>
+<ul class="simple">
+<li>Once the YARN application is launched, you can monitor the status at
+YARN ResourceManager WebUI.</li>
+<li>A successfully launched application will be in <tt class="docutils literal"><span class="pre">RUNNING</span></tt> state. The
+YARN ApplicationMaster UI (eg:
+<tt class="docutils literal"><span class="pre">http://master:8088/cluster/app/application_&lt;id&gt;</span></tt>) will show
+slider-appmaster, COORDINATOR and WORKER components and the
+associated containers running based on your configuration. You can
+also use Slider cli script to check <a class="reference external" href="#check-the-status">status</a>.</li>
+<li>If you have used <a class="reference external" href="#using-yarn-label">labels</a> your COORDINATOR and WORKER
+components will be running on nodes which were &#8216;labeled&#8217;.</li>
+<li>If you have not used labels, then you can check the status either at
+the YARN ResourceManager (eg:
+<tt class="docutils literal"><span class="pre">http://master:8088/cluster/app/application_&lt;id&gt;</span></tt>) or you can use
+<a class="reference external" href="#check-the-status">status</a> to get the &#8220;live&#8221; containers, and thus get the
+node hosting the Presto components.</li>
+<li>If Presto is up and running, then a <tt class="docutils literal"><span class="pre">pgrep</span></tt> of PrestoServer on your
+NodeManager nodes will give you the process details. This should also
+give the directory Presto is installed and the configuration files
+used by Presto.</li>
+<li>It is recommended that log aggregation of YARN application log
+files be enabled in YARN, using
+<tt class="docutils literal"><span class="pre">yarn.log-aggregation-enable</span> <span class="pre">property</span></tt> in your <tt class="docutils literal"><span class="pre">yarn-site.xml</span></tt>.
+Then slider logs created during the launch of Presto-YARN will be
+available locally on your nodemanager nodes (where slider-appmaster
+and Presto components-COORDINATOR/WORKER are deployed) under
+contanier logs directory eg:
+<tt class="docutils literal"><span class="pre">/var/log/hadoop-yarn/application_&lt;id&gt;/container_&lt;id&gt;/</span></tt>. For any
+retries attempted by Slider to launch Presto a new container will be
+launched and hence you will find a new <tt class="docutils literal"><span class="pre">container_&lt;id&gt;</span></tt> directory.
+You can look for any errors under <tt class="docutils literal"><span class="pre">errors_*.txt</span></tt> there, and also
+there is a <tt class="docutils literal"><span class="pre">slider-agent.log</span></tt> file which will give you Slider
+application lifetime details.
+Subsequently every Slider application owner has the flexibility to
+set the include and exclude patterns of file names that they intend
+to aggregate, by adding the following properties in their
+<tt class="docutils literal"><span class="pre">resources.json</span></tt>. For example, using</li>
+</ul>
+<div class="highlight-sql"><pre>"global": {
+   "yarn.log.include.patterns": "*",
+   "yarn.log.exclude.patterns": "*.*out"
+ }</pre>
+</div>
+<p>See
+<a class="reference external" href="http://slider.incubator.apache.org/docs/configuration/resources.html#logagg">http://slider.incubator.apache.org/docs/configuration/resources.html#logagg</a>
+for details.</p>
+<ul class="simple">
+<li>Presto logs will be available under the standard Presto data
+directory location. By default it is <tt class="docutils literal"><span class="pre">/var/lib/presto/data/var/log</span></tt>
+directory where <tt class="docutils literal"><span class="pre">/var/lib/presto/data</span></tt> is the default data
+directory configured in Slider <tt class="docutils literal"><span class="pre">appConfig.json</span></tt>. You can find both
+<tt class="docutils literal"><span class="pre">server.log</span></tt> and <tt class="docutils literal"><span class="pre">http-request.log</span></tt> files here. Please note that
+log rotation of these Presto log files will have to be manually
+enabled (for eg: using
+<a class="reference external" href="http://linuxcommand.org/man_pages/logrotate8.html">http://linuxcommand.org/man_pages/logrotate8.html</a>)</li>
+<li>Presto configuration files will be at <tt class="docutils literal"><span class="pre">/var/lib/presto/etc</span></tt>
+directory if you are using the default <tt class="docutils literal"><span class="pre">appConfig.json</span></tt> property
+<tt class="docutils literal"><span class="pre">site.global.config_dir</span></tt>. The configuration files here will be
+generated by Slider and overwritten for every application restart.
+These files should NOT be modified manually.</li>
+</ul>
+</div>
+<div class="section" id="links">
+<h2><a class="toc-backref" href="#id21">Links</a></h2>
+<ul class="simple">
+<li><a class="reference external" href="https://github.com/prestodb/presto-yarn/blob/master/README.md">https://github.com/prestodb/presto-yarn/blob/master/README.md</a></li>
+<li><a class="reference external" href="http://slider.incubator.apache.org/docs/getting_started.html">http://slider.incubator.apache.org/docs/getting_started.html</a></li>
+<li><a class="reference external" href="http://docs.hortonworks.com/HDPDocuments/Ambari-2.0.1.0/bk_Installing_HDP_AMB/content/ch_Installing_Ambari.html">http://docs.hortonworks.com/HDPDocuments/Ambari-2.0.1.0/bk_Installing_HDP_AMB/content/ch_Installing_Ambari.html</a></li>
+</ul>
+</div>
+</div>
+
+
+</div>
+<div class="bottomnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="installation-ambari.html">Automated Installation with Ambari</a>
+    </span>
+    <span class="right">
+        <a href="installation-presto-admin.html">Manual Installation with Presto Admin</a> &raquo;
+    </span>
+</p>
+
+</div>
+
+    <div class="footer">
+    </div>
+  </body>
+</html>

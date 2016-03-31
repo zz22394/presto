@@ -1,0 +1,117 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>12.31. DESCRIBE INPUT &mdash; Presto 0.141t Documentation</title>
+    
+    <link rel="stylesheet" href="../_static/presto.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.141t',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Presto 0.141t Documentation" href="../index.html" />
+    <link rel="up" title="12. SQL Statement Syntax" href="../sql.html" />
+    <link rel="next" title="12.32. DESCRIBE OUTPUT" href="describe-output.html" />
+    <link rel="prev" title="12.30. DEALLOCATE PREPARE" href="deallocate-prepare.html" /> 
+  </head>
+  <body>
+<div class="header">
+    <h1 class="heading"><a href="../index.html">
+        <span>Presto 0.141t Documentation</span></a></h1>
+    <h2 class="heading"><span>12.31. DESCRIBE INPUT</span></h2>
+</div>
+<div class="topnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="deallocate-prepare.html">12.30. DEALLOCATE PREPARE</a>
+    </span>
+    <span class="right">
+        <a href="describe-output.html">12.32. DESCRIBE OUTPUT</a> &raquo;
+    </span>
+</p>
+
+</div>
+<div class="content">
+    
+  <div class="section" id="describe-input">
+<span id="id1"></span><h1>12.31. DESCRIBE INPUT</h1>
+<div class="section" id="synopsis">
+<h2>Synopsis</h2>
+<div class="highlight-none"><div class="highlight"><pre>DESCRIBE INPUT statement_name
+</pre></div>
+</div>
+</div>
+<div class="section" id="description">
+<h2>Description</h2>
+<p>Describes the input parameters for a prepared statement.  It returns a table
+with the position and type of each parameter.  If the type of the parameter can
+not be determined, unknown is returned.</p>
+</div>
+<div class="section" id="examples">
+<h2>Examples</h2>
+<ol class="arabic">
+<li><p class="first">Describe query with 3 parameters:</p>
+<p>Let <tt class="docutils literal"><span class="pre">my_select</span></tt> be the name of the prepared statement <tt class="docutils literal"><span class="pre">SELECT</span> <span class="pre">?</span> <span class="pre">FROM</span> <span class="pre">nation</span> <span class="pre">WHERE</span> <span class="pre">regionkey</span> <span class="pre">=</span> <span class="pre">?</span> <span class="pre">AND</span> <span class="pre">name</span> <span class="pre">&lt;</span> <span class="pre">?</span></tt>:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="k">DESCRIBE</span> <span class="k">INPUT</span> <span class="n">my_select</span>
+</pre></div>
+</div>
+<p>Returns a table with the positions and types of all parameters</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="k">Position</span> <span class="o">|</span> <span class="k">Type</span>
+<span class="c1">-----------------</span>
+<span class="mi">0</span>        <span class="o">|</span> <span class="k">unknown</span>
+<span class="mi">1</span>        <span class="o">|</span> <span class="nb">bigint</span>
+<span class="mi">2</span>        <span class="o">|</span> <span class="nb">varchar</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Describe query with no parameters:</p>
+<p>Let <tt class="docutils literal"><span class="pre">my_select</span></tt> be the name of the prepared statement <tt class="docutils literal"><span class="pre">SELECT</span> <span class="pre">*</span> <span class="pre">FROM</span> <span class="pre">nation</span></tt>:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="k">DESCRIBE</span> <span class="k">INPUT</span> <span class="n">my_select2</span>
+</pre></div>
+</div>
+<p>Returns a table with one null row</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="k">Position</span> <span class="o">|</span> <span class="k">Type</span>
+<span class="c1">---------------</span>
+<span class="k">NULL</span>     <span class="o">|</span> <span class="k">NULL</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+
+
+</div>
+<div class="bottomnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="deallocate-prepare.html">12.30. DEALLOCATE PREPARE</a>
+    </span>
+    <span class="right">
+        <a href="describe-output.html">12.32. DESCRIBE OUTPUT</a> &raquo;
+    </span>
+</p>
+
+</div>
+
+    <div class="footer">
+    </div>
+  </body>
+</html>

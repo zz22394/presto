@@ -1,0 +1,99 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Adding a Connector &mdash; Presto 0.141t Documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/presto.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.141t',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="Presto 0.141t Documentation" href="../../../index.html" />
+    <link rel="up" title="8.1. Quick Start Guide" href="../quick-start-guide.html" />
+    <link rel="next" title="Configuring Presto" href="presto-configuration.html" />
+    <link rel="prev" title="Running Presto Queries" href="presto-cli-installation.html" /> 
+  </head>
+  <body>
+<div class="header">
+    <h1 class="heading"><a href="../../../index.html">
+        <span>Presto 0.141t Documentation</span></a></h1>
+    <h2 class="heading"><span>Adding a Connector</span></h2>
+</div>
+<div class="topnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="presto-cli-installation.html">Running Presto Queries</a>
+    </span>
+    <span class="right">
+        <a href="presto-configuration.html">Configuring Presto</a> &raquo;
+    </span>
+</p>
+
+</div>
+<div class="content">
+    
+  <div class="section" id="adding-a-connector">
+<h1>Adding a Connector</h1>
+<p>In Presto, connectors allow you to access different data sources &#8211; e.g.,
+Hive, PostgreSQL, or MySQL.</p>
+<p>To add the Hive connector:</p>
+<ol class="arabic">
+<li><p class="first">Create a file <tt class="docutils literal"><span class="pre">hive.properties</span></tt> in <tt class="docutils literal"><span class="pre">/etc/opt/prestoadmin/connectors</span></tt> with the following content:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="n">connector</span><span class="p">.</span><span class="n">name</span><span class="o">=</span><span class="n">hive</span><span class="o">-</span><span class="n">hadoop2</span>
+<span class="n">hive</span><span class="p">.</span><span class="n">metastore</span><span class="p">.</span><span class="n">uri</span><span class="o">=</span><span class="n">thrift</span><span class="p">:</span><span class="o">//&lt;</span><span class="n">metastore</span><span class="o">-</span><span class="k">host</span><span class="o">-</span><span class="k">or</span><span class="o">-</span><span class="n">ip</span><span class="o">&gt;</span><span class="p">:</span><span class="o">&lt;</span><span class="n">metastore</span><span class="o">-</span><span class="n">port</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Distribute the configuration file to all of the nodes in the cluster:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="n">sudo</span> <span class="p">.</span><span class="o">/</span><span class="n">presto</span><span class="o">-</span><span class="k">admin</span> <span class="n">connector</span> <span class="k">add</span> <span class="n">hive</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Restart Presto:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="n">sudo</span> <span class="p">.</span><span class="o">/</span><span class="n">presto</span><span class="o">-</span><span class="k">admin</span> <span class="n">server</span> <span class="k">restart</span>
+</pre></div>
+</div>
+</li>
+</ol>
+<p>You may need to add additional properties for the Hive connector to work properly, such as if your Hadoop cluster
+is set up for high availability. For these and other properties, see the <a class="reference external" href="https://prestodb.io/docs/current/connector/hive.html">Hive connector documentation</a>.</p>
+<p>For detailed documentation on <tt class="docutils literal"><span class="pre">connector</span> <span class="pre">add</span></tt>, see <a class="reference internal" href="../presto-admin-commands.html#connector-add"><em>connector add</em></a>.
+For more on which connectors Presto supports, see the <a class="reference external" href="https://prestodb.io/docs/current/connector.html">Presto connector documentation</a>.</p>
+</div>
+
+
+</div>
+<div class="bottomnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="presto-cli-installation.html">Running Presto Queries</a>
+    </span>
+    <span class="right">
+        <a href="presto-configuration.html">Configuring Presto</a> &raquo;
+    </span>
+</p>
+
+</div>
+
+    <div class="footer">
+    </div>
+  </body>
+</html>

@@ -1,0 +1,372 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>13.2. Presto Coordinator Kerberos Authentication &mdash; Presto 0.141t Documentation</title>
+    
+    <link rel="stylesheet" href="../_static/presto.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.141t',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Presto 0.141t Documentation" href="../index.html" />
+    <link rel="up" title="13. Security" href="../security.html" />
+    <link rel="next" title="13.3. CLI Kerberos Authentication" href="cli.html" />
+    <link rel="prev" title="13.1. Hive Security Configuration" href="hive.html" /> 
+  </head>
+  <body>
+<div class="header">
+    <h1 class="heading"><a href="../index.html">
+        <span>Presto 0.141t Documentation</span></a></h1>
+    <h2 class="heading"><span>13.2. Presto Coordinator Kerberos Authentication</span></h2>
+</div>
+<div class="topnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="hive.html">13.1. Hive Security Configuration</a>
+    </span>
+    <span class="right">
+        <a href="cli.html">13.3. CLI Kerberos Authentication</a> &raquo;
+    </span>
+</p>
+
+</div>
+<div class="content">
+    
+  <div class="section" id="presto-coordinator-kerberos-authentication">
+<h1>13.2. Presto Coordinator Kerberos Authentication</h1>
+<p>The Presto coordinator can be configured to enable Kerberos authentication over
+HTTPS for clients, such as the <a class="reference internal" href="cli.html"><em>Presto CLI</em></a>, or the
+JDBC and ODBC drivers.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Worker nodes cannot yet be configured to connect to the Presto coordinator
+using HTTPS or to authenticate with Kerberos. It is the administrator&#8217;s
+responsibility to enable unauthenticated access over HTTP for worker nodes
+and ensure unathenticated access is blocked for any node that is not a worker
+node. For nodes that are not worker nodes, block access to the Presto
+coordinator&#8217;s HTTP port.</p>
+</div>
+<p>To enable Kerberos authentication for Presto, configuration changes are made on
+the Presto coordinator. No changes are required to the worker configuration;
+the worker nodes will continue to connect to the coordinator over
+unauthenticated HTTP.</p>
+<div class="section" id="environment-configuration">
+<h2>Environment Configuration</h2>
+<div class="section" id="kerberos-services">
+<span id="server-kerberos-services"></span><h3>Kerberos Services</h3>
+<p>You will need a Kerberos <abbr title="Key Distribution Center">KDC</abbr> running on a
+node that the Presto coordinator can reach over the network. The KDC is
+responsible for authenticating principals and issuing session keys that can be
+used with Kerberos-enabled services. KDCs typically run on port 88, which is
+the IANA-assigned port for Kerberos.</p>
+</div>
+<div class="section" id="kerberos-configuration">
+<span id="server-kerberos-configuration"></span><h3>Kerberos Configuration</h3>
+<p>Kerberos needs to be configured on the Presto coordinator At a minimum, there needs
+to be a <tt class="docutils literal"><span class="pre">kdc</span></tt> entry in the <tt class="docutils literal"><span class="pre">[realms]</span></tt> section of the <tt class="docutils literal"><span class="pre">/etc/krb5.conf</span></tt>
+file. You may also want to include an <tt class="docutils literal"><span class="pre">admin_server</span></tt> entry and ensure that
+the Presto coordinator can reach the Kerberos admin server on port 749.</p>
+<div class="highlight-none"><div class="highlight"><pre>[realms]
+  PRESTO.EXAMPLE.COM = {
+    kdc = kdc.example.com
+    admin_server = kdc.example.com
+  }
+
+[domain_realm]
+  .presto.example.com = PRESTO.EXAMPLE.COM
+  presto.example.com = PRESTO.EXAMPLE.COM
+</pre></div>
+</div>
+<p>The complete <a class="reference external" href="http://web.mit.edu/kerberos/krb5-latest/doc/admin/conf_files/kdc_conf.html">documentation</a>
+for <tt class="docutils literal"><span class="pre">krb5.conf</span></tt> is hosted by the MIT Kerberos Project.</p>
+</div>
+<div class="section" id="kerberos-principals-and-keytab-files">
+<span id="server-kerberos-principals"></span><h3>Kerberos Principals and Keytab Files</h3>
+<p>The Presto coordinator needs a Kerberos principal, as do users who are going to
+connect to the Presto coordinator. You will need to create these users in
+Kerberos using <a class="reference external" href="http://web.mit.edu/kerberos/krb5-latest/doc/admin/admin_commands/kadmin_local.html">kadmin</a>.</p>
+<p>In addition, the Presto coordinator needs a <a class="reference external" href="http://web.mit.edu/kerberos/krb5-devel/doc/basic/keytab_def.html">keytab file</a>. After you create the principal, you can create the keytab file using <strong class="command">kadmin</strong></p>
+<div class="highlight-none"><div class="highlight"><pre>kadmin
+&gt; addprinc -randkey presto@EXAMPLE.COM
+&gt; addprinc -randkey presto/presto-coordinator.example.com@EXAMPLE.COM
+&gt; ktadd -k /etc/presto/presto.keytab presto@EXAMPLE.COM
+&gt; ktadd -k /etc/presto/presto.keytab presto/presto-coordinator.example.com@EXAMPLE.COM
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Running <strong class="command">ktadd</strong> randomizes the principal&#8217;s keys. If you have just
+created the principal, this does not matter. If the principal already exists,
+and if existing users or services rely on being able to authenticate using a
+password or a keytab, use the <tt class="docutils literal"><span class="pre">-norandkey</span></tt> option to <strong class="command">ktadd</strong>.</p>
+</div>
+</div>
+<div class="section" id="java-cryptography-extension-policy-files">
+<h3>Java Cryptography Extension Policy Files</h3>
+<p>The Java Runtime Environment is shipped with policy files that limit the
+strengh of the cryptographic keys that can be used. Kerberos, by default, uses
+keys that are larger than those supported by the included policy files. There
+are two possible solutions to the problem:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Update the <abbr title="Java Cryptograhy Extension">JCE</abbr> policy files.</li>
+<li>Configure Kerberos to use reduced-strength keys.</li>
+</ul>
+</div></blockquote>
+<p>Of the two options, updating the JCE policy files is recommended. The JCE
+policy files can be downloaded from Oracle. Note that the JCE policy files vary
+based on the major version of Java you are running. Java 6 policy files will
+not work with Java 8, for example.</p>
+<p>The Java 8 policy files are available <a class="reference external" href="http://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html">here</a>.
+Instructions for installing the policy files are included in a README file in
+the zip archive. You will need administrative access to install the policy
+files if you are installing them in a system JRE.</p>
+</div>
+<div class="section" id="java-keystore-file-for-tls">
+<span id="server-java-keystore"></span><h3>Java Keystore File for TLS</h3>
+<p>When using Kerberos authentication, access to the Presto coordinator should be
+through HTTPS. The Presto coordinator needs keys to secure the <abbr title="Transport Layer Security">TLS</abbr> connection. These keys are generated using
+<strong class="command">keytool</strong> and stored in a Java Keystore file for the Presto
+coordinator.</p>
+<p>The alias in the <strong class="command">keytool</strong> command line should match the principal that the
+Presto coordinator will use.</p>
+<p>You&#8217;ll be prompted for the first and last name. Use the Common Name that will
+be used in the certificate. In this case it should be the unqualified hostname
+of the Presto coordinator. In the example, you can see this in the prompt that
+confirms the information is correct.</p>
+<div class="highlight-none"><div class="highlight"><pre>keytool -genkeypair -alias presto -keyalg RSA -keystore keystore.jks
+Enter keystore password:
+Re-enter new password:
+What is your first and last name?
+  [Unknown]:  presto-coordinator
+What is the name of your organizational unit?
+  [Unknown]:
+What is the name of your organization?
+  [Unknown]:
+What is the name of your City or Locality?
+  [Unknown]:
+What is the name of your State or Province?
+  [Unknown]:
+What is the two-letter country code for this unit?
+  [Unknown]:
+Is CN=eiger, OU=Unknown, O=Unknown, L=Unknown, ST=Unknown, C=Unknown correct?
+  [no]:  yes
+
+Enter key password for &lt;presto&gt;
+        (RETURN if same as keystore password):
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="access-controller-implementation">
+<span id="server-access-controller"></span><h2>Access Controller Implementation</h2>
+<p>Presto separates the concept of the principal who authenticates to the
+coordinator from the username that is responsible for running queries. When
+running the Presto CLI, for example, the Presto username can be specified using
+the &#8211;user option.</p>
+<p>By default, the Presto coordinator allows any principal to run queries as any
+Presto user. In a secure environment, this is probably not desirable behavior.</p>
+<p>This behavior can be customized by implementing the
+<tt class="docutils literal"><span class="pre">SystemAccessControlFactory</span></tt> and <tt class="docutils literal"><span class="pre">SystemAccessControl</span></tt> interfaces.</p>
+<p><tt class="docutils literal"><span class="pre">SystemAccessControlFactory</span></tt> is responsible for creating a
+<tt class="docutils literal"><span class="pre">SystemAccessControl</span></tt> instance. It also defines a <tt class="docutils literal"><span class="pre">SystemAccessControl</span></tt>
+name which is used by the administrator in a Presto configuration.</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">SystemAccessControl</span></tt> implementations have two responsibilities:</dt>
+<dd><ul class="first last simple">
+<li>Verifying whether or not a given Kerberos principal is authorized to execute
+queries as a specific user.</li>
+<li>Determining whether or not a given user can alter values for a given system
+property.</li>
+</ul>
+</dd>
+</dl>
+<p>The implementation of <tt class="docutils literal"><span class="pre">SystemAccessControl</span></tt> and
+<tt class="docutils literal"><span class="pre">SystemAccessControlFactory</span></tt> must be wrapped as a plugin and installed on the
+Presto cluster.</p>
+</div>
+<div class="section" id="presto-coordinator-node-configuration">
+<h2>Presto Coordinator Node Configuration</h2>
+<p>You must make the above changes to the environment prior to configuring the
+Presto coordinator to use Kerberos authentication and HTTPS. After making the
+following environment changes, you can make the changes to the Presto
+configuration files.</p>
+<blockquote>
+<div><ul class="simple">
+<li><a class="reference internal" href="#server-kerberos-services"><em>Kerberos Services</em></a></li>
+<li><a class="reference internal" href="#server-kerberos-configuration"><em>Kerberos Configuration</em></a></li>
+<li><a class="reference internal" href="#server-kerberos-principals"><em>Kerberos Principals and Keytab Files</em></a></li>
+<li><a class="reference internal" href="#server-java-keystore"><em>Java Keystore File for TLS</em></a></li>
+<li><a class="reference internal" href="#server-access-controller"><em>Access Controller Implementation</em></a></li>
+</ul>
+</div></blockquote>
+<div class="section" id="config-properties">
+<h3>config.properties</h3>
+<p>Kerberos authentication is configured in the coordinator node&#8217;s
+config.properties file. The entries that need to be added are listed below.</p>
+<div class="highlight-none"><div class="highlight"><pre>http.server.authentication.enabled=true
+
+http.server.authentication.krb5.service-name=presto
+http.server.authentication.krb5.keytab=/etc/presto/presto.keytab
+http.authentication.krb5.config=/etc/krb5.conf
+
+http-server.https.enabled=true
+http-server.https.port=7778
+
+http-server.https.keystore.path=/etc/presto_keystore.jks
+http-server.https.keystore.key=keystore_password
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Property</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">http.server.authentication.enabled</span></tt></td>
+<td>Enable authentication for the Presto coordinator.
+Must be set to <tt class="docutils literal"><span class="pre">true</span></tt>.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">http.server.authentication.krb5.service-name</span></tt></td>
+<td>The Kerberos server name for the Presto coordinator.
+Must match the Kerberos principal.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">http.server.authentication.krb5.keytab</span></tt></td>
+<td>The location of the keytab that can be used to
+authenticate the Kerberos principal specified in
+<tt class="docutils literal"><span class="pre">http.server.authentication.krb5.service-name</span></tt>.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">http.authentication.krb5.config</span></tt></td>
+<td>The location of the Kerberos configuration file.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">http-server.https.enabled</span></tt></td>
+<td>Enables HTTPS access for the Presto coordinator.
+Should be set to <tt class="docutils literal"><span class="pre">true</span></tt>.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">http-server.https.port</span></tt></td>
+<td>HTTPS server port.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">http-server.https.keystore.path</span></tt></td>
+<td>The location of the Java Keystore file that will be
+used to secure TLS.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">http-server.https.keystore.key</span></tt></td>
+<td>The password for the keystore. This must match the
+password you specified when creating the keystore.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="access-controls-properties">
+<h3>access-controls.properties</h3>
+<p>Once a plugin that implements <tt class="docutils literal"><span class="pre">SystemAccessControl</span></tt> and
+<tt class="docutils literal"><span class="pre">SystemAccessControlFactory</span></tt> has been installed on the coordinator, it is
+configured using an access-controls.properties file. All of the properties
+other than access-control.name are specific to the <tt class="docutils literal"><span class="pre">SystemAccessControl</span></tt>
+plugin.</p>
+<div class="highlight-none"><div class="highlight"><pre>access-control.name=custom-access-control
+custom-property1=custom-value1
+custom-property2=custom-value2
+...
+</pre></div>
+</div>
+<p>The <tt class="docutils literal"><span class="pre">access-control.name</span></tt> property is used by Presto to find a registered
+<tt class="docutils literal"><span class="pre">SystemAccessControlFactory</span></tt>. The remaining properties are passed as a map to
+<tt class="docutils literal"><span class="pre">SystemAccessControlFactory.create(Map&lt;String,</span> <span class="pre">String&gt;</span> <span class="pre">config)</span></tt>.</p>
+</div>
+</div>
+<div class="section" id="troubleshooting">
+<span id="coordinator-troubleshooting"></span><h2>Troubleshooting</h2>
+<p>Getting Kerberos authentication working can be challenging. You can
+independently verify some of the configuration outside of Presto to help narrow
+your focus when trying to solve a problem.</p>
+<div class="section" id="kerberos-verification">
+<h3>Kerberos Verification</h3>
+<p>Ensure that you can connect to the KDC from the Presto coordinator using
+<strong class="command">telnet</strong>.</p>
+<div class="highlight-none"><div class="highlight"><pre>$ telnet kdc.example.com 88
+</pre></div>
+</div>
+<p>Verify that the keytab file can be used to successfully obtain a ticket using
+<a class="reference external" href="http://web.mit.edu/kerberos/krb5-1.12/doc/user/user_commands/kinit.html">kinit</a> and
+<a class="reference external" href="http://web.mit.edu/kerberos/krb5-1.12/doc/user/user_commands/klist.html">klist</a></p>
+<div class="highlight-none"><div class="highlight"><pre>$ kinit -kt /etc/presto/presto.keytab presto@EXAMPLE.COM
+$ klist
+</pre></div>
+</div>
+</div>
+<div class="section" id="java-keystore-file-verification">
+<h3>Java Keystore File Verification</h3>
+<p>Verify the password for a keystore file and view its contents using <a class="reference external" href="http://docs.oracle.com/javase/8/docs/technotes/tools/windows/keytool.html">keytool</a>.</p>
+<div class="highlight-none"><div class="highlight"><pre>$ keytool -list -v -k /etc/presto/presto.jks
+</pre></div>
+</div>
+</div>
+<div class="section" id="additional-kerberos-debugging-information">
+<h3>Additional Kerberos Debugging Information</h3>
+<p>You can enable additional Kerberos debugging information for the Presto
+coordinator process by adding the following lines to the Presto <tt class="docutils literal"><span class="pre">jvm.config</span></tt>
+file</p>
+<div class="highlight-none"><div class="highlight"><pre>-Dsun.security.krb5.debug=true
+-Dlog.enable-console=true
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">-Dsun.security.krb5.debug=true</span></tt> enables Kerberos debugging output from the
+JRE Kerberos libraries. The debugging output goes to <tt class="docutils literal"><span class="pre">stdout</span></tt>, which Presto
+redirects to the logging system. <tt class="docutils literal"><span class="pre">-Dlog.enable-console=true</span></tt> enables output
+to <tt class="docutils literal"><span class="pre">stdout</span></tt> to appear in the logs.</p>
+<p>The amount and usefulness of the information the Kerberos debugging output
+sends to the logs varies depending on where the authentication is failing.
+Exception messages and stack traces can also provide useful clues about the
+nature of the problem.</p>
+</div>
+<div class="section" id="additional-resources">
+<span id="server-additional-resources"></span><h3>Additional resources</h3>
+<p><a class="reference external" href="http://docs.oracle.com/cd/E19253-01/816-4557/trouble-6/index.html">Common Kerberos Error Messages (A-M)</a></p>
+<p><a class="reference external" href="http://docs.oracle.com/cd/E19253-01/816-4557/trouble-27/index.html">Common Kerberos Error Messages (N-Z)</a></p>
+<p><a class="reference external" href="http://web.mit.edu/kerberos/krb5-latest/doc/admin/troubleshoot.html">MIT Kerberos Documentation: Troubleshooting</a></p>
+</div>
+</div>
+</div>
+
+
+</div>
+<div class="bottomnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="hive.html">13.1. Hive Security Configuration</a>
+    </span>
+    <span class="right">
+        <a href="cli.html">13.3. CLI Kerberos Authentication</a> &raquo;
+    </span>
+</p>
+
+</div>
+
+    <div class="footer">
+    </div>
+  </body>
+</html>

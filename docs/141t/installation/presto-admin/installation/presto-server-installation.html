@@ -1,0 +1,96 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Installing the Presto Server &mdash; Presto 0.141t Documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/presto.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.141t',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="Presto 0.141t Documentation" href="../../../index.html" />
+    <link rel="up" title="8.1. Quick Start Guide" href="../quick-start-guide.html" />
+    <link rel="next" title="Running Presto Queries" href="presto-cli-installation.html" />
+    <link rel="prev" title="Installing Java 8" href="java-installation.html" /> 
+  </head>
+  <body>
+<div class="header">
+    <h1 class="heading"><a href="../../../index.html">
+        <span>Presto 0.141t Documentation</span></a></h1>
+    <h2 class="heading"><span>Installing the Presto Server</span></h2>
+</div>
+<div class="topnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="java-installation.html">Installing Java 8</a>
+    </span>
+    <span class="right">
+        <a href="presto-cli-installation.html">Running Presto Queries</a> &raquo;
+    </span>
+</p>
+
+</div>
+<div class="content">
+    
+  <div class="section" id="installing-the-presto-server">
+<span id="presto-server-installation-label"></span><h1>Installing the Presto Server</h1>
+<p>Prerequisites: <a class="reference internal" href="presto-admin-installation.html#presto-admin-installation-label"><em>Installing Presto Admin</em></a>, <a class="reference internal" href="java-installation.html#java-installation-label"><em>Installing Java 8</em></a> and <a class="reference internal" href="presto-admin-configuration.html#presto-admin-configuration-label"><em>Configuring Presto-Admin</em></a></p>
+<p>To install the Presto query engine on a cluster of nodes using <tt class="docutils literal"><span class="pre">presto-admin</span></tt>:</p>
+<ol class="arabic">
+<li><p class="first">Download <tt class="docutils literal"><span class="pre">presto-server-rpm-VERSION.ARCH.rpm</span></tt></p>
+</li>
+<li><p class="first">Copy the RPM to a location accessible by <tt class="docutils literal"><span class="pre">presto-admin</span></tt>.</p>
+</li>
+<li><p class="first">Run the following command to install Presto:</p>
+<div class="highlight-sql"><pre>$ sudo ./presto-admin server install &lt;local_path_to_rpm&gt;</pre>
+</div>
+</li>
+</ol>
+<p>Presto! Presto is now installed on the coordinator and workers specified in your <tt class="docutils literal"><span class="pre">/etc/opt/prestoadmin/config.json</span></tt> file.</p>
+<p>The default port for Presto is 8080.  If that port is already in use on your cluster, you will not be able to start Presto.
+In order to change the port that Presto uses, proceed to <a class="reference internal" href="presto-port-configuration.html#presto-port-configuration-label"><em>Configuring the Presto Port</em></a>.</p>
+<ol class="arabic" start="4">
+<li><p class="first">Now, you are ready to start Presto:</p>
+<div class="highlight-sql"><pre>$ sudo ./presto-admin server start</pre>
+</div>
+</li>
+</ol>
+<p>This may take a few seconds, since the command doesn&#8217;t exit until <tt class="docutils literal"><span class="pre">presto-admin</span></tt> verifies that Presto is fully up and ready to receive queries.</p>
+</div>
+
+
+</div>
+<div class="bottomnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="java-installation.html">Installing Java 8</a>
+    </span>
+    <span class="right">
+        <a href="presto-cli-installation.html">Running Presto Queries</a> &raquo;
+    </span>
+</p>
+
+</div>
+
+    <div class="footer">
+    </div>
+  </body>
+</html>

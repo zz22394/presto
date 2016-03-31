@@ -1,0 +1,118 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>12.12. EXPLAIN ANALYZE &mdash; Presto 0.141t Documentation</title>
+    
+    <link rel="stylesheet" href="../_static/presto.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.141t',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Presto 0.141t Documentation" href="../index.html" />
+    <link rel="up" title="12. SQL Statement Syntax" href="../sql.html" />
+    <link rel="next" title="12.13. INSERT" href="insert.html" />
+    <link rel="prev" title="12.11. EXPLAIN" href="explain.html" /> 
+  </head>
+  <body>
+<div class="header">
+    <h1 class="heading"><a href="../index.html">
+        <span>Presto 0.141t Documentation</span></a></h1>
+    <h2 class="heading"><span>12.12. EXPLAIN ANALYZE</span></h2>
+</div>
+<div class="topnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="explain.html">12.11. EXPLAIN</a>
+    </span>
+    <span class="right">
+        <a href="insert.html">12.13. INSERT</a> &raquo;
+    </span>
+</p>
+
+</div>
+<div class="content">
+    
+  <div class="section" id="explain-analyze">
+<span id="id1"></span><h1>12.12. EXPLAIN ANALYZE</h1>
+<div class="section" id="synopsis">
+<h2>Synopsis</h2>
+<div class="highlight-none"><div class="highlight"><pre>EXPLAIN ANALYZE statement
+</pre></div>
+</div>
+</div>
+<div class="section" id="description">
+<h2>Description</h2>
+<p>Execute the statement and show the distributed execution plan of the statement
+along with the cost of each operation.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The stats may not be 100% accurate so cost for some part of the query may be unknown</p>
+</div>
+</div>
+<div class="section" id="examples">
+<h2>Examples</h2>
+<div class="highlight-none"><div class="highlight"><pre>presto:sf1&gt; EXPLAIN ANALYZE SELECT regionkey, count(*) FROM nation GROUP BY 1;
+
+                                          Query Plan
+-----------------------------------------------------------------------------------------------
+Fragment 1 [HASH]
+    Cost: CPU 2.33ms, Input: 5 lines (90B), Output: 5 lines (90B)
+    Output layout: [regionkey, count]
+    Output partitioning: SINGLE []
+    - Aggregate(FINAL)[regionkey] =&gt; [regionkey:bigint, count:bigint]
+            Cost: 50.00%, Output: 5 lines (90B)
+            count := &quot;count&quot;(&quot;count_8&quot;)
+        - RemoteSource[2] =&gt; [regionkey:bigint, count_8:bigint]
+                Cost: 50.00%, Output: 5 lines (90B)
+
+Fragment 2 [SOURCE]
+    Cost: CPU 3.21s, Input: 25 lines (225B), Output: 5 lines (90B)
+    Output layout: [regionkey, count_8]
+    Output partitioning: HASH [regionkey]
+    - Aggregate(PARTIAL)[regionkey] =&gt; [regionkey:bigint, count_8:bigint]
+            Cost: 78.26%, Output: 5 lines (90B)
+            count_8 := &quot;count&quot;(*)
+        - TableScan[tpch:tpch:nation:sf0.1, originalConstraint = true] =&gt; [regionkey:bigint]
+                Cost: 21.74%, Output: 25 lines (225B)
+                regionkey := tpch:regionkey
+</pre></div>
+</div>
+</div>
+</div>
+
+
+</div>
+<div class="bottomnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="explain.html">12.11. EXPLAIN</a>
+    </span>
+    <span class="right">
+        <a href="insert.html">12.13. INSERT</a> &raquo;
+    </span>
+</p>
+
+</div>
+
+    <div class="footer">
+    </div>
+  </body>
+</html>

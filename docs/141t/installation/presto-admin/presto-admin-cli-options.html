@@ -1,0 +1,208 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>8.7. Presto-Admin Command-Line Options &mdash; Presto 0.141t Documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/presto.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.141t',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="Presto 0.141t Documentation" href="../../index.html" />
+    <link rel="up" title="8. User Guide" href="user-guide.html" />
+    <link rel="next" title="9. Configuring Presto" href="../../configuration.html" />
+    <link rel="prev" title="8.6. Presto-Admin Commands" href="presto-admin-commands.html" /> 
+  </head>
+  <body>
+<div class="header">
+    <h1 class="heading"><a href="../../index.html">
+        <span>Presto 0.141t Documentation</span></a></h1>
+    <h2 class="heading"><span>8.7. Presto-Admin Command-Line Options</span></h2>
+</div>
+<div class="topnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="presto-admin-commands.html">8.6. Presto-Admin Commands</a>
+    </span>
+    <span class="right">
+        <a href="../../configuration.html">9. Configuring Presto</a> &raquo;
+    </span>
+</p>
+
+</div>
+<div class="content">
+    
+  <div class="section" id="presto-admin-command-line-options">
+<h1>8.7. Presto-Admin Command-Line Options</h1>
+<p>A quick overview of the possible CLI options for <tt class="docutils literal"><span class="pre">presto-admin</span></tt> can be found
+via <tt class="docutils literal"><span class="pre">sudo</span> <span class="pre">./presto-admin</span> <span class="pre">--extended-help</span></tt>. More details on those options can
+be found below.</p>
+<table class="docutils option-list" frame="void" rules="none">
+<col class="option" />
+<col class="description" />
+<tbody valign="top">
+<tr><td class="option-group">
+<kbd><span class="option">--version</span></kbd></td>
+<td>Prints out the current <tt class="docutils literal"><span class="pre">presto-admin</span></tt> version and exits.</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">-h</span>, <span class="option">--help</span></kbd></td>
+<td>Prints out a usage string, the basic <tt class="docutils literal"><span class="pre">presto-admin</span></tt> options and the
+available commands, then exits.</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">-d</span>, <span class="option">--display</span></kbd></td>
+<td><p class="first">Prints detailed information about a given command.</p>
+<p>e.g., to get detailed information about the <tt class="docutils literal"><span class="pre">server</span> <span class="pre">install</span></tt> command, enter:</p>
+<div class="last highlight-sql"><div class="highlight"><pre><span class="n">sudo</span> <span class="p">.</span><span class="o">/</span><span class="n">presto</span><span class="o">-</span><span class="k">admin</span> <span class="o">-</span><span class="n">d</span> <span class="n">server</span> <span class="n">install</span>
+</pre></div>
+</div>
+</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--extended-help</span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>Prints out a usage string, all the <tt class="docutils literal"><span class="pre">presto-admin</span></tt> options and the
+available commands, then exits.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">-I</span>, <span class="option">--initial-password-prompt</span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td><p class="first">Forces password prompt before running any commands on the cluster.</p>
+<p>Either this option or the <tt class="docutils literal"><span class="pre">--password</span></tt> option is necessary if the user from
+<tt class="docutils literal"><span class="pre">/etc/opt/prestoadmin/config.json</span></tt> needs a password for sudo.</p>
+<p class="last">Note that the SSH password and the sudo password must be the same,
+if passwordless SSH is not used.</p>
+</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">-p <var>PASSWORD</var></span>, <span class="option">--password=<var>PASSWORD</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td><p class="first">Sets password for use with authentication and/or sudo.</p>
+<p>Either this option or the <tt class="docutils literal"><span class="pre">--initial-password-prompt</span></tt> option is necessary
+if the user from <tt class="docutils literal"><span class="pre">/etc/opt/prestoadmin/config.json</span></tt> needs a password for sudo.</p>
+<p class="last">Note that the SSH password and the sudo password must be the same,
+if passwordless SSH is not used.</p>
+</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--abort-on-error</span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>Aborts the command, instead of warning, if a command fails on any node. The
+default for <tt class="docutils literal"><span class="pre">presto-admin</span></tt> is to warn if a command fails on any node.</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">-a</span>, <span class="option">--no_agent</span></kbd></td>
+<td>Forces <tt class="docutils literal"><span class="pre">presto-admin</span></tt> not to seek out running SSH agents when using
+key-based authentication.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">-A</span>, <span class="option">--forward-agent</span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>Enables forwarding of a local SSH agent to the remote end.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--colorize-errors</span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>Colorizes error output.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">-D</span>, <span class="option">--disable-known-hosts</span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>Turns off loading of a user&#8217;s SSH known_hosts file. Disabling known_hosts leaves
+you vulnerable to man-in-the-middle attacks. However,in some environments like
+EC2, a particular host getting a different key should not mean that you are not
+able to connect via SSH to that host.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">-g <var>HOST</var></span>, <span class="option">--gateway=<var>HOST</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>Routes SSH connections through the SSH daemon on the
+specified gateway host to their final destination.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">-H <var>HOSTS</var></span>, <span class="option">--hosts=<var>HOSTS</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>Sets the list of hosts where a <tt class="docutils literal"><span class="pre">presto-admin</span></tt> command should be executed.
+The values should be comma-separated and exist in your topology.</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">-i <var>PATH</var></span></kbd></td>
+<td>Adds the SSH private key file specified by PATH to the set of keys to
+try during key-based SSH authentication. May be repeated.</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">-k</span>, <span class="option">--no-keys</span></kbd></td>
+<td>Disables loading private key files from <tt class="docutils literal"><span class="pre">~/.ssh/</span></tt>.</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--keepalive=<var>N</var></span></kbd></td>
+<td>Sends an SSH keepalive every N seconds to keep SSH from timing out.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">-n <var>M</var></span>, <span class="option">--connection-attempts=<var>M</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>Makes M attempts to connect before giving up. The default number of attempts to try is 1.</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--port=<var>PORT</var></span></kbd></td>
+<td>Sets the SSH connection port. If the SSH port is set both in
+<tt class="docutils literal"><span class="pre">/etc/opt/prestoadmin/config.json</span></tt> and on the command line, the port
+specified on the command line will be used.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">-r</span>, <span class="option">--reject-unknown-hosts</span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>Aborts when a host is not in the user&#8217;s SSH <tt class="docutils literal"><span class="pre">known_hosts</span></tt> file.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--system-known-hosts=<var>SYSTEM_KNOWN_HOSTS</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>Loads the given SSH <tt class="docutils literal"><span class="pre">known_hosts</span></tt> file before reading the user&#8217;s <tt class="docutils literal"><span class="pre">known_hosts</span></tt>
+file.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">-t <var>N</var></span>, <span class="option">--timeout=<var>N</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>Sets the network connection timeout to N seconds. The default is 10 seconds.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">-T <var>N</var></span>, <span class="option">--command-timeout=<var>N</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>Sets the timeout for the given remote command to N seconds. The default is
+to have no timeout.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">-u <var>USER</var></span>, <span class="option">--user=<var>USER</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>Sets the user that is used for SSH connections. If the SSH username is set both in
+<tt class="docutils literal"><span class="pre">/etc/opt/prestoadmin/config.json</span></tt> and on the command line, the username
+specified on the command line will be used.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">-x <var>HOSTS</var></span>, <span class="option">--exclude-hosts=<var>HOSTS</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>Sets the list of hosts to be excluded when executing a <tt class="docutils literal"><span class="pre">presto-admin</span></tt>
+command. The values should be comma-separated and exist in your topology.</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--serial</span></kbd></td>
+<td>Switches to run the command in serial. The default is to run in parallel, because
+parallel mode is usually faster. However, if you want a password prompt while the command
+is running (without specifying <tt class="docutils literal"><span class="pre">-I</span></tt> or <tt class="docutils literal"><span class="pre">--initial-password-prompt</span></tt>), the <tt class="docutils literal"><span class="pre">--serial</span></tt> flag is necessary.</td></tr>
+</tbody>
+</table>
+</div>
+
+
+</div>
+<div class="bottomnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="presto-admin-commands.html">8.6. Presto-Admin Commands</a>
+    </span>
+    <span class="right">
+        <a href="../../configuration.html">9. Configuring Presto</a> &raquo;
+    </span>
+</p>
+
+</div>
+
+    <div class="footer">
+    </div>
+  </body>
+</html>

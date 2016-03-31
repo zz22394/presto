@@ -1,0 +1,306 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>13.1. Hive Security Configuration &mdash; Presto 0.141t Documentation</title>
+    
+    <link rel="stylesheet" href="../_static/presto.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.141t',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Presto 0.141t Documentation" href="../index.html" />
+    <link rel="up" title="13. Security" href="../security.html" />
+    <link rel="next" title="13.2. Presto Coordinator Kerberos Authentication" href="server.html" />
+    <link rel="prev" title="13. Security" href="../security.html" /> 
+  </head>
+  <body>
+<div class="header">
+    <h1 class="heading"><a href="../index.html">
+        <span>Presto 0.141t Documentation</span></a></h1>
+    <h2 class="heading"><span>13.1. Hive Security Configuration</span></h2>
+</div>
+<div class="topnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="../security.html">13. Security</a>
+    </span>
+    <span class="right">
+        <a href="server.html">13.2. Presto Coordinator Kerberos Authentication</a> &raquo;
+    </span>
+</p>
+
+</div>
+<div class="content">
+    
+  <div class="section" id="hive-security-configuration">
+<h1>13.1. Hive Security Configuration</h1>
+<p>The default security configuration of the <a class="reference internal" href="../connector/hive.html"><em>Hive Connector</em></a> uses
+<tt class="docutils literal"><span class="pre">simple</span></tt> authentication to connect to a Hadoop cluster. All queries are
+executed as the user who runs the Presto process, regardless of the user who
+submits the query.</p>
+<p>The Hive connector provides additonal security options to support Hadoop
+clusters that have been configured to use <a class="reference internal" href="#hive-security-kerberos-support"><em>Kerberos</em></a>.</p>
+<p>When accessing <abbr title="Hadoop Distributed File System">HDFS</abbr>, Presto can
+<a class="reference internal" href="#hive-security-impersonation"><em>impersonate</em></a> the end user who is running the
+query. This can be used with HDFS permissions and <abbr title="Access Control Lists">ACLs</abbr> to provide additional security for data.</p>
+<div class="section" id="kerberos-support">
+<span id="hive-security-kerberos-support"></span><h2>Kerberos Support</h2>
+<p>In order to use the Hive connector with a Hadoop cluster that uses <tt class="docutils literal"><span class="pre">kerberos</span></tt>
+authentication, you will need to configure the connector to work with two
+services on the Hadoop cluster:</p>
+<ul class="simple">
+<li>The Hive metastore Thrift service</li>
+<li>The Hadoop Distributed File System (HDFS)</li>
+</ul>
+<p>Access to these services by the Hive connector is configured in the properties
+file that contains the general Hive connector configuration.</p>
+<div class="section" id="hive-metastore-thrift-service-authentication">
+<h3>Hive Metastore Thrift Service Authentication</h3>
+<p>In a Kerberized Hadoop cluster, Presto accesses the Hive metastore Thrift
+service through <abbr title="Simple Authentication and Security Layer">SASL</abbr>.
+Kerberos authentication for the metastore is configured in the connector&#8217;s
+properties file using the following properties:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="42%" />
+<col width="50%" />
+<col width="8%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Property Name</th>
+<th class="head">Description</th>
+<th class="head">Default</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">hive.metastore.authentication.type</span></tt></td>
+<td><p class="first">One of <tt class="docutils literal"><span class="pre">SIMPLE</span></tt> or <tt class="docutils literal"><span class="pre">SASL</span></tt>.  When using the default value
+of <tt class="docutils literal"><span class="pre">SIMPLE</span></tt>, Kerberos authentication is disabled and no
+other properties need to be configured.</p>
+<p class="last">When set to <tt class="docutils literal"><span class="pre">SASL</span></tt> the Hive connector will connect to the
+Hive metastore Thrift service using SASL and authenticate
+with Kerberos.</p>
+</td>
+<td><tt class="docutils literal"><span class="pre">SIMPLE</span></tt></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">hive.metastore.principal</span></tt></td>
+<td>The Kerberos principal of the Hive metastore. The Presto
+coordinator will use this to authenticate the Hive
+metastore.</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">hive.metastore.presto.principal</span></tt></td>
+<td>The Kerberos principal that Presto will use when connecting
+to the Hive metastore.</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">hive.metastore.presto.keytab</span></tt></td>
+<td>The path to the keytab file that contains a key for the
+principal specified by <tt class="docutils literal"><span class="pre">hive.metastore.presto.principal</span></tt>.</td>
+<td>&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="simple">
+<h4><tt class="docutils literal"><span class="pre">SIMPLE</span></tt></h4>
+<div class="highlight-none"><div class="highlight"><pre>hive.metastore.authentication.type=SIMPLE
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">SIMPLE</span></tt> authentication is the default authentication mechanism for the Hive
+metastore. When using <tt class="docutils literal"><span class="pre">SIMPLE</span></tt> authentication, Presto connects to an
+unsecured Hive metastore. Kerberos is not used.</p>
+</div>
+<div class="section" id="sasl">
+<h4><tt class="docutils literal"><span class="pre">SASL</span></tt></h4>
+<div class="highlight-none"><div class="highlight"><pre>hive.metastore.authentication.type=SASL
+hive.metastore.principal=hive/hive-metastore-host.example.com@EXAMPLE.COM
+hive.metastore.presto.principal=presto@EXAMPLE.COM
+hive.metastore.presto.keytab=/etc/presto/hive.keytab
+</pre></div>
+</div>
+<p>When using <tt class="docutils literal"><span class="pre">SASL</span></tt> authentication for the Hive metastore Thrift service,
+Presto will connect as the Kerberos principal specified by the property
+<tt class="docutils literal"><span class="pre">hive.metastore.presto.principal</span></tt>.  Presto will authenticate this principal
+using the keytab specified by the <tt class="docutils literal"><span class="pre">hive.metastore.presto.keytab</span></tt> property,
+and will verify that the identity of the metastore matches
+<tt class="docutils literal"><span class="pre">hive.metastore.principal</span></tt>.</p>
+<p>Keytab files must be distributed to every node in the cluster that runs Presto.</p>
+<p><a class="reference internal" href="#hive-security-additional-keytab"><em>Additional information on keytab files.</em></a></p>
+</div>
+</div>
+<div class="section" id="hdfs-authentication">
+<h3>HDFS Authentication</h3>
+<p>In a Kerberized Hadoop cluster, Presto authenticates to HDFS using Kerberos.
+Kerberos authentication for HDFS is configured in the connector&#8217;s properties
+file using the following properties:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="42%" />
+<col width="50%" />
+<col width="8%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Property Name</th>
+<th class="head">Description</th>
+<th class="head">Default</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">hive.hdfs.authentication.type</span></tt></td>
+<td><p class="first">One of <tt class="docutils literal"><span class="pre">SIMPLE</span></tt>, <tt class="docutils literal"><span class="pre">KERBEROS</span></tt>, <tt class="docutils literal"><span class="pre">SIMPLE_IMPERSONATION</span></tt>,
+or <tt class="docutils literal"><span class="pre">KERBEROS_IMPERSONATION</span></tt>.  When using the default
+value of <tt class="docutils literal"><span class="pre">SIMPLE</span></tt>, Kerberos authentication is disabled and
+no other properties need to be configured.</p>
+<p>When set to <tt class="docutils literal"><span class="pre">KERBEROS</span></tt>, the Hive connector authenticates
+to HDFS using Kerberos.</p>
+<p class="last"><a class="reference internal" href="#hive-security-simple-impersonation"><em>SIMPLE_IMPERSONATION</em></a> and
+<a class="reference internal" href="#hive-security-kerberos-impersonation"><em>KERBEROS_IMPERSONATION</em></a> are discussed
+separately.</p>
+</td>
+<td><tt class="docutils literal"><span class="pre">SIMPLE</span></tt></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">hive.hdfs.presto.principal</span></tt></td>
+<td>The Kerberos principal that Presto will use when connecting
+to HDFS.</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">hive.hdfs.presto.keytab</span></tt></td>
+<td>The path to the keytab file that contains a key for the
+principal specified by <tt class="docutils literal"><span class="pre">hive.hdfs.presto.principal</span></tt>.</td>
+<td>&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="hive-security-simple">
+<span id="id1"></span><h4><tt class="docutils literal"><span class="pre">SIMPLE</span></tt></h4>
+<div class="highlight-none"><div class="highlight"><pre>hive.hdfs.authentication.type=SIMPLE
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">SIMPLE</span></tt> authentication is the default authentication mechanism for HDFS.
+When using <tt class="docutils literal"><span class="pre">SIMPLE</span></tt> authentication, Presto connects to HDFS using Hadoop&#8217;s
+simple authentication mechanism. Kerberos is not used.</p>
+</div>
+<div class="section" id="kerberos">
+<span id="hive-security-kerberos"></span><h4><tt class="docutils literal"><span class="pre">KERBEROS</span></tt></h4>
+<div class="highlight-none"><div class="highlight"><pre>hive.hdfs.authentication.type=KERBEROS
+hive.hdfs.presto.principal=hdfs@EXAMPLE.COM
+hive.hdfs.presto.keytab=/etc/presto/hdfs.keytab
+</pre></div>
+</div>
+<p>When using <tt class="docutils literal"><span class="pre">KERBEROS</span></tt> authentication, Presto accesses HDFS as the principal
+specified by the <tt class="docutils literal"><span class="pre">hive.hdfs.presto.principal</span></tt> property. Presto will
+authenticate this principal using the keytab specified by the
+<tt class="docutils literal"><span class="pre">hive.hdfs.presto.keytab</span></tt> keytab.</p>
+<p>Keytab files must be distributed to every node in the cluster that runs Presto.</p>
+<p><a class="reference internal" href="#hive-security-additional-keytab"><em>Additional information on keytab files.</em></a></p>
+</div>
+</div>
+</div>
+<div class="section" id="end-user-impersonation">
+<span id="hive-security-impersonation"></span><h2>End User Impersonation</h2>
+<div class="section" id="impersonation-accessing-hdfs">
+<h3>Impersonation Accessing HDFS</h3>
+<p>Presto can impersonate the end user who is running a query. In the case of a
+user running a query from the command line interface, the end user is the
+username associated with the Presto cli process or argument to the optional
+<tt class="docutils literal"><span class="pre">--user</span></tt> option.  Impersonating the end user can provide additional security
+when accessing HDFS if HDFS permissions or ACLs are used.</p>
+<p>HDFS Permissions and ACLs are explained in the <a class="reference external" href="https://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-hdfs/HdfsPermissionsGuide.html">HDFS Permissions Guide</a>.</p>
+<div class="section" id="simple-authentication-with-hdfs-impersonation">
+<span id="hive-security-simple-impersonation"></span><h4><tt class="docutils literal"><span class="pre">SIMPLE</span></tt> authentication with HDFS impersonation</h4>
+<div class="highlight-none"><div class="highlight"><pre>hive.hdfs.authentication.type=SIMPLE_IMPERSONATION
+</pre></div>
+</div>
+<p>When using simple authentication with impersonation, Presto impersonates
+the user who is running the query when accessing HDFS. The user Presto is
+running as must be allowed to impersonate this user, as discussed in the
+section <a class="reference internal" href="#configuring-hadoop-impersonation"><em>Impersonation in Hadoop</em></a>. Kerberos is not used.</p>
+</div>
+<div class="section" id="kerberos-authentication-with-hdfs-impersonation">
+<span id="hive-security-kerberos-impersonation"></span><h4><tt class="docutils literal"><span class="pre">KERBEROS</span></tt> Authentication With HDFS Impersonation</h4>
+<div class="highlight-none"><div class="highlight"><pre>hive.hdfs.authentication.type=KERBEROS_IMPERSONATION
+hive.hdfs.presto.principal=presto@EXAMPLE.COM
+hive.hdfs.presto.keytab=/etc/presto/hdfs.keytab
+</pre></div>
+</div>
+<p>When using Kerberos authentication with impersonation, Presto impersonates
+the user who is running the query when accessing HDFS. The principal
+specified by the <tt class="docutils literal"><span class="pre">hive.hdfs.presto.principal</span></tt> property must be allowed to
+impersonate this user, as discussed in the section
+<a class="reference internal" href="#configuring-hadoop-impersonation"><em>Impersonation in Hadoop</em></a>. Presto authenticates
+<tt class="docutils literal"><span class="pre">hive.hdfs.presto.principal</span></tt> using the keytab specified by
+<tt class="docutils literal"><span class="pre">hive.hdfs.presto.keytab</span></tt>.</p>
+<p>Keytab files must be distributed to every node in the cluster that runs Presto.</p>
+<p><a class="reference internal" href="#hive-security-additional-keytab"><em>Additional information on keytab files.</em></a></p>
+</div>
+</div>
+<div class="section" id="impersonation-accessing-the-hive-metastore">
+<h3>Impersonation Accessing the Hive Metastore</h3>
+<p>Presto does not currently support impersonating the end user when accessing the
+Hive metastore.</p>
+</div>
+<div class="section" id="impersonation-in-hadoop">
+<span id="configuring-hadoop-impersonation"></span><h3>Impersonation in Hadoop</h3>
+<p>In order to use <a class="reference internal" href="#hive-security-simple-impersonation"><em>SIMPLE authentication with HDFS impersonation</em></a> or
+<a class="reference internal" href="#hive-security-kerberos-impersonation"><em>KERBEROS Authentication With HDFS Impersonation</em></a>, the Hadoop cluster must be
+configured to allow the user or principal that Presto is running as to
+impersonate the users who log in to Presto. Impersonation in Hadoop is
+configured in the file <tt class="file docutils literal"><span class="pre">core-site.xml</span></tt>. A complete description of the
+configuration options can be found in the <a class="reference external" href="https://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-common/Superusers.html#Configurations">Hadoop documentation</a>.</p>
+</div>
+</div>
+<div class="section" id="additional-information-about-keytab-files">
+<span id="hive-security-additional-keytab"></span><h2>Additional Information About Keytab Files</h2>
+<p>Keytab files contain encryption keys that are used to authenticate principals
+to the Kerberos <abbr title="Key Distribution Center">KDC</abbr>. These encryption keys
+must be stored securely; you should take the same precautions to protect them
+that you would to protect ssh private keys.</p>
+<p>In particular, access to keytab files should be limited to the accounts that
+actually need to use them to authenticate. In practice, this is the user that
+the Presto process runs as. The ownership and permissions on keytab files
+should be set to prevent other users from reading or modifying the files.</p>
+<p>Keytab files need to be distributed to every node running Presto. Under common
+deployment situations, the Hive connector configuration will be the same on all
+nodes.  This means that the keytab needs to be in the same location on every
+node.</p>
+<p>You should ensure that the keytab files have the correct permissions on every
+node after distributing them.</p>
+</div>
+</div>
+
+
+</div>
+<div class="bottomnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="../security.html">13. Security</a>
+    </span>
+    <span class="right">
+        <a href="server.html">13.2. Presto Coordinator Kerberos Authentication</a> &raquo;
+    </span>
+</p>
+
+</div>
+
+    <div class="footer">
+    </div>
+  </body>
+</html>

@@ -1,0 +1,147 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Configuring Presto &mdash; Presto 0.141t Documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/presto.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.141t',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="Presto 0.141t Documentation" href="../../../index.html" />
+    <link rel="up" title="8.1. Quick Start Guide" href="../quick-start-guide.html" />
+    <link rel="next" title="Troubleshooting" href="troubleshooting-installation.html" />
+    <link rel="prev" title="Adding a Connector" href="presto-connector-installation.html" /> 
+  </head>
+  <body>
+<div class="header">
+    <h1 class="heading"><a href="../../../index.html">
+        <span>Presto 0.141t Documentation</span></a></h1>
+    <h2 class="heading"><span>Configuring Presto</span></h2>
+</div>
+<div class="topnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="presto-connector-installation.html">Adding a Connector</a>
+    </span>
+    <span class="right">
+        <a href="troubleshooting-installation.html">Troubleshooting</a> &raquo;
+    </span>
+</p>
+
+</div>
+<div class="content">
+    
+  <div class="section" id="configuring-presto">
+<h1>Configuring Presto</h1>
+<p>Presto configuration parameters can be modified to
+tweak performance or add/remove features. While Presto is designed to work well out-of-the-box,
+you still may need to make some changes.</p>
+<div class="section" id="memory-configuration">
+<h2>Memory configuration</h2>
+<p>It is often necessary to change the default memory configuration based on your cluster&#8217;s
+capacity. The default max memory for each Presto server is 16 GB, but if you have a lot of
+memory (say, 120GB/node), you may want to allocate more memory to Presto for better performance.</p>
+<p>In order to update the max memory value to 60 GB per node:</p>
+<p>1. Change the line in <tt class="docutils literal"><span class="pre">/etc/opt/prestoadmin/coordinator/jvm.config</span></tt> and
+<tt class="docutils literal"><span class="pre">/etc/opt/prestoadmin/workers/jvm.config</span></tt> that says <tt class="docutils literal"><span class="pre">-Xmx16G</span></tt> to <tt class="docutils literal"><span class="pre">-Xmx60G</span></tt>.</p>
+<p>2. Change the following lines in <tt class="docutils literal"><span class="pre">/etc/opt/prestoadmin/coordinator/config.properties</span></tt>
+and <tt class="docutils literal"><span class="pre">/etc/opt/prestoadmin/workers/config.properties</span></tt>:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="n">query</span><span class="p">.</span><span class="k">max</span><span class="o">-</span><span class="n">memory</span><span class="o">-</span><span class="n">per</span><span class="o">-</span><span class="n">node</span><span class="o">=</span><span class="mi">8</span><span class="n">GB</span>
+<span class="n">query</span><span class="p">.</span><span class="k">max</span><span class="o">-</span><span class="n">memory</span><span class="o">=</span><span class="mi">50</span><span class="n">GB</span>
+</pre></div>
+</div>
+<p>to</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="n">query</span><span class="p">.</span><span class="k">max</span><span class="o">-</span><span class="n">memory</span><span class="o">-</span><span class="n">per</span><span class="o">-</span><span class="n">node</span><span class="o">=</span><span class="mi">30</span><span class="n">GB</span>
+<span class="n">query</span><span class="p">.</span><span class="k">max</span><span class="o">-</span><span class="n">memory</span><span class="o">=&lt;</span><span class="mi">30</span><span class="n">GB</span> <span class="o">*</span> <span class="nb">number</span> <span class="k">of</span> <span class="n">nodes</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>We recommend setting <tt class="docutils literal"><span class="pre">query.max-memory-per-node</span></tt> to half of the JVM config max memory, though if your workload is highly concurrent, you may want
+to use a lower value for <tt class="docutils literal"><span class="pre">query.max-memory-per-node</span></tt>.</p>
+<ol class="arabic" start="3">
+<li><p class="first">Run the following command to deploy the configuration change to the cluster:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="n">sudo</span> <span class="p">.</span><span class="o">/</span><span class="n">presto</span><span class="o">-</span><span class="k">admin</span> <span class="n">configuration</span> <span class="n">deploy</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Restart the Presto servers so that the changes get picked up:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="n">sudo</span> <span class="p">.</span><span class="o">/</span><span class="n">presto</span><span class="o">-</span><span class="k">admin</span> <span class="n">server</span> <span class="k">restart</span>
+</pre></div>
+</div>
+</li>
+</ol>
+<p>If you are running Presto in a test environment that has less than 16 GB of memory available,
+you will need to follow similar procedures to set the memory configurations lower.</p>
+</div>
+<div class="section" id="log-file-location-configurations">
+<h2>Log file location configurations</h2>
+<p>For most production environments, it will be necessary to change the log locations. In order to update these:</p>
+<p>1. In <tt class="docutils literal"><span class="pre">/etc/opt/prestoadmin/coordinator/node.properties</span></tt> and
+<tt class="docutils literal"><span class="pre">/etc/opt/prestoadmin/workers/node.properties</span></tt> specify <tt class="docutils literal"><span class="pre">node.data-dir</span></tt>. Presto stores certain logs and other data in
+this location. It is very important that this location has enough space for the logs on the filesystem on
+each node where Presto is running. The default location for this is <tt class="docutils literal"><span class="pre">/var/lib/presto/data</span></tt>. You can can specify a new
+location in <tt class="docutils literal"><span class="pre">node.properties</span></tt>:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="n">node</span><span class="p">.</span><span class="k">data</span><span class="o">-</span><span class="n">dir</span><span class="o">=/</span><span class="n">disk1</span><span class="o">/</span><span class="n">presto</span><span class="o">/</span><span class="k">data</span>
+</pre></div>
+</div>
+<p>2. There are two more log related properties that should be specified with locations that have enough space, these
+are <tt class="docutils literal"><span class="pre">node.launcher-log-file</span></tt> and <tt class="docutils literal"><span class="pre">node.server-log-file</span></tt>. You can specify them in <tt class="docutils literal"><span class="pre">node.properties</span></tt>:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="n">node</span><span class="p">.</span><span class="n">launcher</span><span class="o">-</span><span class="n">log</span><span class="o">-</span><span class="n">file</span><span class="o">=/</span><span class="n">disk1</span><span class="o">/</span><span class="n">presto</span><span class="o">/</span><span class="n">launcher</span><span class="p">.</span><span class="n">log</span>
+<span class="n">node</span><span class="p">.</span><span class="n">server</span><span class="o">-</span><span class="n">log</span><span class="o">-</span><span class="n">file</span><span class="o">=/</span><span class="n">disk2</span><span class="o">/</span><span class="n">presto</span><span class="o">/</span><span class="n">server</span><span class="p">.</span><span class="n">log</span>
+</pre></div>
+</div>
+<p>They can be in the same directory as <tt class="docutils literal"><span class="pre">node.data-dir</span></tt> if the filesystem has enough space. For these two log files, the
+default location is <tt class="docutils literal"><span class="pre">/var/log/presto</span></tt> which might not be big enough for a production environment.</p>
+<ol class="arabic" start="3">
+<li><p class="first">Run the following command to deploy the configuration change to the cluster:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="n">sudo</span> <span class="p">.</span><span class="o">/</span><span class="n">presto</span><span class="o">-</span><span class="k">admin</span> <span class="n">configuration</span> <span class="n">deploy</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Restart the Presto servers so that the changes get picked up:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="n">sudo</span> <span class="p">.</span><span class="o">/</span><span class="n">presto</span><span class="o">-</span><span class="k">admin</span> <span class="n">server</span> <span class="k">restart</span>
+</pre></div>
+</div>
+</li>
+</ol>
+<p>For detailed documentation on <tt class="docutils literal"><span class="pre">configuration</span> <span class="pre">deploy</span></tt>, see <a class="reference internal" href="../presto-admin-commands.html#configuration-deploy-label"><em>configuration deploy</em></a>.
+For more configuration parameters, see the Presto documentation.</p>
+</div>
+</div>
+
+
+</div>
+<div class="bottomnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="presto-connector-installation.html">Adding a Connector</a>
+    </span>
+    <span class="right">
+        <a href="troubleshooting-installation.html">Troubleshooting</a> &raquo;
+    </span>
+</p>
+
+</div>
+
+    <div class="footer">
+    </div>
+  </body>
+</html>

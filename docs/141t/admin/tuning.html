@@ -1,0 +1,805 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>10.2. Tuning Presto &mdash; Presto 0.141t Documentation</title>
+    
+    <link rel="stylesheet" href="../_static/presto.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.141t',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Presto 0.141t Documentation" href="../index.html" />
+    <link rel="up" title="10. Administration" href="../admin.html" />
+    <link rel="next" title="10.3. Queue Configuration" href="queue.html" />
+    <link rel="prev" title="10.1. Web Interface" href="web-interface.html" /> 
+  </head>
+  <body>
+<div class="header">
+    <h1 class="heading"><a href="../index.html">
+        <span>Presto 0.141t Documentation</span></a></h1>
+    <h2 class="heading"><span>10.2. Tuning Presto</span></h2>
+</div>
+<div class="topnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="web-interface.html">10.1. Web Interface</a>
+    </span>
+    <span class="right">
+        <a href="queue.html">10.3. Queue Configuration</a> &raquo;
+    </span>
+</p>
+
+</div>
+<div class="content">
+    
+  <div class="section" id="tuning-presto">
+<h1>10.2. Tuning Presto</h1>
+<p>The default Presto settings should work well for most workloads. The following
+information may help you if your cluster is facing a specific performance problem.</p>
+<div class="section" id="general-properties">
+<span id="tuning-pref-general"></span><h2>General properties</h2>
+<div class="section" id="distributed-index-joins-enabled">
+<h3><tt class="docutils literal"><span class="pre">distributed-index-joins-enabled</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Boolean</span></tt></li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">false</span></tt></li>
+<li><strong>Description:</strong> Serves as default value for <tt class="docutils literal"><span class="pre">distributed_index_join</span></tt> session property. Enabling this property forces to repartition tables used for index join. This causes drop in processing time, but allows to perform much larger joins. Depending of side of index selected for join (preferably right side) only the other must fit into each node memory (after filtering).</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="distributed-joins-enabled">
+<h3><tt class="docutils literal"><span class="pre">distributed-joins-enabled</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Boolean</span></tt></li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">true</span></tt></li>
+<li><strong>Description:</strong> Use hash distributed joins instead of broadcast joins. Distributed joins require redistributing both tables using a hash of the join key. This can be slower (sometimes substantially) than broadcast joins but allows much larger joins. Broadcast joins require that the tables on the right side of the join after filtering fit in memory on each machine whereas distributed joins only need to fit in distributed memory across all machines. This can also be specified on a per-query basis using the <tt class="docutils literal"><span class="pre">distributed_join</span></tt> session property.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="redistribute-writes">
+<h3><tt class="docutils literal"><span class="pre">redistribute-writes</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Boolean</span></tt></li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">true</span></tt></li>
+<li><strong>Description:</strong> Force parallel distributed writes. Serves as default value for <tt class="docutils literal"><span class="pre">redistribute_writes</span></tt> session property. Setting this property will cause write operator to be distributed between nodes. This allows to utilize distributed storage backend especially in case of small number of huge queries.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="resources-reserved-system-memory">
+<h3><tt class="docutils literal"><span class="pre">resources.reserved-system-memory</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">String</span></tt> (data size)</li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">JVM</span> <span class="pre">max</span> <span class="pre">memory</span></tt> * <tt class="docutils literal"><span class="pre">0.4</span></tt></li>
+<li><strong>Description:</strong> Amount of memory set up as allocation limit for single presto node. Reaching this limit will cause operations to start to be dropped by the server. Higher value may increase server stability but may cause problems if physical server is used for other purposes as well. In some configurations of host it may even cause presto to be shut down by host if to much memory will be allocated.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="sink-max-buffer-size">
+<h3><tt class="docutils literal"><span class="pre">sink.max-buffer-size</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">String</span></tt> (data size)</li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">32</span> <span class="pre">MB</span></tt></li>
+<li><strong>Description:</strong> Buffer size for IO writes while collecting pipeline results. Higher value may increase speed of IO operations with the cost of additional memory. Also higher value may increase number of data lost when presto node will fail effectively slowing down IO in unstable environment.</li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="exchange-properties">
+<span id="tuning-pref-exchange"></span><h2>Exchange properties</h2>
+<div class="section" id="exchange-client-threads">
+<h3><tt class="docutils literal"><span class="pre">exchange.client-threads</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Integer</span></tt> (at least <tt class="docutils literal"><span class="pre">1</span></tt>)</li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">25</span></tt></li>
+<li><strong>Description:</strong> Number of threads that exchange server can spawn to handle clients. Higher value will increase concurrency but may cause general drop in performance if the value is to high due to context switches and additional memory usage.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="exchange-concurrent-request-multiplier">
+<h3><tt class="docutils literal"><span class="pre">exchange.concurrent-request-multiplier</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Integer</span></tt> (at least <tt class="docutils literal"><span class="pre">1</span></tt>)</li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">3</span></tt></li>
+<li><strong>Description:</strong> Multiplier determining how many clients of exchange server may be spawned in reference to available buffer memory. Number of possible clients is determined by heuristic as number of clients that can fit into available buffer space based on average buffer usage per request times this multiplier. For example with the <tt class="docutils literal"><span class="pre">exchange.max-buffer-size</span></tt> of <tt class="docutils literal"><span class="pre">32</span> <span class="pre">MB</span></tt> and <tt class="docutils literal"><span class="pre">20</span> <span class="pre">MB</span></tt> already used, and average bytes per request being <tt class="docutils literal"><span class="pre">2MB</span></tt> up to <tt class="docutils literal"><span class="pre">exchange.concurrent-request-multipier</span></tt> * ((<tt class="docutils literal"><span class="pre">32MB</span></tt> - <tt class="docutils literal"><span class="pre">20MB</span></tt>) / <tt class="docutils literal"><span class="pre">2MB</span></tt>) = <tt class="docutils literal"><span class="pre">exchange.concurrent-request-multiplier</span></tt> * <tt class="docutils literal"><span class="pre">6</span></tt> may be spawned. Tuning this value allows to change the heuristic in order to ensure higher concurrency and possibly better network utilization in the case of dense network architecture.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="exchange-max-buffer-size">
+<h3><tt class="docutils literal"><span class="pre">exchange.max-buffer-size</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">String</span></tt> (data size)</li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">32</span> <span class="pre">MB</span></tt></li>
+<li><strong>Description:</strong> Size of memory block reserved for client buffer in exchange server. Lower value may increase processing time under heavy load on cluster. The value may be higher if network connection is not saturated even though it could. The drawback is that it uses more of memory for pure communication purposes.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="exchange-max-response-size">
+<h3><tt class="docutils literal"><span class="pre">exchange.max-response-size</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">String</span></tt> (data size, at least <tt class="docutils literal"><span class="pre">1</span> <span class="pre">MB</span></tt>)</li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">16</span> <span class="pre">MB</span></tt></li>
+<li><strong>Description:</strong> Max size of chunk of data send through HTTP exchange server. It&#8217;s adjusted by heuristic to include headers into this value, so one my expect the size of real data sent in one response to be actually smaller. Higher value may increase network utilization if the network is stable. In unstable network environment making this value smaller may increase stability drastically by decreasing number of data lost in network.</li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="node-scheduler-properties">
+<span id="tuning-pref-node"></span><h2>Node scheduler properties</h2>
+<div class="section" id="node-scheduler-max-pending-splits-per-node-per-task">
+<h3><tt class="docutils literal"><span class="pre">node-scheduler.max-pending-splits-per-node-per-task</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Integer</span></tt></li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">10</span></tt></li>
+<li><strong>Description:</strong> Must be smaller then <tt class="docutils literal"><span class="pre">node-scheduler.max-splits-per-node</span></tt>. This property describes how many splits can be queued to every single worker node. Having this value higher will allow more jobs to be queued but will cause resources to be used for that. Higher value here is recommended if system usual routine is to get lots of queries in a row with long time in between (eg. running number of queries once a day) - in such case it may be crucial to avoid query drops. Setting this value higher will also decrease risk of short queries starvation.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="node-scheduler-max-splits-per-node">
+<h3><tt class="docutils literal"><span class="pre">node-scheduler.max-splits-per-node</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Integer</span></tt></li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">100</span></tt></li>
+<li><strong>Description:</strong> This property describes how many splits can each of nodes in cluster have scheduled. Setting this value to higher will allow to handle bigger bulk of queries to be handled when they are not distributed properly. However higher value causes possibility of losing performance for switching contexts and higher memory reservation for cluster metadata.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="node-scheduler-min-candidates">
+<h3><tt class="docutils literal"><span class="pre">node-scheduler.min-candidates</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Integer</span></tt> (at least <tt class="docutils literal"><span class="pre">1</span></tt>)</li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">10</span></tt></li>
+<li><strong>Description:</strong> The minimal number of nodes candidates proposed by scheduler to do every job in system. Setting this allows to manipulate global parallelism. The higher value is recommended for system having lots of nodes and small number of huge queries. The lower value is recommended in system that have higher number of smaller queries. Also this setting is connected with <tt class="docutils literal"><span class="pre">node-scheduler.network-topology</span></tt> - while using <tt class="docutils literal"><span class="pre">flat</span></tt> it is important to align this value with number of nodes that backend required for queries is split between (or higher).</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="node-scheduler-multiple-tasks-per-node-enabled">
+<h3><tt class="docutils literal"><span class="pre">node-scheduler.multiple-tasks-per-node-enabled</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Boolean</span></tt></li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">false</span></tt></li>
+<li><strong>Description:</strong> Allow nodes to be selected multiple times by the node scheduler, in a single stage. With that property set to <tt class="docutils literal"><span class="pre">false</span></tt> the <tt class="docutils literal"><span class="pre">node-scheduler.min-candidates</span></tt> is capped at number of nodes in system. Having this set may allow better scheduling and concurrency reducing number of outliers and possibly speeding up computations. Also it may allow to collect smaller bulks of result in unstable network conditions. The drawbacks are that some optimization may work less efficiently on smaller partitions. Also slight hardware efficiency drop is expected in heavy loaded system.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="node-scheduler-network-topology">
+<span id="id1"></span><h3><tt class="docutils literal"><span class="pre">node-scheduler.network-topology</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">String</span></tt> (<tt class="docutils literal"><span class="pre">legacy</span></tt> or <tt class="docutils literal"><span class="pre">flat</span></tt>)</li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">legacy</span></tt></li>
+<li><strong>Description:</strong> Sets the network topology to use when scheduling splits. <tt class="docutils literal"><span class="pre">legacy</span></tt> will ignore the topology when scheduling splits. <tt class="docutils literal"><span class="pre">flat</span></tt> will try to schedule splits on the same host as the data is located by reserving 50% of the work queue for local splits. It is recommended to use <tt class="docutils literal"><span class="pre">flat</span></tt> for clusters where distributed storage runs on same nodes as presto workers.</li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="optimizer-properties">
+<span id="tuning-pref-optimizer"></span><h2>Optimizer properties</h2>
+<div class="section" id="optimizer-columnar-processing-dictionary">
+<h3><tt class="docutils literal"><span class="pre">optimizer.columnar-processing-dictionary</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Boolean</span></tt></li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">false</span></tt></li>
+<li><strong>Description:</strong> Serves as default value for <tt class="docutils literal"><span class="pre">columnar_processing_dictionary</span></tt> session property. Setting this property will allow to use columnar processing with dictionary while performing filtering operators.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="optimizer-columnar-processing">
+<h3><tt class="docutils literal"><span class="pre">optimizer.columnar-processing</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Boolean</span></tt></li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">false</span></tt></li>
+<li><strong>Description:</strong> Serves as default value for <tt class="docutils literal"><span class="pre">columnar_processing</span></tt> session property. Setting this property will allow to use columnar processing while performing filtering operators. This setup is ignored if <tt class="docutils literal"><span class="pre">columnar_processing_dictionary</span></tt> is enabled.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="optimizer-dictionary-aggregation">
+<h3><tt class="docutils literal"><span class="pre">optimizer.dictionary-aggregation</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Boolean</span></tt></li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">false</span></tt></li>
+<li><strong>Description:</strong> Serves as default value for <tt class="docutils literal"><span class="pre">dictionary_aggregation</span></tt> session property. Enables optimization for aggregations on dictionaries.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="optimizer-optimize-hash-generation">
+<h3><tt class="docutils literal"><span class="pre">optimizer.optimize-hash-generation</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Boolean</span></tt></li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">true</span></tt></li>
+<li><strong>Description:</strong> Serves as default value for <tt class="docutils literal"><span class="pre">optimize_hash_generation</span></tt> session property. Compute hash codes for distribution, joins, and aggregations early in query plan which may allow to drop some of computation later in query processing with the cost of increased preprocessing. In most cases it should decrease overall query processing time.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="optimizer-optimize-metadata-queries">
+<h3><tt class="docutils literal"><span class="pre">optimizer.optimize-metadata-queries</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Boolean</span></tt></li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">false</span></tt></li>
+<li><strong>Description:</strong> Enables optimization of aggregations that are kept in metadata of data structures. This allow to perform simple queries in <tt class="docutils literal"><span class="pre">O(1)</span></tt> time using metadata that are kept anyway. Currently this optimization can be use for selecting <cite>max</cite>, <cite>min</cite> and <cite>approx_distinct</cite> of partition keys. Using this may speed some queries significantly with possible drawback on very small data sets.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="optimizer-optimize-single-distinct">
+<h3><tt class="docutils literal"><span class="pre">optimizer.optimize-single-distinct</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Boolean</span></tt></li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">true</span></tt></li>
+<li><strong>Description:</strong> Enables single distinct optimization. This optimization allows to perform applying distinct mask only once in cases where it&#8217;s possible. This optimization will try to use single GROUP BY instead of multiple DISTINCT clauses. Enabling this optimization should speed up some specific selects but analyzing all queries to check if they qualify for this optimization may be a slight overhead.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="optimizer-push-table-write-through-union">
+<h3><tt class="docutils literal"><span class="pre">optimizer.push-table-write-through-union</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Boolean</span></tt></li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">true</span></tt></li>
+<li><strong>Description:</strong> Serves as default value for <tt class="docutils literal"><span class="pre">push_table_write_through_union</span></tt> session property. Parallelize writes when using UNION ALL in queries that write data. This allows to improve speed of writing output tables in UNION ALL clause by making use of the fact, that UNION ALL outputs do not require additional synchronization when collecting results. Enabling this optimization can improve UNION ALL speed when write speed is not yet saturated. However it&#8217;s may slow down queries in already heavy loaded system.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="optimizer-use-intermediate-aggregations">
+<h3><tt class="docutils literal"><span class="pre">optimizer.use-intermediate-aggregations</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Boolean</span></tt></li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">false</span></tt></li>
+<li><strong>Description:</strong> Serves as default value for <tt class="docutils literal"><span class="pre">task_intermediate_aggregation</span></tt> session property. Setting this property allows to reduce amount of data sent over the network for grouped aggregation queries. This has side effect of possibly lower parallelism as well as bigger chunks of data to perform. Also some grouping functions may have higher overall time when splitting aggregation between nodes.</li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="query-execution-properties">
+<span id="tuning-pref-query"></span><h2>Query execution properties</h2>
+<div class="section" id="query-execution-policy">
+<h3><tt class="docutils literal"><span class="pre">query.execution-policy</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">String</span></tt> (<tt class="docutils literal"><span class="pre">all-at-once</span></tt> or <tt class="docutils literal"><span class="pre">phased</span></tt>)</li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">all-at-once</span></tt></li>
+<li><strong>Description:</strong> Serves as default value for <tt class="docutils literal"><span class="pre">execution_policy</span></tt> session property. Setting this value to <tt class="docutils literal"><span class="pre">phased</span></tt> will allow query scheduler to split a single query execution between different time slots. This will allow to switch context more often and possibly stage the partially executed query in order to increase robustness. Average time of executing query may slightly increase after setting this to <tt class="docutils literal"><span class="pre">phased</span></tt> due to context switching and more complex scheduling algorithm but drop in variation of query execution time is expected.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="query-initial-hash-partitions">
+<h3><tt class="docutils literal"><span class="pre">query.initial-hash-partitions</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Integer</span></tt></li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">8</span></tt></li>
+<li><strong>Description:</strong> Serves as default value for <tt class="docutils literal"><span class="pre">hash_partition_count</span></tt> session property. This value is used to determine how many nodes may share the same query when partitioning system is set to <tt class="docutils literal"><span class="pre">FIXED</span></tt>. Manipulating this value will allow to distribute work between nodes properly. Value lower then number of presto nodes may lower the utilization of cluster in low traffic environment. Setting the number to to high value will cause assigning multiple partitions of same query to one node or ignoring the setting - in some configurations the value is internally capped at number of available worker nodes.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="query-low-memory-killer-delay">
+<h3><tt class="docutils literal"><span class="pre">query.low-memory-killer.delay</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">String</span></tt> (duration, at least <tt class="docutils literal"><span class="pre">5s</span></tt>)</li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">5</span> <span class="pre">m</span></tt></li>
+<li><strong>Description:</strong> Delay between cluster running low on memory and invoking killer. When this value is low, there will be instant reaction for running out of memory on cluster. This may cause more queries to fail fast but it will be less often that query will fail in unexpected way.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="query-low-memory-killer-enabled">
+<h3><tt class="docutils literal"><span class="pre">query.low-memory-killer.enabled</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Boolean</span></tt></li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">false</span></tt></li>
+<li><strong>Description:</strong> This property controls if there should be killer of query triggered when cluster is running out of memory. The strategy of the killer is to drop largest queries first so enabling this option may cause problem with executing large queries in highly loaded cluster but should increase stability of smaller queries.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="query-manager-executor-pool-size">
+<h3><tt class="docutils literal"><span class="pre">query.manager-executor-pool-size</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Integer</span></tt> (at least <tt class="docutils literal"><span class="pre">1</span></tt>)</li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">5</span></tt></li>
+<li><strong>Description:</strong> Size of thread pool used for garbage collecting after queries. Threads from this pool are used to free resources from canceled queries, enforcing memory limits, queries timeouts etc. Higher number of threads will allow to manage memory more efficiently, so it may be increased to avoid out of memory exceptions in some scenarios. On the other hand higher value here may increase CPU usage for garbage collecting and use additional constant memory even if there is nothing to do for all of the threads.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="query-max-age">
+<h3><tt class="docutils literal"><span class="pre">query.max-age</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">String</span></tt> (duration)</li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">15</span> <span class="pre">m</span></tt></li>
+<li><strong>Description:</strong> This property describes time after which the query metadata may be removed from server. If value is low, it&#8217;s possible that client will not be able to receive information about query completion. The value describes minimum time that must pass to remove query (after it&#8217;s considered completed) but if there is space available in history queue the query data will be kept longer. The size of history queue is defined by <tt class="docutils literal"><span class="pre">query.max-history</span></tt> property (<tt class="docutils literal"><span class="pre">100</span></tt> by default).</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="query-max-concurrent-queries">
+<h3><tt class="docutils literal"><span class="pre">query.max-concurrent-queries</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Integer</span></tt> (at least <tt class="docutils literal"><span class="pre">1</span></tt>)</li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">1000</span></tt></li>
+<li><strong>Description:</strong> <strong>Deprecated</strong> Describes how many queries be processed simultaneously in single cluster node. It shouldn&#8217;t be used in new configuration, the <tt class="docutils literal"><span class="pre">query.queue-config-file</span></tt> can be used instead.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="query-max-memory-per-node">
+<h3><tt class="docutils literal"><span class="pre">query.max-memory-per-node</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">String</span></tt> (data size)</li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">1</span> <span class="pre">GB</span></tt></li>
+<li><strong>Description:</strong> The purpose of that is same as of <tt class="docutils literal"><span class="pre">query.max-memory</span></tt> but the memory is not counted cluster-wise but node-wise instead.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="query-max-memory">
+<h3><tt class="docutils literal"><span class="pre">query.max-memory</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">String</span></tt> (data size)</li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">20</span> <span class="pre">GB</span></tt></li>
+<li><strong>Description:</strong> Serves as default value for <tt class="docutils literal"><span class="pre">query_max_memory</span></tt> session property. This property also describes strict limit of total memory allocated around the cluster that may be used to process single query. The query is dropped if the limit is reached unless session want to prevent that by setting session property <tt class="docutils literal"><span class="pre">resource_overcommit</span></tt>. The session may also want to decrease system pressure, so it&#8217;s possible to decrease query memory limit for session by setting <tt class="docutils literal"><span class="pre">query_max_memory</span></tt> to smaller value. Setting <tt class="docutils literal"><span class="pre">query_max_memory</span></tt> to higher value then <tt class="docutils literal"><span class="pre">query.max-memory</span></tt> will not have any effect. This property may be used to ensure that single query cannot use all resources in cluster. The value should be set to be higher than what typical expected query in system will need - that way system will be resistant to SQL bugs that would cause large unwanted computation. Also if rare queries will require more memory, then the <tt class="docutils literal"><span class="pre">resource_overcommit</span></tt> session property may be used to break the limit. It is important to set this value to higher then default when presto runs complex queries on large datasets.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="query-max-queued-queries">
+<h3><tt class="docutils literal"><span class="pre">query.max-queued-queries</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Integer</span></tt> (at least <tt class="docutils literal"><span class="pre">1</span></tt>)</li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">5000</span></tt></li>
+<li><strong>Description:</strong> <strong>Deprecated</strong> Describes how many queries may wait in worker queue. If the limit is reached master server will consider worker blocked and will not push more tasks to him. Setting this value high may allow to order a lot of queries at once with the cost of additional memory needed to keep informations about tasks to process. Lowering this value will decrease system capacity but will allow to utilize memore for real processing of date instead of queuing. It shouldn&#8217;t be used in new configuration, the <tt class="docutils literal"><span class="pre">query.queue-config-file</span></tt> can be used instead.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="query-max-run-time">
+<h3><tt class="docutils literal"><span class="pre">query.max-run-time</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">String</span></tt> (duration)</li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">100</span> <span class="pre">d</span></tt></li>
+<li><strong>Description:</strong> Used as default for session property <tt class="docutils literal"><span class="pre">query_max_run_time</span></tt>. If the presto works in environment where there are mostly very long queries (over 100 days) than it may be a good idea to increase this value to avoid dropping clients that didn&#8217;t set their session property correctly. On the other hand in the presto works in environment where they are only very short queries this value set to small value may be used to detect user errors in queries. It may also be decreased in poor presto cluster configuration with mostly short queries to increase garbage collection efficiency and by that lowering memory usage in cluster.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="query-queue-config-file">
+<h3><tt class="docutils literal"><span class="pre">query.queue-config-file</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">String</span></tt></li>
+<li><strong>Default value:</strong></li>
+<li><strong>Description:</strong> This property may be defined to provide patch to queue config file. This is new way of providing such informations as <tt class="docutils literal"><span class="pre">query.max-concurrent-queries</span></tt> and <tt class="docutils literal"><span class="pre">query.max-queued-queries</span></tt>. The file should contain JSON configuration described in <a class="reference internal" href="queue.html#queue-configuration"><em>Queue configuration</em></a>.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="query-remote-task-max-callback-threads">
+<h3><tt class="docutils literal"><span class="pre">query.remote-task.max-callback-threads</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Integer</span></tt> (at least <tt class="docutils literal"><span class="pre">1</span></tt>)</li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">1000</span></tt></li>
+<li><strong>Description:</strong> This value describe max size of thread pool used to handle HTTP requests responses for task in cluster. Higher value will cause more of resources to be used for handling HTTP communication itself though increasing this value may improve response time when presto is distributed across many hosts or there is a lot of small queries going on in the system.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="query-remote-task-min-error-duration">
+<h3><tt class="docutils literal"><span class="pre">query.remote-task.min-error-duration</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">String</span></tt> (duration, at least <tt class="docutils literal"><span class="pre">1s</span></tt>)</li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">2</span> <span class="pre">m</span></tt></li>
+<li><strong>Description:</strong> The minimal time that HTTP worker must be unavailable for server to drop the connection. Higher value may be recommended in unstable connection conditions. This value is only a bottom line so there is no guarantee that node will be considered dead after such amount of time. In order to consider node dead the defined time must pass between two failed attempts of HTTP communication, with no successful communication in between.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="query-schedule-split-batch-size">
+<h3><tt class="docutils literal"><span class="pre">query.schedule-split-batch-size</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Integer</span></tt> (at least <tt class="docutils literal"><span class="pre">1</span></tt>)</li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">1000</span></tt></li>
+<li><strong>Description:</strong> The size of single data chunk expressed in rows that will be processed as single split. Higher value may be used if system works in reliable environment and there the responsiveness is less important then average answer time. Decreasing this value may have a positive effect if there are lots of nodes in system and calculations are relatively heavy for each of rows. Other scenario may be if there are many nodes with poor stability - lowering this number will allow to react faster and for that reason the lost computation time will be potentially lower.</li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="tasks-managment-properties">
+<span id="tuning-pref-task"></span><h2>Tasks managment properties</h2>
+<div class="section" id="task-default-concurrency">
+<h3><tt class="docutils literal"><span class="pre">task.default-concurrency</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Integer</span></tt></li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">1</span></tt></li>
+<li><strong>Description:</strong> Default local concurrency for parallel operators. Serves as default value for <tt class="docutils literal"><span class="pre">task_hash_build_concurrency</span></tt> and <tt class="docutils literal"><span class="pre">task_aggregation_concurrency</span></tt>. It is also a default value of <tt class="docutils literal"><span class="pre">task.join-concurrency</span></tt> property. Increasing this value is strongly recommended when any of CPU, IO or memory is not saturated on regular basis. In this scenario it will allow queries to utilize as many resources as possible. Setting this value to high will cause queries to slow down. It may happen even if none of resources is saturated as there are cases in which increasing parallelism is not possible due to algorithms limitations.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="task-http-response-threads">
+<h3><tt class="docutils literal"><span class="pre">task.http-response-threads</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Integer</span></tt></li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">100</span></tt></li>
+<li><strong>Description:</strong> Max number of threads that may be created to handle http responses. Threads are created on demand and they ends when there is no response to be sent. That means that there is no overhead if there is only a small number of request handled by system even if this value is big. On the other hand increasing this value may increase utilization of CPU in multicore environment (with the cost of memory usage). Also in systems having a lot of requests, the response time distribution may be manipulated using this property. Higher value may be used to avoid outliers adding the cost of increased average response time.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="task-http-timeout-threads">
+<h3><tt class="docutils literal"><span class="pre">task.http-timeout-threads</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Integer</span></tt></li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">3</span></tt></li>
+<li><strong>Description:</strong> Number of threads spawned for handling timeouts of http requests. Presto server sends update of query status whenever it is different then the one that client knows about. However in order to ensure client that connection is still alive, server sends this data after delay declared internally in HTTP headers (by default <tt class="docutils literal"><span class="pre">200</span> <span class="pre">ms</span></tt>). This property tells how many threads are designated to handle this delay. If the property turn out to low it&#8217;s possible that the update time will increase even significantly when comparing to requested value (<tt class="docutils literal"><span class="pre">200ms</span></tt>). Increasing this value may solve the problem, but it generate a cost of additional memory even if threads are not used all the time. If there is no problem with updating status of query this value should not be manipulated.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="task-info-refresh-max-wait">
+<h3><tt class="docutils literal"><span class="pre">task.info-refresh-max-wait</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">String</span></tt> (duration)</li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">200</span> <span class="pre">ms</span></tt></li>
+<li><strong>Description:</strong> Controls staleness of task information which is used in scheduling. Increasing this value can reduce coordinator CPU load but may result in suboptimal split scheduling.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="task-join-concurrency">
+<h3><tt class="docutils literal"><span class="pre">task.join-concurrency</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Integer</span></tt></li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">task.default-</span></tt> <tt class="docutils literal"><span class="pre">concurrency</span></tt> (<tt class="docutils literal"><span class="pre">1</span></tt>)</li>
+<li><strong>Description:</strong> Servers as default value for session property: <tt class="docutils literal"><span class="pre">task_join_concurrency</span></tt>. Describes local concurrency for join operators. This value may be increased to perform join on worker using more then one thread. This will increase CPU utilization with the cost of increased memory usage.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="task-max-index-memory">
+<h3><tt class="docutils literal"><span class="pre">task.max-index-memory</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">String</span></tt> (data size)</li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">64</span> <span class="pre">MB</span></tt></li>
+<li><strong>Description:</strong> Max size of index cache in memory used for index based joins. Increasing this value allows to use more memory for such queries which may improve time of huge table joins.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="task-max-partial-aggregation-memory">
+<h3><tt class="docutils literal"><span class="pre">task.max-partial-aggregation-memory</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">String</span></tt> (data size)</li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">16</span> <span class="pre">MB</span></tt></li>
+<li><strong>Description:</strong> Max size of partial aggregation result (if it is splitable). Increasing this value will decrease fragmentation of result which may improve general times and CPU utilization with the cost of additional memory usage. Also high value of this property may cause drop in performance in unstable cluster conditions.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="task-max-worker-threads">
+<h3><tt class="docutils literal"><span class="pre">task.max-worker-threads</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Integer</span></tt></li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">Node</span> <span class="pre">CPUs</span></tt> * <tt class="docutils literal"><span class="pre">4</span></tt></li>
+<li><strong>Description:</strong> Sets the number of threads used by workers to process splits. Increasing this number can improve throughput if worker CPU utilization is low but will cause increased heap space usage.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="task-min-drivers">
+<h3><tt class="docutils literal"><span class="pre">task.min-drivers</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Integer</span></tt></li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">task.max-</span></tt> <tt class="docutils literal"><span class="pre">worker-threads</span></tt> * <tt class="docutils literal"><span class="pre">2</span></tt></li>
+<li><strong>Description:</strong> This describes how many drivers are kept on worker any time (if there is anything to do). The smaller value may cause better responsiveness for new task but possibly decreases CPU utilization. Higher value makes context switching faster with the cost of additional memory. The general rules of managing drivers is that if there is possibility of assigning a split to driver it is assigned if: there are less then <tt class="docutils literal"><span class="pre">3</span></tt> drivers assigned to given task OR there is less drivers on worker then <tt class="docutils literal"><span class="pre">task.min-drivers</span></tt> OR the task has been enqueued with <tt class="docutils literal"><span class="pre">force</span> <span class="pre">start</span></tt> property.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="task-operator-pre-allocated-memory">
+<h3><tt class="docutils literal"><span class="pre">task.operator-pre-allocated-memory</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">String</span></tt> (data size)</li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">16</span> <span class="pre">MB</span></tt></li>
+<li><strong>Description:</strong> Memory preallocated for each driver in query execution. Increasing this value may cause less efficient memory usage but allows to fail fast in low memory environment more frequently.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="task-share-index-loading">
+<h3><tt class="docutils literal"><span class="pre">task.share-index-loading</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Boolean</span></tt></li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">false</span></tt></li>
+<li><strong>Description:</strong> It allows to control whether index lookups join has index shared within a task. This enables the possibility of optimizing for index cache hits or for more CPU parallelism depending on the property value. Serves as default for <tt class="docutils literal"><span class="pre">task_share_index_loading</span></tt> session property.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="task-writer-count">
+<h3><tt class="docutils literal"><span class="pre">task.writer-count</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Integer</span></tt></li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">1</span></tt></li>
+<li><strong>Description:</strong> Describes how many parallel writers may try to access I/O while executing queries in session. Serves as default for session property <tt class="docutils literal"><span class="pre">task_writer_count</span></tt>. Setting this value to higher than default may increase write speed especially when query is NOT IO bounded and could use of more CPU cores for parallel writes. However in many cases increasing this value will visibly increase computation time while writing.</li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="session-properties">
+<span id="tuning-pref-session"></span><h2>Session properties</h2>
+<div class="section" id="columnar-processing-dictionary">
+<h3><tt class="docutils literal"><span class="pre">columnar_processing_dictionary</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Boolean</span></tt></li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">optimizer.columnar-processing-dictionary</span></tt> (<tt class="docutils literal"><span class="pre">false</span></tt>)</li>
+<li><strong>Description:</strong> See <a class="reference internal" href="#tuning-pref-optimizer"><em>optimizer.columnar-processing-dictionary</em></a>.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="columnar-processing">
+<h3><tt class="docutils literal"><span class="pre">columnar_processing</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Boolean</span></tt></li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">optimizer.columnar-processing</span></tt> (<tt class="docutils literal"><span class="pre">false</span></tt>)</li>
+<li><strong>Description:</strong> See <a class="reference internal" href="#tuning-pref-optimizer"><em>optimizer.columnar-processing</em></a>.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="dictionary-aggregation">
+<h3><tt class="docutils literal"><span class="pre">dictionary_aggregation</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Boolean</span></tt></li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">optimizer.dictionary-aggregation</span></tt> (<tt class="docutils literal"><span class="pre">false</span></tt>)</li>
+<li><strong>Description:</strong> See <a class="reference internal" href="#tuning-pref-optimizer"><em>optimizer.dictionary-aggregation</em></a>.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="execution-policy">
+<h3><tt class="docutils literal"><span class="pre">execution_policy</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">String</span></tt> (<tt class="docutils literal"><span class="pre">all-at-once</span></tt> or <tt class="docutils literal"><span class="pre">phased</span></tt>)</li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">query.execution-policy</span></tt> (<tt class="docutils literal"><span class="pre">all-at-once</span></tt>)</li>
+<li><strong>Description:</strong> See <a class="reference internal" href="#tuning-pref-query"><em>query.execution-policy</em></a>.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="hash-partition-count">
+<h3><tt class="docutils literal"><span class="pre">hash_partition_count</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Integer</span></tt></li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">query.initial-hash-partitions</span></tt> (<tt class="docutils literal"><span class="pre">8</span></tt>)</li>
+<li><strong>Description:</strong> See <a class="reference internal" href="#tuning-pref-query"><em>query.initial-hash-partitions</em></a>.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="optimize-hash-generation">
+<h3><tt class="docutils literal"><span class="pre">optimize_hash_generation</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Boolean</span></tt></li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">optimizer.optimize-hash-generation</span></tt> (<tt class="docutils literal"><span class="pre">true</span></tt>)</li>
+<li><strong>Description:</strong> See <a class="reference internal" href="#tuning-pref-optimizer"><em>optimizer.optimize-hash-generation</em></a>.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="orc-max-buffer-size">
+<h3><tt class="docutils literal"><span class="pre">orc_max_buffer_size</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">String</span></tt> (data size)</li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">hive.orc.max-buffer-size</span></tt> (<tt class="docutils literal"><span class="pre">8</span> <span class="pre">MB</span></tt>)</li>
+<li><strong>Description:</strong> See <a class="reference internal" href="../connector/hive.html#tuning-pref-hive"><em>hive.orc.max-buffer-size</em></a>.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="orc-max-merge-distance">
+<h3><tt class="docutils literal"><span class="pre">orc_max_merge_distance</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">String</span></tt> (data size)</li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">hive.orc.max-merge-distance</span></tt> (<tt class="docutils literal"><span class="pre">1</span> <span class="pre">MB</span></tt>)</li>
+<li><strong>Description:</strong> See <a class="reference internal" href="../connector/hive.html#tuning-pref-hive"><em>hive.orc.max-merge-distance</em></a>.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="orc-stream-buffer-size">
+<h3><tt class="docutils literal"><span class="pre">orc_stream_buffer_size</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">String</span></tt> (data size)</li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">hive.orc.max-buffer-size</span></tt> (<tt class="docutils literal"><span class="pre">8</span> <span class="pre">MB</span></tt>)</li>
+<li><strong>Description:</strong> See <a class="reference internal" href="../connector/hive.html#tuning-pref-hive"><em>hive.orc.max-buffer-size</em></a>.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="plan-with-table-node-partitioning">
+<h3><tt class="docutils literal"><span class="pre">plan_with_table_node_partitioning</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Boolean</span></tt></li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">true</span></tt></li>
+<li><strong>Description:</strong> <strong>Experimental.</strong> Adapt plan to use backend partitioning. By setting this property you allow to use partitioning provided by table layout itself while collecting required data. This may allow to utilize optimization of table layout provided by specific connector. In particular, when this is set presto will try to partition data for workers in a way that each workers gets a chunk of data that comes from one backend partition. It can be particularly useful due to the I/O distribution optimization in table partitioning. Note that this property may only be utilized if given projection uses all columns used for table partitioning inside connector.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="prefer-streaming-operators">
+<h3><tt class="docutils literal"><span class="pre">prefer_streaming_operators</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Boolean</span></tt></li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">false</span></tt></li>
+<li><strong>Description:</strong> Prefer source table layouts that produce streaming operators. Setting this property will allow workers not to wait for chunks of data to start processing them while scanning tables. This may cause faster processing  with lower latency and downtime but some operators may do things more efficiently when working with chunks of data.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="push-table-write-through-union">
+<h3><tt class="docutils literal"><span class="pre">push_table_write_through_union</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Boolean</span></tt></li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">optimizer.push-table-write-through-union</span></tt> (<tt class="docutils literal"><span class="pre">true</span></tt>)</li>
+<li><strong>Description:</strong> See <a class="reference internal" href="#tuning-pref-optimizer"><em>optimizer.push-table-writethrough-union</em></a>.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="id2">
+<h3><tt class="docutils literal"><span class="pre">query_max_memory</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">String</span></tt> (data size)</li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">query.max-memory</span></tt> (<tt class="docutils literal"><span class="pre">20</span> <span class="pre">GB</span></tt>)</li>
+<li><strong>Description:</strong> This property can be use to be nice to the cluster for example when our query is not as important then the usual cluster routines. Setting this value to smaller then server property <tt class="docutils literal"><span class="pre">query.max-memory</span></tt> will cause server to drop session query if it will require more then <tt class="docutils literal"><span class="pre">query_max_memory</span></tt> memory instead of <tt class="docutils literal"><span class="pre">query.max-memory</span></tt>. On the other hand setting this value to higher then <tt class="docutils literal"><span class="pre">query.max-memory</span></tt> will not have effect at all.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="id3">
+<h3><tt class="docutils literal"><span class="pre">query_max_run_time</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">String</span></tt> (duration)</li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">query.max-run-time</span></tt> (<tt class="docutils literal"><span class="pre">100</span> <span class="pre">d</span></tt>)</li>
+<li><strong>Description:</strong> The default value of this is defined by server. If expected query processing time is higher then property <tt class="docutils literal"><span class="pre">query.max-run-time</span></tt> it&#8217;s crucial to set this session property - otherwise there is a risk of dropping all result of long processing after <tt class="docutils literal"><span class="pre">query.max-run-time</span></tt> ends. Session may also set this value to lower than <tt class="docutils literal"><span class="pre">query.max-run-time</span></tt> in order to crosscheck for bugs in queries. In may be particularly use full when setting up session with very large number of queries each of which should take very short time in order to be able to end all of queries in acceptable time. Even in this scenario it&#8217;s crucial though, to set this value to much higher value than average query time to avoid problems with outliers (some queries may randomly take much longer then other due to cluster load and many other circumstances).</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="resource-overcommit">
+<h3><tt class="docutils literal"><span class="pre">resource_overcommit</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Boolean</span></tt></li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">false</span></tt></li>
+<li><strong>Description:</strong> Use resources which are not guaranteed to be available to the query. By setting this property you allow to exceed limits of memory available per query processing and session. This may cause resources to be used more efficiently allowing to  but may cause some indeterministic query drops due to lacking memory on machine. perform more demanding queries</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="task-aggregation-concurrency">
+<h3><tt class="docutils literal"><span class="pre">task_aggregation_concurrency</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Integer</span></tt></li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">task.default-concurrency</span></tt> (<tt class="docutils literal"><span class="pre">1</span></tt>)</li>
+<li><strong>Description:</strong> <strong>Experimental.</strong> Default number of local parallel aggregation jobs per worker. Same as <tt class="docutils literal"><span class="pre">task_join_concurrency</span></tt> but it is used for aggregation.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="task-hash-build-concurrency">
+<h3><tt class="docutils literal"><span class="pre">task_hash_build_concurrency</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Integer</span></tt></li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">task.default-concurrency</span></tt> (<tt class="docutils literal"><span class="pre">1</span></tt>)</li>
+<li><strong>Description:</strong> <strong>Experimental.</strong> Default number of local parallel hash build jobs per worker. Same as <tt class="docutils literal"><span class="pre">task_join_concurrency</span></tt> but it is used for building hashes. The value is always rounded down to the power of 2  so it&#8217;s recommended to use such value in order to avoid unexpected behavior.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="task-intermediate-aggregation">
+<h3><tt class="docutils literal"><span class="pre">task_intermediate_aggregation</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Boolean</span></tt></li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">optimizer.use-intermediate-aggregations</span></tt> (<tt class="docutils literal"><span class="pre">false</span></tt>)</li>
+<li><strong>Description:</strong> See <a class="reference internal" href="#tuning-pref-optimizer"><em>optimizer.use-intermediate-aggregations</em></a>.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="id4">
+<h3><tt class="docutils literal"><span class="pre">task_join_concurrency</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Integer</span></tt></li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">task.join-concurrency</span></tt> (<tt class="docutils literal"><span class="pre">1</span></tt>)</li>
+<li><strong>Description:</strong> <strong>Experimental.</strong> Default number of local parallel join jobs per worker. This value may be increased to perform join on worker using more then one thread to increase CPU utilization with the cost of increased memory usage.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="id5">
+<h3><tt class="docutils literal"><span class="pre">task_writer_count</span></tt></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Type:</strong> <tt class="docutils literal"><span class="pre">Integer</span></tt></li>
+<li><strong>Default value:</strong> <tt class="docutils literal"><span class="pre">task.writer-count</span></tt> (<tt class="docutils literal"><span class="pre">1</span></tt>)</li>
+<li><strong>Description:</strong> See <a class="reference internal" href="#tuning-pref-task"><em>task.writer-count</em></a>.</li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="jvm-settings">
+<h2>JVM Settings</h2>
+<p>The following can be helpful for diagnosing GC issues:</p>
+<div class="highlight-none"><div class="highlight"><pre>-XX:+PrintGCApplicationConcurrentTime
+-XX:+PrintGCApplicationStoppedTime
+-XX:+PrintGCCause
+-XX:+PrintGCDateStamps
+-XX:+PrintGCTimeStamps
+-XX:+PrintGCDetails
+-XX:+PrintClassHistogramAfterFullGC
+-XX:+PrintClassHistogramBeforeFullGC
+-XX:PrintFLSStatistics=2
+-XX:+PrintAdaptiveSizePolicy
+-XX:+PrintSafepointStatistics
+-XX:PrintSafepointStatisticsCount=1
+</pre></div>
+</div>
+</div>
+</div>
+
+
+</div>
+<div class="bottomnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="web-interface.html">10.1. Web Interface</a>
+    </span>
+    <span class="right">
+        <a href="queue.html">10.3. Queue Configuration</a> &raquo;
+    </span>
+</p>
+
+</div>
+
+    <div class="footer">
+    </div>
+  </body>
+</html>

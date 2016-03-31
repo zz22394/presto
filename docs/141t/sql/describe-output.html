@@ -1,0 +1,136 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>12.32. DESCRIBE OUTPUT &mdash; Presto 0.141t Documentation</title>
+    
+    <link rel="stylesheet" href="../_static/presto.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.141t',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Presto 0.141t Documentation" href="../index.html" />
+    <link rel="up" title="12. SQL Statement Syntax" href="../sql.html" />
+    <link rel="next" title="13. Security" href="../security.html" />
+    <link rel="prev" title="12.31. DESCRIBE INPUT" href="describe-input.html" /> 
+  </head>
+  <body>
+<div class="header">
+    <h1 class="heading"><a href="../index.html">
+        <span>Presto 0.141t Documentation</span></a></h1>
+    <h2 class="heading"><span>12.32. DESCRIBE OUTPUT</span></h2>
+</div>
+<div class="topnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="describe-input.html">12.31. DESCRIBE INPUT</a>
+    </span>
+    <span class="right">
+        <a href="../security.html">13. Security</a> &raquo;
+    </span>
+</p>
+
+</div>
+<div class="content">
+    
+  <div class="section" id="describe-output">
+<span id="id1"></span><h1>12.32. DESCRIBE OUTPUT</h1>
+<div class="section" id="synopsis">
+<h2>Synopsis</h2>
+<div class="highlight-none"><div class="highlight"><pre>DESCRIBE OUTPUT statement_name
+</pre></div>
+</div>
+</div>
+<div class="section" id="description">
+<h2>Description</h2>
+<p>Describes the output columns of a prepared statement.  It returns a table
+with metadata about each output column. Each row in the output provides the
+following information: column name (or the column&#8217;s alias if it is aliased),
+table, schema, connector, type, type size in bytes, boolean indicating whether
+the column is aliased and boolean indicating whether the query is a row count
+query (DDL/DML query that returns no data).</p>
+</div>
+<div class="section" id="examples">
+<h2>Examples</h2>
+<ol class="arabic">
+<li><p class="first">Describe a query with four output columns:</p>
+<p>Let <tt class="docutils literal"><span class="pre">my_select</span></tt> be the name of the prepared statement <tt class="docutils literal"><span class="pre">SELECT</span> <span class="pre">*</span> <span class="pre">FROM</span> <span class="pre">nation</span></tt>:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="k">DESCRIBE</span> <span class="k">OUTPUT</span> <span class="n">my_select</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Returns a table with metadata on all output columns</p>
+<div class="highlight-sql"><div class="highlight"><pre> <span class="k">Column</span> <span class="n">Name</span> <span class="o">|</span> <span class="k">Table</span>  <span class="o">|</span> <span class="k">Schema</span> <span class="o">|</span> <span class="n">Connector</span> <span class="o">|</span>  <span class="k">Type</span>   <span class="o">|</span> <span class="k">Type</span> <span class="k">Size</span> <span class="o">|</span> <span class="n">Aliased</span> <span class="o">|</span> <span class="k">Row</span> <span class="k">Count</span> <span class="n">Query</span>
+<span class="c1">-------------+--------+--------+-----------+---------+-----------+---------+-----------------</span>
+ <span class="n">nationkey</span>   <span class="o">|</span> <span class="n">nation</span> <span class="o">|</span> <span class="n">sf1</span>    <span class="o">|</span> <span class="n">tpch</span>      <span class="o">|</span> <span class="nb">bigint</span>  <span class="o">|</span>         <span class="mi">8</span> <span class="o">|</span> <span class="k">false</span>   <span class="o">|</span> <span class="k">false</span>
+ <span class="n">name</span>        <span class="o">|</span> <span class="n">nation</span> <span class="o">|</span> <span class="n">sf1</span>    <span class="o">|</span> <span class="n">tpch</span>      <span class="o">|</span> <span class="nb">varchar</span> <span class="o">|</span>         <span class="mi">0</span> <span class="o">|</span> <span class="k">false</span>   <span class="o">|</span> <span class="k">false</span>
+ <span class="n">regionkey</span>   <span class="o">|</span> <span class="n">nation</span> <span class="o">|</span> <span class="n">sf1</span>    <span class="o">|</span> <span class="n">tpch</span>      <span class="o">|</span> <span class="nb">bigint</span>  <span class="o">|</span>         <span class="mi">8</span> <span class="o">|</span> <span class="k">false</span>   <span class="o">|</span> <span class="k">false</span>
+ <span class="k">comment</span>     <span class="o">|</span> <span class="n">nation</span> <span class="o">|</span> <span class="n">sf1</span>    <span class="o">|</span> <span class="n">tpch</span>      <span class="o">|</span> <span class="nb">varchar</span> <span class="o">|</span>         <span class="mi">0</span> <span class="o">|</span> <span class="k">false</span>   <span class="o">|</span> <span class="k">false</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Describe a query whose output columns are expressions:</p>
+<p>Let <tt class="docutils literal"><span class="pre">my_select</span></tt> be the name of the prepared statement <tt class="docutils literal"><span class="pre">SELECT</span> <span class="pre">count(*)</span> <span class="pre">as</span> <span class="pre">my_count,</span> <span class="pre">1+2</span> <span class="pre">FROM</span> <span class="pre">nation</span></tt>:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="k">DESCRIBE</span> <span class="k">OUTPUT</span> <span class="n">my_select</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Returns a table with two rows</p>
+<div class="highlight-sql"><div class="highlight"><pre> <span class="k">Column</span> <span class="n">Name</span> <span class="o">|</span> <span class="k">Table</span> <span class="o">|</span> <span class="k">Schema</span> <span class="o">|</span> <span class="n">Connector</span> <span class="o">|</span>  <span class="k">Type</span>  <span class="o">|</span> <span class="k">Type</span> <span class="k">Size</span> <span class="o">|</span> <span class="n">Aliased</span> <span class="o">|</span> <span class="k">Row</span> <span class="k">Count</span> <span class="n">Query</span>
+<span class="c1">-------------+-------+--------+-----------+--------+-----------+---------+-----------------</span>
+ <span class="n">my_count</span>    <span class="o">|</span>       <span class="o">|</span>        <span class="o">|</span>           <span class="o">|</span> <span class="nb">bigint</span> <span class="o">|</span>         <span class="mi">8</span> <span class="o">|</span> <span class="k">true</span>    <span class="o">|</span> <span class="k">false</span>
+ <span class="n">_col1</span>       <span class="o">|</span>       <span class="o">|</span>        <span class="o">|</span>           <span class="o">|</span> <span class="nb">bigint</span> <span class="o">|</span>         <span class="mi">8</span> <span class="o">|</span> <span class="k">false</span>   <span class="o">|</span> <span class="k">false</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Describe a row count query:</p>
+<blockquote>
+<div><p>Let <tt class="docutils literal"><span class="pre">my_show_tables</span></tt> be the name of the prepared statement <tt class="docutils literal"><span class="pre">show</span> <span class="pre">tables</span></tt>:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="k">DESCRIBE</span> <span class="k">OUTPUT</span> <span class="n">my_show_tables</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Returns a table with one null row</p>
+<div class="highlight-sql"><div class="highlight"><pre> <span class="k">Column</span> <span class="n">Name</span> <span class="o">|</span> <span class="k">Table</span> <span class="o">|</span> <span class="k">Schema</span> <span class="o">|</span> <span class="n">Connector</span> <span class="o">|</span> <span class="k">Type</span> <span class="o">|</span> <span class="k">Type</span> <span class="k">Size</span> <span class="o">|</span> <span class="n">Aliased</span> <span class="o">|</span> <span class="k">Row</span> <span class="k">Count</span> <span class="n">Query</span>
+<span class="c1">-------------+-------+--------+-----------+------+-----------+---------+-----------------</span>
+ <span class="k">NULL</span>        <span class="o">|</span> <span class="k">NULL</span>  <span class="o">|</span> <span class="k">NULL</span>   <span class="o">|</span> <span class="k">NULL</span>      <span class="o">|</span> <span class="k">NULL</span> <span class="o">|</span> <span class="k">NULL</span>      <span class="o">|</span> <span class="k">NULL</span>    <span class="o">|</span> <span class="k">true</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+</ol>
+</div>
+</div>
+
+
+</div>
+<div class="bottomnav">
+    
+<p class="nav">
+    <span class="left">
+        &laquo; <a href="describe-input.html">12.31. DESCRIBE INPUT</a>
+    </span>
+    <span class="right">
+        <a href="../security.html">13. Security</a> &raquo;
+    </span>
+</p>
+
+</div>
+
+    <div class="footer">
+    </div>
+  </body>
+</html>
