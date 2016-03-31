@@ -65,7 +65,7 @@ public class TestTpchDistributedQueries
                         "            Cost: .*, Input: 1000 lines \\(.*\\), Output: 1000 lines \\(.*\\), Filtered: 0\\.00%\n" +
                         "            TaskOutputOperator := Drivers: .*, Input avg\\.: .* lines, Input std\\.dev\\.: .*\n" +
                         "            FilterAndProjectOperator := Drivers: .*, Input avg\\.: .* lines, Input std\\.dev\\.: .*\n" +
-                        "        - Aggregate\\(FINAL\\)\\[clerk\\] => \\[clerk:varchar, \\$hashvalue:bigint, count:bigint\\]\n" +
+                        "        - Aggregate\\(FINAL\\)\\[clerk\\] => \\[.*\\]\n" +
                         "                Cost: .*, Output: 1000 lines \\(.*\\)\n" +
                         "                HashAggregationOperator := Drivers: .*, Input avg\\.: .* lines, Input std\\.dev\\.: .*\n" +
                         "                HashAggregationOperator := Collisions avg\\.: .*, Collisions std\\.dev\\.: .*\n" +
@@ -73,24 +73,25 @@ public class TestTpchDistributedQueries
                         "                InMemoryExchangeSourceOperator := Drivers: .*, Input avg\\.: .* lines, Input std\\.dev\\.: .*\n" +
                         "                MarkDistinctOperator := Drivers: .*, Input avg\\.: .* lines, Input std\\.dev\\.: .*\n" +
                         "                count := \"count\"\\(\"count_8\"\\)\n" +
-                        "            - RemoteSource\\[2\\] => \\[clerk:varchar, \\$hashvalue:bigint, count_8:bigint\\]\n" +
+                        "            - RemoteSource\\[2\\] => \\[.*\\]\n" +
                         "                    Cost: .*, Output: .* lines \\(.*\\)\n" +
                         "                    ExchangeOperator := Drivers: .*, Input avg\\.: .* lines, Input std\\.dev\\.: .*\n" +
                         "\n" +
                         "Fragment 2 \\[SOURCE\\]\n" +
                         "    Cost: CPU .*, Input: 15000 lines \\(.*\\), Output: .* lines \\(.*\\)\n" +
-                        "    Output layout: \\[clerk, \\$hashvalue, count_8\\]\n" +
+                        "    Output layout: \\[.*\\]\n" +
                         "    Output partitioning: HASH \\[clerk\\]\n" +
-                        "    - Aggregate\\(PARTIAL\\)\\[clerk\\] => \\[clerk:varchar, \\$hashvalue:bigint, count_8:bigint\\]\n" +
+                        "    - Aggregate\\(PARTIAL\\)\\[clerk\\] => \\[.*\\]\n" +
                         "            Cost: .*, Output: .* lines \\(.*\\)\n" +
                         "            HashAggregationOperator := Drivers: .*, Input avg\\.: .* lines, Input std\\.dev\\.: .*\n" +
                         "            HashAggregationOperator := Collisions avg\\.: .*, Collisions std\\.dev\\.: .*\n" +
                         "            PartitionedOutputOperator := Drivers: .*, Input avg\\.: .* lines, Input std\\.dev\\.: .*\n" +
+                        "            FilterAndProjectOperator := Drivers: .*, Input avg\\.: .* lines, Input std\\.dev\\.: .*\n" +
                         "            count_8 := \"count\"\\(\\*\\)\n" +
-                        "        - ScanFilterAndProject\\[table = tpch:tpch:orders:sf0\\.01, originalConstraint = true\\] => \\[clerk:varchar, \\$hashvalue:bigint\\]\n" +
+                        "        - ScanFilterAndProject\\[table = tpch:tpch:orders:sf0\\.01, originalConstraint = true\\] => \\[.*\\]\n" +
                         "                Cost: .*, Input: 15000 lines \\(.*\\), Output: 15000 lines \\(.*\\), Filtered: 0\\.00%\n" +
                         "                ScanFilterAndProjectOperator := Drivers: .*, Input avg\\.: .* lines, Input std\\.dev\\.: .*\n" +
-                        "                \\$hashvalue := \"combine_hash\"\\(0, COALESCE\\(\"\\$operator\\$hash_code\"\\(\"clerk\"\\), 0\\)\\)\n" +
+                        "                .* := \"combine_hash\"\\(0, COALESCE\\(\"\\$operator\\$hash_code\"\\(\"clerk\"\\), 0\\)\\)\n" +
                         "                clerk := tpch:clerk\n\n");
     }
 
@@ -105,11 +106,11 @@ public class TestTpchDistributedQueries
                         "    Cost: CPU .*, Input: .* lines \\(.*\\), Output: 2401 lines \\(.*\\)\n" +
                         "    Output layout: \\[expr_28\\]\n" +
                         "    Output partitioning: SINGLE \\[\\]\n" +
-                        "    - ScanFilterAndProject\\[\\] => \\[expr_28:bigint\\]\n" +
+                        "    - ScanFilterAndProject\\[\\] => \\[.*\\]\n" +
                         "            Cost: .*, Input: 2401 lines \\(.*\\), Output: 2401 lines \\(.*\\), Filtered: 0\\.00%\n" +
                         "            TaskOutputOperator := Drivers: .*, Input avg\\.: .* lines, Input std\\.dev\\.: .*\n" +
                         "            FilterAndProjectOperator := Drivers: .*, Input avg\\.: .* lines, Input std\\.dev\\.: .*\n" +
-                        "            expr_28 := \\(\"count\" \\+ \"count_19\"\\)\n" +
+                        "            .*\n" +
                         "        - InnerJoin\\[.*\\]\n" +
                         "                Cost: .*, Output: 2401 lines \\(.*\\)\n" +
                         "                LookupJoinOperator := Drivers: .*, Input avg\\.: .* lines, Input std\\.dev\\.: .*\n" +
@@ -118,70 +119,62 @@ public class TestTpchDistributedQueries
                         "                ParallelHashBuilderOperator := Collisions avg\\.: .*, Collisions std\\.dev\\.: .*\n" +
                         "                InMemoryExchangeSinkOperator := Drivers: .*, Input avg\\.: .* lines, Input std\\.dev\\.: .*\n" +
                         "                InMemoryExchangeSourceOperator := Drivers: .*, Input avg\\.: .* lines, Input std\\.dev\\.: .*\n" +
-                        "            - ScanFilterAndProject\\[\\] => \\[\\$hashvalue_32:bigint, count:bigint, orderdate:date\\]\n" +
-                        "                    Cost: .*, Input: 2401 lines \\(.*\\), Output: 2401 lines \\(.*\\), Filtered: 0\\.00%\n" +
+                        "            - Aggregate\\(FINAL\\)\\[orderdate\\] => \\[.*\\]\n" +
+                        "                    Cost: .*, Output: 2401 lines \\(.*\\)\n" +
+                        "                    HashAggregationOperator := Drivers: .*, Input avg\\.: .* lines, Input std\\.dev\\.: .*\n" +
+                        "                    HashAggregationOperator := Collisions avg\\.: .*, Collisions std\\.dev\\.: .*\n" +
                         "                    InMemoryExchangeSinkOperator := Drivers: .*, Input avg\\.: .* lines, Input std\\.dev\\.: .*\n" +
-                        "                    FilterAndProjectOperator := Drivers: .*, Input avg\\.: .* lines, Input std\\.dev\\.: .*\n" +
                         "                    InMemoryExchangeSourceOperator := Drivers: .*, Input avg\\.: .* lines, Input std\\.dev\\.: .*\n" +
-                        "                    \\$hashvalue_32 := \"combine_hash\"\\(0, COALESCE\\(\"\\$operator\\$hash_code\"\\(\"orderdate\"\\), 0\\)\\)\n" +
-                        "                - Aggregate\\(FINAL\\)\\[orderdate\\] => \\[orderdate:date, \\$hashvalue:bigint, count:bigint\\]\n" +
-                        "                        Cost: .*, Output: 2401 lines \\(.*\\)\n" +
-                        "                        HashAggregationOperator := Drivers: .*, Input avg\\.: .* lines, Input std\\.dev\\.: .*\n" +
-                        "                        HashAggregationOperator := Collisions avg\\.: .*, Collisions std\\.dev\\.: .*\n" +
-                        "                        InMemoryExchangeSinkOperator := Drivers: .*, Input avg\\.: .* lines, Input std\\.dev\\.: .*\n" +
-                        "                        InMemoryExchangeSourceOperator := Drivers: .*, Input avg\\.: .* lines, Input std\\.dev\\.: .*\n" +
-                        "                        MarkDistinctOperator := Drivers: .*, Input avg\\.: .* lines, Input std\\.dev\\.: .*\n" +
-                        "                        count := \"count\"\\(\"count_34\"\\)\n" +
-                        "                    - RemoteSource\\[2\\] => \\[orderdate:date, \\$hashvalue:bigint, count_34:bigint\\]\n" +
-                        "                            Cost: .*, Output: .* lines \\(.*\\)\n" +
-                        "                            ExchangeOperator := Drivers: .*, Input avg\\.: .* lines, Input std\\.dev\\.: .*" +
-                        "            - ScanFilterAndProject\\[\\] => \\[count_19:bigint, \\$hashvalue_33:bigint, orderdate_12:date\\]\n" +
-                        "                    Cost: .*, Input: 2401 lines \\(.*\\), Output: 2401 lines \\(.*\\), Filtered: 0\\.00%\n" +
-                        "                    FilterAndProjectOperator := Drivers: .*, Input avg\\.: .* lines, Input std\\.dev\\.: .*\n" +
-                        "                    \\$hashvalue_33 := \"combine_hash\"\\(0, COALESCE\\(\"\\$operator\\$hash_code\"\\(\"orderdate_12\"\\), 0\\)\\)\n" +
-                        "                - Aggregate\\(FINAL\\)\\[orderdate_12\\] => \\[orderdate_12:date, \\$hashvalue_31:bigint, count_19:bigint\\]\n" +
-                        "                        Cost: .*, Output: 2401 lines \\(.*\\)\n" +
-                        "                        HashAggregationOperator := Drivers: .*, Input avg\\.: .* lines, Input std\\.dev\\.: .*\n" +
-                        "                        HashAggregationOperator := Collisions avg\\.: .*, Collisions std\\.dev\\.: .*\n" +
-                        "                        InMemoryExchangeSinkOperator := Drivers: .*, Input avg\\.: .* lines, Input std\\.dev\\.: .*\n" +
-                        "                        InMemoryExchangeSourceOperator := Drivers: .*, Input avg\\.: .* lines, Input std\\.dev\\.: .*\n" +
-                        "                        MarkDistinctOperator := Drivers: .*, Input avg\\.: .* lines, Input std\\.dev\\.: .*\n" +
-                        "                        count_19 := \"count\"\\(\"count_35\"\\)\n" +
-                        "                    - RemoteSource\\[3\\] => \\[orderdate_12:date, \\$hashvalue_31:bigint, count_35:bigint\\]\n" +
-                        "                            Cost: .*, Output: .* lines \\(.*\\)\n" +
-                        "                            ExchangeOperator := Drivers: .*, Input avg\\.: .* lines, Input std\\.dev\\.: .*\n" +
+                        "                    MarkDistinctOperator := Drivers: .*, Input avg\\.: .* lines, Input std\\.dev\\.: .*\n" +
+                        "                    .*\n" +
+                        "                - RemoteSource\\[2\\] => \\[.*\\]\n" +
+                        "                        Cost: .*, Output: .* lines \\(.*\\)\n" +
+                        "                        ExchangeOperator := Drivers: .*, Input avg\\.: .* lines, Input std\\.dev\\.: .*\n" +
+                        "            - Aggregate\\(FINAL\\)\\[.*\\] => \\[.*\\]\n" +
+                        "                    Cost: .*, Output: 2401 lines \\(.*\\)\n" +
+                        "                    HashAggregationOperator := Drivers: .*, Input avg\\.: .* lines, Input std\\.dev\\.: .*\n" +
+                        "                    HashAggregationOperator := Collisions avg\\.: .*, Collisions std\\.dev\\.: .*\n" +
+                        "                    InMemoryExchangeSinkOperator := Drivers: .*, Input avg\\.: .* lines, Input std\\.dev\\.: .*\n" +
+                        "                    InMemoryExchangeSourceOperator := Drivers: .*, Input avg\\.: .* lines, Input std\\.dev\\.: .*\n" +
+                        "                    MarkDistinctOperator := Drivers: .*, Input avg\\.: .* lines, Input std\\.dev\\.: .*\n" +
+                        "                    .*\n" +
+                        "                - RemoteSource\\[3\\] => \\[.*\\]\n" +
+                        "                        Cost: .*, Output: .* lines \\(.*\\)\n" +
+                        "                        ExchangeOperator := Drivers: .*, Input avg\\.: .* lines, Input std\\.dev\\.: .*\n" +
                         "\n" +
                         "Fragment 2 \\[SOURCE\\]\n" +
                         "    Cost: .*, Input: 15000 lines \\(.*\\), Output: .* lines \\(.*\\)\n" +
-                        "    Output layout: \\[orderdate, \\$hashvalue, count_34\\]\n" +
-                        "    Output partitioning: HASH \\[orderdate\\]\n" +
-                        "    - Aggregate\\(PARTIAL\\)\\[orderdate\\] => \\[orderdate:date, \\$hashvalue:bigint, count_34:bigint\\]\n" +
+                        "    Output layout: \\[.*\\]\n" +
+                        "    Output partitioning: HASH \\[.*\\]\n" +
+                        "    - Aggregate\\(PARTIAL\\)\\[.*\\] => \\[.*\\]\n" +
                         "            Cost: .*, Output: .* lines \\(.*\\)\n" +
                         "            HashAggregationOperator := Drivers: .*, Input avg\\.: .* lines, Input std\\.dev\\.: .*\n" +
                         "            HashAggregationOperator := Collisions avg\\.: .*, Collisions std\\.dev\\.: .*\n" +
                         "            PartitionedOutputOperator := Drivers: .*, Input avg\\.: .* lines, Input std\\.dev\\.: .*\n" +
-                        "            count_34 := \"count\"\\(\\*\\)\n" +
-                        "        - ScanFilterAndProject\\[table = tpch:tpch:orders:sf0\\.01, originalConstraint = true\\] => \\[orderdate:date, \\$hashvalue:bigint\\]\n" +
+                        "            FilterAndProjectOperator := Drivers: .*, Input avg\\.: .* lines, Input std\\.dev\\.: .*\n" +
+                        "            .*\n" +
+                        "        - ScanFilterAndProject\\[table = tpch:tpch:orders:sf0\\.01, originalConstraint = true\\] => \\[.*\\]\n" +
                         "                Cost: .*, Input: 15000 lines \\(.*\\), Output: 15000 lines \\(.*\\), Filtered: 0\\.00%\n" +
                         "                ScanFilterAndProjectOperator := Drivers: .*, Input avg\\.: .* lines, Input std\\.dev\\.: .*\n" +
-                        "                \\$hashvalue := \"combine_hash\"\\(0, COALESCE\\(\"\\$operator\\$hash_code\"\\(\"orderdate\"\\), 0\\)\\)\n" +
-                        "                orderdate := tpch:orderdate\n" +
+                        "                .* := \"combine_hash\"\\(0, COALESCE\\(\"\\$operator\\$hash_code\"\\(\"orderdate\"\\), 0\\)\\)\n" +
+                        "                .* := tpch:orderdate\n" +
                         "\n" +
                         "Fragment 3 \\[SOURCE\\]\n" +
                         "    Cost: CPU .*, Input: 15000 lines \\(.*\\), Output: .* lines \\(.*\\)\n" +
-                        "    Output layout: \\[orderdate_12, \\$hashvalue_31, count_35\\]\n" +
-                        "    Output partitioning: HASH \\[orderdate_12\\]\n" +
-                        "    - Aggregate\\(PARTIAL\\)\\[orderdate_12\\] => \\[orderdate_12:date, \\$hashvalue_31:bigint, count_35:bigint\\]\n" +
+                        "    Output layout: \\[.*\\]\n" +
+                        "    Output partitioning: HASH \\[.*\\]\n" +
+                        "    - Aggregate\\(PARTIAL\\)\\[.*\\] => \\[.*\\]\n" +
                         "            Cost: .*, Output: .* lines \\(.*\\)\n" +
                         "            HashAggregationOperator := Drivers: .*, Input avg\\.: .* lines, Input std\\.dev\\.: .*\n" +
                         "            HashAggregationOperator := Collisions avg\\.: .*, Collisions std\\.dev\\.: .*\n" +
                         "            PartitionedOutputOperator := Drivers: .*, Input avg\\.: .* lines, Input std\\.dev\\.: .*\n" +
-                        "            count_35 := \"count\"\\(\\*\\)\n" +
-                        "        - ScanFilterAndProject\\[table = tpch:tpch:orders:sf0\\.01, originalConstraint = true\\] => \\[orderdate_12:date, \\$hashvalue_31:bigint\\]\n" +
+                        "            FilterAndProjectOperator := Drivers: .*, Input avg\\.: .* lines, Input std\\.dev\\.: .*\n" +
+                        "            .*\n" +
+                        "        - ScanFilterAndProject\\[table = tpch:tpch:orders:sf0\\.01, originalConstraint = true\\] => \\[.*\\]\n" +
                         "                Cost: .*, Input: 15000 lines \\(.*\\), Output: 15000 lines \\(.*\\), Filtered: 0\\.00%\n" +
                         "                ScanFilterAndProjectOperator := Drivers: .*, Input avg\\.: .* lines, Input std\\.dev\\.: .*\n" +
-                        "                \\$hashvalue_31 := \"combine_hash\"\\(0, COALESCE\\(\"\\$operator\\$hash_code\"\\(\"orderdate_12\"\\), 0\\)\\)\n" +
-                        "                orderdate_12 := tpch:orderdate\n\n");
+                        "                .* := \"combine_hash\"\\(0, COALESCE\\(\"\\$operator\\$hash_code\"\\(\"orderdate_12\"\\), 0\\)\\)\n" +
+                        "                .* := tpch:orderdate\n\n");
     }
 
     @Test
