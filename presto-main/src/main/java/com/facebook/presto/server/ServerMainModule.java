@@ -57,6 +57,7 @@ import com.facebook.presto.operator.ExchangeClientSupplier;
 import com.facebook.presto.operator.ForExchange;
 import com.facebook.presto.operator.ForScheduler;
 import com.facebook.presto.operator.index.IndexJoinLookupStats;
+import com.facebook.presto.operator.spiller.SpillerManager;
 import com.facebook.presto.spi.ConnectorPageSinkProvider;
 import com.facebook.presto.spi.ConnectorPageSourceProvider;
 import com.facebook.presto.spi.ConnectorSplit;
@@ -332,6 +333,9 @@ public class ServerMainModule
 
         // Finalizer
         binder.bind(FinalizerService.class).in(Scopes.SINGLETON);
+
+        // Spiller
+        binder.bind(SpillerManager.class).in(Scopes.SINGLETON);
     }
 
     @Provides

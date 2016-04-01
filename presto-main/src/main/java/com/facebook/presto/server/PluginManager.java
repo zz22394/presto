@@ -17,12 +17,14 @@ import com.facebook.presto.block.BlockEncodingManager;
 import com.facebook.presto.connector.ConnectorManager;
 import com.facebook.presto.metadata.FunctionFactory;
 import com.facebook.presto.metadata.Metadata;
+import com.facebook.presto.operator.spiller.SpillerManager;
 import com.facebook.presto.security.AccessControlManager;
 import com.facebook.presto.spi.Plugin;
 import com.facebook.presto.spi.block.BlockEncodingFactory;
 import com.facebook.presto.spi.classloader.ThreadContextClassLoader;
 import com.facebook.presto.spi.connector.ConnectorFactory;
 import com.facebook.presto.spi.security.SystemAccessControlFactory;
+import com.facebook.presto.spi.spiller.SpillerFactory;
 import com.facebook.presto.spi.type.Type;
 import com.facebook.presto.type.ParametricType;
 import com.facebook.presto.type.TypeRegistry;
@@ -90,6 +92,7 @@ public class PluginManager
     private final Map<String, String> optionalConfig;
     private final AtomicBoolean pluginsLoading = new AtomicBoolean();
     private final AtomicBoolean pluginsLoaded = new AtomicBoolean();
+    private final SpillerManager spillerManager;
 
     @Inject
     public PluginManager(Injector injector,
@@ -101,7 +104,8 @@ public class PluginManager
             Metadata metadata,
             AccessControlManager accessControlManager,
             BlockEncodingManager blockEncodingManager,
-            TypeRegistry typeRegistry)
+            TypeRegistry typeRegistry,
+            SpillerManager spillerManager)
     {
         requireNonNull(injector, "injector is null");
         requireNonNull(nodeInfo, "nodeInfo is null");
@@ -130,6 +134,7 @@ public class PluginManager
         this.accessControlManager = requireNonNull(accessControlManager, "accessControlManager is null");
         this.blockEncodingManager = requireNonNull(blockEncodingManager, "blockEncodingManager is null");
         this.typeRegistry = requireNonNull(typeRegistry, "typeRegistry is null");
+        this.spillerManager = requireNonNull(spillerManager, "spillerManager is null");
     }
 
     public boolean arePluginsLoaded()
@@ -225,6 +230,11 @@ public class PluginManager
         for (SystemAccessControlFactory accessControlFactory : plugin.getServices(SystemAccessControlFactory.class)) {
             log.info("Registering system access control %s", accessControlFactory.getName());
             accessControlManager.addSystemAccessControlFactory(accessControlFactory);
+        }
+
+        for (SpillerFactory spillerFactory : plugin.getServices(SpillerFactory.class)) {
+            log.info("Registering spiller %s", spillerFactory.getName());
+            spillerManager.addSpillerFactor(spillerFactory);
         }
     }
 
