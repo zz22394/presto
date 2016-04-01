@@ -10,7 +10,7 @@ Automated Installation with Ambari 2.1
 Install and manage Presto using `Apache Ambari`_.
 
 | :doc:`Installation Instructions <installation/installation-ambari>`
-| Download :download:`presto-ambari-plugin`
+| Download :download:`presto-ambari-pkg`
 
 *Requires*:
 
@@ -31,7 +31,7 @@ Automated Installation with Ambari 2.1 with YARN integration
 Install and manage Presto integrated with YARN using the `Apache Slider`_ view for `Apache Ambari`_.
 
 | :doc:`Installation Instructions <installation/installation-yarn>`
-| Download :download:`presto-yarn-package`
+| The YARN package is included as part of the download :download:`presto-server-pkg`
 
 *Requires*:
 
@@ -53,8 +53,7 @@ Manual Installation via Presto-Admin
 Install and manage Presto manually using Presto-Admin.
 
 | :doc:`Installation Instructions <installation/installation-presto-admin>`
-| Download :download:`server`
-| Download :download:`presto-admin`
+| Download :download:`presto-server-pkg`
 
 *Requires*:
 
@@ -64,8 +63,6 @@ Install and manage Presto manually using Presto-Admin.
 * Python 2.6 or 2.7
 * Minimum 16GB RAM per node allocated for Presto
 
-For RPM Package Manager < 4.6, you need to download :download:`server-old`
-
 ----
 
 Manual Installation with YARN integration
@@ -74,7 +71,7 @@ Manual Installation with YARN integration
 Install and manage Presto integrated with YARN manually using `Apache Slider`_.
 
 | :doc:`Installation Instructions <installation/installation-yarn>`
-| Download :download:`presto-yarn-package`
+| The YARN package is included as part of the download :download:`presto-server-pkg`
 | Download :download:`apache-slider`
 
 *Requires*:
