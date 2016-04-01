@@ -22,6 +22,8 @@ DOUBLE
     A double is a 64-bit inexact, variable-precision implementing the
     IEEE Standard 754 for Binary Floating-Point Arithmetic.
 
+.. _decimal:
+
 DECIMAL
 -------
 

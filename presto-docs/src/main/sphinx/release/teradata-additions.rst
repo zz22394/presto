@@ -2,7 +2,7 @@
 Teradata Additions
 ==================
 
-The following are notable additions that Teradata has added to Facebook's 0.141 release of presto
+The following are notable additions in Presto 141t that differ the Presto community version 0.141.
 
 Prepared Statements
 -------------------
@@ -30,3 +30,7 @@ Add support for Presto to query from a Kerberized Hadoop cluster. The Hive conne
 EXPLAIN ANALYZE
 ---------------
 Execute the statement and show the distributed execution plan of the statement along with the cost of each operation. See :ref:`explain-analyze`
+
+DECIMAL
+-------
+DECIMAL is a fixed precision data type that has been added. See :ref:`decimal`
