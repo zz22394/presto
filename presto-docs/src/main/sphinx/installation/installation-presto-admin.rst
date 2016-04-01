@@ -18,5 +18,5 @@ cluster. It provides easy-to-use commands to:
 .. toctree::
     :maxdepth: 1
 
-    Install Presto using Presto Admin <presto-admin/install-presto.rst>
+    Install Presto using Presto Admin <presto-admin/quick-start-guide.rst>
     Comprehensive Presto Admin User Guide <presto-admin/user-guide.rst>
