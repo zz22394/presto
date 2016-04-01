@@ -121,4 +121,10 @@
             <unpack />
         </artifact>
     </artifactSet>
+
+    <artifactSet to="plugin/orc-spiller">
+        <artifact id="${project.groupId}:presto-orc-spiller:zip:${project.version}">
+            <unpack />
+        </artifact>
+    </artifactSet>
 </runtime>

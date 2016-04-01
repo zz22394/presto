@@ -86,6 +86,7 @@ import com.facebook.presto.spi.block.Block;
 import com.facebook.presto.spi.block.BlockBuilder;
 import com.facebook.presto.spi.block.BlockEncodingSerde;
 import com.facebook.presto.spi.connector.ConnectorFactory;
+import com.facebook.presto.spi.spiller.SpillerFactory;
 import com.facebook.presto.spi.type.Type;
 import com.facebook.presto.split.PageSinkManager;
 import com.facebook.presto.split.PageSourceManager;
@@ -303,6 +304,11 @@ public class LocalQueryRunner
     {
         checkArgument(!defaultSession.getTransactionId().isPresent(), "Already in transaction!");
         return new LocalQueryRunner(defaultSession, true);
+    }
+
+    public void addSpillerFactory(SpillerFactory spillerFactory)
+    {
+        spillerManager.addSpillerFactor(spillerFactory);
     }
 
     @Override
