@@ -28,6 +28,7 @@ import java.util.List;
 
 import static com.facebook.presto.spi.session.PropertyMetadata.booleanSessionProperty;
 import static com.facebook.presto.spi.session.PropertyMetadata.integerSessionProperty;
+import static com.facebook.presto.spi.session.PropertyMetadata.longSessionProperty;
 import static com.facebook.presto.spi.session.PropertyMetadata.stringSessionProperty;
 import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
 
@@ -60,6 +61,7 @@ public final class SystemSessionProperties
     public static final String REGEX_LIBRARY = "regex_library";
     public static final String RE2J_DFA_STATES_LIMIT = "re2j_dfa_states_limit";
     public static final String RE2J_DFA_RETRIES = "re2j_dfa_retries";
+    public static final String MAX_ENTRIES_BEFORE_SPILL = "max_entries_before_spill";
 
     private final List<PropertyMetadata<?>> sessionProperties;
 
@@ -221,6 +223,11 @@ public final class SystemSessionProperties
                         PARSE_DECIMAL_LITERALS_AS_DOUBLE,
                         "Parse decimal literals as DOUBLE instead of DECIMAL",
                         featuresConfig.isParseDecimalLiteralsAsDouble(),
+                        false),
+                longSessionProperty(
+                        MAX_ENTRIES_BEFORE_SPILL,
+                        "Experimental: force limit max number of entries before spill",
+                        Long.MAX_VALUE,
                         false));
     }
 
@@ -347,5 +354,10 @@ public final class SystemSessionProperties
     public static boolean isParseDecimalLiteralsAsDouble(Session session)
     {
         return session.getProperty(PARSE_DECIMAL_LITERALS_AS_DOUBLE, Boolean.class);
+    }
+
+    public static long getMaxEntriesBeforeSpill(Session session)
+    {
+        return session.getProperty(MAX_ENTRIES_BEFORE_SPILL, Long.class);
     }
 }

@@ -43,7 +43,8 @@ public class HashAggregationBenchmark
     {
         OperatorFactory tableScanOperator = createTableScanOperator(0, new PlanNodeId("test"), "orders", "orderstatus", "totalprice");
         List<Type> types = ImmutableList.of(tableScanOperator.getTypes().get(0));
-        HashAggregationOperatorFactory aggregationOperator = new HashAggregationOperatorFactory(1,
+        HashAggregationOperatorFactory aggregationOperator = new HashAggregationOperatorFactory(
+                1,
                 new PlanNodeId("test"),
                 types,
                 Ints.asList(0),
@@ -52,7 +53,9 @@ public class HashAggregationBenchmark
                 Optional.empty(),
                 Optional.empty(),
                 100_000,
-                new DataSize(16, MEGABYTE));
+                new DataSize(16, MEGABYTE),
+                Long.MAX_VALUE,
+                Optional.empty());
         return ImmutableList.of(tableScanOperator, aggregationOperator);
     }
 

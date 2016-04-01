@@ -74,6 +74,7 @@ import com.facebook.presto.operator.ProjectionFunction;
 import com.facebook.presto.operator.ProjectionFunctions;
 import com.facebook.presto.operator.TaskContext;
 import com.facebook.presto.operator.index.IndexJoinLookupStats;
+import com.facebook.presto.operator.spiller.SpillerManager;
 import com.facebook.presto.server.ServerConfig;
 import com.facebook.presto.spi.ColumnHandle;
 import com.facebook.presto.spi.ColumnMetadata;
@@ -184,6 +185,7 @@ public class LocalQueryRunner
     private final NodePartitioningManager nodePartitioningManager;
     private final PageSinkManager pageSinkManager;
     private final TransactionManager transactionManager;
+    private final SpillerManager spillerManager = new SpillerManager();
 
     private final ExpressionCompiler compiler;
     private final ConnectorManager connectorManager;
@@ -578,7 +580,8 @@ public class LocalQueryRunner
                 new IndexJoinLookupStats(),
                 new CompilerConfig().setInterpreterEnabled(false), // make sure tests fail if compiler breaks
                 new ServerConfig().setCoordinator(false),
-                new TaskManagerConfig().setTaskDefaultConcurrency(4)
+                new TaskManagerConfig().setTaskDefaultConcurrency(4),
+                spillerManager
         );
 
         // plan query

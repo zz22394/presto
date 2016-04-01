@@ -77,6 +77,7 @@ import com.facebook.presto.operator.index.IndexBuildDriverFactoryProvider;
 import com.facebook.presto.operator.index.IndexJoinLookupStats;
 import com.facebook.presto.operator.index.IndexLookupSourceSupplier;
 import com.facebook.presto.operator.index.IndexSourceOperator;
+import com.facebook.presto.operator.spiller.SpillerManager;
 import com.facebook.presto.operator.window.FrameInfo;
 import com.facebook.presto.operator.window.WindowFunctionSupplier;
 import com.facebook.presto.server.ServerConfig;
@@ -231,6 +232,7 @@ public class LocalExecutionPlanner
     private final DataSize maxIndexMemorySize;
     private final IndexJoinLookupStats indexJoinLookupStats;
     private final DataSize maxPartialAggregationMemorySize;
+    private final SpillerManager spillerManager;
 
     @Inject
     public LocalExecutionPlanner(
@@ -246,7 +248,8 @@ public class LocalExecutionPlanner
             IndexJoinLookupStats indexJoinLookupStats,
             CompilerConfig compilerConfig,
             ServerConfig serverConfig,
-            TaskManagerConfig taskManagerConfig)
+            TaskManagerConfig taskManagerConfig,
+            SpillerManager spillerManager)
     {
         requireNonNull(compilerConfig, "compilerConfig is null");
         this.queryManager = requireNonNull(queryManager, "queryManager is null");
@@ -260,6 +263,7 @@ public class LocalExecutionPlanner
         this.compiler = requireNonNull(compiler, "compiler is null");
         this.indexJoinLookupStats = requireNonNull(indexJoinLookupStats, "indexJoinLookupStats is null");
         this.maxIndexMemorySize = requireNonNull(taskManagerConfig, "taskManagerConfig is null").getMaxIndexMemoryUsage();
+        this.spillerManager = requireNonNull(spillerManager, "spillerManager is null");
         this.maxPartialAggregationMemorySize = taskManagerConfig.getMaxPartialAggregationMemoryUsage();
 
         interpreterEnabled = compilerConfig.isInterpreterEnabled();
@@ -860,6 +864,7 @@ public class LocalExecutionPlanner
         @Override
         public PhysicalOperation visitAggregation(AggregationNode node, LocalExecutionPlanContext context)
         {
+            long maxEntriesBeforeSpill = SystemSessionProperties.getMaxEntriesBeforeSpill(context.getSession());
             if (node.getGroupBy().isEmpty()) {
                 PhysicalOperation source = node.getSource().accept(this, context);
                 return planGlobalAggregation(context.getNextOperatorId(), node, source);
@@ -879,13 +884,13 @@ public class LocalExecutionPlanner
 
                 OperatorFactory exchangeSource = createRandomDistribution(context.getNextOperatorId(), node.getId(), exchange);
                 source = new PhysicalOperation(exchangeSource, source.getLayout());
-                return planGroupByAggregation(node, source, context.getNextOperatorId(), Optional.empty());
+                return planGroupByAggregation(node, source, context.getNextOperatorId(), Optional.empty(), maxEntriesBeforeSpill);
             }
 
             int aggregationConcurrency = getTaskAggregationConcurrency(session);
             if (node.getStep() == Step.PARTIAL || !context.isAllowLocalParallel() || context.getDriverInstanceCount() > 1 || aggregationConcurrency <= 1) {
                 PhysicalOperation source = node.getSource().accept(this, context);
-                return planGroupByAggregation(node, source, context.getNextOperatorId(), Optional.empty());
+                return planGroupByAggregation(node, source, context.getNextOperatorId(), Optional.empty(), maxEntriesBeforeSpill);
             }
 
             // create context for parallel operators
@@ -926,7 +931,7 @@ public class LocalExecutionPlanner
             source = new PhysicalOperation(hashPartitionMask, source.getLayout(), source);
 
             // plan aggregation
-            PhysicalOperation operation = planGroupByAggregation(node, source, parallelContext.getNextOperatorId(), Optional.of(defaultMaskChannel));
+            PhysicalOperation operation = planGroupByAggregation(node, source, parallelContext.getNextOperatorId(), Optional.of(defaultMaskChannel), maxEntriesBeforeSpill);
 
             // merge parallel tasks back into a single stream
             operation = addInMemoryExchange(context, node.getId(), operation, parallelContext);
@@ -1952,7 +1957,12 @@ public class LocalExecutionPlanner
             return new PhysicalOperation(operatorFactory, outputMappings.build(), source);
         }
 
-        private PhysicalOperation planGroupByAggregation(AggregationNode node, PhysicalOperation source, int operatorId, Optional<Integer> defaultMaskChannel)
+        private PhysicalOperation planGroupByAggregation(
+                AggregationNode node,
+                PhysicalOperation source,
+                int operatorId,
+                Optional<Integer> defaultMaskChannel,
+                long maxEntriesBeforeSpill)
         {
             List<Symbol> groupBySymbols = node.getGroupBy();
 
@@ -2001,7 +2011,9 @@ public class LocalExecutionPlanner
                     defaultMaskChannel,
                     hashChannel,
                     10_000,
-                    maxPartialAggregationMemorySize);
+                    maxPartialAggregationMemorySize,
+                    maxEntriesBeforeSpill,
+                    spillerManager.getSpillerFactory());
 
             return new PhysicalOperation(operatorFactory, outputMappings.build(), source);
         }
