@@ -34,7 +34,9 @@ public final class Transport
         try {
             TTransport rawTransport = createRaw(host, port, socksProxy, timeoutMillis);
             TTransport authenticatedTransport = authentication.authenticate(rawTransport, host);
-            authenticatedTransport.open();
+            if (!authenticatedTransport.isOpen()) {
+                authenticatedTransport.open();
+            }
             return new TTransportWrapper(authenticatedTransport, host);
         }
         catch (TTransportException e) {
