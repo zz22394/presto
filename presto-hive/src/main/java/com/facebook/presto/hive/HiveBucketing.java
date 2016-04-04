@@ -52,7 +52,9 @@ import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 import static com.facebook.presto.spi.type.DateType.DATE;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
 import static com.facebook.presto.spi.type.IntegerType.INTEGER;
+import static com.facebook.presto.spi.type.SmallintType.SMALLINT;
 import static com.facebook.presto.spi.type.TimestampType.TIMESTAMP;
+import static com.facebook.presto.spi.type.TinyintType.TINYINT;
 import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.google.common.base.MoreObjects.toStringHelper;
 import static com.google.common.base.Preconditions.checkArgument;
@@ -119,9 +121,9 @@ final class HiveBucketing
                     case BOOLEAN:
                         return BOOLEAN.getBoolean(block, position) ? 1 : 0;
                     case BYTE:
-                        return SignedBytes.checkedCast(INTEGER.getLong(block, position));
+                        return SignedBytes.checkedCast(TINYINT.getLong(block, position));
                     case SHORT:
-                        return Shorts.checkedCast(INTEGER.getLong(block, position));
+                        return Shorts.checkedCast(SMALLINT.getLong(block, position));
                     case INT:
                         return Ints.checkedCast(INTEGER.getLong(block, position));
                     case LONG:
