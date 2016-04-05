@@ -42,6 +42,7 @@ import static com.facebook.presto.spi.security.AccessDeniedException.denyGrantTa
 import static com.facebook.presto.spi.security.AccessDeniedException.denyInsertTable;
 import static com.facebook.presto.spi.security.AccessDeniedException.denyRenameColumn;
 import static com.facebook.presto.spi.security.AccessDeniedException.denyRenameTable;
+import static com.facebook.presto.spi.security.AccessDeniedException.denyRevokeTablePrivilege;
 import static com.facebook.presto.spi.security.AccessDeniedException.denySelectTable;
 import static com.facebook.presto.spi.security.AccessDeniedException.denySelectView;
 import static com.facebook.presto.spi.security.AccessDeniedException.denySetCatalogSessionProperty;
@@ -191,6 +192,19 @@ public class SqlStandardAccessControl
         HivePrivilege hivePrivilege = toHivePrivilege(privilege);
         if (hivePrivilege == null || !metastore.hasPrivilegeWithGrantOptionOnTable(identity.getUser(), tableName.getSchemaName(), tableName.getTableName(), hivePrivilege)) {
             denyGrantTablePrivilege(privilege.name(), tableName.toString());
+        }
+    }
+
+    @Override
+    public void checkCanRevokeTablePrivilege(Identity identity, Privilege privilege, SchemaTableName tableName)
+    {
+        if (checkTablePermission(identity, tableName, OWNERSHIP)) {
+            return;
+        }
+
+        HivePrivilege hivePrivilege = toHivePrivilege(privilege);
+        if (hivePrivilege == null || !metastore.hasPrivilegeWithGrantOptionOnTable(identity.getUser(), tableName.getSchemaName(), tableName.getTableName(), hivePrivilege)) {
+            denyRevokeTablePrivilege(privilege.name(), tableName.toString());
         }
     }
 

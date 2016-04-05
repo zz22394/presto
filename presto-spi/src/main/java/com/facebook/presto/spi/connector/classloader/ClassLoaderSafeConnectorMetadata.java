@@ -280,4 +280,12 @@ public class ClassLoaderSafeConnectorMetadata
             return delegate.metadataDelete(session, tableHandle, tableLayoutHandle);
         }
     }
+
+    @Override
+    public void revokeTablePrivileges(ConnectorSession session, SchemaTableName tableName, Set<Privilege> privileges, String grantee, boolean grantOption)
+    {
+        try (ThreadContextClassLoader ignored = new ThreadContextClassLoader(classLoader)) {
+            delegate.revokeTablePrivileges(session, tableName, privileges, grantee, grantOption);
+        }
+    }
 }
