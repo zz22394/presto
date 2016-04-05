@@ -134,8 +134,11 @@ public class TestHivePageSink
                 LineItemColumn column = columns.get(i);
                 BlockBuilder blockBuilder = pageBuilder.getBlockBuilder(i);
                 switch (column.getType()) {
-                    case BIGINT:
-                        BIGINT.writeLong(blockBuilder, column.getLong(lineItem));
+                    case IDENTIFIER:
+                        BIGINT.writeLong(blockBuilder, column.getIdentifier(lineItem));
+                        break;
+                    case INTEGER:
+                        BIGINT.writeLong(blockBuilder, column.getInteger(lineItem));
                         break;
                     case DATE:
                         DATE.writeLong(blockBuilder, column.getDate(lineItem));
@@ -236,7 +239,9 @@ public class TestHivePageSink
     private static HiveType getHiveType(TpchColumnType type)
     {
         switch (type) {
-            case BIGINT:
+            case IDENTIFIER:
+                return HIVE_LONG;
+            case INTEGER:
                 return HIVE_LONG;
             case DATE:
                 return HIVE_DATE;

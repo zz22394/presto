@@ -30,7 +30,10 @@ import com.facebook.presto.spi.SortingProperty;
 import com.facebook.presto.spi.block.SortOrder;
 import com.facebook.presto.spi.connector.ConnectorMetadata;
 import com.facebook.presto.spi.predicate.TupleDomain;
+import com.facebook.presto.spi.type.BigintType;
+import com.facebook.presto.spi.type.DateType;
 import com.facebook.presto.spi.type.Type;
+import com.facebook.presto.spi.type.VarcharType;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -50,11 +53,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
-import static com.facebook.presto.spi.type.DateType.DATE;
 import static com.facebook.presto.spi.type.DecimalType.createDecimalType;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
 import static com.facebook.presto.spi.type.StandardTypes.DECIMAL;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
 import static com.facebook.presto.tpch.Types.checkType;
 import static java.util.Objects.requireNonNull;
 
@@ -314,10 +315,12 @@ public class TpchMetadata
     public static Type getPrestoType(TpchColumnType tpchType, boolean useDecimal)
     {
         switch (tpchType) {
-            case BIGINT:
-                return BIGINT;
+            case IDENTIFIER:
+                return BigintType.BIGINT;
+            case INTEGER:
+                return BigintType.BIGINT;
             case DATE:
-                return DATE;
+                return DateType.DATE;
             case DOUBLE:
                 if (useDecimal) {
                     return DECIMAL_TYPE;
@@ -326,7 +329,7 @@ public class TpchMetadata
                     return DOUBLE;
                 }
             case VARCHAR:
-                return VARCHAR;
+                return VarcharType.VARCHAR;
         }
         throw new IllegalArgumentException("Unsupported type " + tpchType);
     }

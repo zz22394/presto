@@ -147,10 +147,12 @@ public class TpchRecordSet<E extends TpchEntity>
                 return tpchColumn.getDate(row);
             }
             else if (tpchColumn.getType() == TpchColumnType.DOUBLE) {
-                return tpchColumn.getLong(row);
+                return tpchColumn.getIdentifier(row);
             }
-
-            return tpchColumn.getLong(row);
+            if (tpchColumn.getType() == TpchColumnType.INTEGER) {
+                return tpchColumn.getInteger(row);
+            }
+            return tpchColumn.getIdentifier(row);
         }
 
         @Override
