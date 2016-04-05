@@ -54,6 +54,7 @@ import com.facebook.presto.sql.tree.Relation;
 import com.facebook.presto.sql.tree.RenameColumn;
 import com.facebook.presto.sql.tree.RenameTable;
 import com.facebook.presto.sql.tree.ResetSession;
+import com.facebook.presto.sql.tree.Revoke;
 import com.facebook.presto.sql.tree.Rollback;
 import com.facebook.presto.sql.tree.SampledRelation;
 import com.facebook.presto.sql.tree.Select;
@@ -906,6 +907,34 @@ public final class SqlFormatter
             if (node.isWithGrantOption()) {
                 builder.append(" WITH GRANT OPTION");
             }
+
+            return null;
+        }
+
+        @Override
+        public Void visitRevoke(Revoke node, Integer indent)
+        {
+            builder.append("REVOKE ");
+
+            if (node.isGrantOptionFor()) {
+                builder.append("GRANT OPTION FOR ");
+            }
+
+            if (node.getPrivileges().isPresent()) {
+                builder.append(node.getPrivileges().get().stream()
+                        .collect(Collectors.joining(", ")));
+            }
+            else {
+                builder.append("ALL PRIVILEGES");
+            }
+
+            builder.append(" ON ");
+            if (node.isTable()) {
+                builder.append("TABLE ");
+            }
+            builder.append(node.getTableName())
+                    .append(" FROM ")
+                    .append(node.getGrantee());
 
             return null;
         }
