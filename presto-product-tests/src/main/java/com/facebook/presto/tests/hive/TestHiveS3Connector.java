@@ -195,8 +195,8 @@ public class TestHiveS3Connector
                 row("c_timestamp", "timestamp"),
                 row("c_date", "date"),
                 row("c_string", "varchar"),
-                row("c_varchar", "varchar(10)"),
-                row("c_char", "varchar(10)"),
+                row("c_varchar", "varchar"),
+                row("c_char", "varchar"),
                 row("c_boolean", "boolean"),
                 row("c_binary", "varbinary")
         );
@@ -213,8 +213,8 @@ public class TestHiveS3Connector
                 row("c_double", "double"),
                 row("c_timestamp", "timestamp"),
                 row("c_string", "varchar"),
-                row("c_varchar", "varchar(10)"),
-                row("c_char", "varchar(10)"),
+                row("c_varchar", "varchar"),
+                row("c_char", "varchar"),
                 row("c_boolean", "boolean")
         );
     }
