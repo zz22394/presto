@@ -74,7 +74,7 @@ public class TestHiveStorageFormats
                         "   partkey       BIGINT," +
                         "   suppkey       BIGINT," +
                         "   linenumber    BIGINT," +
-                        "   quantity      BIGINT," +
+                        "   quantity      DOUBLE," +
                         "   extendedprice DOUBLE," +
                         "   discount      DOUBLE," +
                         "   tax           DOUBLE," +
@@ -149,7 +149,7 @@ public class TestHiveStorageFormats
                         "   partkey       BIGINT," +
                         "   suppkey       BIGINT," +
                         "   linenumber    BIGINT," +
-                        "   quantity      BIGINT," +
+                        "   quantity      DOUBLE," +
                         "   extendedprice DOUBLE," +
                         "   discount      DOUBLE," +
                         "   tax           DOUBLE," +

@@ -97,7 +97,7 @@ public class H2QueryRunner
                 "  partkey BIGINT NOT NULL,\n" +
                 "  suppkey BIGINT NOT NULL,\n" +
                 "  linenumber BIGINT,\n" +
-                "  quantity BIGINT NOT NULL,\n" +
+                "  quantity DOUBLE NOT NULL,\n" +
                 "  extendedprice DOUBLE NOT NULL,\n" +
                 "  discount DOUBLE NOT NULL,\n" +
                 "  tax DOUBLE NOT NULL,\n" +

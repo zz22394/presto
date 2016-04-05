@@ -32,7 +32,7 @@ import static com.facebook.presto.spi.type.StandardTypes.DOUBLE;
 import static com.facebook.presto.spi.type.TypeSignature.parseTypeSignature;
 import static com.facebook.presto.tpch.TpchRecordSet.createTpchRecordSet;
 import static com.facebook.presto.tpch.Types.checkType;
-import static io.airlift.tpch.TpchColumnType.BIGINT;
+import static io.airlift.tpch.TpchColumnType.IDENTIFIER;
 
 public class TpchRecordSetProvider
         implements ConnectorRecordSetProvider
@@ -93,7 +93,7 @@ public class TpchRecordSetProvider
         @Override
         public TpchColumnType getType()
         {
-            return BIGINT;
+            return IDENTIFIER;
         }
 
         @Override
@@ -103,9 +103,15 @@ public class TpchRecordSetProvider
         }
 
         @Override
-        public long getLong(E entity)
+        public long getIdentifier(E entity)
         {
             return entity.getRowNumber();
+        }
+
+        @Override
+        public int getInteger(E entity)
+        {
+            throw new UnsupportedOperationException();
         }
 
         @Override

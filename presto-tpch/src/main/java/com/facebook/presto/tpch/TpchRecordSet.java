@@ -176,14 +176,16 @@ public class TpchRecordSet<E extends TpchEntity>
             }
             else if (tpchColumn.getType() == TpchColumnType.DOUBLE) {
                 if (!rescales) {
-                    return tpchColumn.getLong(row);
+                    return tpchColumn.getIdentifier(row);
                 }
                 else {
-                    return tpchColumn.getLong(row) * rescaleShort;
+                    return tpchColumn.getIdentifier(row) * rescaleShort;
                 }
             }
-
-            return tpchColumn.getLong(row);
+            if (tpchColumn.getType() == TpchColumnType.INTEGER) {
+                return tpchColumn.getInteger(row);
+            }
+            return tpchColumn.getIdentifier(row);
         }
 
         @Override
@@ -200,10 +202,10 @@ public class TpchRecordSet<E extends TpchEntity>
             TpchColumn<E> tpchColumn = getTpchColumn(field);
             if (tpchColumn.getType() == TpchColumnType.DOUBLE) {
                 if (!rescales) {
-                    return Decimals.encodeUnscaledValue(tpchColumn.getLong(row));
+                    return Decimals.encodeUnscaledValue(tpchColumn.getIdentifier(row));
                 }
                 else {
-                    BigInteger unscaledValue = BigInteger.valueOf(tpchColumn.getLong(row)).multiply(rescaleLong);
+                    BigInteger unscaledValue = BigInteger.valueOf(tpchColumn.getIdentifier(row)).multiply(rescaleLong);
                     return Decimals.encodeUnscaledValue(unscaledValue);
                 }
             }
