@@ -53,6 +53,12 @@
             <artifactId>presto-main</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>dnsjava</groupId>
+            <artifactId>dnsjava</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -81,6 +87,7 @@
                                 <hive.hadoop2.metastoreHost>localhost</hive.hadoop2.metastoreHost>
                                 <hive.hadoop2.metastorePort>9083</hive.hadoop2.metastorePort>
                                 <hive.hadoop2.databaseName>default</hive.hadoop2.databaseName>
+                                <dns.port>5353</dns.port>
                             </systemProperties>
                         </configuration>
                     </plugin>

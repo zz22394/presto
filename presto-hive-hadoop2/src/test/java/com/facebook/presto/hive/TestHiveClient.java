@@ -16,15 +16,17 @@ package com.facebook.presto.hive;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
+import org.xbill.DNS.Lookup;
 
 @Test
 public class TestHiveClient
         extends AbstractTestHiveClient
 {
-    @Parameters({"hive.hadoop2.metastoreHost", "hive.hadoop2.metastorePort", "hive.hadoop2.databaseName", "hive.hadoop2.timeZone"})
+    @Parameters({"hive.hadoop2.metastoreHost", "hive.hadoop2.metastorePort", "hive.hadoop2.databaseName", "hive.hadoop2.timeZone", "dns.port"})
     @BeforeClass
-    public void initialize(String host, int port, String databaseName, String timeZone)
+    public void initialize(String host, int port, String databaseName, String timeZone, int dnsPort)
     {
+        Lookup.getDefaultResolver().setPort(dnsPort);
         setup(host, port, databaseName, timeZone);
     }
 }
