@@ -30,7 +30,6 @@ SQL/DML/DDL Limitations
 
  * The SQL keyword ``end`` is used as a column name in ``system.runtime.queries``, so in order to query from that column, ``end`` must be wrapped in quotes
  * ``NATURAL JOIN`` is not supported
- * Scalar subqueries are not supported -- e.g. ``WHERE x = (SELECT y FROM ...)``
  * Correlated subqueries are not supported
  * Non-equi joins are only supported for inner join -- e.g. ``"n_name" < "p_name"``
  * ``EXISTS``, ``EXCEPT``, and ``INTERSECT`` are not supported
