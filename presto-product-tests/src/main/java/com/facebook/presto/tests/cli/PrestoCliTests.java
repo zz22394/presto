@@ -84,6 +84,10 @@ public class PrestoCliTests
     @Named("databases.presto.cli_keystore_password")
     private String keystorePassword;
 
+    @Inject(optional = true)
+    @Named("databases.presto.cli_kerberos_use_canonical_hostname")
+    private boolean kerberosUseCanonicalHostname;
+
     private PrestoCliProcess presto;
 
     public PrestoCliTests()
@@ -170,7 +174,8 @@ public class PrestoCliTests
             requireNonNull(keystorePath, "databases.presto.cli_keystore is null");
             requireNonNull(keystorePassword, "databases.presto.cli_keystore_password is null");
 
-            launchPrestoCli(ImmutableList.<String>builder().add(
+            ImmutableList.Builder<String> prestoClientOptions = ImmutableList.builder();
+            prestoClientOptions.add(
                     "--server", serverAddress,
                     "--enable-authentication",
                     "--krb5-principal", kerberosPrincipal,
@@ -178,8 +183,12 @@ public class PrestoCliTests
                     "--krb5-remote-service-name", kerberosServiceName,
                     "--krb5-config-path", kerberosConfigPath,
                     "--keystore-path", keystorePath,
-                    "--keystore-password", keystorePassword)
-                    .add(arguments).build());
+                    "--keystore-password", keystorePassword);
+            if (!kerberosUseCanonicalHostname) {
+                prestoClientOptions.add("--krb5-disable-remote-service-hostname-canonicalization");
+            }
+            prestoClientOptions.add(arguments);
+            launchPrestoCli(prestoClientOptions.build());
         }
     }
 
