@@ -16,6 +16,7 @@ package com.facebook.presto.hive.metastore;
 import com.facebook.presto.hive.TableAlreadyExistsException;
 import com.facebook.presto.spi.SchemaTableName;
 import com.facebook.presto.spi.TableNotFoundException;
+import com.facebook.presto.spi.security.Privilege;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -392,6 +393,18 @@ public class InMemoryHiveMetastore
                 .collect(toImmutableSet());
 
         setTablePrivileges(grantee, USER, databaseName, tableName, hivePrivileges);
+    }
+
+    @Override
+    public void revokeTablePrivileges(String databaseName, String tableName, String grantee, Set<PrivilegeGrantInfo> privilegeGrantInfoSet)
+    {
+        Set<HivePrivilege> currentPrivileges = getTablePrivileges(grantee, databaseName, tableName);
+        currentPrivileges.removeAll(privilegeGrantInfoSet.stream()
+                .map(HivePrivilege::parsePrivilege)
+                .flatMap(Collection::stream)
+                .collect(toImmutableSet()));
+
+        setTablePrivileges(grantee, USER, databaseName, tableName, currentPrivileges);
     }
 
     @Override
