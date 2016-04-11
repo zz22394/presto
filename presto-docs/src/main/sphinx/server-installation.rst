@@ -10,7 +10,7 @@ Automated Installation with Ambari 2.1
 Install and manage Presto using `Apache Ambari`_.
 
 | :doc:`Installation Instructions <installation/installation-ambari>`
-| Download :download:`presto-ambari-pkg`
+| Download **presto_ambari_pkg.141t.tar.gz** from :download:`teradata-presto`
 
 *Requires*:
 
@@ -31,7 +31,7 @@ Automated Installation with Ambari 2.1 with YARN integration
 Install and manage Presto integrated with YARN using the `Apache Slider`_ view for `Apache Ambari`_.
 
 | :doc:`Installation Instructions <installation/installation-yarn>`
-| The YARN package is included as part of the download :download:`presto-server-pkg`
+| Download the YARN Presto package included in **presto_server_pkg.141t.tar.gz** from :download:`teradata-presto`
 
 *Requires*:
 
@@ -53,7 +53,7 @@ Manual Installation via Presto-Admin
 Install and manage Presto manually using Presto-Admin.
 
 | :doc:`Installation Instructions <installation/installation-presto-admin>`
-| Download :download:`presto-server-pkg`
+| Download **presto_server_pkg.141t.tar.gz** from :download:`teradata-presto`
 
 *Requires*:
 
@@ -71,7 +71,7 @@ Manual Installation with YARN integration
 Install and manage Presto integrated with YARN manually using `Apache Slider`_.
 
 | :doc:`Installation Instructions <installation/installation-yarn>`
-| The YARN package is included as part of the download :download:`presto-server-pkg`
+| Download the YARN Presto package included in **presto_server_pkg.141t.tar.gz** from :download:`teradata-presto`
 | Download :download:`apache-slider`
 
 *Requires*:

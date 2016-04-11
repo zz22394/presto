@@ -23,17 +23,7 @@ TD_LINK_PRESTO = 'http://www.teradata.com/presto'
 
 GROUP_ID = 'com.facebook.presto'
 ARTIFACTS = {
-    'demo-cdh': ('presto-0.141t-demo-cdh', 'ova', TD_LINK_PRESTO),
-    'demo-hdp': ('presto-0.141t-demo-cdh', 'ova', TD_LINK_PRESTO),
-
-    'presto-server-pkg': ('presto_server_pkg.141t', 'tar.gz', TD_LINK_PRESTO),
-    'presto-ambari-pkg': ('presto_ambari_pkg.141t', 'tar.gz', TD_LINK_PRESTO),
-    'presto-client-pkg': ('presto_client_pkg.141t', 'tar.gz', TD_LINK_PRESTO),
-    'jdbc': ('presto_client_pkg.141', 'tar.gz', TD_LINK_PRESTO),
-
-    'odbc-documentation': ('Teradata ODBC Driver for Presto Install Guide', 'pdf', TD_LINK_PRESTO),
-    'presto-docs': ('presto-docs-0.141t-download', 'zip', TD_LINK_PRESTO),
-
+    'teradata-presto': ('www.teradata.com/presto', '', TD_LINK_PRESTO),
     'apache-slider': ('slider-assembly-0.80.0-incubating-all', 'tar.gz', TD_LINK_PRESTO)
 }
 

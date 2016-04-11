@@ -4,7 +4,7 @@ JDBC Driver
 
 Presto can be accessed from Java using the JDBC driver.  The JDBC driver
 requires Java 1.8.
-Download :download:`jdbc` which contains the JDBC jar. Add the jar to the class path of your Java application.
+Download the JDBC driver included in **presto_client_pkg.141t.tar.gz** from :download:`teradata-presto`. Add the JDBC jar to the class path of your Java application.
 The following JDBC URL formats are supported:
 
 .. code-block:: none

@@ -17,7 +17,7 @@ Try out Presto preinstalled with Cloudera on a Virtual Machine.
 * VirtualBox 5.0
 
 | :doc:`Documentation <sandboxes/presto-sandbox-cdh>`
-| Download :download:`demo-cdh`
+| Download **presto-0.141t-demo-cdh.ova** from :download:`teradata-presto`
 
 ----
 
@@ -30,7 +30,7 @@ Try out Presto preinstalled with Hortonworks on a Virtual Machine.
 * VirtualBox 5.0
 
 | :doc:`Documentation <sandboxes/presto-sandbox-hdp>`
-| Download :download:`demo-hdp`
+| Download **presto-0.141t-demo-hdp.ova** from :download:`teradata-presto`
 
 Presto Server Installation
 ==========================
@@ -51,6 +51,6 @@ Presto Documentation
 ====================
 This documentation is available for download as HTML.
 
-Download :download:`presto-docs`
+Download Presto Documentation from :download:`teradata-presto`
 
 
