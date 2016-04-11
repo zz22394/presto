@@ -40,7 +40,7 @@ public class TestBigintOperators
     {
         assertFunction("BIGINT '9223372036854775807'", BIGINT, 9223372036854775807L);
         assertFunction("BIGINT '-9223372036854775807'", BIGINT, -9223372036854775807L);
-        assertFunction("BIGINT '+754'", BIGINT, 754);
+        assertFunction("BIGINT '+754'", BIGINT, 754L);
     }
 
     @Test

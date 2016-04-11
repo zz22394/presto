@@ -93,7 +93,7 @@ public class TestArrayOperators
     public void testTypeConstructor()
             throws Exception
     {
-        assertFunction("ARRAY[7]", new ArrayType(BIGINT), ImmutableList.of(7L));
+        assertFunction("ARRAY[7]", new ArrayType(INTEGER), ImmutableList.of(7));
         assertFunction("ARRAY[12.34, 56.78]", new ArrayType(DOUBLE), ImmutableList.of(12.34, 56.78));
     }
 
