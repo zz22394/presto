@@ -180,7 +180,7 @@ public class JdbcRecordCursor
         checkState(!closed, "cursor is closed");
         try {
             Type type = getType(field);
-            if (type.equals(VarcharType.VARCHAR)) {
+            if (type instanceof VarcharType) {
                 return utf8Slice(resultSet.getString(field + 1));
             }
             if (type.equals(VarbinaryType.VARBINARY)) {
