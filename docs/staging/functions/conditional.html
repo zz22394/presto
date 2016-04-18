@@ -1,0 +1,410 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>5.3. Conditional Expressions &mdash; Teradata Presto 0.145-SNAPSHOT Documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/teradata.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="Teradata Presto 0.145-SNAPSHOT Documentation" href="../index.html"/>
+        <link rel="up" title="5. Functions and Operators" href="../functions.html"/>
+        <link rel="next" title="5.4. Conversion Functions" href="conversion.html"/>
+        <link rel="prev" title="5.2. Comparison Functions and Operators" href="comparison.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Teradata Presto
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.145-SNAPSHOT
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">1. Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">2. Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../admin.html">3. Administration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../connector.html">4. Connectors</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../functions.html">5. Functions and Operators</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="logical.html">5.1. Logical Operators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="comparison.html">5.2. Comparison Functions and Operators</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">5.3. Conditional Expressions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#case">CASE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#if">IF</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#coalesce">COALESCE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#nullif">NULLIF</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#try">TRY</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#examples">Examples</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="conversion.html">5.4. Conversion Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="math.html">5.5. Mathematical Functions and Operators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bitwise.html">5.6. Bitwise Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="decimal.html">5.7. Decimal Functions and Operators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="string.html">5.8. String Functions and Operators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="binary.html">5.9. Binary Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datetime.html">5.10. Date and Time Functions and Operators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="regexp.html">5.11. Regular Expression Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="json.html">5.12. JSON Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="url.html">5.13. URL Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="aggregate.html">5.14. Aggregate Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="window.html">5.15. Window Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="color.html">5.16. Color Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="array.html">5.17. Array Functions and Operators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="map.html">5.18. Map Functions and Operators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="teradata.html">5.19. Teradata Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../language.html">6. SQL Language</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sql.html">7. SQL Statement Syntax</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../migration.html">8. Migration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../develop.html">9. Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release.html">10. Release Notes</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">Teradata Presto</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+        <li><a href="../functions.html">5. Functions and Operators</a> &raquo;</li>
+      
+    <li>5.3. Conditional Expressions</li>
+    <li class="wy-breadcrumbs-aside">
+      
+        
+          <a href="../_sources/functions/conditional.txt" rel="nofollow"> View page source</a>
+        
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="conditional-expressions">
+<h1>5.3. Conditional Expressions</h1>
+<div class="section" id="case">
+<h2>CASE</h2>
+<p>The standard SQL <tt class="docutils literal"><span class="pre">CASE</span></tt> expression has two forms.
+The &#8220;simple&#8221; form searches each <tt class="docutils literal"><span class="pre">value</span></tt> expression from left to right
+until it finds one that equals <tt class="docutils literal"><span class="pre">expression</span></tt>:</p>
+<div class="highlight-none"><div class="highlight"><pre>CASE expression
+    WHEN value THEN result
+    [ WHEN ... ]
+    [ ELSE result ]
+END
+</pre></div>
+</div>
+<p>The <tt class="docutils literal"><span class="pre">result</span></tt> for the matching <tt class="docutils literal"><span class="pre">value</span></tt> is returned.
+If no match is found, the <tt class="docutils literal"><span class="pre">result</span></tt> from the <tt class="docutils literal"><span class="pre">ELSE</span></tt> clause is
+returned if it exists, otherwise null is returned. Example:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="k">SELECT</span> <span class="n">a</span><span class="p">,</span>
+       <span class="k">CASE</span> <span class="n">a</span>
+           <span class="k">WHEN</span> <span class="mi">1</span> <span class="k">THEN</span> <span class="s1">&#39;one&#39;</span>
+           <span class="k">WHEN</span> <span class="mi">2</span> <span class="k">THEN</span> <span class="s1">&#39;two&#39;</span>
+           <span class="k">ELSE</span> <span class="s1">&#39;many&#39;</span>
+       <span class="k">END</span>
+</pre></div>
+</div>
+<p>The &#8220;searched&#8221; form evaluates each boolean <tt class="docutils literal"><span class="pre">condition</span></tt> from left
+to right until one is true and returns the matching <tt class="docutils literal"><span class="pre">result</span></tt>:</p>
+<div class="highlight-none"><div class="highlight"><pre>CASE
+    WHEN condition THEN result
+    [ WHEN ... ]
+    [ ELSE result ]
+END
+</pre></div>
+</div>
+<p>If no conditions are true, the <tt class="docutils literal"><span class="pre">result</span></tt> from the <tt class="docutils literal"><span class="pre">ELSE</span></tt> clause is
+returned if it exists, otherwise null is returned. Example:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="k">SELECT</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span>
+       <span class="k">CASE</span>
+           <span class="k">WHEN</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">THEN</span> <span class="s1">&#39;aaa&#39;</span>
+           <span class="k">WHEN</span> <span class="n">b</span> <span class="o">=</span> <span class="mi">2</span> <span class="k">THEN</span> <span class="s1">&#39;bbb&#39;</span>
+           <span class="k">ELSE</span> <span class="s1">&#39;ccc&#39;</span>
+       <span class="k">END</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="if">
+<h2>IF</h2>
+<p>The <tt class="docutils literal"><span class="pre">IF</span></tt> function is actually a language construct
+that is equivalent to the following <tt class="docutils literal"><span class="pre">CASE</span></tt> expression:</p>
+<blockquote>
+<div><div class="highlight-none"><div class="highlight"><pre>CASE
+    WHEN condition THEN true_value
+    [ ELSE false_value ]
+END
+</pre></div>
+</div>
+</div></blockquote>
+<dl class="function">
+<dt>
+<tt class="descname">if</tt><big>(</big><em>condition</em>, <em>true_value</em><big>)</big></dt>
+<dd><p>Evaluates and returns <tt class="docutils literal"><span class="pre">true_value</span></tt> if <tt class="docutils literal"><span class="pre">condition</span></tt> is true,
+otherwise null is returned and <tt class="docutils literal"><span class="pre">true_value</span></tt> is not evaluated.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<tt class="descname">if</tt><big>(</big><em>condition</em>, <em>true_value</em>, <em>false_value</em><big>)</big></dt>
+<dd><p>Evaluates and returns <tt class="docutils literal"><span class="pre">true_value</span></tt> if <tt class="docutils literal"><span class="pre">condition</span></tt> is true,
+otherwise evaluates and returns <tt class="docutils literal"><span class="pre">false_value</span></tt>.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="coalesce">
+<h2>COALESCE</h2>
+<dl class="function">
+<dt>
+<tt class="descname">coalesce</tt><big>(</big><em>value</em><span class="optional">[</span>, <em>...</em><span class="optional">]</span><big>)</big></dt>
+<dd><p>Returns the first non-null <tt class="docutils literal"><span class="pre">value</span></tt> in the argument list.
+Like a <tt class="docutils literal"><span class="pre">CASE</span></tt> expression, arguments are only evaluated if necessary.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="nullif">
+<h2>NULLIF</h2>
+<dl class="function">
+<dt>
+<tt class="descname">nullif</tt><big>(</big><em>value1</em>, <em>value2</em><big>)</big></dt>
+<dd><p>Returns null if <tt class="docutils literal"><span class="pre">value1</span></tt> equals <tt class="docutils literal"><span class="pre">value2</span></tt>, otherwise returns <tt class="docutils literal"><span class="pre">value1</span></tt>.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="try">
+<h2>TRY</h2>
+<dl class="function">
+<dt>
+<tt class="descname">try</tt><big>(</big><em>expression</em><big>)</big></dt>
+<dd><p>Evaluate an expression and handle certain types of errors by returning
+<tt class="docutils literal"><span class="pre">NULL</span></tt>.</p>
+</dd></dl>
+
+<p>In cases where it is preferable that queries produce <tt class="docutils literal"><span class="pre">NULL</span></tt> or default values
+instead of failing when corrupt or invalid data is encountered, the <tt class="docutils literal"><span class="pre">TRY</span></tt>
+function may be useful. To specify default values, the <tt class="docutils literal"><span class="pre">TRY</span></tt> function can be
+used in conjunction with the <tt class="docutils literal"><span class="pre">COALESCE</span></tt> function.</p>
+<p>The following errors are handled by <tt class="docutils literal"><span class="pre">TRY</span></tt>:</p>
+<ul class="simple">
+<li>Division by zero</li>
+<li>Invalid cast or function argument</li>
+<li>Numeric value out of range</li>
+</ul>
+<div class="section" id="examples">
+<h3>Examples</h3>
+<p>Source table with some invalid data:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">shipping</span><span class="p">;</span>
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre> origin_state | origin_zip | packages | total_cost
+--------------+------------+----------+------------
+ California   |      94131 |       25 |        100
+ California   |      P332a |        5 |         72
+ California   |      94025 |        0 |        155
+ New Jersey   |      08544 |      225 |        490
+(4 rows)
+</pre></div>
+</div>
+<p>Query failure without <tt class="docutils literal"><span class="pre">TRY</span></tt>:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="k">SELECT</span> <span class="k">CAST</span><span class="p">(</span><span class="n">origin_zip</span> <span class="k">AS</span> <span class="nb">BIGINT</span><span class="p">)</span> <span class="k">FROM</span> <span class="n">shipping</span><span class="p">;</span>
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>Query failed: Can not cast &#39;P332a&#39; to BIGINT
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">NULL</span></tt> values with <tt class="docutils literal"><span class="pre">TRY</span></tt>:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="k">SELECT</span> <span class="n">TRY</span><span class="p">(</span><span class="k">CAST</span><span class="p">(</span><span class="n">origin_zip</span> <span class="k">AS</span> <span class="nb">BIGINT</span><span class="p">))</span> <span class="k">FROM</span> <span class="n">shipping</span><span class="p">;</span>
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre> origin_zip
+------------
+      94131
+ NULL
+      94025
+      08544
+(4 rows)
+</pre></div>
+</div>
+<p>Query failure without <tt class="docutils literal"><span class="pre">TRY</span></tt>:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="k">SELECT</span> <span class="n">total_cost</span> <span class="o">/</span> <span class="n">packages</span> <span class="k">AS</span> <span class="n">per_package</span> <span class="k">FROM</span> <span class="n">shipping</span><span class="p">;</span>
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>Query failed: / by zero
+</pre></div>
+</div>
+<p>Default values with <tt class="docutils literal"><span class="pre">TRY</span></tt> and <tt class="docutils literal"><span class="pre">COALESCE</span></tt>:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span class="k">SELECT</span> <span class="n">COALESCE</span><span class="p">(</span><span class="n">TRY</span><span class="p">(</span><span class="n">total_cost</span> <span class="o">/</span> <span class="n">packages</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span> <span class="k">AS</span> <span class="n">per_package</span> <span class="k">FROM</span> <span class="n">shipping</span><span class="p">;</span>
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre> per_package
+-------------
+          4
+         14
+          0
+         19
+(4 rows)
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="conversion.html" class="btn btn-neutral float-right" title="5.4. Conversion Functions" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="comparison.html" class="btn btn-neutral" title="5.2. Comparison Functions and Operators" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.145-SNAPSHOT',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
