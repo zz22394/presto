@@ -15,8 +15,8 @@
 package com.facebook.presto.execution;
 
 import com.facebook.presto.Session;
-import com.facebook.presto.sql.parser.ParsingOptions;
 import com.facebook.presto.sql.analyzer.SemanticException;
+import com.facebook.presto.sql.parser.ParsingOptions;
 import com.facebook.presto.sql.parser.SqlParser;
 import com.facebook.presto.sql.tree.AstExpressionRewriter;
 import com.facebook.presto.sql.tree.Execute;
@@ -28,6 +28,7 @@ import com.google.inject.Inject;
 
 import java.util.List;
 
+import static com.facebook.presto.SystemSessionProperties.isParseDecimalLiteralsAsDouble;
 import static com.facebook.presto.sql.analyzer.SemanticErrorCode.INCORRECT_NUMBER_OF_PARAMETERS;
 import static java.util.Objects.requireNonNull;
 
@@ -41,8 +42,9 @@ public class StatementCreator
         this.sqlParser = requireNonNull(sqlParser, "sqlParser is null");
     }
 
-    public Statement createStatement(String query, Session session, ParsingOptions parsingOptions)
+    public Statement createStatement(String query, Session session)
     {
+        ParsingOptions parsingOptions = new ParsingOptions().setParseDecimalLiteralsAsDouble(isParseDecimalLiteralsAsDouble(session));
         Statement statement = sqlParser.createStatement(query, parsingOptions);
         if (!(statement instanceof Execute)) {
             return statement;

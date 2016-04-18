@@ -307,14 +307,14 @@ public class StatementClient
             resetSessionProperties.add(clearSession);
         }
 
-        for (String entry : response.getHeaders().get(PRESTO_ADDED_PREPARE)) {
+        for (String entry : response.getHeaders(PRESTO_ADDED_PREPARE)) {
             List<String> keyValue = SESSION_HEADER_SPLITTER.splitToList(entry);
             if (keyValue.size() != 2) {
                 continue;
             }
             this.addedPreparedStatements.put(keyValue.get(0), keyValue.get(1));
         }
-        for (String entry : response.getHeaders().get(PRESTO_DEALLOCATED_PREPARE)) {
+        for (String entry : response.getHeaders(PRESTO_DEALLOCATED_PREPARE)) {
             this.deallocatedPreparedStatements.add(entry);
         }
 
