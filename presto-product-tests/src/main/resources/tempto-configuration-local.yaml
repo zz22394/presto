@@ -6,3 +6,19 @@ databases:
   presto:
     host: localhost
 
+  mysql:
+    jdbc_driver_class: com.mysql.jdbc.Driver
+    jdbc_url: jdbc:mysql://10.25.208.195:3306/test
+    jdbc_user: swarm
+    jdbc_password: swarm
+    jdbc_pooling: true
+    table_manager_type: jdbc
+
+  postgres:
+    jdbc_driver_class: org.postgresql.Driver
+    jdbc_url: jdbc:postgresql://10.25.208.210:5432/test
+    jdbc_user: swarm
+    jdbc_password: swarm
+    jdbc_pooling: true
+    table_manager_type: jdbc
+
