@@ -450,7 +450,7 @@ public abstract class AbstractTestHiveClient
                 connectorId,
                 metastoreClient,
                 hdfsEnvironment,
-                new HivePartitionManager(connectorId, hiveClientConfig),
+                new HivePartitionManager(connectorId, TYPE_MANAGER, hiveClientConfig),
                 timeZone,
                 10,
                 true,
