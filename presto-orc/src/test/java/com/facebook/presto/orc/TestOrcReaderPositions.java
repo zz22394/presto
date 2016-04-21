@@ -176,7 +176,7 @@ public class TestOrcReaderPositions
     public void testReadUserMetadata()
             throws Exception
     {
-        try (TempFile tempFile = new TempFile()) {
+        try (TempFile tempFile = new TempFile("test", "orc")) {
             Map<String, String> metadata = ImmutableMap.of(
                     "a", "ala",
                     "b", "ma",
