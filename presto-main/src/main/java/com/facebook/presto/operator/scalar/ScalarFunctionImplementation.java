@@ -13,7 +13,9 @@
  */
 package com.facebook.presto.operator.scalar;
 
+import com.facebook.presto.spi.ConnectorSession;
 import com.google.common.collect.ImmutableList;
+import io.airlift.slice.Slice;
 
 import java.lang.invoke.MethodHandle;
 import java.util.List;
@@ -29,6 +31,8 @@ public final class ScalarFunctionImplementation
     private final MethodHandle methodHandle;
     private final Optional<MethodHandle> instanceFactory;
     private final boolean deterministic;
+    private final boolean returnValueAsParameter;
+    private final Optional<Integer> returnValueSliceLength;
 
     public ScalarFunctionImplementation(boolean nullable, List<Boolean> nullableArguments, MethodHandle methodHandle, boolean deterministic)
     {
@@ -37,11 +41,48 @@ public final class ScalarFunctionImplementation
 
     public ScalarFunctionImplementation(boolean nullable, List<Boolean> nullableArguments, MethodHandle methodHandle, Optional<MethodHandle> instanceFactory, boolean deterministic)
     {
+        this(nullable, nullableArguments, methodHandle, instanceFactory, deterministic, false, Optional.empty());
+    }
+
+    public ScalarFunctionImplementation(
+            boolean nullable,
+            List<Boolean> nullableArguments,
+            MethodHandle methodHandle,
+            Optional<MethodHandle> instanceFactory,
+            boolean deterministic,
+            boolean returnValueAsParameter,
+            Optional<Integer> returnValueSliceLength)
+    {
         this.nullable = nullable;
         this.nullableArguments = ImmutableList.copyOf(requireNonNull(nullableArguments, "nullableArguments is null"));
         this.methodHandle = requireNonNull(methodHandle, "methodHandle is null");
         this.instanceFactory = requireNonNull(instanceFactory, "instanceFactory is null");
         this.deterministic = deterministic;
+        this.returnValueAsParameter = returnValueAsParameter;
+        this.returnValueSliceLength = returnValueSliceLength;
+
+        int expectedParametersCount = methodHandle.type().parameterCount();
+        if (returnValueAsParameter) {
+            expectedParametersCount--;
+        }
+        if (instanceFactory.isPresent()) {
+            expectedParametersCount--;
+        }
+        if (methodHandle.type().parameterCount() >= 1 && methodHandle.type().parameterType(0) == ConnectorSession.class) {
+            expectedParametersCount--;
+        }
+        checkArgument(nullableArguments.size() == expectedParametersCount, "method handle parameters count mismatch");
+
+        if (returnValueAsParameter) {
+            checkArgument(!nullable, "nullable not supported for functions returning value as parameter");
+            checkArgument(getMethodHandle().type().returnType() == void.class, "methodHandle returns non-void for function returning value as parameter");
+            int returnParameterPos = instanceFactory.isPresent() ? 1 : 0;
+            checkArgument(getMethodHandle().type().parameterType(returnParameterPos) == Slice.class, "only Slice parameters supported as return parameter");
+            checkArgument(returnValueSliceLength.isPresent(), "returnValuesSliceLength not set");
+        }
+        else {
+            checkArgument(!returnValueSliceLength.isPresent(), "returnValueSliceLength set for non Slice return parameter");
+        }
 
         if (instanceFactory.isPresent()) {
             Class<?> instanceType = instanceFactory.get().type().returnType();
@@ -72,5 +113,15 @@ public final class ScalarFunctionImplementation
     public boolean isDeterministic()
     {
         return deterministic;
+    }
+
+    public boolean isReturnValueAsParameter()
+    {
+        return returnValueAsParameter;
+    }
+
+    public Optional<Integer> getReturnValueSliceLength()
+    {
+        return returnValueSliceLength;
     }
 }
