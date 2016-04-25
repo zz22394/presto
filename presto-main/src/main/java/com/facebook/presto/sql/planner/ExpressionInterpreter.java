@@ -77,6 +77,7 @@ import com.facebook.presto.util.Failures;
 import com.facebook.presto.util.FastutilSetHelper;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Functions;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -85,6 +86,7 @@ import com.google.common.collect.Lists;
 import io.airlift.joni.Regex;
 import io.airlift.json.JsonCodec;
 import io.airlift.slice.Slice;
+import io.airlift.slice.Slices;
 
 import java.lang.invoke.MethodHandle;
 import java.util.ArrayList;
@@ -1088,6 +1090,11 @@ public class ExpressionInterpreter
         }
         if (handle.type().parameterCount() > 0 && handle.type().parameterType(0) == ConnectorSession.class) {
             handle = handle.bindTo(session);
+        }
+        Optional<Slice> returnValue = Optional.empty();
+        if (function.isReturnValueAsParameter()) {
+            Preconditions.checkArgument(handle.type().parameterType(0) == Slice.class, "only Slice supported as return parameter");
+            returnValue = Slices.allocate(function.getReturnValueSliceLength().get());
         }
         try {
             return handle.invokeWithArguments(argumentValues);
