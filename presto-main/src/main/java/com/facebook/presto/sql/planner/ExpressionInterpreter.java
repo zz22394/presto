@@ -1094,10 +1094,17 @@ public class ExpressionInterpreter
         Optional<Slice> returnValue = Optional.empty();
         if (function.isReturnValueAsParameter()) {
             Preconditions.checkArgument(handle.type().parameterType(0) == Slice.class, "only Slice supported as return parameter");
-            returnValue = Slices.allocate(function.getReturnValueSliceLength().get());
+            returnValue = Optional.of(Slices.allocate(function.getReturnValueSliceLength().get()));
+            handle = handle.bindTo(returnValue.get());
         }
         try {
-            return handle.invokeWithArguments(argumentValues);
+            if (returnValue.isPresent()) {
+                handle.invokeWithArguments(argumentValues);
+                return returnValue.get();
+            }
+            else {
+                return handle.invokeWithArguments(argumentValues);
+            }
         }
         catch (Throwable throwable) {
             if (throwable instanceof InterruptedException) {
