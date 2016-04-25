@@ -16,13 +16,14 @@ package com.facebook.presto.operator.aggregation.state;
 import com.facebook.presto.spi.block.Block;
 import com.facebook.presto.spi.block.BlockBuilder;
 import com.facebook.presto.spi.type.Type;
-import io.airlift.slice.DynamicSliceOutput;
+import io.airlift.slice.Slice;
 import io.airlift.slice.SliceInput;
+import io.airlift.slice.SliceOutput;
+import io.airlift.slice.Slices;
 
-import static com.facebook.presto.spi.type.LongDecimalType.unscaledValueToBigInteger;
-import static com.facebook.presto.spi.type.LongDecimalType.unscaledValueToSlice;
+import java.math.BigInteger;
+
 import static com.facebook.presto.spi.type.VarbinaryType.VARBINARY;
-import static io.airlift.slice.SizeOf.SIZE_OF_LONG;
 
 public class BigIntegerAndLongStateSerializer
         implements AccumulatorStateSerializer<BigIntegerAndLongState>
@@ -40,10 +41,12 @@ public class BigIntegerAndLongStateSerializer
             out.appendNull();
         }
         else {
-            DynamicSliceOutput sliceOutput = new DynamicSliceOutput((int) state.getEstimatedSize() + SIZE_OF_LONG);
-            sliceOutput.writeLong(state.getLong());
-            sliceOutput.writeBytes(unscaledValueToSlice(state.getBigInteger()));
-            VARBINARY.writeSlice(out, sliceOutput.slice());
+            byte[] bigIntegerBytes = state.getBigInteger().toByteArray();
+            Slice slice = Slices.allocate(Long.BYTES + bigIntegerBytes.length);
+            SliceOutput output = slice.getOutput();
+            output.writeLong(state.getLong());
+            output.writeBytes(bigIntegerBytes);
+            VARBINARY.writeSlice(out, slice);
         }
     }
 
@@ -53,7 +56,8 @@ public class BigIntegerAndLongStateSerializer
         if (!block.isNull(index)) {
             SliceInput slice = VARBINARY.getSlice(block, index).getInput();
             state.setLong(slice.readLong());
-            state.setBigInteger(unscaledValueToBigInteger(slice.readSlice(slice.available())));
+            byte[] bigIntegerBytes = slice.readSlice(slice.available()).getBytes();
+            state.setBigInteger(new BigInteger(bigIntegerBytes));
         }
     }
 }
