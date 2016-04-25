@@ -150,7 +150,7 @@ public final class BigintInMemoryJoinHash
     }
 
     @Override
-    public long getJoinPosition(int position, Page page, int rawHash)
+    public long getJoinPosition(int position, Page page, long rawHash)
     {
         return getJoinPosition(position, page);
     }
