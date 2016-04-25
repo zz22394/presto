@@ -62,6 +62,7 @@ import com.facebook.presto.sql.tree.FrameBound;
 import com.facebook.presto.sql.tree.FunctionCall;
 import com.facebook.presto.sql.tree.GroupBy;
 import com.facebook.presto.sql.tree.GroupingElement;
+import com.facebook.presto.sql.tree.GroupingOperation;
 import com.facebook.presto.sql.tree.InPredicate;
 import com.facebook.presto.sql.tree.Insert;
 import com.facebook.presto.sql.tree.Intersect;
@@ -179,6 +180,7 @@ import static com.facebook.presto.sql.analyzer.SemanticErrorCode.MUST_BE_WINDOW_
 import static com.facebook.presto.sql.analyzer.SemanticErrorCode.NESTED_WINDOW;
 import static com.facebook.presto.sql.analyzer.SemanticErrorCode.NON_NUMERIC_SAMPLE_PERCENTAGE;
 import static com.facebook.presto.sql.analyzer.SemanticErrorCode.NOT_SUPPORTED;
+import static com.facebook.presto.sql.analyzer.SemanticErrorCode.NO_CORRESPONDING_GROUPING_SET_ROLLUP_CUBE_TO_GROUPING;
 import static com.facebook.presto.sql.analyzer.SemanticErrorCode.ORDER_BY_MUST_BE_IN_SELECT;
 import static com.facebook.presto.sql.analyzer.SemanticErrorCode.SCHEMA_NOT_SPECIFIED;
 import static com.facebook.presto.sql.analyzer.SemanticErrorCode.TABLE_ALREADY_EXISTS;
@@ -1502,6 +1504,17 @@ class StatementAnalyzer
     private List<List<FieldOrExpression>> analyzeGroupBy(QuerySpecification node, RelationType tupleDescriptor, AnalysisContext context, List<FieldOrExpression> outputExpressions)
     {
         List<Set<Expression>> computedGroupingSets = ImmutableList.of(); // empty list = no aggregations
+
+        boolean isGroupingOperationPresent = outputExpressions.stream()
+                .filter((outputFieldOrExpression) -> (outputFieldOrExpression.isExpression()))
+                .anyMatch((expression) -> (expression.getExpression() instanceof GroupingOperation));
+
+        if (isGroupingOperationPresent && !node.getGroupBy().isPresent()) {
+            throw new SemanticException(
+                    NO_CORRESPONDING_GROUPING_SET_ROLLUP_CUBE_TO_GROUPING,
+                    node,
+                    "A GROUPING() operation can only be used with a corresponding GROUPING SET/CUBE/ROLLUP/GROUP BY clause");
+        }
 
         if (node.getGroupBy().isPresent()) {
             List<List<Set<Expression>>> enumeratedGroupingSets = node.getGroupBy().get().getGroupingElements().stream()
