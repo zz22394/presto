@@ -29,6 +29,7 @@ public final class VarcharType
     public static final int UNBOUNDED_LENGTH = Integer.MAX_VALUE;
     public static final int MAX_LENGTH = Integer.MAX_VALUE - 1;
     public static final VarcharType VARCHAR = new VarcharType(UNBOUNDED_LENGTH);
+    public static final String VARCHAR_MAX_LENGTH = "varchar(2147483647)";
 
     public static VarcharType createUnboundedVarcharType()
     {
@@ -42,6 +43,11 @@ public final class VarcharType
             throw new IllegalArgumentException("Invalid VARCHAR length " + length);
         }
         return new VarcharType(length);
+    }
+
+    public static TypeSignature getParametrizedVarcharSignature(String param)
+    {
+        return new TypeSignature(StandardTypes.VARCHAR, TypeSignatureParameter.of(param));
     }
 
     private final int length;
