@@ -13,7 +13,6 @@
  */
 package com.facebook.presto.operator.aggregation;
 
-import com.facebook.presto.operator.aggregation.state.AccumulatorStateSerializer;
 import com.facebook.presto.operator.aggregation.state.CorrelationState;
 import com.facebook.presto.operator.aggregation.state.CovarianceState;
 import com.facebook.presto.operator.aggregation.state.RegressionState;
@@ -21,7 +20,6 @@ import com.facebook.presto.operator.aggregation.state.VarianceState;
 import com.facebook.presto.spi.Page;
 import com.facebook.presto.spi.block.Block;
 import com.facebook.presto.spi.type.Type;
-import com.facebook.presto.spi.type.TypeManager;
 import com.facebook.presto.spi.type.TypeSignature;
 import com.google.common.base.CaseFormat;
 
@@ -126,14 +124,10 @@ public final class AggregationUtils
         state.setSumXSquare(state.getSumXSquare() + otherState.getSumXSquare());
     }
 
-    public static Type getOutputType(@Nullable Method outputFunction, AccumulatorStateSerializer<?> serializer, TypeManager typeManager)
+    public static TypeSignature getOutputTypeSignature(@Nullable Method outputFunction)
     {
-        if (outputFunction == null) {
-            return serializer.getSerializedType();
-        }
-        else {
-            return typeManager.getType(TypeSignature.parseTypeSignature(outputFunction.getAnnotation(OutputFunction.class).value()));
-        }
+        checkArgument(outputFunction != null);
+        return TypeSignature.parseTypeSignature(outputFunction.getAnnotation(OutputFunction.class).value());
     }
 
     public static String generateAggregationName(String baseName, Type outputType, List<Type> inputTypes)
