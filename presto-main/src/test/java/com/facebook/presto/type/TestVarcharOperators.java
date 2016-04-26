@@ -63,6 +63,7 @@ public class TestVarcharOperators
         assertFunction("'foo' || 'bar'", VARCHAR, "foo" + "bar");
         assertFunction("'bar' || 'foo'", VARCHAR, "bar" + "foo");
         assertFunction("'bar' || 'bar'", VARCHAR, "bar" + "bar");
+        assertFunction("'bar' || 'barbaz'", VARCHAR, "bar" + "barbaz");
         assertFunction("null || 'bar'", createVarcharType(3), null);
         assertFunction("'foo' || null", createVarcharType(3), null);
     }

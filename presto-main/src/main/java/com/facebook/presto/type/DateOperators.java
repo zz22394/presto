@@ -122,7 +122,9 @@ public final class DateOperators
     }
 
     @ScalarOperator(CAST)
-    @SqlType(StandardTypes.VARCHAR)
+    @LiteralParameters("x")
+    @SqlType("varchar(x)")
+    // FIXME @Constraint(variable = "x", expression = "x >= 16")
     public static Slice castToSlice(@SqlType(StandardTypes.DATE) long value)
     {
         return utf8Slice(printDate((int) value));
@@ -130,8 +132,9 @@ public final class DateOperators
 
     @ScalarFunction("date")
     @ScalarOperator(CAST)
+    @LiteralParameters("x")
     @SqlType(StandardTypes.DATE)
-    public static long castFromSlice(ConnectorSession session, @SqlType(StandardTypes.VARCHAR) Slice value)
+    public static long castFromSlice(ConnectorSession session, @SqlType("varchar(x)") Slice value)
     {
         try {
             final long timestampValue = parseTimestampWithTimeZone(session.getTimeZoneKey(), trim(value).toStringUtf8());
