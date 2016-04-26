@@ -14,8 +14,6 @@
 package com.facebook.presto.metadata;
 
 import com.facebook.presto.operator.Description;
-import com.facebook.presto.operator.aggregation.GenericAggregationFunctionFactory;
-import com.facebook.presto.operator.aggregation.InternalAggregationFunction;
 import com.facebook.presto.operator.scalar.annotations.ScalarFromAnnotationsParser;
 import com.facebook.presto.operator.window.ReflectionWindowFunctionSupplier;
 import com.facebook.presto.operator.window.SqlWindowFunction;
@@ -37,7 +35,6 @@ import static com.facebook.presto.metadata.FunctionKind.WINDOW;
 import static com.facebook.presto.metadata.Signature.typeVariable;
 import static com.facebook.presto.spi.type.TypeSignature.parseTypeSignature;
 import static com.facebook.presto.util.ImmutableCollectors.toImmutableList;
-import static java.util.Locale.ENGLISH;
 import static java.util.Objects.requireNonNull;
 
 public class FunctionListBuilder
@@ -74,27 +71,9 @@ public class FunctionListBuilder
         return this;
     }
 
-    public FunctionListBuilder aggregate(List<InternalAggregationFunction> functions)
-    {
-        for (InternalAggregationFunction function : functions) {
-            aggregate(function);
-        }
-        return this;
-    }
-
-    public FunctionListBuilder aggregate(InternalAggregationFunction function)
-    {
-        String name = function.name();
-        name = name.toLowerCase(ENGLISH);
-
-        String description = getDescription(function.getClass());
-        functions.add(SqlAggregationFunction.create(name, description, function));
-        return this;
-    }
-
     public FunctionListBuilder aggregate(Class<?> aggregationDefinition)
     {
-        functions.addAll(GenericAggregationFunctionFactory.fromAggregationDefinition(aggregationDefinition, typeManager).listFunctions());
+        functions.addAll(SqlAggregationFunction.createByAnnotations(aggregationDefinition));
         return this;
     }
 
