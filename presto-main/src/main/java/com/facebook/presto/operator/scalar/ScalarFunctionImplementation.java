@@ -13,19 +13,43 @@
  */
 package com.facebook.presto.operator.scalar;
 
+import com.facebook.presto.bytecode.BytecodeBlock;
+import com.facebook.presto.bytecode.ClassDefinition;
+import com.facebook.presto.bytecode.MethodDefinition;
+import com.facebook.presto.bytecode.Parameter;
+import com.facebook.presto.bytecode.Variable;
 import com.facebook.presto.spi.ConnectorSession;
+import com.facebook.presto.sql.gen.CallSiteBinder;
+import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
 import io.airlift.slice.Slice;
+import io.airlift.slice.Slices;
 
 import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Optional;
 
+import static com.facebook.presto.bytecode.Access.FINAL;
+import static com.facebook.presto.bytecode.Access.PUBLIC;
+import static com.facebook.presto.bytecode.Access.STATIC;
+import static com.facebook.presto.bytecode.Access.a;
+import static com.facebook.presto.bytecode.CompilerUtils.defineClass;
+import static com.facebook.presto.bytecode.CompilerUtils.makeClassName;
+import static com.facebook.presto.bytecode.Parameter.arg;
+import static com.facebook.presto.bytecode.ParameterizedType.type;
+import static com.facebook.presto.bytecode.expression.BytecodeExpressions.constantInt;
+import static com.facebook.presto.sql.gen.BytecodeUtils.invoke;
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Objects.requireNonNull;
 
 public final class ScalarFunctionImplementation
 {
+    private static final String GENERATED_METHOD_NAME = "scalar";
+
     private final boolean nullable;
     private final List<Boolean> nullableArguments;
     private final MethodHandle methodHandle;
@@ -33,6 +57,7 @@ public final class ScalarFunctionImplementation
     private final boolean deterministic;
     private final boolean returnValueAsParameter;
     private final Optional<Integer> returnValueSliceLength;
+    private ScalarFunctionImplementation returnValuesAsReturnImplementation;
 
     public ScalarFunctionImplementation(boolean nullable, List<Boolean> nullableArguments, MethodHandle methodHandle, boolean deterministic)
     {
@@ -123,5 +148,81 @@ public final class ScalarFunctionImplementation
     public Optional<Integer> getReturnValueSliceLength()
     {
         return returnValueSliceLength;
+    }
+
+    public synchronized ScalarFunctionImplementation ensureReturnValueAsReturn()
+    {
+        if (!returnValueAsParameter) {
+            return this;
+        }
+        if (returnValuesAsReturnImplementation == null) {
+            MethodHandle newMethodHandle = generateReturnAsReturnMethodHandler(this.methodHandle, returnValueSliceLength.get(), instanceFactory.isPresent());
+            returnValuesAsReturnImplementation = new ScalarFunctionImplementation(
+                    nullable,
+                    nullableArguments,
+                    newMethodHandle,
+                    instanceFactory,
+                    deterministic,
+                    false,
+                    Optional.empty());
+        }
+        return returnValuesAsReturnImplementation;
+    }
+
+    private MethodHandle generateReturnAsReturnMethodHandler(MethodHandle originalMethodHandle, int returnValueSliceLength, boolean usesInstance)
+    {
+        MethodType originalMethodType = originalMethodHandle.type();
+        CallSiteBinder callSiteBinder = new CallSiteBinder();
+        ClassDefinition classDefinition = new ClassDefinition(
+                a(PUBLIC, FINAL),
+                makeClassName("ScalarImplementation"),
+                type(Object.class));
+
+        List<Parameter> newParameters = newArrayList();
+        for (int i = 0; i < originalMethodType.parameterCount(); ++i) {
+            if (i != (usesInstance ? 1 : 0)) {
+                newParameters.add(arg("p" + i, originalMethodType.parameterType(i)));
+            }
+        }
+        MethodDefinition methodDefinition = classDefinition.declareMethod(a(PUBLIC, STATIC), GENERATED_METHOD_NAME, type(Slice.class), newParameters);
+
+        Variable returnVariable = methodDefinition.getScope().declareVariable(Slice.class, "returnValue");
+        BytecodeBlock methodBody = methodDefinition.getBody();
+
+        methodBody.append(constantInt(returnValueSliceLength))
+                .invokeStatic(Slices.class, "allocate", Slice.class, int.class)
+                .putVariable(returnVariable);
+
+        if (usesInstance) {
+            methodBody.append(newParameters.get(0));
+        }
+        methodBody.getVariable(returnVariable);
+        for (int i = usesInstance ? 1 : 0; i < newParameters.size(); ++i) {
+            methodBody.append(newParameters.get(i));
+        }
+        methodBody.append(invoke(callSiteBinder.bind(originalMethodHandle), "originalMethod"));
+        methodBody.getVariable(returnVariable);
+        methodBody.ret(Slice.class);
+
+        Class<?> generatedClass = defineClass(classDefinition, Object.class, callSiteBinder.getBindings(), getClass().getClassLoader());
+        return lookupNewMethodHandle(generatedClass);
+    }
+
+    private MethodHandle lookupNewMethodHandle(Class<?> generatedClass)
+    {
+        MethodHandle newMethodHandle = null;
+        for (Method method : generatedClass.getDeclaredMethods()) {
+            if (method.getName().equals(GENERATED_METHOD_NAME)) {
+                try {
+                    newMethodHandle = MethodHandles.lookup().unreflect(method);
+                }
+                catch (IllegalAccessException e) {
+                    Throwables.propagate(e);
+                }
+                break;
+            }
+        }
+        requireNonNull(newMethodHandle, "Did not find scalar method in declared class");
+        return newMethodHandle;
     }
 }
