@@ -417,6 +417,7 @@ public final class SqlQueryExecution
                 queryInfo.getSetSessionProperties(),
                 queryInfo.getResetSessionProperties(),
                 queryInfo.getAddedPreparedStatements(),
+                queryInfo.getDeallocatedPreparedStatements(),
                 queryInfo.getStartedTransactionId(),
                 queryInfo.isClearTransactionId(),
                 queryInfo.getUpdateType(),
