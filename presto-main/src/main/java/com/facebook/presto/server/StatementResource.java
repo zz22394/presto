@@ -94,6 +94,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import static com.facebook.presto.client.PrestoHeaders.PRESTO_ADDED_PREPARE;
 import static com.facebook.presto.client.PrestoHeaders.PRESTO_CLEAR_SESSION;
 import static com.facebook.presto.client.PrestoHeaders.PRESTO_CLEAR_TRANSACTION_ID;
+import static com.facebook.presto.client.PrestoHeaders.PRESTO_DEALLOCATED_PREPARE;
 import static com.facebook.presto.client.PrestoHeaders.PRESTO_SET_SESSION;
 import static com.facebook.presto.client.PrestoHeaders.PRESTO_STARTED_TRANSACTION_ID;
 import static com.facebook.presto.server.ResourceUtil.assertRequest;
@@ -226,6 +227,18 @@ public class StatementResource
                     }
                 });
 
+        // add deallocated prepare statements
+        query.getDeallocatedPreparedStatements().stream()
+                .forEach(name -> {
+                    try {
+                        String encodedName = encode(name, "UTF-8");
+                        response.header(PRESTO_DEALLOCATED_PREPARE, encodedName);
+                    }
+                    catch (UnsupportedEncodingException e) {
+                        throw new AssertionError("Cannot encode statement: UTF-8 encoding unsupported");
+                    }
+                });
+
         // add new transaction ID
         query.getStartedTransactionId()
                 .ifPresent(transactionId -> response.header(PRESTO_STARTED_TRANSACTION_ID, transactionId));
@@ -242,7 +255,7 @@ public class StatementResource
     @Path("{queryId}/{token}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response cancelQuery(@PathParam("queryId") QueryId queryId,
-            @PathParam("token") long token)
+                                @PathParam("token") long token)
     {
         Query query = queries.get(queryId);
         if (query == null) {
@@ -281,6 +294,9 @@ public class StatementResource
         private Map<String, String> addedPreparedStatements;
 
         @GuardedBy("this")
+        private Set<String> deallocatedPreparedStatements;
+
+        @GuardedBy("this")
         private Optional<TransactionId> startedTransactionId;
 
         @GuardedBy("this")
@@ -290,9 +306,9 @@ public class StatementResource
         private Long updateCount;
 
         public Query(Session session,
-                String query,
-                QueryManager queryManager,
-                ExchangeClient exchangeClient)
+                     String query,
+                     QueryManager queryManager,
+                     ExchangeClient exchangeClient)
         {
             requireNonNull(session, "session is null");
             requireNonNull(query, "query is null");
@@ -336,6 +352,11 @@ public class StatementResource
         public synchronized Map<String, String> getAddedPreparedStatements()
         {
             return addedPreparedStatements;
+        }
+
+        public synchronized Set<String> getDeallocatedPreparedStatements()
+        {
+            return deallocatedPreparedStatements;
         }
 
         public synchronized Optional<TransactionId> getStartedTransactionId()
@@ -430,6 +451,7 @@ public class StatementResource
 
             // update preparedStatements
             addedPreparedStatements = queryInfo.getAddedPreparedStatements();
+            deallocatedPreparedStatements = queryInfo.getDeallocatedPreparedStatements();
 
             // update startedTransactionId
             startedTransactionId = queryInfo.getStartedTransactionId();
