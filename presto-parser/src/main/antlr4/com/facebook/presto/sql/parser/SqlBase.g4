@@ -76,6 +76,7 @@ statement
         (WHERE booleanExpression)?
         (ORDER BY sortItem (',' sortItem)*)?
         (LIMIT limit=(INTEGER_VALUE | ALL))?                           #showPartitions
+    | PREPARE identifier FROM statement                                #prepare
     ;
 
 query
@@ -587,6 +588,7 @@ READ: 'READ';
 WRITE: 'WRITE';
 ONLY: 'ONLY';
 CALL: 'CALL';
+PREPARE: 'PREPARE';
 
 NORMALIZE: 'NORMALIZE';
 NFD : 'NFD';
