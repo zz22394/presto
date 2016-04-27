@@ -159,6 +159,7 @@ public final class BytecodeUtils
 
     public static BytecodeNode generateInvocation(Scope scope, String name, ScalarFunctionImplementation function, Optional<BytecodeNode> instance, List<BytecodeNode> arguments, Binding binding)
     {
+        checkArgument(!function.isReturnValueAsParameter(), "return value as parameter not supported");
         MethodType methodType = binding.getType();
 
         Class<?> returnType = methodType.returnType();

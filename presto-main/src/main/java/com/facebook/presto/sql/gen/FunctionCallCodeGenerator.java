@@ -31,7 +31,7 @@ public class FunctionCallCodeGenerator
     {
         FunctionRegistry registry = context.getRegistry();
 
-        ScalarFunctionImplementation function = registry.getScalarFunctionImplementation(signature);
+        ScalarFunctionImplementation function = registry.getScalarFunctionImplementation(signature).ensureReturnValueAsReturn();
 
         List<BytecodeNode> argumentsBytecode = new ArrayList<>();
         for (RowExpression argument : arguments) {

@@ -791,7 +791,7 @@ public class ReflectionParametricScalar
         public MethodHandle resolve(Map<String, Type> types, TypeManager typeManager, FunctionRegistry functionRegistry)
         {
             Signature signature = FunctionRegistry.bindSignature(this.signature, types, this.signature.getArgumentTypes().size());
-            return functionRegistry.getScalarFunctionImplementation(signature).getMethodHandle();
+            return functionRegistry.getScalarFunctionImplementation(signature).ensureReturnValueAsReturn().getMethodHandle();
         }
     }
 
