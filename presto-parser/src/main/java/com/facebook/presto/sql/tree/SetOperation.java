@@ -13,14 +13,37 @@
  */
 package com.facebook.presto.sql.tree;
 
+import java.util.List;
 import java.util.Optional;
 
 public abstract class SetOperation
         extends QueryBody
 {
-    protected SetOperation(Optional<NodeLocation> location)
+    private final Type type;
+    private final boolean distinct;
+
+    public enum Type
+    {
+        UNION,
+        INTERSECT,
+        EXCEPT;
+    }
+
+    protected SetOperation(Type type, Optional<NodeLocation> location, boolean distinct)
     {
         super(location);
+        this.type = type;
+        this.distinct = distinct;
+    }
+
+    public boolean isDistinct()
+    {
+        return distinct;
+    }
+
+    public Type getType()
+    {
+        return type;
     }
 
     @Override
@@ -28,4 +51,6 @@ public abstract class SetOperation
     {
         return visitor.visitSetOperation(this, context);
     }
+
+    public abstract List<Relation> getRelations();
 }

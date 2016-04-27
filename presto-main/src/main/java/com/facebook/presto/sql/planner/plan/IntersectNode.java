@@ -15,7 +15,6 @@ package com.facebook.presto.sql.planner.plan;
 
 import com.facebook.presto.sql.planner.Symbol;
 import com.facebook.presto.sql.tree.SetOperation.Type;
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ListMultimap;
 
@@ -24,22 +23,21 @@ import javax.annotation.concurrent.Immutable;
 import java.util.List;
 
 @Immutable
-public class UnionNode
+public class IntersectNode
         extends SetOperationNode
 {
-    @JsonCreator
-    public UnionNode(
+    public IntersectNode(
             @JsonProperty("id") PlanNodeId id,
             @JsonProperty("sources") List<PlanNode> sources,
             @JsonProperty("symbolMapping") ListMultimap<Symbol, Symbol> symbolMapping,
             @JsonProperty("outputs") List<Symbol> outputs)
     {
-        super(id, Type.UNION, sources, symbolMapping, outputs);
+        super(id, Type.INTERSECT, sources, symbolMapping, outputs);
     }
 
     @Override
     public <C, R> R accept(PlanVisitor<C, R> visitor, C context)
     {
-        return visitor.visitUnion(this, context);
+        return visitor.visitIntersect(this, context);
     }
 }
