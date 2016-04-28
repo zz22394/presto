@@ -82,7 +82,6 @@ public class BytecodeGeneratorContext
      */
     public BytecodeNode generateCall(String name, ScalarFunctionImplementation function, List<BytecodeNode> arguments)
     {
-        function = function.ensureReturnValueAsReturn();
         Binding binding = callSiteBinder.bind(function.getMethodHandle());
         Optional<BytecodeNode> instance = Optional.empty();
         if (function.getInstanceFactory().isPresent()) {
