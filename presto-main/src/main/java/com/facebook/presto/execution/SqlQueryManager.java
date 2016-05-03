@@ -57,6 +57,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.facebook.presto.SystemSessionProperties.isParseDecimalLiteralsAsDouble;
+import static com.facebook.presto.execution.QueryState.FINISHED;
 import static com.facebook.presto.execution.QueryState.RUNNING;
 import static com.facebook.presto.spi.StandardErrorCode.ABANDONED_QUERY;
 import static com.facebook.presto.spi.StandardErrorCode.EXCEEDED_TIME_LIMIT;
@@ -271,7 +272,7 @@ public class SqlQueryManager
     }
 
     @Override
-    public QueryInfo createQuery(Session session, String query)
+    public QueryInfo createQuery(final Session session, String query)
     {
         requireNonNull(query, "query is null");
         checkArgument(!query.isEmpty(), "query must not be empty string");
@@ -322,6 +323,11 @@ public class SqlQueryManager
         queryMonitor.createdEvent(queryInfo);
 
         queryExecution.addStateChangeListener(newValue -> {
+            if (newValue.equals(FINISHED)) {
+                if (queryExecution instanceof SqlQueryExecution) {
+                    ((SqlQueryExecution) queryExecution).getMetadata().finishSelect(session);
+                }
+            }
             if (newValue.isDone()) {
                 try {
                     QueryInfo info = queryExecution.getQueryInfo();
