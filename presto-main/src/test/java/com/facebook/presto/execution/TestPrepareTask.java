@@ -31,6 +31,7 @@ import java.net.URI;
 import java.util.concurrent.ExecutorService;
 
 import static com.facebook.presto.SessionTestUtils.TEST_SESSION;
+import static com.facebook.presto.metadata.MetadataManager.createTestMetadataManager;
 import static com.facebook.presto.sql.QueryUtil.selectList;
 import static com.facebook.presto.sql.QueryUtil.simpleQuery;
 import static com.facebook.presto.sql.QueryUtil.table;
@@ -41,7 +42,7 @@ import static org.testng.Assert.assertEquals;
 
 public class TestPrepareTask
 {
-    private final MetadataManager metadata = MetadataManager.createTestMetadataManager();
+    private final MetadataManager metadata = createTestMetadataManager();
     private final ExecutorService executor = newCachedThreadPool(daemonThreadsNamed("stage-executor-%s"));
 
     @AfterClass(alwaysRun = true)
@@ -77,7 +78,7 @@ public class TestPrepareTask
     private QueryStateMachine executePrepare(String statementName, Query query, String sqlString, Session session)
     {
         TransactionManager transactionManager = createTestTransactionManager();
-        QueryStateMachine stateMachine = QueryStateMachine.begin(new QueryId("query"), sqlString, session, URI.create("fake://uri"), false, transactionManager, executor);
+        QueryStateMachine stateMachine = QueryStateMachine.begin(new QueryId("query"), sqlString, session, URI.create("fake://uri"), false, transactionManager, metadata, executor);
         Prepare prepare = new Prepare(statementName, query);
         new PrepareTask(new SqlParser()).execute(prepare, transactionManager, metadata, new AllowAllAccessControl(), stateMachine);
         return stateMachine;

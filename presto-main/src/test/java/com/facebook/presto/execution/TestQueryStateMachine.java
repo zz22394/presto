@@ -17,6 +17,7 @@ import com.facebook.presto.Session;
 import com.facebook.presto.client.FailureInfo;
 import com.facebook.presto.memory.MemoryPoolId;
 import com.facebook.presto.memory.VersionedMemoryPoolId;
+import com.facebook.presto.metadata.Metadata;
 import com.facebook.presto.transaction.TransactionManager;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -42,6 +43,7 @@ import static com.facebook.presto.execution.QueryState.PLANNING;
 import static com.facebook.presto.execution.QueryState.QUEUED;
 import static com.facebook.presto.execution.QueryState.RUNNING;
 import static com.facebook.presto.execution.QueryState.STARTING;
+import static com.facebook.presto.metadata.MetadataManager.createTestMetadataManager;
 import static com.facebook.presto.transaction.TransactionManager.createTestTransactionManager;
 import static java.util.concurrent.Executors.newCachedThreadPool;
 import static org.testng.Assert.assertEquals;
@@ -335,7 +337,8 @@ public class TestQueryStateMachine
     private QueryStateMachine createQueryStateMachine()
     {
         TransactionManager transactionManager = createTestTransactionManager();
-        QueryStateMachine stateMachine = QueryStateMachine.begin(QUERY_ID, QUERY, TEST_SESSION, LOCATION, false, transactionManager, executor);
+        Metadata metadata = createTestMetadataManager();
+        QueryStateMachine stateMachine = QueryStateMachine.begin(QUERY_ID, QUERY, TEST_SESSION, LOCATION, false, transactionManager, metadata, executor);
         stateMachine.setInputs(INPUTS);
         stateMachine.setOutputFieldNames(OUTPUT_FIELD_NAMES);
         stateMachine.setUpdateType(UPDATE_TYPE);

@@ -27,6 +27,7 @@ import java.net.URI;
 import java.util.concurrent.ExecutorService;
 
 import static com.facebook.presto.SessionTestUtils.TEST_SESSION;
+import static com.facebook.presto.metadata.MetadataManager.createTestMetadataManager;
 import static com.facebook.presto.transaction.TransactionManager.createTestTransactionManager;
 import static io.airlift.concurrent.Threads.daemonThreadsNamed;
 import static java.util.concurrent.Executors.newCachedThreadPool;
@@ -34,7 +35,7 @@ import static org.testng.Assert.assertEquals;
 
 public class TestDeallocateTask
 {
-    private final MetadataManager metadata = MetadataManager.createTestMetadataManager();
+    private final MetadataManager metadata = createTestMetadataManager();
     private final ExecutorService executor = newCachedThreadPool(daemonThreadsNamed("stage-executor-%s")); // TODO: rename
 
     @AfterClass(alwaysRun = true)
@@ -67,7 +68,8 @@ public class TestDeallocateTask
     private QueryStateMachine executeDeallocate(String statementName, String sqlString, Session session)
     {
         TransactionManager transactionManager = createTestTransactionManager();
-        QueryStateMachine stateMachine = QueryStateMachine.begin(new QueryId("query"), sqlString, session, URI.create("fake://uri"), false, transactionManager, executor);
+        MetadataManager metadata = createTestMetadataManager();
+        QueryStateMachine stateMachine = QueryStateMachine.begin(new QueryId("query"), sqlString, session, URI.create("fake://uri"), false, transactionManager, metadata, executor);
         Deallocate deallocate = new Deallocate(statementName);
         new DeallocateTask().execute(deallocate, transactionManager, metadata, new AllowAllAccessControl(), stateMachine);
         return stateMachine;
