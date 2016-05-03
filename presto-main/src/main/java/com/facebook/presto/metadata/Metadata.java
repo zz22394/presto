@@ -192,7 +192,15 @@ public interface Metadata
      */
     void finishDelete(Session session, TableHandle tableHandle, Collection<Slice> fragments);
 
-    void beginSelect(Session session, TableHandle tableHandle, Optional<TableLayoutHandle> layoutHandle, Collection<ColumnHandle> columnHandles);
+    /**
+     * Notify connector about starting select query execution
+     */
+    void beginSelect(Session session, TableHandle tableHandle, TableLayoutHandle layoutHandle, Collection<ColumnHandle> columnHandles);
+
+    /**
+     * Notify connector about finishing execution of select query.
+     */
+    void finishSelect(Session session);
 
     /**
      * Gets all the loaded catalogs

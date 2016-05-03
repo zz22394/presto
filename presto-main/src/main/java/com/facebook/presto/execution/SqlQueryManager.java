@@ -319,6 +319,11 @@ public class SqlQueryManager
 
         queryExecution.addStateChangeListener(newValue -> {
             if (newValue.isDone()) {
+                if (queryExecution instanceof SqlQueryExecution) {
+                    ((SqlQueryExecution) queryExecution).getMetadata().finishSelect(session);
+                }
+            }
+            if (newValue.isDone()) {
                 try {
                     QueryInfo info = queryExecution.getQueryInfo();
                     stats.queryFinished(info);
