@@ -231,6 +231,25 @@ public interface ConnectorMetadata
     }
 
     /**
+     * Notifies when select query starts
+     *
+     * @return serializable {@link ConnectorTableHandle}. This handle will be brought back in {@link #finishSelect(ConnectorSession, ConnectorTableHandle)} if null returned, no finishSelect will be called.
+     */
+    default ConnectorTableHandle beginSelect(ConnectorSession session, ConnectorTableHandle tableHandle, Optional<ConnectorTableLayoutHandle> layoutHandle, Collection<ColumnHandle> columnHandles)
+    {
+        return null;
+    }
+
+    /**
+     * Notifies when select query finishes processing
+     *
+     * @param tableHandle returned by {@link #beginSelect(ConnectorSession, ConnectorTableHandle, Optional, Collection)} method
+     */
+    default void finishSelect(ConnectorSession session, ConnectorTableHandle tableHandle)
+    {
+    }
+
+    /**
      * Create the specified view. The data for the view is opaque to the connector.
      */
     default void createView(ConnectorSession session, SchemaTableName viewName, String viewData, boolean replace)
