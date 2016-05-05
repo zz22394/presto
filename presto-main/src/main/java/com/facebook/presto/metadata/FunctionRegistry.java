@@ -360,6 +360,7 @@ public class FunctionRegistry
                 .scalar(UrlFunctions.class)
                 .scalar(MathFunctions.class)
                 .scalar(MathFunctions.Abs.class)
+                .scalar(MathFunctions.Sign.class)
                 .scalar(BitwiseFunctions.class)
                 .scalar(DateTimeFunctions.class)
                 .scalar(JsonFunctions.class)

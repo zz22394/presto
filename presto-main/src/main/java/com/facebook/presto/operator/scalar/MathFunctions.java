@@ -748,6 +748,25 @@ public final class MathFunctions
         return Math.signum(num);
     }
 
+    @Description("signum")
+    @ScalarFunction("sign")
+    public static final class Sign
+    {
+        @LiteralParameters({"p", "s"})
+        @SqlType("decimal(1,0)")
+        public static long signDecimalShort(@SqlType("decimal(p, s)") long num)
+        {
+            return (long) Math.signum(num);
+        }
+
+        @LiteralParameters({"p", "s"})
+        @SqlType("decimal(1,0)")
+        public static long signDecimalLong(@SqlType("decimal(p, s)") Slice num)
+        {
+            return decodeUnscaledValue(num).signum();
+        }
+    }
+
     @Description("sine")
     @ScalarFunction
     @SqlType(StandardTypes.DOUBLE)
