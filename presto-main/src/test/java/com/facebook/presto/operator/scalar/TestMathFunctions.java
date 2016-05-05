@@ -14,6 +14,7 @@
 package com.facebook.presto.operator.scalar;
 
 import com.facebook.presto.spi.PrestoException;
+import com.facebook.presto.spi.type.DecimalType;
 import com.facebook.presto.spi.type.SqlDecimal;
 import com.facebook.presto.spi.type.VarcharType;
 import org.testng.annotations.Test;
@@ -766,10 +767,14 @@ public class TestMathFunctions
     @Test
     public void testSign()
     {
+        DecimalType expectedDecimalReturnType = createDecimalType(1, 0);
+
         //retains type for NULL values
         assertFunction("sign(CAST(NULL as INTEGER))", INTEGER, null);
         assertFunction("sign(CAST(NULL as BIGINT))", BIGINT, null);
         assertFunction("sign(CAST(NULL as DOUBLE))", DOUBLE, null);
+        assertFunction("sign(CAST(NULL as DECIMAL(2,1)))", expectedDecimalReturnType, null);
+        assertFunction("sign(CAST(NULL as DECIMAL(38,0)))", expectedDecimalReturnType, null);
 
         //integer
         for (int intValue : intLefts) {
@@ -785,7 +790,7 @@ public class TestMathFunctions
 
         //double
         for (double doubleValue : DOUBLE_VALUES) {
-            assertFunction("sign(" + doubleValue + ")", DOUBLE, Math.signum(doubleValue));
+            assertFunction("sign(DOUBLE '" + doubleValue + "')", DOUBLE, Math.signum(doubleValue));
             assertFunction("sign(FLOAT '" + (float) doubleValue + "')", FLOAT, Math.signum(((float) doubleValue)));
         }
 
@@ -795,6 +800,16 @@ public class TestMathFunctions
         //returns proper sign for +/-Infinity input
         assertFunction("sign(DOUBLE '+Infinity')", DOUBLE, 1.0);
         assertFunction("sign(DOUBLE '-Infinity')", DOUBLE, -1.0);
+
+        //short decimal
+        assertFunction("sign(DECIMAL '0')", expectedDecimalReturnType, SqlDecimal.of("0"));
+        assertFunction("sign(DECIMAL '123')", expectedDecimalReturnType, SqlDecimal.of("1"));
+        assertFunction("sign(DECIMAL '-123')", expectedDecimalReturnType, SqlDecimal.of("-1"));
+
+        //long decimal
+        assertFunction("sign(DECIMAL '0.000000000000000000')", expectedDecimalReturnType, SqlDecimal.of("0"));
+        assertFunction("sign(DECIMAL '123.000000000000000')", expectedDecimalReturnType, SqlDecimal.of("1"));
+        assertFunction("sign(DECIMAL '-123.000000000000000')", expectedDecimalReturnType, SqlDecimal.of("-1"));
     }
 
     @Test
