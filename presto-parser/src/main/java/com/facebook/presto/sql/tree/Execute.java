@@ -13,9 +13,6 @@
  */
 package com.facebook.presto.sql.tree;
 
-import com.google.common.collect.ImmutableList;
-
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -26,33 +23,26 @@ public class Execute
         extends Statement
 {
     private final String name;
-    private final List<Literal> parameters;
 
-    public Execute(NodeLocation location, String name, List<Literal> parameters)
+    public Execute(NodeLocation location, String name)
     {
-        this(Optional.of(location), name, parameters);
+        this(Optional.of(location), name);
     }
 
-    public Execute(String name, List<Literal> parameters)
+    public Execute(String name)
     {
-        this(Optional.empty(), name, parameters);
+        this(Optional.empty(), name);
     }
 
-    private Execute(Optional<NodeLocation> location, String name, List<Literal> parameters)
+    private Execute(Optional<NodeLocation> location, String name)
     {
         super(location);
         this.name = requireNonNull(name, "name is null");
-        this.parameters = requireNonNull(ImmutableList.copyOf(parameters));
     }
 
     public String getName()
     {
         return name;
-    }
-
-    public List<Literal> getParameters()
-    {
-        return parameters;
     }
 
     @Override
@@ -64,7 +54,7 @@ public class Execute
     @Override
     public int hashCode()
     {
-        return Objects.hash(name, parameters);
+        return Objects.hash(name);
     }
 
     @Override
@@ -77,7 +67,7 @@ public class Execute
             return false;
         }
         Execute o = (Execute) obj;
-        return Objects.equals(name, o.name) && Objects.equals(parameters, o.parameters);
+        return Objects.equals(name, o.name);
     }
 
     @Override
@@ -85,7 +75,6 @@ public class Execute
     {
         return toStringHelper(this)
                 .add("name", name)
-                .add("parameters", parameters)
                 .toString();
     }
 }

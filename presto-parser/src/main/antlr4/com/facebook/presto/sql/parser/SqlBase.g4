@@ -76,7 +76,7 @@ statement
         (LIMIT limit=(INTEGER_VALUE | ALL))?                           #showPartitions
     | PREPARE identifier FROM statement                                #prepare
     | DEALLOCATE PREPARE identifier                                    #deallocate
-    | EXECUTE identifier (USING literal (',' literal)*)?               #execute
+    | EXECUTE identifier                                               #execute
     ;
 
 query
@@ -256,8 +256,13 @@ valueExpression
     ;
 
 primaryExpression
-    : literal                                                                        #literalExpression
-    | PARAMETER                                                                      #parameter
+    : NULL                                                                           #nullLiteral
+    | interval                                                                       #intervalLiteral
+    | identifier STRING                                                              #typeConstructor
+    | number                                                                         #numericLiteral
+    | booleanValue                                                                   #booleanLiteral
+    | STRING                                                                         #stringLiteral
+    | BINARY_LITERAL                                                                 #binaryLiteral
     | POSITION '(' valueExpression IN valueExpression ')'                            #position
     | '(' expression (',' expression)+ ')'                                           #rowConstructor
     | ROW '(' expression (',' expression)* ')'                                       #rowConstructor
@@ -283,16 +288,6 @@ primaryExpression
     | NORMALIZE '(' valueExpression (',' normalForm)? ')'                            #normalize
     | EXTRACT '(' identifier FROM valueExpression ')'                                #extract
     | '(' expression ')'                                                             #parenthesizedExpression
-    ;
-
-literal
-    : NULL                                                                           #nullLiteral
-    | interval                                                                       #intervalLiteral
-    | identifier STRING                                                              #typeConstructor
-    | number                                                                         #numericLiteral
-    | booleanValue                                                                   #booleanLiteral
-    | STRING                                                                         #stringLiteral
-    | BINARY_LITERAL                                                                 #binaryLiteral
     ;
 
 timeZoneSpecifier
@@ -687,10 +682,6 @@ BRACKETED_COMMENT
 
 WS
     : [ \r\n\t]+ -> channel(HIDDEN)
-    ;
-
-PARAMETER
-    : '?'
     ;
 
 // Catch-all for anything we can't recognize.
