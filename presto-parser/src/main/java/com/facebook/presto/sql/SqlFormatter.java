@@ -30,7 +30,6 @@ import com.facebook.presto.sql.tree.Delete;
 import com.facebook.presto.sql.tree.DropTable;
 import com.facebook.presto.sql.tree.DropView;
 import com.facebook.presto.sql.tree.Except;
-import com.facebook.presto.sql.tree.Execute;
 import com.facebook.presto.sql.tree.Explain;
 import com.facebook.presto.sql.tree.ExplainFormat;
 import com.facebook.presto.sql.tree.ExplainOption;
@@ -162,14 +161,6 @@ public final class SqlFormatter
         protected Void visitDeallocate(Deallocate node, Integer indent)
         {
             append(indent, "DEALLOCATE PREPARE ");
-            builder.append(node.getName());
-            return null;
-        }
-
-        @Override
-        protected Void visitExecute(Execute node, Integer indent)
-        {
-            append(indent, "EXECUTE ");
             builder.append(node.getName());
             return null;
         }
