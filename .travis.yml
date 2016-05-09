@@ -10,8 +10,8 @@ env:
     - TEST_MODULES=!presto-tests,!presto-kafka,!presto-redis,!presto-cassandra,!presto-raptor,!presto-postgresql,!presto-mysql
     - TEST_MODULES=presto-tests
     - TEST_MODULES=presto-raptor,presto-redis,presto-cassandra,presto-kafka,presto-postgresql,presto-mysql
-    - RUN_PRODUCT_TESTS="singlenode -x quarantine,big_query,storage_formats,mysql_connector,postgresql_connector,profile_specific_tests"
-    - RUN_PRODUCT_TESTS="singlenode-kerberos-hdfs-impersonation -g storage_formats,cli,hdfs_impersonation"
+    - PRODUCT_TESTS="singlenode -x quarantine,big_query,storage_formats,mysql_connector,postgresql_connector,profile_specific_tests"
+    - PRODUCT_TESTS="singlenode-kerberos-hdfs-impersonation -g storage_formats,cli,hdfs_impersonation"
     - INTEGRATION_TESTS=true
 
 sudo: required
@@ -38,8 +38,8 @@ script:
       ./mvnw test -Dair.check.skip-dependency=true -pl $TEST_MODULES;
     fi
   - |
-    if [ -v RUN_PRODUCT_TESTS ]; then
-      presto-product-tests/bin/run_on_docker.sh ${RUN_PRODUCT_TESTS}
+    if [ -v PRODUCT_TESTS ]; then
+      presto-product-tests/bin/run_on_docker.sh ${PRODUCT_TESTS}
     fi
   - |
     if [ -v INTEGRATION_TESTS ]; then
