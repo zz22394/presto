@@ -15,7 +15,7 @@
  date_diff | bigint | varchar(x), timestamp, timestamp | scalar | true | difference of the given times in the given unit |
  date_format | varchar | timestamp with time zone, varchar(x) | scalar | true | |
  date_format | varchar | timestamp, varchar(x) | scalar | true | |
- date_parse | timestamp | varchar(x), varchar | scalar | true | |
+ date_parse | timestamp | varchar(x), varchar(y) | scalar | true | |
  date_trunc | date | varchar(x), date | scalar | true | truncate to the specified precision in the session timezone |
  date_trunc | time | varchar(x), time | scalar | true | truncate to the specified precision in the session timezone |
  date_trunc | time with time zone | varchar(x), time with time zone | scalar | true | truncate to the specified precision |
