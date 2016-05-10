@@ -23,7 +23,9 @@ import com.facebook.presto.bytecode.Scope;
 import com.facebook.presto.bytecode.Variable;
 import com.facebook.presto.bytecode.expression.BytecodeExpression;
 import com.facebook.presto.metadata.BoundVariables;
+import com.facebook.presto.metadata.FunctionKind;
 import com.facebook.presto.metadata.FunctionRegistry;
+import com.facebook.presto.metadata.Signature;
 import com.facebook.presto.metadata.SqlScalarFunction;
 import com.facebook.presto.spi.PrestoException;
 import com.facebook.presto.spi.type.TypeManager;
@@ -50,6 +52,7 @@ import static com.facebook.presto.bytecode.expression.BytecodeExpressions.add;
 import static com.facebook.presto.bytecode.expression.BytecodeExpressions.constantInt;
 import static com.facebook.presto.bytecode.expression.BytecodeExpressions.invokeStatic;
 import static com.facebook.presto.spi.StandardErrorCode.INVALID_FUNCTION_ARGUMENT;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.util.ImmutableCollectors.toImmutableList;
 import static com.facebook.presto.util.Reflection.methodHandle;
 import static java.lang.Math.addExact;
@@ -62,7 +65,14 @@ public final class ConcatFunction
     public ConcatFunction()
     {
         // TODO design new variadic functions binding mechanism that will allow to produce VARCHAR(x) where x < MAX_LENGTH.
-        super("concat", ImmutableList.of(), ImmutableList.of(), VarcharType.VARCHAR_MAX_LENGTH, ImmutableList.of(VarcharType.VARCHAR_MAX_LENGTH), true);
+        super(new Signature(
+                "concat",
+                FunctionKind.SCALAR,
+                ImmutableList.of(),
+                ImmutableList.of(),
+                createUnboundedVarcharType().getTypeSignature(),
+                ImmutableList.of(createUnboundedVarcharType().getTypeSignature()),
+                true));
     }
 
     @Override
