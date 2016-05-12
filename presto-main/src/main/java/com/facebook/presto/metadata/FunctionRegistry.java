@@ -239,6 +239,7 @@ import static com.facebook.presto.type.DecimalSaturatedFloorCasts.DECIMAL_TO_DEC
 import static com.facebook.presto.type.DecimalToDecimalCasts.DECIMAL_TO_DECIMAL_CAST;
 import static com.facebook.presto.type.TypeUtils.resolveTypes;
 import static com.facebook.presto.type.UnknownType.UNKNOWN;
+import static com.facebook.presto.type.VarcharOperators.VARCHAR_UNKNOWN_OPERATORS;
 import static com.facebook.presto.util.ImmutableCollectors.toImmutableList;
 import static com.facebook.presto.util.ImmutableCollectors.toImmutableSet;
 import static com.facebook.presto.util.Types.checkType;
@@ -370,6 +371,7 @@ public class FunctionRegistry
                 .scalar(DoubleOperators.class)
                 .scalar(FloatOperators.class)
                 .scalar(VarcharOperators.class)
+                .functions(VARCHAR_UNKNOWN_OPERATORS)
                 .scalar(VarbinaryOperators.class)
                 .scalar(DateOperators.class)
                 .scalar(TimeOperators.class)
