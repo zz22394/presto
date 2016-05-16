@@ -17,7 +17,6 @@ import com.facebook.presto.Session;
 import com.facebook.presto.client.FailureInfo;
 import com.facebook.presto.execution.StateMachine.StateChangeListener;
 import com.facebook.presto.memory.VersionedMemoryPoolId;
-import com.facebook.presto.metadata.Metadata;
 import com.facebook.presto.operator.BlockedReason;
 import com.facebook.presto.spi.ErrorCode;
 import com.facebook.presto.spi.PrestoException;
@@ -113,9 +112,8 @@ public class QueryStateMachine
     private final AtomicReference<List<String>> outputFieldNames = new AtomicReference<>(ImmutableList.of());
 
     private final AtomicReference<Set<Input>> inputs = new AtomicReference<>(ImmutableSet.of());
-    private final Optional<Metadata> metadata;
 
-    private QueryStateMachine(QueryId queryId, String query, Session session, URI self, boolean autoCommit, TransactionManager transactionManager, Executor executor, Optional<Metadata> metadata)
+    private QueryStateMachine(QueryId queryId, String query, Session session, URI self, boolean autoCommit, TransactionManager transactionManager, Executor executor)
     {
         this.queryId = requireNonNull(queryId, "queryId is null");
         this.query = requireNonNull(query, "query is null");
@@ -123,20 +121,14 @@ public class QueryStateMachine
         this.self = requireNonNull(self, "self is null");
         this.autoCommit = autoCommit;
         this.transactionManager = requireNonNull(transactionManager, "transactionManager is null");
-        this.metadata = requireNonNull(metadata, "metadata is null");
 
         this.queryState = new StateMachine<>("query " + query, executor, QUEUED, TERMINAL_QUERY_STATES);
-    }
-
-    private QueryStateMachine(QueryId queryId, String query, Session session, URI self, boolean autoCommit, TransactionManager transactionManager, Executor executor)
-    {
-        this(queryId, query, session, self, autoCommit, transactionManager, executor, Optional.empty());
     }
 
     /**
      * Created QueryStateMachines must be transitioned to terminal states to clean up resources.
      */
-    public static QueryStateMachine begin(QueryId queryId, String query, Session session, URI self, boolean transactionControl, TransactionManager transactionManager, Metadata metadata, Executor executor)
+    public static QueryStateMachine begin(QueryId queryId, String query, Session session, URI self, boolean transactionControl, TransactionManager transactionManager, Executor executor)
     {
         session.getTransactionId().ifPresent(transactionControl ? transactionManager::trySetActive : transactionManager::checkAndSetActive);
 
@@ -151,7 +143,7 @@ public class QueryStateMachine
             querySession = session;
         }
 
-        QueryStateMachine queryStateMachine = new QueryStateMachine(queryId, query, querySession, self, autoCommit, transactionManager, executor, Optional.of(metadata));
+        QueryStateMachine queryStateMachine = new QueryStateMachine(queryId, query, querySession, self, autoCommit, transactionManager, executor);
         queryStateMachine.addStateChangeListener(newState -> log.debug("Query %s is %s", queryId, newState));
         queryStateMachine.addStateChangeListener(newState -> {
             if (newState.isDone()) {
@@ -469,7 +461,6 @@ public class QueryStateMachine
         }
 
         if (autoCommit) {
-            metadata.get().finishSelect(session);
             transactionManager.asyncCommit(session.getTransactionId().get())
                     .whenComplete((value, throwable) -> {
                         if (throwable == null) {

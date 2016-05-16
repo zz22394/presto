@@ -193,17 +193,6 @@ public interface Metadata
     void finishDelete(Session session, TableHandle tableHandle, Collection<Slice> fragments);
 
     /**
-     * Notify connector about starting select query execution
-     * @return {@link TableHandle} of affected table. If null, no {@link #finishSelect(Session)} will be called.
-     */
-    TableHandle beginSelect(Session session, TableHandle tableHandle, Optional<TableLayoutHandle> layoutHandle, Collection<ColumnHandle> columnHandles);
-
-    /**
-     * Notify connector about finishing execution of select query.
-     */
-    void finishSelect(Session session);
-
-    /**
      * Gets all the loaded catalogs
      *
      * @return Map of catalog name to connector id
