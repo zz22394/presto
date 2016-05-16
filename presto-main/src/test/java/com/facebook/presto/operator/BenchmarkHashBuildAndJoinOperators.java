@@ -20,6 +20,7 @@ import com.facebook.presto.spi.type.Type;
 import com.facebook.presto.sql.planner.plan.PlanNodeId;
 import com.facebook.presto.testing.TestingTaskContext;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.primitives.Ints;
 import io.airlift.units.DataSize;
 import org.openjdk.jmh.annotations.Benchmark;
@@ -226,9 +227,11 @@ public class BenchmarkHashBuildAndJoinOperators
                 HASH_BUILD_OPERATOR_ID,
                 TEST_PLAN_NODE_ID,
                 buildContext.getTypes(),
+                ImmutableMap.of(),
                 buildContext.getHashChannels(),
                 buildContext.getHashChannel(),
                 false,
+                Optional.empty(),
                 10_000);
 
         Operator operator = hashBuilderOperatorFactory.createOperator(driverContext);
@@ -255,7 +258,8 @@ public class BenchmarkHashBuildAndJoinOperators
                 lookupSourceSupplier,
                 joinContext.getTypes(),
                 joinContext.getHashChannels(),
-                joinContext.getHashChannel());
+                joinContext.getHashChannel(),
+                false);
 
         DriverContext driverContext = joinContext.createTaskContext().addPipelineContext(true, true).addDriverContext();
         Operator joinOperator = joinOperatorFactory.createOperator(driverContext);
