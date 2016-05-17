@@ -96,7 +96,7 @@ public class TestArrayOperators
             throws Exception
     {
         assertFunction("ARRAY[7]", new ArrayType(INTEGER), ImmutableList.of(7));
-        assertFunction("ARRAY[12.34, 56.78]", new ArrayType(DOUBLE), ImmutableList.of(12.34, 56.78));
+        assertFunction("ARRAY[CAST(12.34 AS DOUBLE), CAST(56.78 AS DOUBLE)]", new ArrayType(DOUBLE), ImmutableList.of(12.34, 56.78));
     }
 
     @Test
