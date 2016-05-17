@@ -22,6 +22,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import io.airlift.concurrent.SetThreadName;
 import io.airlift.http.client.FullJsonResponseHandler;
 import io.airlift.http.client.HttpClient;
+import io.airlift.http.client.HttpUriBuilder;
 import io.airlift.http.client.Request;
 import io.airlift.json.JsonCodec;
 import io.airlift.log.Logger;
@@ -64,6 +65,8 @@ public class TaskInfoFetcher
     private final HttpClient httpClient;
     private final RequestErrorTracker errorTracker;
 
+    private final boolean summarizeTaskInfo;
+
     @GuardedBy("this")
     private final AtomicLong currentRequestStartNanos = new AtomicLong();
 
@@ -91,6 +94,7 @@ public class TaskInfoFetcher
             Duration updateInterval,
             JsonCodec<TaskInfo> taskInfoCodec,
             Duration minErrorDuration,
+            boolean summarizeTaskInfo,
             Executor executor,
             ScheduledExecutorService updateScheduledExecutor,
             ScheduledExecutorService errorScheduledExecutor,
@@ -108,6 +112,8 @@ public class TaskInfoFetcher
         this.updateIntervalMillis = requireNonNull(updateInterval, "updateInterval is null").toMillis();
         this.updateScheduledExecutor = requireNonNull(updateScheduledExecutor, "updateScheduledExecutor is null");
         this.errorTracker = new RequestErrorTracker(taskId, initialTask.getTaskStatus().getSelf(), minErrorDuration, errorScheduledExecutor, "getting info for task");
+
+        this.summarizeTaskInfo = summarizeTaskInfo;
 
         this.executor = requireNonNull(executor, "executor is null");
         this.httpClient = requireNonNull(httpClient, "httpClient is null");
@@ -189,8 +195,12 @@ public class TaskInfoFetcher
             return;
         }
 
+        HttpUriBuilder uriBuilder = uriBuilderFrom(taskStatus.getSelf());
+        if (summarizeTaskInfo) {
+            uriBuilder.addParameter("summarize");
+        }
         Request request = prepareGet()
-                .setUri(uriBuilderFrom(taskStatus.getSelf()).addParameter("summarize").build())
+                .setUri(uriBuilder.build())
                 .setHeader(CONTENT_TYPE, JSON_UTF_8.toString())
                 .build();
 
