@@ -29,10 +29,10 @@ import static com.facebook.presto.metadata.OperatorType.SATURATED_FLOOR_CAST;
 import static com.facebook.presto.spi.type.Decimals.bigIntegerTenToNth;
 import static com.facebook.presto.spi.type.Decimals.decodeUnscaledValue;
 import static com.facebook.presto.spi.type.Decimals.encodeUnscaledValue;
-import static com.facebook.presto.spi.type.TypeSignature.parseTypeSignature;
 import static com.facebook.presto.spi.type.StandardTypes.BIGINT;
 import static com.facebook.presto.spi.type.StandardTypes.DOUBLE;
 import static com.facebook.presto.spi.type.StandardTypes.INTEGER;
+import static com.facebook.presto.spi.type.TypeSignature.parseTypeSignature;
 import static java.math.BigInteger.ONE;
 import static java.math.RoundingMode.FLOOR;
 
@@ -107,9 +107,8 @@ public final class DecimalSaturatedFloorCasts
             .signature(Signature.builder()
                     .kind(SCALAR)
                     .operatorType(SATURATED_FLOOR_CAST)
-                    .literalParameters("source_precision", "source_scale")
-                    .argumentTypes("decimal(source_precision,source_scale)")
-                    .returnType(BIGINT)
+                    .argumentTypes(parseTypeSignature("decimal(source_precision,source_scale)", ImmutableSet.of("source_precision", "source_scale")))
+                    .returnType(parseTypeSignature(BIGINT))
                     .build()
             )
             .implementation(b -> b
@@ -145,9 +144,8 @@ public final class DecimalSaturatedFloorCasts
             .signature(Signature.builder()
                     .kind(SCALAR)
                     .operatorType(SATURATED_FLOOR_CAST)
-                    .argumentTypes(DOUBLE)
-                    .literalParameters("result_precision", "result_scale")
-                    .returnType("decimal(result_precision,result_scale)")
+                    .argumentTypes(parseTypeSignature(DOUBLE))
+                    .returnType(parseTypeSignature("decimal(result_precision,result_scale)", ImmutableSet.of("result_precision", "result_scale")))
                     .build()
             )
             .implementation(b -> b
@@ -175,9 +173,8 @@ public final class DecimalSaturatedFloorCasts
             .signature(Signature.builder()
                     .kind(SCALAR)
                     .operatorType(SATURATED_FLOOR_CAST)
-                    .literalParameters("source_precision", "source_scale")
-                    .argumentTypes("decimal(source_precision,source_scale)")
-                    .returnType(INTEGER)
+                    .argumentTypes(parseTypeSignature("decimal(source_precision,source_scale)", ImmutableSet.of("source_precision", "source_scale")))
+                    .returnType(parseTypeSignature(INTEGER))
                     .build()
             )
             .implementation(b -> b

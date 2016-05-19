@@ -24,6 +24,7 @@ import com.facebook.presto.type.SqlType;
 import com.facebook.presto.type.TypeRegistry;
 import com.google.common.base.Functions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import org.testng.annotations.Test;
 
 import java.util.List;
@@ -262,10 +263,9 @@ public class TestFunctionRegistry
     private SignatureBuilder functionSignature(List<String> argumentTypes, List<TypeVariableConstraint> typeVariableConstraints)
     {
         return new SignatureBuilder()
-                .returnType("boolean")
-                .argumentTypes(argumentTypes)
+                .returnType(parseTypeSignature(StandardTypes.BOOLEAN))
+                .argumentTypes(argumentTypes.stream().map(x -> parseTypeSignature(x, ImmutableSet.of("p", "s", "p1", "s1", "p2", "s2", "p3", "s3"))).collect(toImmutableList()))
                 .typeVariableConstraints(typeVariableConstraints)
-                .literalParameters("p", "s", "p1", "s1", "p2", "s2", "p3", "s3")
                 .kind(SCALAR);
     }
 

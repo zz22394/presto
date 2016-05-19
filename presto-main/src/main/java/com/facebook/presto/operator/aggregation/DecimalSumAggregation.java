@@ -45,6 +45,7 @@ import static com.facebook.presto.operator.aggregation.AggregationUtils.generate
 import static com.facebook.presto.spi.type.Decimals.checkOverflow;
 import static com.facebook.presto.spi.type.Decimals.decodeUnscaledValue;
 import static com.facebook.presto.spi.type.Decimals.writeBigDecimal;
+import static com.facebook.presto.spi.type.TypeSignature.parseTypeSignature;
 import static com.facebook.presto.util.Reflection.methodHandle;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Iterables.getOnlyElement;
@@ -63,7 +64,7 @@ public class DecimalSumAggregation
 
     public DecimalSumAggregation()
     {
-        super(NAME, ImmutableList.of(), ImmutableList.of(), "decimal(38,s)", ImmutableList.of("decimal(p,s)"), FunctionKind.AGGREGATE, ImmutableSet.of("p", "s"));
+        super(NAME, ImmutableList.of(), ImmutableList.of(), parseTypeSignature("decimal(38,s)", ImmutableSet.of("p", "s")), ImmutableList.of(parseTypeSignature("decimal(p,s)", ImmutableSet.of("p", "s"))), FunctionKind.AGGREGATE);
     }
 
     @Override

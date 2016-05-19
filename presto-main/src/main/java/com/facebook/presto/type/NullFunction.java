@@ -14,7 +14,9 @@
 package com.facebook.presto.type;
 
 import com.facebook.presto.metadata.BoundVariables;
+import com.facebook.presto.metadata.FunctionKind;
 import com.facebook.presto.metadata.FunctionRegistry;
+import com.facebook.presto.metadata.Signature;
 import com.facebook.presto.metadata.SqlScalarFunction;
 import com.facebook.presto.metadata.TypeVariableConstraint;
 import com.facebook.presto.operator.scalar.ScalarFunctionImplementation;
@@ -30,7 +32,9 @@ import java.util.stream.Collectors;
 
 import static com.facebook.presto.metadata.Signature.typeVariable;
 import static com.facebook.presto.metadata.SignatureBinder.bindVariables;
+import static com.facebook.presto.spi.type.TypeSignature.parseTypeSignature;
 import static com.facebook.presto.type.TypeUtils.resolveTypes;
+import static com.facebook.presto.util.ImmutableCollectors.toImmutableList;
 import static java.lang.invoke.MethodHandles.constant;
 import static java.lang.invoke.MethodHandles.dropArguments;
 import static java.util.Collections.nCopies;
@@ -49,7 +53,13 @@ public final class NullFunction
 
     private NullFunction(String functionName, List<String> argumentTypes, List<TypeVariableConstraint> typeVariables, String returnType)
     {
-        super(functionName, typeVariables, ImmutableList.of(), returnType, argumentTypes, false);
+        super(new Signature(functionName,
+                FunctionKind.SCALAR,
+                typeVariables,
+                ImmutableList.of(),
+                parseTypeSignature(returnType),
+                argumentTypes.stream().map(TypeSignature::parseTypeSignature).collect(toImmutableList()),
+                false));
     }
 
     @Override

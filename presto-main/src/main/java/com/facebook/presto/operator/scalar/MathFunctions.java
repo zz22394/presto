@@ -24,6 +24,7 @@ import com.facebook.presto.spi.type.StandardTypes;
 import com.facebook.presto.type.LiteralParameters;
 import com.facebook.presto.type.SqlType;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.primitives.Doubles;
 import io.airlift.slice.Slice;
 
@@ -41,6 +42,7 @@ import static com.facebook.presto.spi.type.Decimals.decodeUnscaledValue;
 import static com.facebook.presto.spi.type.Decimals.encodeUnscaledValue;
 import static com.facebook.presto.spi.type.Decimals.longTenToNth;
 import static com.facebook.presto.spi.type.StandardTypes.BIGINT;
+import static com.facebook.presto.spi.type.TypeSignature.parseTypeSignature;
 import static com.facebook.presto.type.DecimalOperators.modulusScalarFunction;
 import static com.facebook.presto.type.DecimalOperators.modulusSignatureBuilder;
 import static com.facebook.presto.util.Failures.checkCondition;
@@ -174,10 +176,9 @@ public final class MathFunctions
         Signature signature = Signature.builder()
                 .kind(SCALAR)
                 .name(name)
-                .literalParameters("num_precision", "num_scale", "return_precision")
                 .longVariableConstraints(longVariableExpression("return_precision", "num_precision - num_scale + min(num_scale, 1)"))
-                .argumentTypes("decimal(num_precision, num_scale)")
-                .returnType("decimal(return_precision,0)")
+                .argumentTypes(parseTypeSignature("decimal(num_precision, num_scale)", ImmutableSet.of("num_precision", "num_scale")))
+                .returnType(parseTypeSignature("decimal(return_precision,0)", ImmutableSet.of("return_precision")))
                 .build();
         return SqlScalarFunction.builder(MathFunctions.class)
                 .signature(signature)
@@ -301,10 +302,9 @@ public final class MathFunctions
         Signature signature = Signature.builder()
                 .kind(SCALAR)
                 .name("floor")
-                .literalParameters("num_precision", "num_scale", "return_precision")
                 .longVariableConstraints(longVariableExpression("return_precision", "num_precision - num_scale + min(num_scale, 1)"))
-                .argumentTypes("decimal(num_precision, num_scale)")
-                .returnType("decimal(return_precision,0)")
+                .argumentTypes(parseTypeSignature("decimal(num_precision, num_scale)", ImmutableSet.of("num_precision", "num_scale")))
+                .returnType(parseTypeSignature("decimal(return_precision,0)", ImmutableSet.of("return_precision")))
                 .build();
         return SqlScalarFunction.builder(MathFunctions.class)
                 .signature(signature)
@@ -517,11 +517,10 @@ public final class MathFunctions
         Signature signature = Signature.builder()
                 .kind(SCALAR)
                 .name("round")
-                .literalParameters("num_precision", "num_scale", "result_precision")
                 .longVariableConstraints(
                         longVariableExpression("result_precision", "min(38, num_precision - num_scale + min(1, num_scale))"))
-                .argumentTypes("decimal(num_precision, num_scale)")
-                .returnType("decimal(result_precision,0)")
+                .argumentTypes(parseTypeSignature("decimal(num_precision, num_scale)", ImmutableSet.of("num_precision", "num_scale")))
+                .returnType(parseTypeSignature("decimal(result_precision,0)", ImmutableSet.of("result_precision")))
                 .build();
         return SqlScalarFunction.builder(MathFunctions.class)
                 .signature(signature)
@@ -596,12 +595,11 @@ public final class MathFunctions
         Signature signature = Signature.builder()
                 .kind(SCALAR)
                 .name("round")
-                .literalParameters("num_precision", "num_scale", "result_precision")
                 .longVariableConstraints(
                         //result precision = increment the input precision only if the input number has a decimal point (scale > 0)
                         longVariableExpression("result_precision", "min(38, num_precision + 1)"))
-                .argumentTypes("decimal(num_precision, num_scale)", BIGINT)
-                .returnType("decimal(result_precision, num_scale)")
+                .argumentTypes(parseTypeSignature("decimal(num_precision, num_scale)", ImmutableSet.of("num_precision", "num_scale")), parseTypeSignature(BIGINT))
+                .returnType(parseTypeSignature("decimal(result_precision,num_scale)", ImmutableSet.of("result_precision", "num_scale")))
                 .build();
         return SqlScalarFunction.builder(MathFunctions.class)
                 .signature(signature)
@@ -666,9 +664,8 @@ public final class MathFunctions
         Signature signature = Signature.builder()
                 .kind(SCALAR)
                 .name("truncate")
-                .literalParameters("num_precision", "num_scale")
-                .argumentTypes("decimal(num_precision, num_scale)", BIGINT)
-                .returnType("decimal(num_precision, num_scale)")
+                .argumentTypes(parseTypeSignature("decimal(num_precision, num_scale)", ImmutableSet.of("num_precision", "num_scale")), parseTypeSignature(BIGINT))
+                .returnType(parseTypeSignature("decimal(num_precision,num_scale)", ImmutableSet.of("num_precision", "num_scale")))
                 .build();
         return SqlScalarFunction.builder(MathFunctions.class)
                 .signature(signature)

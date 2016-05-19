@@ -44,6 +44,7 @@ import static com.facebook.presto.spi.type.Decimals.decodeUnscaledValue;
 import static com.facebook.presto.spi.type.Decimals.writeBigDecimal;
 import static com.facebook.presto.spi.type.Decimals.writeShortDecimal;
 import static com.facebook.presto.spi.type.StandardTypes.DECIMAL;
+import static com.facebook.presto.spi.type.TypeSignature.parseTypeSignature;
 import static com.facebook.presto.util.Reflection.methodHandle;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.math.BigDecimal.ROUND_HALF_UP;
@@ -63,7 +64,7 @@ public class DecimalAverageAggregation
 
     public DecimalAverageAggregation()
     {
-        super(NAME, ImmutableList.of(Signature.withVariadicBound("T", DECIMAL)), ImmutableList.of(), "T", ImmutableList.of("T"));
+        super(NAME, ImmutableList.of(Signature.withVariadicBound("T", DECIMAL)), ImmutableList.of(), parseTypeSignature("T"), ImmutableList.of(parseTypeSignature("T")));
     }
 
     @Override
