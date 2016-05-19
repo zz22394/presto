@@ -21,8 +21,8 @@ import com.facebook.presto.spi.block.BlockBuilder;
 import com.facebook.presto.spi.block.BlockBuilderStatus;
 import com.facebook.presto.spi.type.StandardTypes;
 import com.facebook.presto.type.Constraint;
+import com.facebook.presto.type.JoniRegexpType;
 import com.facebook.presto.type.LiteralParameters;
-import com.facebook.presto.type.RegexpType;
 import com.facebook.presto.type.SqlType;
 import com.google.common.primitives.Ints;
 import io.airlift.jcodings.specific.NonStrictUTF8Encoding;
@@ -45,14 +45,14 @@ import static com.facebook.presto.spi.StandardErrorCode.INVALID_FUNCTION_ARGUMEN
 import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
 import static java.lang.String.format;
 
-public final class RegexpFunctions
+public final class JoniRegexpFunctions
 {
-    private RegexpFunctions()
+    private JoniRegexpFunctions()
     {
     }
 
     @ScalarOperator(OperatorType.CAST)
-    @SqlType(RegexpType.NAME)
+    @SqlType(JoniRegexpType.NAME)
     @LiteralParameters("x")
     public static Regex castToRegexp(@SqlType("varchar(x)") Slice pattern)
     {
@@ -71,7 +71,7 @@ public final class RegexpFunctions
     @ScalarFunction
     @LiteralParameters("x")
     @SqlType(StandardTypes.BOOLEAN)
-    public static boolean regexpLike(@SqlType("varchar(x)") Slice source, @SqlType(RegexpType.NAME) Regex pattern)
+    public static boolean regexpLike(@SqlType("varchar(x)") Slice source, @SqlType(JoniRegexpType.NAME) Regex pattern)
     {
         Matcher m = pattern.matcher(source.getBytes());
         int offset = m.search(0, source.length(), Option.DEFAULT);
@@ -82,7 +82,7 @@ public final class RegexpFunctions
     @ScalarFunction
     @LiteralParameters("x")
     @SqlType("varchar(x)")
-    public static Slice regexpReplace(@SqlType("varchar(x)") Slice source, @SqlType(RegexpType.NAME) Regex pattern)
+    public static Slice regexpReplace(@SqlType("varchar(x)") Slice source, @SqlType(JoniRegexpType.NAME) Regex pattern)
     {
         return regexpReplace(source, pattern, Slices.EMPTY_SLICE);
     }
@@ -92,7 +92,7 @@ public final class RegexpFunctions
     @LiteralParameters({"x", "y", "z"})
     @Constraint(variable = "z", expression = "min(2147483647, x + max(x * y / 2, y) * (x + 1))")
     @SqlType("varchar(z)")
-    public static Slice regexpReplace(@SqlType("varchar(x)") Slice source, @SqlType(RegexpType.NAME) Regex pattern, @SqlType("varchar(y)") Slice replacement)
+    public static Slice regexpReplace(@SqlType("varchar(x)") Slice source, @SqlType(JoniRegexpType.NAME) Regex pattern, @SqlType("varchar(y)") Slice replacement)
     {
         Matcher matcher = pattern.matcher(source.getBytes());
         SliceOutput sliceOutput = new DynamicSliceOutput(source.length() + replacement.length() * 5);
@@ -204,7 +204,7 @@ public final class RegexpFunctions
     @ScalarFunction
     @LiteralParameters("x")
     @SqlType("array(varchar(x))")
-    public static Block regexpExtractAll(@SqlType("varchar(x)") Slice source, @SqlType(RegexpType.NAME) Regex pattern)
+    public static Block regexpExtractAll(@SqlType("varchar(x)") Slice source, @SqlType(JoniRegexpType.NAME) Regex pattern)
     {
         return regexpExtractAll(source, pattern, 0);
     }
@@ -213,7 +213,7 @@ public final class RegexpFunctions
     @ScalarFunction
     @LiteralParameters("x")
     @SqlType("array(varchar(x))")
-    public static Block regexpExtractAll(@SqlType("varchar(x)") Slice source, @SqlType(RegexpType.NAME) Regex pattern, @SqlType(StandardTypes.BIGINT) long groupIndex)
+    public static Block regexpExtractAll(@SqlType("varchar(x)") Slice source, @SqlType(JoniRegexpType.NAME) Regex pattern, @SqlType(StandardTypes.BIGINT) long groupIndex)
     {
         Matcher matcher = pattern.matcher(source.getBytes());
         validateGroup(groupIndex, matcher.getEagerRegion());
@@ -251,7 +251,7 @@ public final class RegexpFunctions
     @ScalarFunction
     @LiteralParameters("x")
     @SqlType("varchar(x)")
-    public static Slice regexpExtract(@SqlType("varchar(x)") Slice source, @SqlType(RegexpType.NAME) Regex pattern)
+    public static Slice regexpExtract(@SqlType("varchar(x)") Slice source, @SqlType(JoniRegexpType.NAME) Regex pattern)
     {
         return regexpExtract(source, pattern, 0);
     }
@@ -261,7 +261,7 @@ public final class RegexpFunctions
     @ScalarFunction
     @LiteralParameters("x")
     @SqlType("varchar(x)")
-    public static Slice regexpExtract(@SqlType("varchar(x)") Slice source, @SqlType(RegexpType.NAME) Regex pattern, @SqlType(StandardTypes.BIGINT) long groupIndex)
+    public static Slice regexpExtract(@SqlType("varchar(x)") Slice source, @SqlType(JoniRegexpType.NAME) Regex pattern, @SqlType(StandardTypes.BIGINT) long groupIndex)
     {
         Matcher matcher = pattern.matcher(source.getBytes());
         validateGroup(groupIndex, matcher.getEagerRegion());
@@ -287,7 +287,7 @@ public final class RegexpFunctions
     @LiteralParameters("x")
     @Description("returns array of strings split by pattern")
     @SqlType("array(varchar(x))")
-    public static Block regexpSplit(@SqlType("varchar(x)") Slice source, @SqlType(RegexpType.NAME) Regex pattern)
+    public static Block regexpSplit(@SqlType("varchar(x)") Slice source, @SqlType(JoniRegexpType.NAME) Regex pattern)
     {
         Matcher matcher = pattern.matcher(source.getBytes());
         BlockBuilder blockBuilder = VARCHAR.createBlockBuilder(new BlockBuilderStatus(), 32);

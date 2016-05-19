@@ -13,11 +13,14 @@
  */
 package com.facebook.presto.operator.scalar;
 
+import com.facebook.presto.sql.analyzer.FeaturesConfig;
 import com.facebook.presto.type.ArrayType;
 import com.facebook.presto.type.SqlType;
 import com.google.common.collect.ImmutableList;
 import io.airlift.slice.Slice;
 import io.airlift.slice.Slices;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import java.util.ArrayList;
@@ -27,12 +30,32 @@ import static com.facebook.presto.spi.StandardErrorCode.INVALID_FUNCTION_ARGUMEN
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 import static com.facebook.presto.spi.type.VarcharType.VARCHAR_MAX_LENGTH;
 import static com.facebook.presto.spi.type.VarcharType.createVarcharType;
+import static com.facebook.presto.sql.analyzer.RegexLibrary.JONI;
+import static com.facebook.presto.sql.analyzer.RegexLibrary.RE2J;
 
 public class TestRegexpFunctions
         extends AbstractTestFunctions
 {
+    private static final FeaturesConfig JONI_FEATURES_CONFIG = new FeaturesConfig()
+            .setRegexLibrary(JONI);
+
+    private static final FeaturesConfig RE2J_FEATURES_CONFIG = new FeaturesConfig()
+            .setRegexLibrary(RE2J);
+
     {
         registerScalar(TestRegexpFunctions.class);
+    }
+
+    @Factory(dataProvider = "featuresConfig")
+    public TestRegexpFunctions(FeaturesConfig featuresConfig)
+    {
+        super(featuresConfig);
+    }
+
+    @DataProvider(name = "featuresConfig")
+    public static Object[][] featuresConfigProvider()
+    {
+        return new Object[][] {new Object[] {JONI_FEATURES_CONFIG}, new Object[] {RE2J_FEATURES_CONFIG}};
     }
 
     @ScalarFunction(deterministic = false) // if not non-deterministic, constant folding code accidentally fix invalid characters
@@ -43,13 +66,14 @@ public class TestRegexpFunctions
                 // AAA\uD800AAAA\uDFFFAAA, D800 and DFFF are valid unicode code points, but not valid UTF8
                 (byte) 0x41, 0x41, (byte) 0xed, (byte) 0xa0, (byte) 0x80, 0x41, 0x41,
                 0x41, 0x41, (byte) 0xed, (byte) 0xbf, (byte) 0xbf, 0x41, 0x41, 0x41,
-        });
+                });
     }
 
     @Test
     public void testRegexpLike()
     {
-        assertFunction("REGEXP_LIKE(invalid_utf8(), invalid_utf8())", BOOLEAN, true); // can potentially cause infinite loop
+        // Tests that REGEXP_LIKE doesn't loop infinitely on invalid UTF-8 input. Return value is irrelevant.
+        functionAssertions.tryEvaluate("REGEXP_LIKE(invalid_utf8(), invalid_utf8())", BOOLEAN);
 
         assertFunction("REGEXP_LIKE('Stephen', 'Ste(v|ph)en')", BOOLEAN, true);
         assertFunction("REGEXP_LIKE('Stevens', 'Ste(v|ph)en')", BOOLEAN, true);

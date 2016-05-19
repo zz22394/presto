@@ -20,6 +20,8 @@ import org.testng.annotations.Test;
 import java.util.Map;
 
 import static com.facebook.presto.sql.analyzer.FeaturesConfig.FILE_BASED_RESOURCE_GROUP_MANAGER;
+import static com.facebook.presto.sql.analyzer.RegexLibrary.JONI;
+import static com.facebook.presto.sql.analyzer.RegexLibrary.RE2J;
 import static io.airlift.configuration.testing.ConfigAssertions.assertDeprecatedEquivalence;
 import static io.airlift.configuration.testing.ConfigAssertions.assertFullMapping;
 import static io.airlift.configuration.testing.ConfigAssertions.assertRecordedDefaults;
@@ -43,8 +45,11 @@ public class TestFeaturesConfig
                 .setColumnarProcessing(false)
                 .setColumnarProcessingDictionary(false)
                 .setDictionaryAggregation(false)
-                .setResourceGroupManager(FILE_BASED_RESOURCE_GROUP_MANAGER)
-                .setParseDecimalLiteralsAsDouble(false));
+                .setParseDecimalLiteralsAsDouble(false)
+                .setRegexLibrary(JONI)
+                .setRe2JDfaStatesLimit(Integer.MAX_VALUE)
+                .setRe2JDfaRetries(5)
+                .setResourceGroupManager(FILE_BASED_RESOURCE_GROUP_MANAGER));
     }
 
     @Test
@@ -64,6 +69,9 @@ public class TestFeaturesConfig
                 .put("optimizer.columnar-processing", "true")
                 .put("optimizer.columnar-processing-dictionary", "true")
                 .put("optimizer.dictionary-aggregation", "true")
+                .put("regex-library", "RE2J")
+                .put("re2j.dfa-states-limit", "42")
+                .put("re2j.dfa-retries", "42")
                 .put("resource-group-manager", "test")
                 .put("parse-decimal-literals-as-double", "true")
                 .build();
@@ -81,6 +89,9 @@ public class TestFeaturesConfig
                 .put("optimizer.columnar-processing", "true")
                 .put("optimizer.columnar-processing-dictionary", "true")
                 .put("optimizer.dictionary-aggregation", "true")
+                .put("regex-library", "RE2J")
+                .put("re2j.dfa-states-limit", "42")
+                .put("re2j.dfa-retries", "42")
                 .put("resource-group-manager", "test")
                 .put("parse-decimal-literals-as-double", "true")
                 .build();
@@ -99,8 +110,11 @@ public class TestFeaturesConfig
                 .setColumnarProcessing(true)
                 .setColumnarProcessingDictionary(true)
                 .setDictionaryAggregation(true)
-                .setResourceGroupManager("test")
-                .setParseDecimalLiteralsAsDouble(true);
+                .setParseDecimalLiteralsAsDouble(true)
+                .setRegexLibrary(RE2J)
+                .setRe2JDfaStatesLimit(42)
+                .setRe2JDfaRetries(42)
+                .setResourceGroupManager("test");
 
         assertFullMapping(properties, expected);
         assertDeprecatedEquivalence(FeaturesConfig.class, properties, propertiesLegacy);

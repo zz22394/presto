@@ -23,6 +23,7 @@ import com.facebook.presto.spi.type.DecimalParseResult;
 import com.facebook.presto.spi.type.Decimals;
 import com.facebook.presto.spi.type.SqlDecimal;
 import com.facebook.presto.spi.type.Type;
+import com.facebook.presto.sql.analyzer.FeaturesConfig;
 import com.facebook.presto.sql.analyzer.SemanticErrorCode;
 import com.facebook.presto.sql.analyzer.SemanticException;
 import io.airlift.slice.Slice;
@@ -30,6 +31,7 @@ import io.airlift.slice.Slice;
 import java.math.BigInteger;
 import java.util.List;
 
+import static com.facebook.presto.SessionTestUtils.TEST_SESSION;
 import static com.facebook.presto.spi.StandardErrorCode.AMBIGUOUS_FUNCTION_CALL;
 import static com.facebook.presto.spi.StandardErrorCode.INVALID_CAST_ARGUMENT;
 import static com.facebook.presto.spi.StandardErrorCode.INVALID_FUNCTION_ARGUMENT;
@@ -51,6 +53,11 @@ public abstract class AbstractTestFunctions
     protected AbstractTestFunctions(Session session)
     {
         functionAssertions = new FunctionAssertions(session);
+    }
+
+    protected AbstractTestFunctions(FeaturesConfig featuresConfig)
+    {
+        functionAssertions = new FunctionAssertions(TEST_SESSION, featuresConfig);
     }
 
     protected void assertFunction(String projection, Type expectedType, Object expected)
