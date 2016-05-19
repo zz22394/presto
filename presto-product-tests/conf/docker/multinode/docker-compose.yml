@@ -2,12 +2,12 @@ version: '2'
 services:
   hadoop-master:
     extends:
-      file: ../common/docker-compose.yml
+      file: ../common/standard.yml
       service: hadoop-master-common
 
   presto-master:
     extends:
-      file: ../common/docker-compose.yml
+      file: ../common/standard.yml
       service: presto-master-common
     command: /docker/volumes/presto/presto-product-tests/conf/docker/files/presto-launcher-wrapper.sh multinode-master run
     depends_on:
@@ -15,7 +15,7 @@ services:
 
   presto-worker:
     extends:
-      file: ../common/docker-compose.yml
+      file: ../common/standard.yml
       service: presto-worker-common
     depends_on:
       - 'presto-master'
@@ -24,7 +24,7 @@ services:
 
   application-runner:
     extends:
-      file: ../common/docker-compose.yml
+      file: ../common/standard.yml
       service: application-runner-common
     depends_on:
       - 'presto-master'
@@ -33,10 +33,10 @@ services:
 
   postgres:
     extends:
-      file: ../common/docker-compose.yml
+      file: ../common/jdbc_db.yml
       service: postgres-common
 
   mysql:
     extends:
-      file: ../common/docker-compose.yml
+      file: ../common/jdbc_db.yml
       service: mysql-common

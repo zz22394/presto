@@ -150,7 +150,10 @@ docker version
 
 for available_docker_environment in $(getAvailableEnvironments)
 do
-    stop_docker_compose_containers "${PRODUCT_TESTS_ROOT}/conf/docker/${available_docker_environment}/docker-compose.yml"
+    if [[ -e "${PRODUCT_TESTS_ROOT}/conf/docker/${available_docker_environment}/docker-compose.yml" ]]
+    then
+        stop_docker_compose_containers "${PRODUCT_TESTS_ROOT}/conf/docker/${available_docker_environment}/docker-compose.yml"
+    fi
 done
 
 # catch terminate signals
