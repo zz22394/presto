@@ -356,7 +356,7 @@ public class PagesIndex
                 hashChannel,
                 filterFunction);
 
-        if (types.size() == 1 && types.get(0).equals(BigintType.BIGINT)) {
+        if (types.size() == 1 && types.get(0).equals(BigintType.BIGINT) && !filterFunction.isPresent()) {
             return new BigintInMemoryJoinHash(valueAddresses, hashStrategy, ImmutableList.copyOf(channels), joinChannels);
         }
         else {
