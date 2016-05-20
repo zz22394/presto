@@ -115,7 +115,8 @@ function terminate() {
 }
 
 function getAvailableEnvironments() {
-  for i in $(ls -d $ENVIRONMENT_LOCATION/*/); do echo ${i%%/}; done | grep -v files | xargs -n1 basename
+  for i in $(ls -d $ENVIRONMENT_LOCATION/*/); do echo ${i%%/}; done\
+     | grep -v files | grep -v common | xargs -n1 basename
 }
 
 ENVIRONMENT=$1
@@ -150,10 +151,7 @@ docker version
 
 for available_docker_environment in $(getAvailableEnvironments)
 do
-    if [[ -e "${PRODUCT_TESTS_ROOT}/conf/docker/${available_docker_environment}/docker-compose.yml" ]]
-    then
-        stop_docker_compose_containers "${PRODUCT_TESTS_ROOT}/conf/docker/${available_docker_environment}/docker-compose.yml"
-    fi
+   stop_docker_compose_containers "${PRODUCT_TESTS_ROOT}/conf/docker/${available_docker_environment}/docker-compose.yml"
 done
 
 # catch terminate signals
