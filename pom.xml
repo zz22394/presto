@@ -259,19 +259,19 @@
             </dependency>
 
             <dependency>
-                <groupId>com.facebook.presto.hadoop</groupId>
+                <groupId>com.teradata.presto.hadoop</groupId>
                 <artifactId>hadoop-apache1</artifactId>
                 <version>0.2t</version>
             </dependency>
 
             <dependency>
-                <groupId>com.facebook.presto.hadoop</groupId>
+                <groupId>com.teradata.presto.hadoop</groupId>
                 <artifactId>hadoop-apache2</artifactId>
                 <version>0.3t</version>
             </dependency>
 
             <dependency>
-                <groupId>com.facebook.presto.hadoop</groupId>
+                <groupId>com.teradata.presto.hadoop</groupId>
                 <artifactId>hadoop-cdh4</artifactId>
                 <version>0.8t</version>
             </dependency>
@@ -296,7 +296,7 @@
                         <artifactId>snappy</artifactId>
                     </exclusion>
                     <exclusion>
-                        <groupId>com.facebook.presto.hadoop</groupId>
+                        <groupId>com.teradata.presto.hadoop</groupId>
                         <artifactId>hadoop-cdh4</artifactId>
                     </exclusion>
                     <exclusion>

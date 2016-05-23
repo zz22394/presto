@@ -108,7 +108,7 @@
         </dependency>
 
         <dependency>
-            <groupId>com.facebook.presto.hadoop</groupId>
+            <groupId>com.teradata.presto.hadoop</groupId>
             <artifactId>hadoop-cdh4</artifactId>
             <scope>test</scope>
         </dependency>

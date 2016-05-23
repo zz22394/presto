@@ -38,7 +38,7 @@
         </dependency>
 
         <dependency>
-            <groupId>com.facebook.presto.hadoop</groupId>
+            <groupId>com.teradata.presto.hadoop</groupId>
             <artifactId>hadoop-apache2</artifactId>
         </dependency>
 
