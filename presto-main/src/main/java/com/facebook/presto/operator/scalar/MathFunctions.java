@@ -17,6 +17,7 @@ import com.facebook.presto.metadata.Signature;
 import com.facebook.presto.metadata.SqlScalarFunction;
 import com.facebook.presto.metadata.SqlScalarFunctionBuilder.SpecializeContext;
 import com.facebook.presto.operator.Description;
+import com.facebook.presto.operator.scalar.annotations.ScalarFunction;
 import com.facebook.presto.spi.PrestoException;
 import com.facebook.presto.spi.block.Block;
 import com.facebook.presto.spi.type.DoubleType;

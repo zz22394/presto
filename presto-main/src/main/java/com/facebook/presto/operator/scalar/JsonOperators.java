@@ -13,6 +13,7 @@
  */
 package com.facebook.presto.operator.scalar;
 
+import com.facebook.presto.operator.scalar.annotations.ScalarOperator;
 import com.facebook.presto.spi.PrestoException;
 import com.facebook.presto.spi.type.VarcharType;
 import com.facebook.presto.type.BigintOperators;

@@ -13,6 +13,7 @@
  */
 package com.facebook.presto.operator.scalar;
 
+import com.facebook.presto.operator.scalar.annotations.ScalarFunction;
 import com.facebook.presto.sql.analyzer.FeaturesConfig;
 import com.facebook.presto.type.ArrayType;
 import com.facebook.presto.type.SqlType;
