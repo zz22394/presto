@@ -17,6 +17,7 @@ import com.facebook.presto.spi.function.LiteralParameters;
 import com.facebook.presto.spi.function.OperatorType;
 import com.facebook.presto.spi.function.ScalarOperator;
 import com.facebook.presto.spi.function.SqlType;
+import com.facebook.presto.spi.type.Chars;
 import com.facebook.presto.type.LiteralParameter;
 import io.airlift.slice.Slice;
 import io.airlift.slice.SliceUtf8;
@@ -25,6 +26,8 @@ import io.airlift.slice.Slices;
 import static com.facebook.presto.spi.type.Chars.trimSpacesAndTruncateToLength;
 import static com.facebook.presto.spi.type.Varchars.truncateToLength;
 import static io.airlift.slice.SliceUtf8.countCodePoints;
+import static io.airlift.slice.SliceUtf8.offsetOfCodePoint;
+import static io.airlift.slice.Slices.EMPTY_SLICE;
 
 public final class CharacterStringCasts
 {
@@ -95,5 +98,24 @@ public final class CharacterStringCasts
         }
 
         return buffer;
+    }
+
+    @ScalarOperator(OperatorType.SATURATED_FLOOR_CAST)
+    @SqlType("char(y)")
+    @LiteralParameters({"x", "y"})
+    public static Slice varcharToCharSaturatedFloorCast(@LiteralParameter("y") Long y, @SqlType("varchar(x)") Slice slice)
+    {
+        Slice trimmedSlice = Chars.trimSpaces(slice);
+        int trimmedTextLength = countCodePoints(trimmedSlice);
+        int numberOfTrailingSpaces = slice.length() - trimmedSlice.length();
+
+        if (trimmedTextLength + numberOfTrailingSpaces >= y) {
+            return truncateToLength(trimmedSlice, y.intValue());
+        }
+        if (trimmedTextLength == 0) {
+            return EMPTY_SLICE;
+        }
+
+        return trimmedSlice.slice(0, offsetOfCodePoint(trimmedSlice, trimmedTextLength - 1));
     }
 }
