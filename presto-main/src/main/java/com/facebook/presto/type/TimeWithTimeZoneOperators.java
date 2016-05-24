@@ -121,7 +121,20 @@ public final class TimeWithTimeZoneOperators
     @ScalarOperator(CAST)
     @LiteralParameters("x")
     @SqlType(StandardTypes.TIME_WITH_TIME_ZONE)
-    public static long castFromSlice(ConnectorSession session, @SqlType("varchar(x)") Slice value)
+    public static long castFromVarchar(ConnectorSession session, @SqlType("varchar(x)") Slice value)
+    {
+        try {
+            return parseTime(session.getTimeZoneKey(), value.toStringUtf8());
+        }
+        catch (IllegalArgumentException e) {
+            throw new PrestoException(INVALID_CAST_ARGUMENT, e);
+        }
+    }
+
+    @ScalarOperator(CAST)
+    @LiteralParameters("x")
+    @SqlType(StandardTypes.TIME_WITH_TIME_ZONE)
+    public static long castFromChar(ConnectorSession session, @SqlType("char(x)") Slice value)
     {
         try {
             return parseTime(session.getTimeZoneKey(), value.toStringUtf8());

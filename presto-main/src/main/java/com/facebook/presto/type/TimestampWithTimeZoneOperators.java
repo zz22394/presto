@@ -138,7 +138,20 @@ public final class TimestampWithTimeZoneOperators
     @ScalarOperator(CAST)
     @LiteralParameters("x")
     @SqlType(StandardTypes.TIMESTAMP_WITH_TIME_ZONE)
-    public static long castFromSlice(ConnectorSession session, @SqlType("varchar(x)") Slice value)
+    public static long castFromVarchar(ConnectorSession session, @SqlType("varchar(x)") Slice value)
+    {
+        try {
+            return parseTimestampWithTimeZone(session.getTimeZoneKey(), trim(value).toStringUtf8());
+        }
+        catch (IllegalArgumentException e) {
+            throw new PrestoException(INVALID_CAST_ARGUMENT, "Value cannot be cast to timestamp with time zone: " + value.toStringUtf8(), e);
+        }
+    }
+
+    @ScalarOperator(CAST)
+    @LiteralParameters("x")
+    @SqlType(StandardTypes.TIMESTAMP_WITH_TIME_ZONE)
+    public static long castFromChar(ConnectorSession session, @SqlType("char(x)") Slice value)
     {
         try {
             return parseTimestampWithTimeZone(session.getTimeZoneKey(), trim(value).toStringUtf8());
