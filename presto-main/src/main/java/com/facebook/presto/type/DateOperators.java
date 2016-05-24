@@ -133,7 +133,21 @@ public final class DateOperators
     @ScalarOperator(CAST)
     @LiteralParameters("x")
     @SqlType(StandardTypes.DATE)
-    public static long castFromSlice(ConnectorSession session, @SqlType("varchar(x)") Slice value)
+    public static long castFromVarchar(ConnectorSession session, @SqlType("varchar(x)") Slice value)
+    {
+        return castFromSlice(session, value);
+    }
+
+    @ScalarFunction("date")
+    @ScalarOperator(CAST)
+    @LiteralParameters("x")
+    @SqlType(StandardTypes.DATE)
+    public static long castFromChar(ConnectorSession session, @SqlType("char(x)") Slice value)
+    {
+        return castFromSlice(session, value);
+    }
+
+    private static long castFromSlice(ConnectorSession session, Slice value)
     {
         try {
             final long timestampValue = parseTimestampWithTimeZone(session.getTimeZoneKey(), trim(value).toStringUtf8());

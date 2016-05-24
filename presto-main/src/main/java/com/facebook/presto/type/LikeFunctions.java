@@ -65,9 +65,22 @@ public final class LikeFunctions
     @ScalarOperator(OperatorType.CAST)
     @LiteralParameters("x")
     @SqlType(LikePatternType.NAME)
-    public static Regex likePattern(@SqlType("varchar(x)") Slice pattern)
+    public static Regex castVarcharToLikePattern(@SqlType("varchar(x)") Slice pattern)
     {
-        return likeToPattern(pattern.toStringUtf8(), '0', false);
+        return likePattern(pattern);
+    }
+
+    @ScalarOperator(OperatorType.CAST)
+    @LiteralParameters("x")
+    @SqlType(LikePatternType.NAME)
+    public static Regex castCharToLikePattern(@SqlType("char(x)") Slice pattern)
+    {
+        return likePattern(pattern);
+    }
+
+    public static Regex likePattern(Slice pattern)
+    {
+        return likePattern(pattern.toStringUtf8(), '0', false);
     }
 
     @ScalarFunction
@@ -75,7 +88,7 @@ public final class LikeFunctions
     @SqlType(LikePatternType.NAME)
     public static Regex likePattern(@SqlType("varchar(x)") Slice pattern, @SqlType("varchar(y)") Slice escape)
     {
-        return likeToPattern(pattern.toStringUtf8(), getEscapeChar(escape), true);
+        return likePattern(pattern.toStringUtf8(), getEscapeChar(escape), true);
     }
 
     private static boolean regexMatches(Regex regex, byte[] bytes)
@@ -84,7 +97,7 @@ public final class LikeFunctions
     }
 
     @SuppressWarnings("NestedSwitchStatement")
-    private static Regex likeToPattern(String patternString, char escapeChar, boolean shouldEscape)
+    private static Regex likePattern(String patternString, char escapeChar, boolean shouldEscape)
     {
         StringBuilder regex = new StringBuilder(patternString.length() * 2);
 

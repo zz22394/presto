@@ -35,7 +35,20 @@ public final class JoniRegexpCasts
     @ScalarOperator(OperatorType.CAST)
     @SqlType(JoniRegexpType.NAME)
     @LiteralParameters("x")
-    public static Regex joniRegexp(@SqlType("varchar(x)") Slice pattern)
+    public static Regex castVarcharToJoniRegexp(@SqlType("varchar(x)") Slice pattern)
+    {
+        return joniRegexp(pattern);
+    }
+
+    @ScalarOperator(OperatorType.CAST)
+    @LiteralParameters("x")
+    @SqlType(JoniRegexpType.NAME)
+    public static Regex castCharToJoniRegexp(@SqlType("char(x)") Slice pattern)
+    {
+        return joniRegexp(pattern);
+    }
+
+    public static Regex joniRegexp(Slice pattern)
     {
         Regex regex;
         try {

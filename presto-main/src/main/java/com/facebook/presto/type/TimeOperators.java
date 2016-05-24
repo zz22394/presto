@@ -121,7 +121,20 @@ public final class TimeOperators
     @ScalarOperator(CAST)
     @LiteralParameters("x")
     @SqlType(StandardTypes.TIME)
-    public static long castFromSlice(ConnectorSession session, @SqlType("varchar(x)") Slice value)
+    public static long castFromVarchar(ConnectorSession session, @SqlType("varchar(x)") Slice value)
+    {
+        return castFromSlice(session, value);
+    }
+
+    @ScalarOperator(CAST)
+    @LiteralParameters("x")
+    @SqlType(StandardTypes.TIME)
+    public static long castFromChar(ConnectorSession session, @SqlType("char(x)") Slice value)
+    {
+        return castFromSlice(session, value);
+    }
+
+    private static long castFromSlice(ConnectorSession session, Slice value)
     {
         try {
             return parseTime(session.getTimeZoneKey(), value.toStringUtf8());

@@ -144,7 +144,20 @@ public final class TimestampOperators
     @ScalarOperator(CAST)
     @LiteralParameters("x")
     @SqlType(StandardTypes.TIMESTAMP)
-    public static long castFromSlice(ConnectorSession session, @SqlType("varchar(x)") Slice value)
+    public static long castFromVarchar(ConnectorSession session, @SqlType("varchar(x)") Slice value)
+    {
+        return castFromSlice(session, value);
+    }
+
+    @ScalarOperator(CAST)
+    @LiteralParameters("x")
+    @SqlType(StandardTypes.TIMESTAMP)
+    public static long castFromChar(ConnectorSession session, @SqlType("char(x)") Slice value)
+    {
+        return castFromSlice(session, value);
+    }
+
+    private static long castFromSlice(ConnectorSession session, Slice value)
     {
         try {
             final long tsValue = parseTimestampWithTimeZone(session.getTimeZoneKey(), trim(value).toStringUtf8());
