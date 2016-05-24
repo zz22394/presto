@@ -3957,7 +3957,7 @@ public abstract class AbstractTestQueries
         assertQuery("SELECT \"TOTALPRICE\" \"my price\" FROM \"ORDERS\"");
     }
 
-    @Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = "line 1:39: Column '\"orderkey_1\"' cannot be resolved")
+    @Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = "line 1:39: Column 'orderkey_1' cannot be resolved")
     public void testInvalidColumn()
             throws Exception
     {
@@ -4097,13 +4097,19 @@ public abstract class AbstractTestQueries
             throws Exception
     {
         assertQuery("" +
-                "WITH a AS (SELECT custkey FROM orders), " +
+                "WITH a AS (VALUES 1), " +
                 "     b AS (" +
-                "         WITH a AS (SELECT orderkey FROM orders)" +
+                "         WITH a AS (VALUES 2)" +
                 "         SELECT * FROM a" + // should refer to inner 'a'
                 "    )" +
                 "SELECT * FROM b",
-                "SELECT orderkey FROM orders"
+                "VALUES 2"
+        );
+        assertQueryFails("" +
+                        "WITH a AS (VALUES 1), " +
+                        "     a AS (VALUES 2)" +
+                        "SELECT * FROM a",
+                "line 1:28: WITH query name 'a' specified more than once"
         );
     }
 
