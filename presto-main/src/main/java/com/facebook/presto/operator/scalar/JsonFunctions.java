@@ -72,7 +72,15 @@ public final class JsonFunctions
     @ScalarOperator(OperatorType.CAST)
     @LiteralParameters("x")
     @SqlType(JsonPathType.NAME)
-    public static JsonPath castToJsonPath(@SqlType("varchar(x)") Slice pattern)
+    public static JsonPath castVarcharToJsonPath(@SqlType("varchar(x)") Slice pattern)
+    {
+        return new JsonPath(pattern.toStringUtf8());
+    }
+
+    @ScalarOperator(OperatorType.CAST)
+    @LiteralParameters("x")
+    @SqlType(JsonPathType.NAME)
+    public static JsonPath castCharToJsonPath(@SqlType("char(x)") Slice pattern)
     {
         return new JsonPath(pattern.toStringUtf8());
     }

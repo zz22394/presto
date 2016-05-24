@@ -36,21 +36,20 @@ public final class JoniRegexpCasts
     @ScalarOperator(OperatorType.CAST)
     @SqlType(JoniRegexpType.NAME)
     @LiteralParameters("x")
-    public static Regex castToRegexp(@SqlType("varchar(x)") Slice pattern)
+    public static Regex castVarcharToJoniRegexp(@SqlType("varchar(x)") Slice pattern)
     {
-        Regex regex;
-        try {
-            // When normal UTF8 encoding instead of non-strict UTF8) is used, joni can infinite loop when invalid UTF8 slice is supplied to it.
-            regex = new Regex(pattern.getBytes(), 0, pattern.length(), Option.DEFAULT, NonStrictUTF8Encoding.INSTANCE, Syntax.Java);
-        }
-        catch (Exception e) {
-            throw new PrestoException(INVALID_FUNCTION_ARGUMENT, e);
-        }
-        return regex;
+        return joniRegexp(pattern);
     }
 
+    @ScalarOperator(OperatorType.CAST)
+    @LiteralParameters("x")
+    @SqlType(JoniRegexpType.NAME)
+    public static Regex castCharToJoniRegexp(@SqlType("char(x)") Slice pattern)
+    {
+        return joniRegexp(pattern);
+    }
 
-    public static Regex joniRegexp(@SqlType("varchar(x)") Slice pattern)
+    public static Regex joniRegexp(Slice pattern)
     {
         Regex regex;
         try {
