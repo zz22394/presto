@@ -130,6 +130,14 @@ public class HashGenerationOptimizer
         }
 
         @Override
+        public PlanWithProperties visitApply(ApplyNode node, HashComputationSet context)
+        {
+            // Apply node is not supported by execution, so do not rewrite it
+            // that way query will fail in sanity checkers
+            return new PlanWithProperties(node, ImmutableMap.of());
+        }
+
+        @Override
         public PlanWithProperties visitAggregation(AggregationNode node, HashComputationSet parentPreference)
         {
             Optional<HashComputation> groupByHash = Optional.empty();
@@ -691,12 +699,6 @@ public class HashGenerationOptimizer
                     "Node %s declares hash symbols not in the output",
                     result.getNode().getClass().getSimpleName());
             return result;
-        }
-
-        @Override
-        public PlanWithProperties visitApply(ApplyNode node, HashComputationSet context)
-        {
-            throw new UnsupportedOperationException("Apply node is unsupported");
         }
     }
 
