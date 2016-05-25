@@ -33,6 +33,7 @@ import com.google.common.collect.ImmutableMap;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -199,7 +200,7 @@ public class TransformUncorrelatedInPredicateSubqueryToSemiJoin
         private final PlanNodeIdAllocator idAllocator;
         private final SymbolAllocator symbolAllocator;
         private InPredicate originalInPredicate;
-        private InPredicate inPredicate;
+        private LinkedList<InPredicate> inPredicates = new LinkedList<>();
         private Optional<Symbol> semiJoinSymbol = Optional.empty();
 
         public InsertSemiJoinRewriter(PlanNodeIdAllocator idAllocator, SymbolAllocator symbolAllocator, InPredicate inPredicate)
@@ -207,15 +208,16 @@ public class TransformUncorrelatedInPredicateSubqueryToSemiJoin
             this.idAllocator = requireNonNull(idAllocator, "idAllocator is null");
             this.symbolAllocator = requireNonNull(symbolAllocator, "symbolAllocator is null");
             this.originalInPredicate = requireNonNull(inPredicate, "inPredicate is null");
-            this.inPredicate = originalInPredicate;
+
+            inPredicates.add(originalInPredicate);
         }
 
         @Override
         public PlanNode visitProject(ProjectNode node, RewriteContext<Void> context)
         {
-            inPredicate = (InPredicate) replaceExpression(inPredicate, mapAssignmentSymbolsToExpression(node.getAssignments()));
-
+            inPredicates.push((InPredicate) replaceExpression(inPredicates.peek(), mapAssignmentSymbolsToExpression(node.getAssignments())));
             ProjectNode rewrittenNode = (ProjectNode) context.defaultRewrite(node, context.get());
+            inPredicates.pop();
             if (semiJoinSymbol.isPresent()) {
                 return appendIdentityProjection(rewrittenNode, semiJoinSymbol.get());
             }
@@ -249,6 +251,7 @@ public class TransformUncorrelatedInPredicateSubqueryToSemiJoin
         @Override
         public PlanNode visitApply(ApplyNode node, RewriteContext<Void> context)
         {
+            InPredicate inPredicate = inPredicates.peek();
             Symbol value = asSymbol(inPredicate.getValue());
             Symbol valueList = asSymbol(inPredicate.getValueList());
             if (node.getCorrelation().isEmpty() && inPredicateMatchesApply(node, value, valueList)) {
