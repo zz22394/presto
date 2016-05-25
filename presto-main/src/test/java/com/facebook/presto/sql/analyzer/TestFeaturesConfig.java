@@ -50,7 +50,9 @@ public class TestFeaturesConfig
                 .setRe2JDfaStatesLimit(Integer.MAX_VALUE)
                 .setRe2JDfaRetries(5)
                 .setResourceGroupManager(FILE_BASED_RESOURCE_GROUP_MANAGER)
-                .setParseDecimalLiteralsAsDouble(false));
+                .setParseDecimalLiteralsAsDouble(false)
+                .setCharPadSpaces(false)
+                .setResourceGroupManager(FILE_BASED_RESOURCE_GROUP_MANAGER));
     }
 
     @Test
@@ -72,6 +74,7 @@ public class TestFeaturesConfig
                 .put("regex-library", "RE2J")
                 .put("re2j.dfa-states-limit", "42")
                 .put("re2j.dfa-retries", "42")
+                .put("char.pad-spaces", "true")
                 .put("resource-group-manager", "test")
                 .put("parse-decimal-literals-as-double", "true")
                 .build();
@@ -91,6 +94,7 @@ public class TestFeaturesConfig
                 .put("regex-library", "RE2J")
                 .put("re2j.dfa-states-limit", "42")
                 .put("re2j.dfa-retries", "42")
+                .put("char.pad-spaces", "true")
                 .put("resource-group-manager", "test")
                 .put("parse-decimal-literals-as-double", "true")
                 .build();
@@ -112,7 +116,9 @@ public class TestFeaturesConfig
                 .setRe2JDfaStatesLimit(42)
                 .setRe2JDfaRetries(42)
                 .setResourceGroupManager("test")
-                .setParseDecimalLiteralsAsDouble(true);
+                .setParseDecimalLiteralsAsDouble(true)
+                .setCharPadSpaces(true)
+                .setResourceGroupManager("test");
 
         assertFullMapping(properties, expected);
         assertDeprecatedEquivalence(FeaturesConfig.class, properties, propertiesLegacy);
