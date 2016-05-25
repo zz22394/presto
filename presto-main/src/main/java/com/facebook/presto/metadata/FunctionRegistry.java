@@ -106,6 +106,7 @@ import com.facebook.presto.sql.analyzer.FeaturesConfig;
 import com.facebook.presto.sql.tree.QualifiedName;
 import com.facebook.presto.type.BigintOperators;
 import com.facebook.presto.type.BooleanOperators;
+import com.facebook.presto.type.CharOperators;
 import com.facebook.presto.type.ColorOperators;
 import com.facebook.presto.type.DateOperators;
 import com.facebook.presto.type.DateTimeOperators;
@@ -207,16 +208,13 @@ import static com.facebook.presto.operator.scalar.MapElementAtFunction.MAP_ELEME
 import static com.facebook.presto.operator.scalar.MapHashCodeOperator.MAP_HASH_CODE;
 import static com.facebook.presto.operator.scalar.MapSubscriptOperator.MAP_SUBSCRIPT;
 import static com.facebook.presto.operator.scalar.MapToJsonCast.MAP_TO_JSON;
-<<<<<<< HEAD
 import static com.facebook.presto.operator.scalar.MathFunctions.DECIMAL_CEILING_FUNCTIONS;
 import static com.facebook.presto.operator.scalar.MathFunctions.DECIMAL_FLOOR_FUNCTION;
 import static com.facebook.presto.operator.scalar.MathFunctions.DECIMAL_MOD_FUNCTION;
 import static com.facebook.presto.operator.scalar.MathFunctions.DECIMAL_ROUND_FUNCTIONS;
 import static com.facebook.presto.operator.scalar.MathFunctions.DECIMAL_TRUNCATE_FUNCTION;
-=======
 import static com.facebook.presto.operator.scalar.Re2JCastToRegexpFunction.castCharToRe2JRegexp;
 import static com.facebook.presto.operator.scalar.Re2JCastToRegexpFunction.castVarcharToRe2JRegexp;
->>>>>>> c2ee131... Add coercion from Char to Varchar (plus dependent coercions)
 import static com.facebook.presto.operator.scalar.RowEqualOperator.ROW_EQUAL;
 import static com.facebook.presto.operator.scalar.RowHashCodeOperator.ROW_HASH_CODE;
 import static com.facebook.presto.operator.scalar.RowNotEqualOperator.ROW_NOT_EQUAL;
@@ -233,6 +231,20 @@ import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
 import static com.facebook.presto.spi.type.TypeSignature.parseTypeSignature;
 import static com.facebook.presto.spi.type.VarbinaryType.VARBINARY;
+import static com.facebook.presto.type.CharOperators.CHAR_BETWEEN_NO_PAD;
+import static com.facebook.presto.type.CharOperators.CHAR_BETWEEN_PAD_SPACES;
+import static com.facebook.presto.type.CharOperators.CHAR_EQUAL_NO_PAD;
+import static com.facebook.presto.type.CharOperators.CHAR_EQUAL_PAD_SPACES;
+import static com.facebook.presto.type.CharOperators.CHAR_GREATER_THAN_NO_PAD;
+import static com.facebook.presto.type.CharOperators.CHAR_GREATER_THAN_OR_EQUAL_NO_PAD;
+import static com.facebook.presto.type.CharOperators.CHAR_GREATER_THAN_OR_EQUAL_PAD_SPACES;
+import static com.facebook.presto.type.CharOperators.CHAR_GREATER_THAN_PAD_SPACES;
+import static com.facebook.presto.type.CharOperators.CHAR_LESS_THAN_NO_PAD;
+import static com.facebook.presto.type.CharOperators.CHAR_LESS_THAN_OR_EQUAL_NO_PAD;
+import static com.facebook.presto.type.CharOperators.CHAR_LESS_THAN_OR_EQUAL_PAD_SPACES;
+import static com.facebook.presto.type.CharOperators.CHAR_LESS_THAN_PAD_SPACES;
+import static com.facebook.presto.type.CharOperators.CHAR_NOT_EQUAL_NO_PAD;
+import static com.facebook.presto.type.CharOperators.CHAR_NOT_EQUAL_PAD_SPACES;
 import static com.facebook.presto.type.DecimalCasts.BIGINT_TO_DECIMAL_CAST;
 import static com.facebook.presto.type.DecimalCasts.BOOLEAN_TO_DECIMAL_CAST;
 import static com.facebook.presto.type.DecimalCasts.DECIMAL_TO_BIGINT_CAST;
@@ -445,6 +457,7 @@ public class FunctionRegistry
                 .scalar(MapConcatFunction.class)
                 .scalar(MapToMapCast.class)
                 .scalars(JoniRegexpCasts.class)
+                .scalars(CharOperators.class)
                 .functions(ZIP_FUNCTIONS)
                 .functions(ARRAY_JOIN, ARRAY_JOIN_WITH_NULL_REPLACEMENT)
                 .functions(ARRAY_TO_ARRAY_CAST, ARRAY_LESS_THAN)
@@ -495,6 +508,25 @@ public class FunctionRegistry
             case RE2J:
                 builder.scalars(Re2JRegexpFunctions.class);
                 break;
+        }
+
+        if (featuresConfig.isCharPadSpaces()) {
+            builder.function(CHAR_EQUAL_PAD_SPACES)
+                    .function(CHAR_NOT_EQUAL_PAD_SPACES)
+                    .function(CHAR_LESS_THAN_PAD_SPACES)
+                    .function(CHAR_LESS_THAN_OR_EQUAL_PAD_SPACES)
+                    .function(CHAR_GREATER_THAN_PAD_SPACES)
+                    .function(CHAR_GREATER_THAN_OR_EQUAL_PAD_SPACES)
+                    .function(CHAR_BETWEEN_PAD_SPACES);
+        }
+        else {
+            builder.function(CHAR_EQUAL_NO_PAD)
+                    .function(CHAR_NOT_EQUAL_NO_PAD)
+                    .function(CHAR_LESS_THAN_NO_PAD)
+                    .function(CHAR_LESS_THAN_OR_EQUAL_NO_PAD)
+                    .function(CHAR_GREATER_THAN_NO_PAD)
+                    .function(CHAR_GREATER_THAN_OR_EQUAL_NO_PAD)
+                    .function(CHAR_BETWEEN_NO_PAD);
         }
 
         if (featuresConfig.isExperimentalSyntaxEnabled()) {
