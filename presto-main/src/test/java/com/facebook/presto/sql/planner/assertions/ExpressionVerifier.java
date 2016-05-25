@@ -13,16 +13,16 @@
  */
 package com.facebook.presto.sql.planner.assertions;
 
-import com.facebook.presto.sql.planner.Symbol;
 import com.facebook.presto.sql.tree.AstVisitor;
 import com.facebook.presto.sql.tree.ComparisonExpression;
 import com.facebook.presto.sql.tree.DereferenceExpression;
 import com.facebook.presto.sql.tree.Expression;
+import com.facebook.presto.sql.tree.GenericLiteral;
+import com.facebook.presto.sql.tree.InPredicate;
 import com.facebook.presto.sql.tree.LogicalBinaryExpression;
 import com.facebook.presto.sql.tree.LongLiteral;
 import com.facebook.presto.sql.tree.Node;
 import com.facebook.presto.sql.tree.NotExpression;
-import com.facebook.presto.sql.tree.QualifiedName;
 import com.facebook.presto.sql.tree.QualifiedNameReference;
 
 import static java.lang.String.format;
@@ -55,17 +55,27 @@ import static java.util.Objects.requireNonNull;
 final class ExpressionVerifier
         extends AstVisitor<Boolean, Expression>
 {
-    private final SymbolAliases symbolAliases;
+    private final ExpressionAliases expressionAliases;
 
-    ExpressionVerifier(SymbolAliases symbolAliases)
+    ExpressionVerifier(ExpressionAliases expressionAliases)
     {
-        this.symbolAliases = requireNonNull(symbolAliases, "symbolAliases is null");
+        this.expressionAliases = requireNonNull(expressionAliases, "symbolAliases is null");
     }
 
     @Override
     protected Boolean visitNode(Node node, Expression context)
     {
         throw new IllegalStateException(format("Node %s is not supported", node));
+    }
+
+    @Override
+    protected Boolean visitInPredicate(InPredicate actual, Expression expectedExpression)
+    {
+        if (expectedExpression instanceof InPredicate) {
+            InPredicate expected = (InPredicate) expectedExpression;
+            return process(actual.getValue(), expected.getValue()) && process(actual.getValueList(), expected.getValueList());
+        }
+        return false;
     }
 
     @Override
@@ -81,13 +91,28 @@ final class ExpressionVerifier
     }
 
     @Override
-    protected Boolean visitLongLiteral(LongLiteral actual, Expression expectedExpression)
+    protected Boolean visitGenericLiteral(GenericLiteral actual, Expression expected)
     {
-        if (expectedExpression instanceof LongLiteral) {
-            LongLiteral expected = (LongLiteral) expectedExpression;
-            return actual.getValue() == expected.getValue();
+        return getValueFromLiteral(actual).equals(getValueFromLiteral(expected));
+    }
+
+    @Override
+    protected Boolean visitLongLiteral(LongLiteral actual, Expression expected)
+    {
+        return getValueFromLiteral(actual).equals(getValueFromLiteral(expected));
+    }
+
+    private String getValueFromLiteral(Expression expression)
+    {
+        if (expression instanceof LongLiteral) {
+            return String.valueOf(((LongLiteral) expression).getValue());
         }
-        return false;
+        else if (expression instanceof GenericLiteral) {
+            return ((GenericLiteral) expression).getValue();
+        }
+        else {
+            throw new IllegalArgumentException("Not supported literal expression");
+        }
     }
 
     @Override
@@ -114,38 +139,14 @@ final class ExpressionVerifier
     @Override
     protected Boolean visitQualifiedNameReference(QualifiedNameReference actual, Expression expected)
     {
-        if (isReference(expected)) {
-            symbolAliases.put(asQualifiedName(expected).toString(), Symbol.fromQualifiedName(asQualifiedName(actual)));
-            return true;
-        }
-        return false;
+        expressionAliases.put(expected.toString(), actual);
+        return true;
     }
 
     @Override
     protected Boolean visitDereferenceExpression(DereferenceExpression actual, Expression expected)
     {
-        if (isReference(expected)) {
-            symbolAliases.put(asQualifiedName(expected).toString(), Symbol.fromQualifiedName(asQualifiedName(actual)));
-            return true;
-        }
-        return false;
-    }
-
-    private boolean isReference(Expression expression)
-    {
-        return expression instanceof DereferenceExpression || expression instanceof QualifiedNameReference;
-    }
-
-    private QualifiedName asQualifiedName(Expression expression)
-    {
-        if (expression instanceof DereferenceExpression) {
-            return DereferenceExpression.getQualifiedName((DereferenceExpression) expression);
-        }
-        else if (expression instanceof QualifiedNameReference) {
-            return ((QualifiedNameReference) expression).getName();
-        }
-        else {
-            throw new IllegalArgumentException("Expression is not a DereferenceExpression or QualifiedNameReference");
-        }
+        expressionAliases.put(expected.toString(), actual);
+        return true;
     }
 }
