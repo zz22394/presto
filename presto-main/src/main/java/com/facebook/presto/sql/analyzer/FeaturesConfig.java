@@ -65,11 +65,12 @@ public class FeaturesConfig
     private int re2JDfaStatesLimit = Integer.MAX_VALUE;
     private int re2JDfaRetries = 5;
     private RegexLibrary regexLibrary = JONI;
-    private boolean charPadSpaces = false;
     private DataSize operatorMemoryLimitBeforeSpill = new DataSize(0, DataSize.Unit.MEGABYTE);
     private String spillerImplementation = SpillerImplementation.BINARY_FILE;
     private Path spillerSpillPath = Paths.get(System.getProperty("java.io.tmpdir"), "presto", "spills");
     private int spillerThreads = 4;
+
+    private boolean charPadSpaces = false;
 
     @NotNull
     public String getResourceGroupManager()
@@ -330,6 +331,18 @@ public class FeaturesConfig
     public FeaturesConfig setSpillerThreads(int spillerThreads)
     {
         this.spillerThreads = spillerThreads;
+        return this;
+    }
+
+    public boolean isCharPadSpaces()
+    {
+        return charPadSpaces;
+    }
+
+    @Config("char.pad-spaces")
+    public FeaturesConfig setCharPadSpaces(boolean charPadSpaces)
+    {
+        this.charPadSpaces = charPadSpaces;
         return this;
     }
 }

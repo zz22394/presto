@@ -58,7 +58,8 @@ public class TestFeaturesConfig
                 .setOperatorMemoryLimitBeforeSpill(DataSize.valueOf("0MB"))
                 .setSpillerImplementation(BINARY_FILE)
                 .setSpillerSpillPath(Paths.get(System.getProperty("java.io.tmpdir"), "presto", "spills").toString())
-                .setSpillerThreads(4));
+                .setSpillerThreads(4)
+                .setCharPadSpaces(false));
     }
 
     @Test
@@ -81,6 +82,7 @@ public class TestFeaturesConfig
                 .put("regex-library", "RE2J")
                 .put("re2j.dfa-states-limit", "42")
                 .put("re2j.dfa-retries", "42")
+                .put("char.pad-spaces", "true")
                 .put("resource-group-manager", "test")
                 .put("experimental.operator-memory-limit-before-spill", "100MB")
                 .put("experimental.spiller-implementation", "custom")
@@ -104,6 +106,7 @@ public class TestFeaturesConfig
                 .put("regex-library", "RE2J")
                 .put("re2j.dfa-states-limit", "42")
                 .put("re2j.dfa-retries", "42")
+                .put("char.pad-spaces", "true")
                 .put("resource-group-manager", "test")
                 .put("experimental.operator-memory-limit-before-spill", "100MB")
                 .put("experimental.spiller-implementation", "custom")
@@ -133,7 +136,8 @@ public class TestFeaturesConfig
                 .setOperatorMemoryLimitBeforeSpill(DataSize.valueOf("100MB"))
                 .setSpillerImplementation("custom")
                 .setSpillerSpillPath("/tmp/custom/spill/path")
-                .setSpillerThreads(42);
+                .setSpillerThreads(42)
+                .setCharPadSpaces(true);
 
         assertFullMapping(properties, expected);
         assertDeprecatedEquivalence(FeaturesConfig.class, properties, propertiesLegacy);
