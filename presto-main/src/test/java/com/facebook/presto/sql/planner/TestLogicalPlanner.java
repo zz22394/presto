@@ -60,32 +60,20 @@ public class TestLogicalPlanner
     }
 
     @Test
-    public void testPlanDsl()
+    public void testJoin()
     {
-        assertPlan("SELECT orderkey FROM orders WHERE orderkey IN (1, 2, 3)",
-                node(OutputNode.class,
-                        node(FilterNode.class,
-                                tableScan("orders"))));
-
-        String simpleJoinQuery = "SELECT o.orderkey FROM orders o, lineitem l WHERE l.orderkey = o.orderkey";
-        assertPlan(simpleJoinQuery,
-                any(
-                        any(
-                                node(JoinNode.class,
-                                        any(
-                                                tableScan("orders")),
-                                        any(
-                                                any(
-                                                        tableScan("lineitem")))))));
-
-        assertPlan(simpleJoinQuery,
+        assertPlan("SELECT o.orderkey FROM orders o, lineitem l WHERE l.orderkey = o.orderkey",
                 anyTree(
-                        node(JoinNode.class,
-                                anyTree(),
-                                anyTree())));
+                        join(ImmutableList.of(aliasPair("O", "L")
+                                any(
+                                        tableScan("orders").withSymbol("orderkey", "O")),
+                                anyTree(
+                                        tableScan("lineitem").withSymbol("orderkey", "L"))))));
+    }
 
-        assertPlan(simpleJoinQuery, anyTree(node(TableScanNode.class)));
-
+    @Test
+    public void testUncorrelatedSubqueries()
+    {
         assertPlan("SELECT * FROM orders WHERE orderkey = (SELECT orderkey FROM lineitem ORDER BY orderkey LIMIT 1)",
                 anyTree(
                         join(ImmutableList.of(aliasPair("X", "Y")),
