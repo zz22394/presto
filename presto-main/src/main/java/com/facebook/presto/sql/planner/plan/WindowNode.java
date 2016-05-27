@@ -224,5 +224,23 @@ public class WindowNode
         {
             return endValue;
         }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null || obj.getClass() != getClass()) {
+                return false;
+            }
+
+            Frame other = (Frame) obj;
+            return Objects.equals(type, other.type)
+                    && Objects.equals(startType, other.startType)
+                    && Objects.equals(startValue, other.startValue)
+                    && Objects.equals(endType, other.endType)
+                    && Objects.equals(endValue, other.endValue);
+        }
     }
 }
