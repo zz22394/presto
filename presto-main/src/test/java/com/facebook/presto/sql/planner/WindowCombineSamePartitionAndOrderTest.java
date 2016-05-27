@@ -223,4 +223,50 @@ public class WindowCombineSamePartitionAndOrderTest
     {
         return new PlanNodeId(new Integer(i).toString());
     }
+
+//    @Test
+//    public void twoAdjacentWindowsWithTheSamePartitionAndOrderAreMerged()
+//            throws Exception
+//    {
+//        PlanNode planNode = createPlanWithAdjacentWindowOperatorsOfTheSamePartitionAndOrder();
+//
+//        PlanNode expectedPlan = createPlanWithSingleWindowOperator();
+//
+//        PlanNode actualNode = optimizer.optimize(planNode, testSessionBuilder().build(), ImmutableMap.of(), null, null);
+//        assertPlansEqual(actualNode, expectedPlan);
+//    }
+//
+//    private PlanNode createPlanWithAdjacentWindowOperatorsOfTheSamePartitionAndOrder()
+//    {
+//        PlanNode windowNode = new WindowNode(newId(),
+//                baseTableScan,
+//                ImmutableList.of(A),
+//                ImmutableList.of(A),
+//                ImmutableMap.of(A, SortOrder.ASC_NULLS_FIRST),
+//                new WindowNode.Frame(WindowFrame.Type.RANGE,
+//                        FrameBound.Type.UNBOUNDED_PRECEDING, Optional.empty(),
+//                        FrameBound.Type.CURRENT_ROW, Optional.empty()),
+//                ImmutableMap.of(),
+//                ImmutableMap.of(),
+//                Optional.empty(),
+//                ImmutableSet.of(),
+//                0);
+//        PlanNode secondWindowNode = new WindowNode(newId(),
+//                windowNode,
+//                ImmutableList.of(A),
+//                ImmutableList.of(A),
+//                ImmutableMap.of(A, SortOrder.ASC_NULLS_FIRST),
+//                new WindowNode.Frame(WindowFrame.Type.RANGE,
+//                        FrameBound.Type.CURRENT_ROW, Optional.empty(),
+//                        FrameBound.Type.FOLLOWING, Optional.empty()),
+//                ImmutableMap.of(),
+//                ImmutableMap.of(),
+//                Optional.empty(),
+//                ImmutableSet.of(),
+//                0);
+//        return new OutputNode(newId(),
+//                secondWindowNode,
+//                ImmutableList.of(A.getName()),
+//                ImmutableList.of(A));
+//    }
 }
