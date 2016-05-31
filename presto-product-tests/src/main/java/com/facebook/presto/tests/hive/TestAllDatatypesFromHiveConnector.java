@@ -43,6 +43,7 @@ import static com.teradata.tempto.query.QueryExecutor.query;
 import static com.teradata.tempto.util.DateTimeUtils.parseTimestampInUTC;
 import static java.sql.JDBCType.BIGINT;
 import static java.sql.JDBCType.BOOLEAN;
+import static java.sql.JDBCType.CHAR;
 import static java.sql.JDBCType.DATE;
 import static java.sql.JDBCType.DECIMAL;
 import static java.sql.JDBCType.DOUBLE;
@@ -120,6 +121,7 @@ public class TestAllDatatypesFromHiveConnector
                         Date.valueOf("2015-05-10"),
                         "ala ma kota",
                         "ala ma kot",
+                        "ala ma    ",
                         true,
                         "kot binarny".getBytes()
                 )
@@ -150,6 +152,7 @@ public class TestAllDatatypesFromHiveConnector
                         Date.valueOf("2015-05-10"),
                         "ala ma kota",
                         "ala ma kot",
+                        "ala ma    ",
                         true,
                         "kot binarny".getBytes()));
     }
@@ -178,6 +181,7 @@ public class TestAllDatatypesFromHiveConnector
                         Date.valueOf("2015-05-10"),
                         "ala ma kota",
                         "ala ma kot",
+                        "ala ma    ",
                         true,
                         "kot binarny".getBytes()));
     }
@@ -197,6 +201,7 @@ public class TestAllDatatypesFromHiveConnector
                 row("c_date", "date"),
                 row("c_string", "varchar"),
                 row("c_varchar", "varchar(10)"),
+                row("c_char", "char(10)"),
                 row("c_boolean", "boolean"),
                 row("c_binary", "varbinary")
         );
@@ -218,6 +223,7 @@ public class TestAllDatatypesFromHiveConnector
                 DATE,
                 LONGNVARCHAR,
                 LONGNVARCHAR,
+                CHAR,
                 BOOLEAN,
                 LONGVARBINARY
         );

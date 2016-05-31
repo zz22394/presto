@@ -517,6 +517,8 @@ public final class TypeRegistry
                         return Optional.of(LIKE_PATTERN);
                     case JsonPathType.NAME:
                         return Optional.of(JSON_PATH);
+                    case CodePointsType.NAME:
+                        return Optional.of(CODE_POINTS);
                     default:
                         return Optional.empty();
                 }
