@@ -83,9 +83,9 @@ import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 import static com.facebook.presto.sql.analyzer.SemanticErrorCode.NOT_SUPPORTED;
 import static com.facebook.presto.sql.planner.ExpressionInterpreter.evaluateConstantExpression;
 import static com.facebook.presto.sql.tree.Join.Type.INNER;
-import static com.facebook.presto.type.TypeRegistry.isTypeOnlyCoercion;
 import static com.facebook.presto.sql.tree.Join.Type.LEFT;
 import static com.facebook.presto.sql.tree.Join.Type.RIGHT;
+import static com.facebook.presto.type.TypeRegistry.isTypeOnlyCoercion;
 import static com.facebook.presto.util.ImmutableCollectors.toImmutableList;
 import static com.facebook.presto.util.Types.checkType;
 import static com.google.common.base.Preconditions.checkArgument;
@@ -291,6 +291,10 @@ class RelationPlanner
                 else {
                     complexJoinExpressions.add(conjunct);
                 }
+            }
+
+            if (node.getType() != INNER && !complexJoinExpressions.isEmpty()) {
+                throw new SemanticException(NOT_SUPPORTED, node, "Non-equi joins only supported for inner join or must relate to inner side of outer join");
             }
 
             Analysis.JoinInPredicates joinInPredicates = analysis.getJoinInPredicates(node);
