@@ -63,6 +63,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.OptionalInt;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.stream.LongStream;
@@ -600,8 +601,7 @@ public class TestExpressionCompiler
                 assertExecute(generateExpression("%s < %s", left, right), BOOLEAN, left == null || right == null ? null : left.compareTo(right) < 0);
                 assertExecute(generateExpression("%s >= %s", left, right), BOOLEAN, left == null || right == null ? null : left.compareTo(right) >= 0);
                 assertExecute(generateExpression("%s <= %s", left, right), BOOLEAN, left == null || right == null ? null : left.compareTo(right) <= 0);
-
-                assertExecute(generateExpression("%s || %s", left, right), VARCHAR, left == null || right == null ? null : left + right);
+                assertExecute(generateExpression("%s || %s", left, right), createVarcharType(stringConcatLength(left, right)), left == null || right == null ? null : left + right);
 
                 assertExecute(generateExpression("%s is distinct from %s", left, right), BOOLEAN, !Objects.equals(left, right));
 
@@ -612,6 +612,11 @@ public class TestExpressionCompiler
         Futures.allAsList(futures).get();
     }
 
+    private int stringConcatLength(String a, String b)
+    {
+        return ((a == null) ? 0 : a.length()) + ((b == null) ? 0 : b.length());
+    }
+
     private static VarcharType varcharType(String... values)
     {
         return varcharType(Arrays.asList(values));
@@ -619,10 +624,8 @@ public class TestExpressionCompiler
 
     private static VarcharType varcharType(List<String> values)
     {
-        if (values.stream().anyMatch(Objects::isNull)) {
-            return VARCHAR;
-        }
-        return createVarcharType(values.stream().mapToInt(String::length).max().getAsInt());
+        OptionalInt len = values.stream().filter(x -> x != null).mapToInt(String::length).max();
+        return createVarcharType(len.isPresent() ? len.getAsInt() : 0);
     }
 
     private static Object nullIf(Object left, Object right)
@@ -1348,10 +1351,10 @@ public class TestExpressionCompiler
                         BOOLEAN,
                         value == null || pattern == null ? null : JoniRegexpFunctions.regexpLike(utf8Slice(value), JoniRegexpFunctions.castToRegexp(utf8Slice(pattern))));
                 assertExecute(generateExpression("regexp_replace(%s, %s)", value, pattern),
-                        value == null ? VARCHAR : createVarcharType(value.length()),
+                        varcharType(value),
                         value == null || pattern == null ? null : JoniRegexpFunctions.regexpReplace(utf8Slice(value), JoniRegexpFunctions.castToRegexp(utf8Slice(pattern))));
                 assertExecute(generateExpression("regexp_extract(%s, %s)", value, pattern),
-                        value == null ? VARCHAR : createVarcharType(value.length()),
+                        varcharType(value),
                         value == null || pattern == null ? null : JoniRegexpFunctions.regexpExtract(utf8Slice(value), JoniRegexpFunctions.castToRegexp(utf8Slice(pattern))));
             }
         }
@@ -1557,7 +1560,7 @@ public class TestExpressionCompiler
 
     private List<String> generateExpression(String expressionPattern, String value)
     {
-        return formatExpression(expressionPattern, value, "varchar");
+        return formatExpression(expressionPattern, value, varcharType(value).toString());
     }
 
     private List<String> generateExpression(String expressionPattern, BigDecimal value)
@@ -1642,7 +1645,7 @@ public class TestExpressionCompiler
 
     private List<String> generateExpression(String expressionPattern, String left, String right)
     {
-        return formatExpression(expressionPattern, left, "varchar", right, "varchar");
+        return formatExpression(expressionPattern, left, varcharType(left).toString(), right, varcharType(right).toString());
     }
 
     private List<String> generateExpression(String expressionPattern, Long first, Long second, Long third)
@@ -1692,12 +1695,12 @@ public class TestExpressionCompiler
 
     private List<String> generateExpression(String expressionPattern, String first, String second, String third)
     {
-        return formatExpression(expressionPattern, first, "varchar", second, "varchar", third, "varchar");
+        return formatExpression(expressionPattern, first, varcharType(first).toString(), second, varcharType(second).toString(), third, varcharType(third).toString());
     }
 
     private List<String> generateExpression(String expressionPattern, Boolean first, String second, String third)
     {
-        return formatExpression(expressionPattern, first, "boolean", second, "varchar", third, "varchar");
+        return formatExpression(expressionPattern, first, "boolean", second, varcharType(second).toString(), third, varcharType(third).toString());
     }
 
     private List<String> generateExpression(String expressionPattern, String first, Long second, Long third)
@@ -1753,7 +1756,7 @@ public class TestExpressionCompiler
             Object value = values.get(i);
             String type = types.get(i);
             if (value != null) {
-                if (type.equals("varchar")) {
+                if (type.toLowerCase().startsWith("varchar")) {
                     value = "'" + value + "'";
                 }
                 else if (type.equals("bigint")) {
