@@ -33,7 +33,7 @@ import static com.facebook.presto.spi.type.TimeZoneKey.getTimeZoneKey;
 import static com.facebook.presto.spi.type.TimeZoneKey.getTimeZoneKeyForOffset;
 import static com.facebook.presto.spi.type.TimestampType.TIMESTAMP;
 import static com.facebook.presto.spi.type.TimestampWithTimeZoneType.TIMESTAMP_WITH_TIME_ZONE;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createVarcharType;
 import static com.facebook.presto.testing.TestingSession.testSessionBuilder;
 
 public class TestTimeWithTimeZone
@@ -224,9 +224,9 @@ public class TestTimeWithTimeZone
     @Test
     public void testCastToSlice()
     {
-        assertFunction("cast(TIME '03:04:05.321 +07:09' as varchar)", VARCHAR, "03:04:05.321 +07:09");
-        assertFunction("cast(TIME '03:04:05 +07:09' as varchar)", VARCHAR, "03:04:05.000 +07:09");
-        assertFunction("cast(TIME '03:04 +07:09' as varchar)", VARCHAR, "03:04:00.000 +07:09");
+        assertFunction("cast(TIME '03:04:05.321 +07:09' as varchar(19))", createVarcharType(19), "03:04:05.321 +07:09");
+        assertFunction("cast(TIME '03:04:05 +07:09' as varchar(19))", createVarcharType(19), "03:04:05.000 +07:09");
+        assertFunction("cast(TIME '03:04 +07:09' as varchar(19))", createVarcharType(19), "03:04:00.000 +07:09");
     }
 
     @Test

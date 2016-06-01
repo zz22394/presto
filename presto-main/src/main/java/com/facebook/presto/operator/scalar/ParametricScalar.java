@@ -23,6 +23,7 @@ import com.facebook.presto.operator.scalar.annotations.ScalarImplementations;
 import com.facebook.presto.spi.PrestoException;
 import com.facebook.presto.spi.type.TypeManager;
 
+import java.util.Map;
 import java.util.Optional;
 
 import static com.facebook.presto.spi.StandardErrorCode.AMBIGUOUS_FUNCTION_IMPLEMENTATION;
@@ -78,6 +79,17 @@ public class ParametricScalar
             else {
                 return new ScalarFunctionImplementation(implementation.isNullable(), implementation.getNullableArguments(), implementation.getMethodHandle(), isDeterministic());
             }
+        }
+
+        for (Map.Entry<Signature, ScalarImplementation> impl : implementations.getExactImplementations().entrySet()) {
+            if (!boundSignature.equals(SignatureBinder.bindVariables(impl.getKey(), boundVariables, arity))) {
+                continue;
+            }
+            Optional<ScalarImplementation.MethodHandleAndConstructor> methodHandleAndConstructor = impl.getValue().specialize(boundSignature, boundVariables, typeManager, functionRegistry);
+            if (!methodHandleAndConstructor.isPresent()) {
+                continue;
+            }
+            return new ScalarFunctionImplementation(impl.getValue().isNullable(), impl.getValue().getNullableArguments(), methodHandleAndConstructor.get().getMethodHandle(), methodHandleAndConstructor.get().getConstructor(), isDeterministic());
         }
 
         ScalarFunctionImplementation selectedImplementation = null;

@@ -33,7 +33,7 @@ import static com.facebook.presto.spi.type.DateType.DATE;
 import static com.facebook.presto.spi.type.TimeZoneKey.getTimeZoneKey;
 import static com.facebook.presto.spi.type.TimestampType.TIMESTAMP;
 import static com.facebook.presto.spi.type.TimestampWithTimeZoneType.TIMESTAMP_WITH_TIME_ZONE;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createVarcharType;
 import static com.facebook.presto.testing.TestingSession.testSessionBuilder;
 import static com.facebook.presto.util.DateTimeZoneIndex.getDateTimeZone;
 import static org.joda.time.DateTimeZone.UTC;
@@ -158,7 +158,7 @@ public class TestDate
     public void testCastToSlice()
             throws Exception
     {
-        assertFunction("cast(DATE '2001-1-22' as varchar)", VARCHAR, "2001-01-22");
+        assertFunction("cast(DATE '2001-1-22' as varchar(9))", createVarcharType(9), "2001-01-22");
     }
 
     @Test
