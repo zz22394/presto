@@ -684,7 +684,7 @@ public class FunctionRegistry
         for (SqlFunction operator : candidates) {
             Type returnType = typeManager.getType(signature.getReturnType());
             List<Type> argumentTypes = resolveTypes(signature.getArgumentTypes(), typeManager);
-            Optional<BoundVariables> boundVariables = new SignatureBinder(typeManager, operator.getSignature(), false)
+            Optional<BoundVariables> boundVariables = operator.getSignatureBinder(typeManager, false)
                     .bindVariables(argumentTypes, returnType);
             if (boundVariables.isPresent()) {
                 try {
@@ -707,7 +707,7 @@ public class FunctionRegistry
         for (SqlFunction operator : candidates) {
             Type returnType = typeManager.getType(signature.getReturnType());
             List<Type> argumentTypes = resolveTypes(signature.getArgumentTypes(), typeManager);
-            Optional<BoundVariables> boundVariables = new SignatureBinder(typeManager, operator.getSignature(), false)
+            Optional<BoundVariables> boundVariables = operator.getSignatureBinder(typeManager, false)
                     .bindVariables(argumentTypes, returnType);
             if (boundVariables.isPresent()) {
                 try {
@@ -730,7 +730,7 @@ public class FunctionRegistry
         Type returnType = typeManager.getType(signature.getReturnType());
         List<Type> argumentTypes = resolveTypes(signature.getArgumentTypes(), typeManager);
         for (SqlFunction operator : candidates) {
-            Optional<BoundVariables> boundVariables = new SignatureBinder(typeManager, operator.getSignature(), false)
+            Optional<BoundVariables> boundVariables = operator.getSignatureBinder(typeManager, false)
                     .bindVariables(argumentTypes, returnType);
             if (boundVariables.isPresent()) {
                 try {

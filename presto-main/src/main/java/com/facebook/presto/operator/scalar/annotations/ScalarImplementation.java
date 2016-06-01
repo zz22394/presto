@@ -14,11 +14,11 @@
 package com.facebook.presto.operator.scalar.annotations;
 
 import com.facebook.presto.metadata.BoundVariables;
+import com.facebook.presto.metadata.DefaultSignatureBinder;
 import com.facebook.presto.metadata.FunctionRegistry;
 import com.facebook.presto.metadata.LongVariableConstraint;
 import com.facebook.presto.metadata.OperatorType;
 import com.facebook.presto.metadata.Signature;
-import com.facebook.presto.metadata.SignatureBinder;
 import com.facebook.presto.metadata.TypeVariableConstraint;
 import com.facebook.presto.spi.ConnectorSession;
 import com.facebook.presto.spi.PrestoException;
