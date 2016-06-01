@@ -14,11 +14,11 @@
 package com.facebook.presto.operator.scalar.annotations;
 
 import com.facebook.presto.metadata.BoundVariables;
+import com.facebook.presto.metadata.DefaultSignatureBinder;
 import com.facebook.presto.metadata.FunctionRegistry;
 import com.facebook.presto.metadata.LongVariableConstraint;
 import com.facebook.presto.metadata.OperatorType;
 import com.facebook.presto.metadata.Signature;
-import com.facebook.presto.metadata.SignatureBinder;
 import com.facebook.presto.metadata.TypeVariableConstraint;
 import com.facebook.presto.operator.scalar.OperatorDependency;
 import com.facebook.presto.operator.scalar.TypeParameter;
@@ -238,7 +238,7 @@ public class ScalarImplementation
         @Override
         public MethodHandle resolve(BoundVariables boundVariables, TypeManager typeManager, FunctionRegistry functionRegistry)
         {
-            Signature signature = SignatureBinder.bindVariables(this.signature, boundVariables, this.signature.getArgumentTypes().size());
+            Signature signature = DefaultSignatureBinder.bindVariables(this.signature, boundVariables, this.signature.getArgumentTypes().size());
             return functionRegistry.getScalarFunctionImplementation(signature).getMethodHandle();
         }
     }
@@ -256,7 +256,7 @@ public class ScalarImplementation
         @Override
         public Type resolve(BoundVariables boundVariables, TypeManager typeManager, FunctionRegistry functionRegistry)
         {
-            return typeManager.getType(SignatureBinder.bindVariables(signature, boundVariables));
+            return typeManager.getType(DefaultSignatureBinder.bindVariables(signature, boundVariables));
         }
     }
 
