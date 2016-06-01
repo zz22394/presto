@@ -642,7 +642,7 @@ public class FunctionRegistry
         ImmutableList.Builder<ApplicableFunction> applicableFunctions = ImmutableList.builder();
         for (SqlFunction function : candidates) {
             Signature declaredSignature = function.getSignature();
-            Optional<Signature> boundSignature = new SignatureBinder(typeManager, declaredSignature, allowCoercion)
+            Optional<Signature> boundSignature = function.getSignatureBinder(typeManager, allowCoercion)
                     .bind(actualParameters);
             if (boundSignature.isPresent()) {
                 applicableFunctions.add(new ApplicableFunction(declaredSignature, boundSignature.get()));
@@ -774,7 +774,7 @@ public class FunctionRegistry
         for (SqlFunction operator : candidates) {
             Type returnType = typeManager.getType(signature.getReturnType());
             List<Type> argumentTypes = resolveTypes(signature.getArgumentTypes(), typeManager);
-            Optional<BoundVariables> boundVariables = new SignatureBinder(typeManager, operator.getSignature(), false)
+            Optional<BoundVariables> boundVariables = operator.getSignatureBinder(typeManager, false)
                     .bindVariables(argumentTypes, returnType);
             if (boundVariables.isPresent()) {
                 try {
@@ -797,7 +797,7 @@ public class FunctionRegistry
         for (SqlFunction operator : candidates) {
             Type returnType = typeManager.getType(signature.getReturnType());
             List<Type> argumentTypes = resolveTypes(signature.getArgumentTypes(), typeManager);
-            Optional<BoundVariables> boundVariables = new SignatureBinder(typeManager, operator.getSignature(), false)
+            Optional<BoundVariables> boundVariables = operator.getSignatureBinder(typeManager, false)
                     .bindVariables(argumentTypes, returnType);
             if (boundVariables.isPresent()) {
                 try {
@@ -820,7 +820,7 @@ public class FunctionRegistry
         Type returnType = typeManager.getType(signature.getReturnType());
         List<Type> argumentTypes = resolveTypes(signature.getArgumentTypes(), typeManager);
         for (SqlFunction operator : candidates) {
-            Optional<BoundVariables> boundVariables = new SignatureBinder(typeManager, operator.getSignature(), false)
+            Optional<BoundVariables> boundVariables = operator.getSignatureBinder(typeManager, false)
                     .bindVariables(argumentTypes, returnType);
             if (boundVariables.isPresent()) {
                 try {
@@ -1006,7 +1006,7 @@ public class FunctionRegistry
     public boolean isMoreSpecificThan(ApplicableFunction left, ApplicableFunction right)
     {
         List<Type> resolvedTypes = resolveTypes(left.getBoundSignature().getArgumentTypes(), typeManager);
-        Optional<BoundVariables> boundVariables = new SignatureBinder(typeManager, right.getDeclaredSignature(), true)
+        Optional<BoundVariables> boundVariables = new DefaultSignatureBinder(typeManager, right.getDeclaredSignature(), true)
                 .bindVariables(resolvedTypes);
         return boundVariables.isPresent();
     }
