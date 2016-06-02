@@ -478,7 +478,7 @@ class StatementAnalyzer
                                 QualifiedName.of(name),
                                 Optional.of(columnName),
                                 inputField.getType(),
-                                false));
+                                Field.Kind.VISIBLE));
 
                         field++;
                     }
@@ -491,7 +491,7 @@ class StatementAnalyzer
                                     QualifiedName.of(name),
                                     field.getName(),
                                     field.getType(),
-                                    field.isHidden()))
+                                    field.getKind()))
                             .collect(toImmutableList());
                 }
 
@@ -524,7 +524,7 @@ class StatementAnalyzer
                             QualifiedName.of(name.getObjectName()),
                             Optional.of(column.getName()),
                             column.getType(),
-                            false))
+                            Field.Kind.VISIBLE))
                     .collect(toImmutableList());
 
             analysis.addRelationCoercion(table, outputFields.stream().map(Field::getType).toArray(Type[]::new));
@@ -549,7 +549,8 @@ class StatementAnalyzer
         // TODO: discover columns lazily based on where they are needed (to support datasources that can't enumerate all tables)
         ImmutableList.Builder<Field> fields = ImmutableList.builder();
         for (ColumnMetadata column : tableMetadata.getColumns()) {
-            Field field = Field.newQualified(table.getName(), Optional.of(column.getName()), column.getType(), column.isHidden());
+            Field.Kind kind = column.isHidden() ? Field.Kind.INTERNAL : Field.Kind.VISIBLE;
+            Field field = Field.newQualified(table.getName(), Optional.of(column.getName()), column.getType(), kind);
             fields.add(field);
             ColumnHandle columnHandle = columnHandles.get(column.getName());
             checkArgument(columnHandle != null, "Unknown field %s", field);
@@ -692,7 +693,7 @@ class StatementAnalyzer
         RelationType firstDescriptor = relationScopes.get(0).getRelationType().withOnlyVisibleFields();
         for (int i = 0; i < outputFieldTypes.length; i++) {
             Field oldField = firstDescriptor.getFieldByIndex(i);
-            outputDescriptorFields[i] = new Field(oldField.getRelationAlias(), oldField.getName(), outputFieldTypes[i], oldField.isHidden());
+            outputDescriptorFields[i] = new Field(oldField.getRelationAlias(), oldField.getName(), outputFieldTypes[i], oldField.getKind());
         }
 
         for (int i = 0; i < node.getRelations().size(); i++) {

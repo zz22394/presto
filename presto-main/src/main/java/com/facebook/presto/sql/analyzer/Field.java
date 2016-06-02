@@ -22,17 +22,22 @@ import static java.util.Objects.requireNonNull;
 
 public class Field
 {
+    public enum Kind
+    {
+        VISIBLE, HIDDEN, INTERNAL
+    }
+
     private final Optional<QualifiedName> relationAlias;
     private final Optional<String> name;
     private final Type type;
-    private final boolean hidden;
+    private final Kind kind;
 
     public static Field newUnqualified(String name, Type type)
     {
         requireNonNull(name, "name is null");
         requireNonNull(type, "type is null");
 
-        return new Field(Optional.empty(), Optional.of(name), type, false);
+        return new Field(Optional.empty(), Optional.of(name), type, Kind.VISIBLE);
     }
 
     public static Field newUnqualified(Optional<String> name, Type type)
@@ -40,28 +45,30 @@ public class Field
         requireNonNull(name, "name is null");
         requireNonNull(type, "type is null");
 
-        return new Field(Optional.empty(), name, type, false);
+        return new Field(Optional.empty(), name, type, Kind.VISIBLE);
     }
 
-    public static Field newQualified(QualifiedName relationAlias, Optional<String> name, Type type, boolean hidden)
+    public static Field newQualified(QualifiedName relationAlias, Optional<String> name, Type type, Kind kind)
     {
         requireNonNull(relationAlias, "relationAlias is null");
         requireNonNull(name, "name is null");
         requireNonNull(type, "type is null");
+        requireNonNull(kind, "kind is null");
 
-        return new Field(Optional.of(relationAlias), name, type, hidden);
+        return new Field(Optional.of(relationAlias), name, type, kind);
     }
 
-    public Field(Optional<QualifiedName> relationAlias, Optional<String> name, Type type, boolean hidden)
+    public Field(Optional<QualifiedName> relationAlias, Optional<String> name, Type type, Kind kind)
     {
         requireNonNull(relationAlias, "relationAlias is null");
         requireNonNull(name, "name is null");
         requireNonNull(type, "type is null");
+        requireNonNull(kind, "kind is null");
 
         this.relationAlias = relationAlias;
         this.name = name;
         this.type = type;
-        this.hidden = hidden;
+        this.kind = kind;
     }
 
     public Optional<QualifiedName> getRelationAlias()
@@ -79,9 +86,9 @@ public class Field
         return type;
     }
 
-    public boolean isHidden()
+    public Kind getKind()
     {
-        return hidden;
+        return kind;
     }
 
     public boolean matchesPrefix(Optional<QualifiedName> prefix)
@@ -118,6 +125,11 @@ public class Field
 
         // TODO: need to know whether the qualified name and the name of this field were quoted
         return matchesPrefix(name.getPrefix()) && this.name.get().equalsIgnoreCase(name.getSuffix());
+    }
+
+    public boolean isVisible()
+    {
+        return kind == Kind.VISIBLE;
     }
 
     @Override

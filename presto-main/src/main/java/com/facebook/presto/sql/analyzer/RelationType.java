@@ -30,7 +30,6 @@ import java.util.function.Predicate;
 import static com.facebook.presto.util.ImmutableCollectors.toImmutableList;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkElementIndex;
-import static com.google.common.base.Predicates.not;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -53,7 +52,7 @@ public class RelationType
     {
         requireNonNull(fields, "fields is null");
         this.allFields = ImmutableList.copyOf(fields);
-        this.visibleFields = ImmutableList.copyOf(Iterables.filter(fields, not(Field::isHidden)));
+        this.visibleFields = ImmutableList.copyOf(Iterables.filter(fields, Field::isVisible));
 
         int index = 0;
         ImmutableMap.Builder<Field, Integer> builder = ImmutableMap.builder();
@@ -170,12 +169,12 @@ public class RelationType
             Field field = allFields.get(i);
             Optional<String> columnAlias = field.getName();
             if (columnAliases == null) {
-                fieldsBuilder.add(Field.newQualified(QualifiedName.of(relationAlias), columnAlias, field.getType(), field.isHidden()));
+                fieldsBuilder.add(Field.newQualified(QualifiedName.of(relationAlias), columnAlias, field.getType(), field.getKind()));
             }
-            else if (!field.isHidden()) {
+            else if (field.isVisible()) {
                 // hidden fields are not exposed when there are column aliases
                 columnAlias = Optional.of(columnAliases.get(i));
-                fieldsBuilder.add(Field.newQualified(QualifiedName.of(relationAlias), columnAlias, field.getType(), false));
+                fieldsBuilder.add(Field.newQualified(QualifiedName.of(relationAlias), columnAlias, field.getType(), Field.Kind.VISIBLE));
             }
         }
 
