@@ -106,21 +106,7 @@ class AggregationAnalyzer
         // and the '*' will be expanded to Field references. Therefore we translate all simple name expressions
         // in the group by clause to fields they reference so that the expansion from '*' can be matched against them
         for (Expression expression : Iterables.filter(expressions, columnReferences::contains)) {
-            QualifiedName name;
-            if (expression instanceof QualifiedNameReference) {
-                name = ((QualifiedNameReference) expression).getName();
-            }
-            else {
-                name = DereferenceExpression.getQualifiedName(checkType(expression, DereferenceExpression.class, "expression"));
-            }
-
-            List<Field> fields = scope.getRelationType().resolveFields(name);
-            checkState(fields.size() <= 1, "Found more than one field for name '%s': %s", name, fields);
-
-            if (fields.size() == 1) {
-                Field field = Iterables.getOnlyElement(fields);
-                fieldIndexes.add(scope.getRelationType().indexOf(field));
-            }
+            fieldIndexes.add(scope.resolveField(expression).getFieldIndex());
         }
         this.fieldIndexes = fieldIndexes.build();
     }

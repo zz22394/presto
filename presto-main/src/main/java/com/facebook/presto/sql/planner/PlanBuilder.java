@@ -13,6 +13,7 @@
  */
 package com.facebook.presto.sql.planner;
 
+import com.facebook.presto.spi.type.Type;
 import com.facebook.presto.sql.analyzer.Analysis;
 import com.facebook.presto.sql.planner.plan.PlanNode;
 import com.facebook.presto.sql.planner.plan.ProjectNode;
@@ -108,7 +109,15 @@ class PlanBuilder
 
         ImmutableMap.Builder<Symbol, Expression> newTranslations = ImmutableMap.builder();
         for (Expression expression : expressions) {
-            Symbol symbol = symbolAllocator.newSymbol(expression, getAnalysis().getTypeWithCoercions(expression));
+            Type type;
+            Optional<Symbol> translated = translations.tryGet(expression);
+            if (translated.isPresent()) {
+                type = symbolAllocator.getTypes().get(translated.get());
+            }
+            else {
+                type =  getAnalysis().getTypeWithCoercions(expression);
+            }
+            Symbol symbol = symbolAllocator.newSymbol(expression, type);
 
             projections.put(symbol, translations.rewrite(expression));
             newTranslations.put(symbol, expression);

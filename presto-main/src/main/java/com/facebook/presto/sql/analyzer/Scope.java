@@ -18,10 +18,12 @@ import com.facebook.presto.sql.tree.Expression;
 import com.facebook.presto.sql.tree.QualifiedName;
 import com.facebook.presto.sql.tree.QualifiedNameReference;
 import com.facebook.presto.sql.tree.WithQuery;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,8 +31,8 @@ import java.util.Optional;
 
 import static com.facebook.presto.sql.analyzer.SemanticExceptions.createAmbiguousAttributeException;
 import static com.facebook.presto.sql.analyzer.SemanticExceptions.createMissingAttributeException;
+import static com.facebook.presto.util.ImmutableCollectors.toImmutableList;
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.collect.Iterables.getOnlyElement;
 import static java.util.Objects.requireNonNull;
 
 @Immutable
@@ -61,16 +63,41 @@ public class Scope
         return relation;
     }
 
+    public ResolvedField resolveField(Expression expression)
+    {
+        return resolveField(expression, asQualifiedName(expression));
+    }
+
     public ResolvedField resolveField(Expression expression, QualifiedName name)
     {
-        return tryResolveField(expression, name).orElseThrow(() -> createMissingAttributeException(expression, name));
+        List<ResolvedField> resolvedFields = resolveField(name, true);
+        if (resolvedFields.size() == 0) {
+            throw createMissingAttributeException(expression, name);
+        }
+        else if (resolvedFields.size() == 1) {
+            return resolvedFields.get(0);
+        }
+        else {
+            resolvedFields = filterVisible(resolvedFields);
+            if (resolvedFields.size() == 1) {
+                return resolvedFields.get(0);
+            }
+            throw createAmbiguousAttributeException(expression, name);
+        }
+    }
+
+    private List<ResolvedField> filterVisible(List<ResolvedField> resolvedFields)
+    {
+        return resolvedFields.stream()
+                .filter(resolvedField -> resolvedField.getField().isVisible())
+                .collect(toImmutableList());
     }
 
     public Optional<ResolvedField> tryResolveField(Expression expression)
     {
         QualifiedName qualifiedName = asQualifiedName(expression);
         if (qualifiedName != null) {
-            return tryResolveField(expression, qualifiedName);
+            return tryResolveField(qualifiedName);
         }
         return Optional.empty();
     }
@@ -87,21 +114,24 @@ public class Scope
         return name;
     }
 
-    public Optional<ResolvedField> tryResolveField(Expression node, QualifiedName name)
+    public Optional<ResolvedField> tryResolveField(QualifiedName name)
     {
-        return resolveField(node, name, true);
+        List<ResolvedField> resolvedFields = resolveField(name, true);
+        if (resolvedFields.size() > 1) {
+            resolvedFields = filterVisible(resolvedFields);
+        }
+        if (resolvedFields.size() == 1) {
+            return Optional.of(resolvedFields.get(0));
+        }
+        return Optional.empty();
     }
 
-    private Optional<ResolvedField> resolveField(Expression node, QualifiedName name, boolean local)
+    private List<ResolvedField> resolveField(QualifiedName name, boolean local)
     {
         List<Field> matches = relation.resolveFields(name);
-        if (matches.size() > 1) {
-            throw createAmbiguousAttributeException(node, name);
-        }
-
         if (matches.isEmpty()) {
             if (isColumnReference(name, relation)) {
-                return Optional.empty();
+                return ImmutableList.of();
             }
             Scope boundary = this;
             while (!boundary.queryBoundary) {
@@ -109,18 +139,27 @@ public class Scope
                     boundary = boundary.parent.get();
                 }
                 else {
-                    return Optional.empty();
+                    return ImmutableList.of();
                 }
             }
             if (boundary.parent.isPresent()) {
                 // jump over the query boundary
-                return boundary.parent.get().resolveField(node, name, false);
+                return boundary.parent.get().resolveField(name, false);
             }
-            return Optional.empty();
+            return ImmutableList.of();
         }
-        else {
-            return Optional.of(asResolvedField(getOnlyElement(matches), local));
-        }
+
+        List<Optional<QualifiedName>> names = new ArrayList<>();
+        return matches.stream()
+                .filter(field -> {
+                    if (!names.contains(field.getQualifiedName())) {
+                        names.add(field.getQualifiedName());
+                        return true;
+                    }
+                    return false;
+                })
+                .map(field -> asResolvedField(field, local))
+                .collect(toImmutableList());
     }
 
     private ResolvedField asResolvedField(Field field, boolean local)
@@ -170,6 +209,14 @@ public class Scope
     public boolean isApproximate()
     {
         return approximate;
+    }
+
+    public Scope copyWithPrunedHiddenFields()
+    {
+        ImmutableList<Field> nonHiddenFields = relation.getAllFields().stream()
+                .filter(field -> field.getKind() != Field.Kind.HIDDEN)
+                .collect(toImmutableList());
+        return new Scope(parent, new RelationType(nonHiddenFields), namedQueries, approximate, queryBoundary);
     }
 
     public static final class Builder

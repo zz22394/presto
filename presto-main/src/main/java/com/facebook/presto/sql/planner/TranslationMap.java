@@ -32,6 +32,7 @@ import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
+import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -144,26 +145,42 @@ class TranslationMap
 
     public boolean containsSymbol(Expression expression)
     {
-        if (expression instanceof FieldReference) {
-            int field = ((FieldReference) expression).getFieldIndex();
-            return fieldSymbols[field] != null;
-        }
-
-        Expression translated = translateNamesToSymbols(expression);
-        return expressionToSymbols.containsKey(translated);
+        return tryGet(expression).isPresent();
     }
 
     public Symbol get(Expression expression)
     {
+        Optional<Symbol> symbol = tryGet(expression);
+        if (symbol.isPresent()) {
+            return symbol.get();
+        }
+        else if (expression instanceof FieldReference) {
+            int field = ((FieldReference) expression).getFieldIndex();
+            throw new IllegalArgumentException(format("No mapping for field: %s", field));
+        }
+        else {
+            throw new IllegalArgumentException(format("No mapping for expression: %s", expression));
+        }
+    }
+
+    public Optional<Symbol> tryGet(Expression expression)
+    {
         if (expression instanceof FieldReference) {
             int field = ((FieldReference) expression).getFieldIndex();
-            checkArgument(fieldSymbols[field] != null, "No mapping for field: %s", field);
-            return fieldSymbols[field];
+            Symbol symbol = this.fieldSymbols[field];
+            if (symbol == null) {
+                symbol = rewriteBase.getSymbol(field);
+            }
+            return Optional.ofNullable(symbol);
         }
 
         Expression translated = translateNamesToSymbols(expression);
-        checkArgument(expressionToSymbols.containsKey(translated), "No mapping for expression: %s", expression);
-        return expressionToSymbols.get(translated);
+        if (expressionToSymbols.containsKey(translated)) {
+            return Optional.of(expressionToSymbols.get(translated));
+        }
+        return rewriteBase.getScope().tryResolveField(expression)
+                .map(ResolvedField::getFieldIndex)
+                .map(rewriteBase.getOutputSymbols()::get);
     }
 
     public void put(Expression expression, Expression rewritten)
@@ -179,7 +196,7 @@ class TranslationMap
         translatedExpressions.add(node);
     }
 
-    private Expression translateNamesToSymbols(Expression expression)
+    public Expression translateNamesToSymbols(Expression expression)
     {
         return ExpressionTreeRewriter.rewriteWith(new ExpressionRewriter<Void>()
         {

@@ -302,7 +302,7 @@ public class ExpressionAnalyzer
 
             // If this Dereference looks like column reference, try match it to column first.
             if (qualifiedName != null) {
-                Optional<ResolvedField> resolvedField = scope.tryResolveField(node, qualifiedName);
+                Optional<ResolvedField> resolvedField = scope.tryResolveField(qualifiedName);
                 if (resolvedField.isPresent()) {
                     return handleResolvedField(node, resolvedField.get());
                 }

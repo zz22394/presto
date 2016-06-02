@@ -127,9 +127,9 @@ class RelationPlanner
 
             // Add implicit coercions if view query produces types that don't match the declared output types
             // of the view (e.g., if the underlying tables referenced by the view changed)
-            Type[] types = scope.getRelationType().getAllFields().stream().map(Field::getType).toArray(Type[]::new);
+            Type[] types = scope.getRelationType().getVisibleFields().stream().map(Field::getType).toArray(Type[]::new);
             RelationPlan withCoercions = addCoercions(subPlan, types);
-            return new RelationPlan(withCoercions.getRoot(), scope, withCoercions.getOutputSymbols(), withCoercions.getSampleWeight());
+            return new RelationPlan(withCoercions.getRoot(), scope.copyWithPrunedHiddenFields(), withCoercions.getOutputSymbols(), withCoercions.getSampleWeight());
         }
 
         TableHandle handle = analysis.getTableHandle(node);
@@ -547,7 +547,7 @@ class RelationPlanner
     private RelationPlan addCoercions(RelationPlan plan, Type[] targetColumnTypes)
     {
         List<Symbol> oldSymbols = plan.getOutputSymbols();
-        RelationType oldDescriptor = plan.getDescriptor().withOnlyVisibleFields();
+        RelationType oldDescriptor = plan.getDescriptor();
         verify(targetColumnTypes.length == oldSymbols.size());
         ImmutableList.Builder<Symbol> newSymbols = new ImmutableList.Builder<>();
         Field[] newFields = new Field[targetColumnTypes.length];

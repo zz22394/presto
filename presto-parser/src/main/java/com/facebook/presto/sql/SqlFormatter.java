@@ -372,7 +372,15 @@ public final class SqlFormatter
         @Override
         protected Void visitAliasedRelation(AliasedRelation node, Integer indent)
         {
-            process(node.getRelation(), indent);
+            Relation relation = node.getRelation();
+
+            if (relation instanceof AliasedRelation) {
+                builder.append('(');
+                process(relation, indent);
+                builder.append(')');
+            } else {
+                process(relation, indent);
+            }
 
             builder.append(' ')
                     .append(node.getAlias());

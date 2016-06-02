@@ -74,6 +74,7 @@ import static com.facebook.presto.spi.type.VarbinaryType.VARBINARY;
 import static com.facebook.presto.util.ImmutableCollectors.toImmutableList;
 import static com.facebook.presto.util.ImmutableCollectors.toImmutableSet;
 import static com.google.common.base.MoreObjects.firstNonNull;
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static java.util.Objects.requireNonNull;
@@ -112,19 +113,32 @@ class QueryPlanner
 
         List<Expression> orderBy = analysis.getOrderByExpressions(query);
         builder = handleSubqueries(builder, query, orderBy);
-        List<Expression> outputs = analysis.getOutputExpressions(query);
-        builder = handleSubqueries(builder, query, outputs);
-        builder = project(builder, Iterables.concat(orderBy, outputs));
+
+        List<Expression> outputExpressions = analysis.getOutputExpressions(query);
+        builder = handleSubqueries(builder, query, outputExpressions);
 
         builder = sort(builder, query);
-        builder = project(builder, analysis.getOutputExpressions(query));
         builder = limit(builder, query);
 
+        Scope outputScope = analysis.getScope(query);
+        builder = project(builder, getVisibleOutputExpressions(outputExpressions, outputScope));
+        Scope visibleOutputScope = outputScope.copyWithPrunedHiddenFields();
         return new RelationPlan(
                 builder.getRoot(),
-                analysis.getScope(query),
-                computeOutputs(builder, analysis.getOutputExpressions(query)),
+                visibleOutputScope,
+                computeOutputs(builder, visibleOutputScope),
                 builder.getSampleWeight());
+    }
+
+    private List<Expression> getVisibleOutputExpressions(List<Expression> outputExpressions, Scope outputScope)
+    {
+        ImmutableList.Builder<Expression> visibleOutputExpressions = ImmutableList.builder();
+        for (int i = 0; i < outputScope.getRelationType().getAllFieldCount(); i++) {
+            if (outputScope.getRelationType().getFieldByIndex(i).isVisible()) {
+                visibleOutputExpressions.add(outputExpressions.get(i));
+            }
+        }
+        return visibleOutputExpressions.build();
     }
 
     public RelationPlan plan(QuerySpecification node)
@@ -137,22 +151,35 @@ class QueryPlanner
 
         builder = window(builder, node);
 
+        Scope outputScope = analysis.getScope(node);
+        List<Expression> outputs = analysis.getOutputExpressions(node);
+        builder = handleSubqueries(builder, node, getVisibleOutputExpressions(outputs, outputScope));
+        builder = project(builder, outputs);
+
+        // update scope in TranslationMap to operate on output columns from now
+        builder = setScope(builder, outputScope);
+
         List<Expression> orderBy = analysis.getOrderByExpressions(node);
         builder = handleSubqueries(builder, node, orderBy);
-        List<Expression> outputs = analysis.getOutputExpressions(node);
-        builder = handleSubqueries(builder, node, outputs);
-        builder = project(builder, Iterables.concat(orderBy, outputs));
+        builder = builder.appendProjections(orderBy, symbolAllocator, idAllocator);
 
-        builder = distinct(builder, node, outputs, orderBy);
+        builder = distinct(builder, node, analysis.getOutputExpressions(node), orderBy);
         builder = sort(builder, node);
-        builder = project(builder, analysis.getOutputExpressions(node));
         builder = limit(builder, node);
 
         return new RelationPlan(
                 builder.getRoot(),
-                analysis.getScope(node),
-                computeOutputs(builder, analysis.getOutputExpressions(node)),
+                outputScope,
+                computeOutputs(builder, outputScope),
                 builder.getSampleWeight());
+    }
+
+    private PlanBuilder setScope(PlanBuilder builder, Scope outputScope)
+    {
+        RelationPlan rewriteBase = new RelationPlan(builder.getRoot(), outputScope, builder.getRoot().getOutputSymbols(), builder.getSampleWeight());
+        TranslationMap translations = new TranslationMap(rewriteBase, analysis);
+        translations.putExpressionMappingsFrom(builder.getTranslations());
+        return new PlanBuilder(translations, builder.getRoot(), builder.getSampleWeight());
     }
 
     public DeleteNode plan(Delete node)
@@ -203,11 +230,11 @@ class QueryPlanner
         return new DeleteNode(idAllocator.getNextId(), builder.getRoot(), new DeleteHandle(handle), rowId, outputs);
     }
 
-    private List<Symbol> computeOutputs(PlanBuilder builder, List<Expression> outputExpressions)
+    private List<Symbol> computeOutputs(PlanBuilder builder, Scope outputScope)
     {
         ImmutableList.Builder<Symbol> outputSymbols = ImmutableList.builder();
-        for (Expression expression : outputExpressions) {
-            outputSymbols.add(builder.translate(expression));
+        for (int i = 0; i < outputScope.getRelationType().getAllFieldCount(); i++) {
+            outputSymbols.add(builder.translate(new FieldReference(i)));
         }
         return outputSymbols.build();
     }
@@ -278,7 +305,15 @@ class QueryPlanner
 
         ImmutableMap.Builder<Symbol, Expression> projections = ImmutableMap.builder();
         for (Expression expression : expressions) {
-            Symbol symbol = symbolAllocator.newSymbol(expression, analysis.getTypeWithCoercions(expression));
+            Type type;
+            Optional<Symbol> translatedSymbol = subPlan.getTranslations().tryGet(expression);
+            if (translatedSymbol.isPresent()) {
+                type = symbolAllocator.getTypes().get(translatedSymbol.get());
+            }
+            else {
+                type = analysis.getTypeWithCoercions(expression);
+            }
+            Symbol symbol = symbolAllocator.newSymbol(expression, type);
 
             projections.put(symbol, subPlan.rewrite(expression));
             outputTranslations.put(expression, symbol);
@@ -643,7 +678,9 @@ class QueryPlanner
 
     private PlanBuilder sort(PlanBuilder subPlan, Query node)
     {
-        return sort(subPlan, node.getOrderBy(), node.getLimit(), analysis.getOrderByExpressions(node));
+        List<Expression> orderByExpressions = analysis.getOrderByExpressions(node);
+        subPlan = subPlan.appendProjections(orderByExpressions, symbolAllocator, idAllocator);
+        return sort(subPlan, node.getOrderBy(), node.getLimit(), orderByExpressions);
     }
 
     private PlanBuilder sort(PlanBuilder subPlan, QuerySpecification node)
@@ -653,6 +690,7 @@ class QueryPlanner
 
     private PlanBuilder sort(PlanBuilder subPlan, List<SortItem> orderBy, Optional<String> limit, List<Expression> orderByExpressions)
     {
+        checkArgument(orderBy.size() == orderByExpressions.size(), "Not equal size of ORDER BY expression collections");
         if (orderBy.isEmpty()) {
             return subPlan;
         }
@@ -661,8 +699,8 @@ class QueryPlanner
 
         ImmutableList.Builder<Symbol> orderBySymbols = ImmutableList.builder();
         Map<Symbol, SortOrder> orderings = new HashMap<>();
-        for (Expression fieldOrExpression : orderByExpressions) {
-            Symbol symbol = subPlan.translate(fieldOrExpression);
+        for (Expression expression : orderByExpressions) {
+            Symbol symbol = subPlan.translate(expression);
 
             SortItem sortItem = sortItems.next();
             if (!orderings.containsKey(symbol)) {

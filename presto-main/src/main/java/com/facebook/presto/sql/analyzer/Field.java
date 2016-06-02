@@ -15,11 +15,15 @@ package com.facebook.presto.sql.analyzer;
 
 import com.facebook.presto.spi.type.Type;
 import com.facebook.presto.sql.tree.QualifiedName;
+import com.google.common.collect.ImmutableList;
+
+import javax.annotation.concurrent.Immutable;
 
 import java.util.Optional;
 
 import static java.util.Objects.requireNonNull;
 
+@Immutable
 public class Field
 {
     public enum Kind
@@ -34,18 +38,21 @@ public class Field
 
     public static Field newUnqualified(String name, Type type)
     {
-        requireNonNull(name, "name is null");
-        requireNonNull(type, "type is null");
-
-        return new Field(Optional.empty(), Optional.of(name), type, Kind.VISIBLE);
+        return newUnqualified(Optional.of(name), type);
     }
 
     public static Field newUnqualified(Optional<String> name, Type type)
     {
+        return newUnqualified(name, type, Kind.VISIBLE);
+    }
+
+    public static Field newUnqualified(Optional<String> name, Type type, Kind kind)
+    {
         requireNonNull(name, "name is null");
         requireNonNull(type, "type is null");
+        requireNonNull(kind, "kind is null");
 
-        return new Field(Optional.empty(), name, type, Kind.VISIBLE);
+        return new Field(Optional.empty(), name, type, kind);
     }
 
     public static Field newQualified(QualifiedName relationAlias, Optional<String> name, Type type, Kind kind)
@@ -74,6 +81,19 @@ public class Field
     public Optional<QualifiedName> getRelationAlias()
     {
         return relationAlias;
+    }
+
+    public Optional<QualifiedName> getQualifiedName()
+    {
+        if (name.isPresent()) {
+            ImmutableList.Builder<String> parts = ImmutableList.builder();
+            relationAlias.ifPresent(alias -> parts.addAll(alias.getParts()));
+            parts.add(name.get());
+            return Optional.of(new QualifiedName(parts.build()));
+        }
+        else {
+            return Optional.empty();
+        }
     }
 
     public Optional<String> getName()

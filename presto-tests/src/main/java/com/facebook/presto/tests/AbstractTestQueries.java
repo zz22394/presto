@@ -930,27 +930,6 @@ public abstract class AbstractTestQueries
     }
 
     @Test
-    public void testOrderByLimit()
-            throws Exception
-    {
-        assertQueryOrdered("SELECT custkey, orderstatus FROM ORDERS ORDER BY orderkey DESC LIMIT 10");
-    }
-
-    @Test
-    public void testOrderByExpressionWithLimit()
-            throws Exception
-    {
-        assertQueryOrdered("SELECT custkey, orderstatus FROM ORDERS ORDER BY orderkey + 1 DESC LIMIT 10");
-    }
-
-    @Test
-    public void testGroupByOrderByLimit()
-            throws Exception
-    {
-        assertQueryOrdered("SELECT custkey, SUM(totalprice) FROM ORDERS GROUP BY custkey ORDER BY SUM(totalprice) DESC LIMIT 10");
-    }
-
-    @Test
     public void testLimitZero()
             throws Exception
     {
@@ -5579,6 +5558,100 @@ public abstract class AbstractTestQueries
 
         // two level of nesting
         assertQueryFails("SELECT * FROM lineitem l WHERE true IN (SELECT 1 IN (SELECT 2 * l.orderkey))", errorMsg);
+    }
+
+    @Test
+    public void testOrderByScopes()
+            throws Exception
+    {
+        String values = " (VALUES " +
+                "(-1, 5, 6), " +
+                "(-1, 5, 7), " +
+                "(-1, 4, 8), " +
+                "(-1, 4, 9), " +
+                "( 1, 3, 10)," +
+                "( 1, 3, 11)," +
+                "( 1, 2, 12)," +
+                "( 1, 2, 13))" +
+                "t(a, b, c) ";
+
+        assertQuery("SELECT a, b FROM " + values + " ORDER BY a, b LIMIT 1", "SELECT -1, 4");
+        assertQuery("SELECT a, b, c FROM " + values + " ORDER BY c LIMIT 1", "SELECT -1, 5, 6");
+        assertQuery("SELECT a, b, c FROM " + values + " ORDER BY a, b, c LIMIT 1", "SELECT -1, 4, 8");
+        assertQuery("SELECT a, b, c FROM " + values + " ORDER BY a, b DESC, c LIMIT 1", "SELECT -1, 5, 6");
+        assertQuery("SELECT a, b, c FROM " + values + " ORDER BY a, c LIMIT 1", "SELECT -1, 5, 6");
+        assertQuery("SELECT a, b, c FROM " + values + " ORDER BY a, c DESC LIMIT 1", "SELECT -1, 4, 9");
+
+        // asterisk syntax
+        assertQuery("SELECT * FROM " + values + " ORDER BY a, c LIMIT 1", "SELECT -1, 5, 6");
+        assertQuery("SELECT * FROM " + values + " ORDER BY 1, 3 LIMIT 1", "SELECT -1, 5, 6");
+        assertQuery("SELECT * FROM " + values + " ORDER BY 1, 3 DESC LIMIT 1", "SELECT -1, 4, 9");
+        assertQuery("SELECT * FROM " + values + " ORDER BY a DESC, 3 LIMIT 1", "SELECT 1, 3, 10");
+        assertQuery("SELECT c, * FROM " + values + " ORDER BY 1 LIMIT 1", "SELECT 6, -1, 5, 6");
+        assertQuery("SELECT c, * FROM " + values + " ORDER BY 2, 3, 4 LIMIT 1", "SELECT 8, -1, 4, 8");
+        assertQuery("SELECT c, * FROM " + values + " ORDER BY 4 LIMIT 1", "SELECT 6, -1, 5, 6");
+        assertQuery("SELECT * FROM " + values + " ORDER BY a * -1, c LIMIT 1", "SELECT 1, 3, 10");
+        assertQueryFails("SELECT * FROM " + values + " ORDER BY 4", "line 1:141: ORDER BY position 4 is not in select list");
+
+        // two output columns named `a`
+        assertQueryFails("SELECT a, b AS a FROM " + values + " ORDER BY a", "line 1:149: Column 'a' is ambiguous");
+        assertQuery("SELECT a, b AS a FROM " + values + " ORDER BY 1, 2 DESC LIMIT 1", "SELECT -1, 5");
+        assertQuery("SELECT a, b AS a FROM " + values + " ORDER BY t.a, 2 DESC LIMIT 1", "SELECT -1, 5");
+        assertQuery("SELECT a, b AS a FROM " + values + " ORDER BY c LIMIT 1", "SELECT -1, 5");
+        assertQuery("SELECT a, b AS a FROM " + values + " ORDER BY c * -1 LIMIT 1", "SELECT 1, 2");
+        assertQuery("SELECT a, b AS a FROM " + values + " ORDER BY t.c  LIMIT 1", "SELECT -1, 5");
+        assertQuery("SELECT a, b AS a FROM " + values + " ORDER BY t.c * -1 LIMIT 1", "SELECT 1, 2");
+        assertQuery("SELECT a, b AS a FROM " + values + " ORDER BY c + t.c LIMIT 1", "SELECT -1, 5");
+
+        // using new uniquely named output column `d`
+        assertQuery("SELECT a * -1 AS d, b FROM " + values + " ORDER BY d, b LIMIT 1", "SELECT -1, 2");
+        assertQuery("SELECT a * -1 AS d, b FROM " + values + " ORDER BY d * -1, b DESC LIMIT 1", "SELECT 1, 5");
+
+        // using column name of not projected column `c`
+        assertQuery("SELECT a * -1 AS c, b FROM " + values + " ORDER BY c, b LIMIT 1", "SELECT -1, 2");
+        assertQuery("SELECT a * -1 AS c, b FROM " + values + " ORDER BY c * -1, b DESC LIMIT 1", "SELECT 1, 5");
+        assertQuery("SELECT a * -1 AS c, b FROM " + values + " ORDER BY t.c LIMIT 1", "SELECT 1, 5");
+        assertQuery("SELECT a * -1 AS c, b FROM " + values + " ORDER BY t.c * -1 LIMIT 1", "SELECT -1, 2");
+
+        // using ORDER BY `a`
+        assertQuery("SELECT b, a * -1 AS a FROM " + values + " ORDER BY a, b LIMIT 1", "SELECT 2, -1");
+        assertQuery("SELECT b, a * -1 AS a FROM " + values + " ORDER BY a * -1, b DESC  LIMIT 1", "SELECT 5, 1");
+        assertQuery("SELECT b, a * -1 AS a FROM " + values + " ORDER BY t.a, b LIMIT 1", "SELECT 4, 1");
+        assertQuery("SELECT b, a * -1 AS a FROM " + values + " ORDER BY t.a * -1, b LIMIT 1", "SELECT 2, -1");
+        assertQuery("SELECT b, a * -1 AS a FROM " + values + " ORDER BY a + t.a, b LIMIT 1", "SELECT 2, -1");
+
+        // ORDER BY with aggregation
+        assertQuery("SELECT max(a) as a FROM " + values + " GROUP BY c ORDER BY a + 1, c LIMIT 1", "SELECT -1");
+        assertQueryFails("SELECT max(a) as a FROM " + values + " GROUP BY c ORDER BY t.a LIMIT 1", "line 1:162: Column 't.a' cannot be resolved");
+        assertQuery("SELECT max(a) as a FROM " + values + " GROUP BY c ORDER BY c + 1 LIMIT 1", "SELECT -1");
+        assertQuery("SELECT max(a) as a FROM " + values + " GROUP BY c ORDER BY t.c + 1 LIMIT 1", "SELECT -1");
+        //TODO: BUG! below query should pass
+        assertQueryFails("SELECT max(a) as a FROM " + values + " GROUP BY c + 1 ORDER BY c + 1 LIMIT 1", "line 1:166: Column 'c' cannot be resolved");
+        assertQueryFails("SELECT max(a) as a FROM " + values + " GROUP BY c + 1 ORDER BY c LIMIT 1", "line 1:166: Column 'c' cannot be resolved");
+        assertQueryFails("SELECT max(a) as a FROM " + values + " GROUP BY c + 1 ORDER BY t.c LIMIT 1", "line 1:166: Column 't.c' cannot be resolved");
+        assertQueryFails("SELECT max(a) as a FROM " + values + " GROUP BY c + 1 ORDER BY t.c LIMIT 1", "line 1:166: Column 't.c' cannot be resolved");
+        assertQuery("SELECT max(a) as a FROM " + values + " GROUP BY c ORDER BY max(a) LIMIT 1", "SELECT -1");
+        assertQuery("SELECT max(a) as a FROM " + values + " GROUP BY c ORDER BY max(a) + 1 LIMIT 1", "SELECT -1");
+        assertQuery("SELECT max(a) as a FROM " + values + " GROUP BY c ORDER BY a LIMIT 1", "SELECT -1");
+        assertQuery("SELECT max(a) as a FROM " + values + " GROUP BY c ORDER BY a + 1LIMIT 1", "SELECT -1");
+        assertQueryFails("SELECT max(a) as a FROM " + values + " GROUP BY c ORDER BY t.a LIMIT 1", "SELECT -1");
+
+        // ORDER BY with window
+        assertQuery("SELECT max(a) OVER (PARTITION BY b) as a FROM " + values + " ORDER BY a + 1, c LIMIT 1", "SELECT -1");
+        assertQuery("SELECT max(a) OVER (PARTITION BY b) as a FROM " + values + " ORDER BY t.a, c LIMIT 1", "SELECT -1");
+        assertQuery("SELECT max(a) OVER (PARTITION BY b) as a FROM " + values + " ORDER BY c + 1 LIMIT 1", "SELECT -1");
+        assertQuery("SELECT max(a) OVER (PARTITION BY b) as a FROM " + values + " ORDER BY t.c + 1 LIMIT 1", "SELECT -1");
+
+        // ORDER BY with subrelation
+        assertQuery("SELECT b FROM (" + values + ") u ORDER BY c LIMIT 1", "SELECT 5");
+        assertQuery("SELECT b FROM (" + values + ") u ORDER BY u.c LIMIT 1", "SELECT 5");
+        assertQueryFails("SELECT a FROM (" + values + ") u ORDER BY t.c", "line 1:145: Column 't.c' cannot be resolved");
+        assertQuery("SELECT b FROM (SELECT b FROM (" + values + ")) u ORDER BY b LIMIT 1", "SELECT 2");
+        assertQuery("SELECT b FROM (SELECT b FROM (" + values + ")) u ORDER BY u.b LIMIT 1", "SELECT 2");
+        assertQueryFails("SELECT b FROM (SELECT b FROM (" + values + ")) u ORDER BY t.b LIMIT 1", "line 1:161: Column 't.b' cannot be resolved");
+        assertQueryFails("SELECT b FROM (SELECT b FROM (" + values + ")) u ORDER BY a", "line 1:161: Column 'a' cannot be resolved");
+        assertQueryFails("SELECT b FROM (SELECT b FROM (" + values + ")) u ORDER BY u.a", "line 1:161: Column 'u.a' cannot be resolved");
+        assertQueryFails("SELECT b FROM (SELECT b FROM (" + values + ")) u ORDER BY t.a", "line 1:161: Column 't.a' cannot be resolved");
     }
 
     @Test

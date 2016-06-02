@@ -313,10 +313,10 @@ public class Analysis
     private static class GetScopeVisitor
             extends DefaultTraversalVisitor<Void, Scope>
     {
+
         private final IdentityHashMap<Node, Scope> scopes;
         private final Node node;
         private Scope result;
-
         public GetScopeVisitor(IdentityHashMap<Node, Scope> scopes, Node node)
         {
             this.scopes = requireNonNull(scopes, "scopes is null");
@@ -347,8 +347,8 @@ public class Analysis
         {
             return Optional.ofNullable(result);
         }
-    }
 
+    }
     public void setScope(Node node, Scope scope)
     {
         scopes.put(node, scope);
@@ -387,6 +387,11 @@ public class Analysis
     public Set<Expression> getColumnReferences()
     {
         return ImmutableSet.copyOf(columnReferences);
+    }
+
+    public void addType(Expression expression, Type type)
+    {
+        types.put(expression, type);
     }
 
     public void addTypes(IdentityHashMap<Expression, Type> types)
@@ -475,6 +480,15 @@ public class Analysis
     {
         Preconditions.checkState(sampleRatios.containsKey(relation), "Sample ratio missing for %s. Broken analysis?", relation);
         return sampleRatios.get(relation);
+    }
+
+    public void copyExpressionAnalysis(Expression expression, Expression analyzedExpression)
+    {
+        types.put(expression, getType(analyzedExpression));
+        coercions.put(expression, getCoercion(analyzedExpression));
+        if (isTypeOnlyCoercion(analyzedExpression)) {
+            typeOnlyCoercions.add(expression);
+        }
     }
 
     @Immutable
