@@ -349,7 +349,7 @@ public class AddExchanges
                 }
 
                 // rewrite final aggregation in terms of intermediate function
-                finalCalls.put(entry.getKey(), new FunctionCall(QualifiedName.of(signature.getName()), ImmutableList.<Expression>of(new QualifiedNameReference(intermediateSymbol.toQualifiedName()))));
+                finalCalls.put(entry.getKey(), new FunctionCall(QualifiedName.of(signature.getName()), ImmutableList.of(intermediateSymbol.toSymbolReference())));
             }
 
             PlanWithProperties partial = withDerivedProperties(
@@ -1258,7 +1258,7 @@ public class AddExchanges
         Map<Symbol, Symbol> outputToInput = new HashMap<>();
         for (Map.Entry<Symbol, Expression> assignment : assignments.entrySet()) {
             if (assignment.getValue() instanceof QualifiedNameReference) {
-                outputToInput.put(assignment.getKey(), Symbol.fromQualifiedName(((QualifiedNameReference) assignment.getValue()).getName()));
+                outputToInput.put(assignment.getKey(), Symbol.from(assignment.getValue()));
             }
         }
         return outputToInput;

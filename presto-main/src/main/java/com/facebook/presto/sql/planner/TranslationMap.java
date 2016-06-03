@@ -108,7 +108,7 @@ class TranslationMap
             public Expression rewriteExpression(Expression node, Void context, ExpressionTreeRewriter<Void> treeRewriter)
             {
                 if (expressionToSymbols.containsKey(node)) {
-                    return new QualifiedNameReference(expressionToSymbols.get(node).toQualifiedName());
+                    return expressionToSymbols.get(node).toSymbolReference();
                 }
                 else if (expressionToExpressions.containsKey(node)) {
                     Expression mapping = expressionToExpressions.get(node);
@@ -127,7 +127,7 @@ class TranslationMap
         if (expression instanceof FieldReference) {
             int fieldIndex = ((FieldReference) expression).getFieldIndex();
             fieldSymbols[fieldIndex] = symbol;
-            expressionToSymbols.put(new QualifiedNameReference(rewriteBase.getSymbol(fieldIndex).toQualifiedName()), symbol);
+            expressionToSymbols.put(rewriteBase.getSymbol(fieldIndex).toSymbolReference(), symbol);
             return;
         }
 
@@ -198,7 +198,7 @@ class TranslationMap
             {
                 Symbol symbol = rewriteBase.getSymbol(node.getFieldIndex());
                 checkState(symbol != null, "No symbol mapping for node '%s' (%s)", node, node.getFieldIndex());
-                return new QualifiedNameReference(symbol.toQualifiedName());
+                return symbol.toSymbolReference();
             }
 
             @Override
@@ -218,7 +218,7 @@ class TranslationMap
                     if (resolvedField.get().isLocal()) {
                         Optional<Symbol> symbol = rewriteBase.getSymbol(node);
                         checkState(symbol.isPresent(), "No symbol mapping for node '%s'", node);
-                        Expression rewrittenExpression = new QualifiedNameReference(symbol.get().toQualifiedName());
+                        Expression rewrittenExpression = symbol.get().toSymbolReference();
 
                         return coerceIfNecessary(node, rewrittenExpression);
                     }

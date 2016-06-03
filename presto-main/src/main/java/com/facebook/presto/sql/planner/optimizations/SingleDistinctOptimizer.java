@@ -119,8 +119,7 @@ public class SingleDistinctOptimizer
 
                 ImmutableMap.Builder<Symbol, Expression> outputSymbols = ImmutableMap.builder();
                 for (Symbol symbol : aggregationNode.getOutputSymbols()) {
-                    Expression expression = new QualifiedNameReference(symbol.toQualifiedName());
-                    outputSymbols.put(symbol, expression);
+                    outputSymbols.put(symbol, symbol.toSymbolReference());
                 }
 
                 // add null assignment for mask

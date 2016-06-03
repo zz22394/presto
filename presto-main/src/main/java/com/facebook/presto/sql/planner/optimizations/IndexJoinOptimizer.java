@@ -184,12 +184,6 @@ public class IndexJoinOptimizer
         }
     }
 
-    private static Symbol referenceToSymbol(Expression expression)
-    {
-        checkArgument(expression instanceof QualifiedNameReference);
-        return Symbol.fromQualifiedName(((QualifiedNameReference) expression).getName());
-    }
-
     /**
      * Tries to rewrite a PlanNode tree with an IndexSource instead of a TableScan
      */
@@ -296,7 +290,7 @@ public class IndexJoinOptimizer
             Set<Symbol> newLookupSymbols = context.get().getLookupSymbols().stream()
                     .map(node.getAssignments()::get)
                     .filter(QualifiedNameReference.class::isInstance)
-                    .map(IndexJoinOptimizer::referenceToSymbol)
+                    .map(Symbol::from)
                     .collect(toImmutableSet());
 
             if (newLookupSymbols.isEmpty()) {
@@ -454,7 +448,7 @@ public class IndexJoinOptimizer
             public Map<Symbol, Symbol> visitProject(ProjectNode node, Set<Symbol> lookupSymbols)
             {
                 // Map from output Symbols to source Symbols
-                Map<Symbol, Symbol> directSymbolTranslationOutputMap = Maps.transformValues(Maps.filterValues(node.getAssignments(), QualifiedNameReference.class::isInstance), IndexJoinOptimizer::referenceToSymbol);
+                Map<Symbol, Symbol> directSymbolTranslationOutputMap = Maps.transformValues(Maps.filterValues(node.getAssignments(), QualifiedNameReference.class::isInstance), Symbol::from);
                 Map<Symbol, Symbol> outputToSourceMap = FluentIterable.from(lookupSymbols)
                         .filter(in(directSymbolTranslationOutputMap.keySet()))
                         .toMap(Functions.forMap(directSymbolTranslationOutputMap));

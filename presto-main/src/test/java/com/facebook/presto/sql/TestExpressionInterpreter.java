@@ -1248,36 +1248,31 @@ public class TestExpressionInterpreter
 
         IdentityHashMap<Expression, Type> expressionTypes = getExpressionTypes(TEST_SESSION, METADATA, SQL_PARSER, SYMBOL_TYPES, parsedExpression);
         ExpressionInterpreter interpreter = expressionOptimizer(parsedExpression, METADATA, TEST_SESSION, expressionTypes);
-        return interpreter.optimize(new SymbolResolver()
-        {
-            @Override
-            public Object getValue(Symbol symbol)
-            {
-                switch (symbol.getName().toLowerCase(ENGLISH)) {
-                    case "bound_integer":
-                        return 1234L;
-                    case "bound_long":
-                        return 1234L;
-                    case "bound_string":
-                        return utf8Slice("hello");
-                    case "bound_double":
-                        return 12.34;
-                    case "bound_date":
-                        return new LocalDate(2001, 8, 22).toDateMidnight(DateTimeZone.UTC).getMillis();
-                    case "bound_time":
-                        return new LocalTime(3, 4, 5, 321).toDateTime(new DateTime(0, DateTimeZone.UTC)).getMillis();
-                    case "bound_timestamp":
-                        return new DateTime(2001, 8, 22, 3, 4, 5, 321, DateTimeZone.UTC).getMillis();
-                    case "bound_pattern":
-                        return utf8Slice("%el%");
-                    case "bound_timestamp_with_timezone":
-                        return new SqlTimestampWithTimeZone(new DateTime(1970, 1, 1, 1, 0, 0, 999, DateTimeZone.UTC).getMillis(), getTimeZoneKey("Z"));
-                    case "bound_varbinary":
-                        return Slices.wrappedBuffer((byte) 0xab);
-                }
-
-                return new QualifiedNameReference(symbol.toQualifiedName());
+        return interpreter.optimize(symbol -> {
+            switch (symbol.getName().toLowerCase(ENGLISH)) {
+                case "bound_integer":
+                    return 1234L;
+                case "bound_long":
+                    return 1234L;
+                case "bound_string":
+                    return utf8Slice("hello");
+                case "bound_double":
+                    return 12.34;
+                case "bound_date":
+                    return new LocalDate(2001, 8, 22).toDateMidnight(DateTimeZone.UTC).getMillis();
+                case "bound_time":
+                    return new LocalTime(3, 4, 5, 321).toDateTime(new DateTime(0, DateTimeZone.UTC)).getMillis();
+                case "bound_timestamp":
+                    return new DateTime(2001, 8, 22, 3, 4, 5, 321, DateTimeZone.UTC).getMillis();
+                case "bound_pattern":
+                    return utf8Slice("%el%");
+                case "bound_timestamp_with_timezone":
+                    return new SqlTimestampWithTimeZone(new DateTime(1970, 1, 1, 1, 0, 0, 999, DateTimeZone.UTC).getMillis(), getTimeZoneKey("Z"));
+                case "bound_varbinary":
+                    return Slices.wrappedBuffer((byte) 0xab);
             }
+
+            return symbol.toSymbolReference();
         });
     }
 

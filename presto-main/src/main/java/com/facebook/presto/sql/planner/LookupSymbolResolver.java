@@ -15,7 +15,7 @@ package com.facebook.presto.sql.planner;
 
 import com.facebook.presto.spi.ColumnHandle;
 import com.facebook.presto.spi.predicate.NullableValue;
-import com.facebook.presto.sql.tree.QualifiedNameReference;
+import com.facebook.presto.sql.tree.SymbolReference;
 import com.google.common.collect.ImmutableMap;
 
 import java.util.Map;
@@ -45,7 +45,7 @@ public class LookupSymbolResolver
         checkArgument(column != null, "Missing column assignment for %s", symbol);
 
         if (!bindings.containsKey(column)) {
-            return new QualifiedNameReference(symbol.toQualifiedName());
+            return symbol.toSymbolReference();
         }
 
         return bindings.get(column).getValue();

@@ -65,11 +65,13 @@ import com.facebook.presto.sql.tree.NullLiteral;
 import com.facebook.presto.sql.tree.QualifiedName;
 import com.facebook.presto.sql.tree.QualifiedNameReference;
 import com.facebook.presto.sql.tree.Row;
+import com.facebook.presto.sql.tree.SampledRelation;
 import com.facebook.presto.sql.tree.SearchedCaseExpression;
 import com.facebook.presto.sql.tree.SimpleCaseExpression;
 import com.facebook.presto.sql.tree.StringLiteral;
 import com.facebook.presto.sql.tree.SubqueryExpression;
 import com.facebook.presto.sql.tree.SubscriptExpression;
+import com.facebook.presto.sql.tree.SymbolReference;
 import com.facebook.presto.sql.tree.TryExpression;
 import com.facebook.presto.sql.tree.WhenClause;
 import com.facebook.presto.type.ArrayType;
@@ -391,13 +393,13 @@ public class ExpressionInterpreter
         @Override
         protected Object visitQualifiedNameReference(QualifiedNameReference node, Object context)
         {
-            if (node.getName().getPrefix().isPresent()) {
-                // not a symbol
-                return node;
-            }
+            return node;
+        }
 
-            Symbol symbol = Symbol.fromQualifiedName(node.getName());
-            return ((SymbolResolver) context).getValue(symbol);
+        @Override
+        protected Object visitSymbolReference(SymbolReference node, Object context)
+        {
+            return node;
         }
 
         @Override

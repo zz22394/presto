@@ -61,7 +61,7 @@ final class ExpressionAliases
         ImmutableMultimap.Builder<String, Expression> mapUpdate = ImmutableMultimap.builder();
         for (Map.Entry<Symbol, Expression> assignment : assignments.entrySet()) {
             for (String alias : map.keys()) {
-                if (map.get(alias).contains(assignment.getKey().toQualifiedNameReference())) {
+                if (map.get(alias).contains(assignment.getKey().toSymbolReference())) {
                 mapUpdate.put(alias, assignment.getValue());
                 }
             }

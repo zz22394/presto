@@ -29,6 +29,7 @@ import com.facebook.presto.sql.tree.InPredicate;
 import com.facebook.presto.sql.tree.Node;
 import com.facebook.presto.sql.tree.QualifiedNameReference;
 import com.facebook.presto.sql.tree.SubqueryExpression;
+import com.facebook.presto.sql.tree.SymbolReference;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -113,7 +114,7 @@ class SubqueryPlanner
         subquery = replaceExpressionsWithSymbols(subquery, correlation);
 
         TranslationMap translationMap = subPlan.copyTranslations();
-        QualifiedNameReference valueList = getOnlyElement(subquery.getOutputSymbols()).toQualifiedNameReference();
+        SymbolReference valueList = getOnlyElement(subquery.getOutputSymbols()).toSymbolReference();
         translationMap.setExpressionAsAlreadyTranslated(valueList);
         translationMap.put(inPredicate, new InPredicate(inPredicate.getValue(), valueList));
 
@@ -172,7 +173,7 @@ class SubqueryPlanner
             for (Expression missingReference : missingReferences) {
                 Expression rewritten = subPlan.rewrite(missingReference);
                 if (rewritten != missingReference) {
-                    correlation.put(missingReference, asSymbol(rewritten));
+                    correlation.put(missingReference, Symbol.from(rewritten));
                 }
             }
         }
@@ -183,12 +184,6 @@ class SubqueryPlanner
     {
         return new RelationPlanner(analysis, symbolAllocator, idAllocator, metadata, session)
                 .process(subqueryExpression.getQuery(), null);
-    }
-
-    private Symbol asSymbol(Expression expression)
-    {
-        checkState(expression instanceof QualifiedNameReference);
-        return Symbol.fromQualifiedName(((QualifiedNameReference) expression).getName());
     }
 
     private Set<Expression> extractMissingExpressions(PlanNode planNode)
@@ -215,7 +210,7 @@ class SubqueryPlanner
             node.getSources().forEach(source -> source.accept(this, null));
 
             for (Symbol symbol : node.getOutputSymbols()) {
-                missing.remove(symbol.toQualifiedNameReference());
+                missing.remove(symbol.toSymbolReference());
             }
             return null;
         }
@@ -281,7 +276,7 @@ class SubqueryPlanner
         }
 
         Map<Expression, Expression> expressionMapping = mapping.entrySet().stream()
-                    .collect(toImmutableMap(Map.Entry::getKey, e -> e.getValue().toQualifiedNameReference()));
+                .collect(toImmutableMap(Map.Entry::getKey, e -> e.getValue().toSymbolReference()));
         return SimplePlanRewriter.rewriteWith(new ExpressionReplacer(idAllocator, expressionMapping), planNode, null);
     }
 

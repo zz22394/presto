@@ -43,8 +43,8 @@ final class JoinMatcher
                 int i = 0;
                 for (JoinNode.EquiJoinClause equiJoinClause : joinNode.getCriteria()) {
                     AliasPair expectedEquiClause = equiCriteria.get(i++);
-                    expressionAliases.put(expectedEquiClause.left, equiJoinClause.getLeft().toQualifiedNameReference());
-                    expressionAliases.put(expectedEquiClause.right, equiJoinClause.getRight().toQualifiedNameReference());
+                    expressionAliases.put(expectedEquiClause.left, equiJoinClause.getLeft().toSymbolReference());
+                    expressionAliases.put(expectedEquiClause.right, equiJoinClause.getRight().toSymbolReference());
                 }
                 return true;
             }

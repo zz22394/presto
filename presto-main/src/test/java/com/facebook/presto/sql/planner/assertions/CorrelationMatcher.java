@@ -46,7 +46,7 @@ public class CorrelationMatcher
 
             int i = 0;
             for (String alias : correlation) {
-                expressionAliases.put(alias, applyNode.getCorrelation().get(i++).toQualifiedNameReference());
+                expressionAliases.put(alias, applyNode.getCorrelation().get(i++).toSymbolReference());
             }
             return true;
         }

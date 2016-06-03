@@ -46,7 +46,7 @@ final class SymbolMatcher
             }
         }
         if (symbol != null) {
-            expressionAliases.put(alias, symbol.toQualifiedNameReference());
+            expressionAliases.put(alias, symbol.toSymbolReference());
             return true;
         }
         return false;

@@ -40,9 +40,9 @@ final class SemiJoinMatcher
     {
         if (node instanceof SemiJoinNode) {
             SemiJoinNode semiJoinNode = (SemiJoinNode) node;
-            expressionAliases.put(sourceSymbolAlias, semiJoinNode.getSourceJoinSymbol().toQualifiedNameReference());
-            expressionAliases.put(filteringSymbolAlias, semiJoinNode.getFilteringSourceJoinSymbol().toQualifiedNameReference());
-            expressionAliases.put(outputAlias, semiJoinNode.getSemiJoinOutput().toQualifiedNameReference());
+            expressionAliases.put(sourceSymbolAlias, semiJoinNode.getSourceJoinSymbol().toSymbolReference());
+            expressionAliases.put(filteringSymbolAlias, semiJoinNode.getFilteringSourceJoinSymbol().toSymbolReference());
+            expressionAliases.put(outputAlias, semiJoinNode.getSemiJoinOutput().toSymbolReference());
             return true;
         }
         return false;
