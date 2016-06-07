@@ -24,13 +24,16 @@ import com.teradata.tempto.configuration.Configuration;
 import com.teradata.tempto.query.QueryResult;
 import org.testng.annotations.Test;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.Date;
 import java.sql.SQLException;
 import java.sql.Statement;
 
 import static com.facebook.presto.tests.TestGroups.JDBC;
 import static com.facebook.presto.tests.TestGroups.QUARANTINE;
+import static com.facebook.presto.tests.TestGroups.SIMBA_JDBC;
 import static com.facebook.presto.tests.TpchTableResults.PRESTO_NATION_RESULT;
 import static com.facebook.presto.tests.utils.JdbcDriverUtils.usingFacebookJdbcDriver;
 import static com.facebook.presto.tests.utils.JdbcDriverUtils.usingSimbaJdbc4Driver;
@@ -185,6 +188,44 @@ public class JdbcTests
     {
         QueryResult result = QueryResult.forResultSet(metaData().getTableTypes());
         assertThat(result).contains(row("TABLE"), row("VIEW"));
+    }
+
+    @Test(groups = {JDBC, SIMBA_JDBC})
+    public void testSqlEscapeFunctions()
+            throws SQLException
+    {
+        if (usingSimbaJdbcDriver(connection)) {
+            // These functions, which are defined in the ODBC standard, are implemented within
+            // the Simba JDBC and ODBC drivers.  The drivers translate them into equivalent Presto syntax.
+            // The translated SQL is executed by Presto.  These tests do not make use of edge-case values or null
+            // values because those code paths are covered by other (non-Simba specifc) tests.
+
+            assertThat(query("select {fn char(40)}")).containsExactly(row("("));
+            assertThat(query("select {fn convert('2016-10-10', SQL_DATE)}")).containsExactly(row(Date.valueOf("2016-10-10")));
+
+            // This translates to: SELECT cast('1234.567' as DECIMAL).
+            // When casting to DECIMAL without parameters, Presto rounds to the nearest integer value.
+            assertThat(query("select {fn convert('1234.567', SQL_DECIMAL)}")).containsExactly(row(new BigDecimal(1235)));
+
+            assertThat(query("select {fn convert('123456', SQL_INTEGER)}")).containsExactly(row(123456));
+            assertThat(query("select {fn convert('123abcd', SQL_VARBINARY)}")).containsExactly(row("123abcd".getBytes()));
+            assertThat(query("select {fn dayofmonth(date '2016-10-20')}")).containsExactly(row(20));
+            assertThat(query("select {fn dayofweek(date '2016-10-20')}")).containsExactly(row(5));
+            assertThat(query("select {fn dayofyear(date '2016-10-20')}")).containsExactly(row(294));
+            assertThat(query("select {fn ifnull({fn ifnull(null, null)}, '2')}")).containsExactly(row("2"));
+            assertThat(query("select {fn ifnull('abc', '2')}")).containsExactly(row("abc"));
+            assertThat(query("select {fn ifnull(null, '2')}")).containsExactly(row("2"));
+            assertThat(query("select {fn lcase('ABC def 123')}")).containsExactly(row("abc def 123"));
+            assertThat(query("select {fn left('abc def', 2)}")).containsExactly(row("ab"));
+            assertThat(query("select {fn locate('d', 'abc def')}")).containsExactly(row(5));
+            assertThat(query("select {fn log(5)}")).containsExactly(row(1.60943791243));
+            assertThat(query("select {fn right('abc def', 2)}")).containsExactly(row("ef"));
+            assertThat(query("select {fn substring('abc def', 2)}")).containsExactly(row("bc def"));
+            assertThat(query("select {fn substring('abc def', 2, 2)}")).containsExactly(row("bc"));
+            assertThat(query("select {fn timestampadd(SQL_TSI_DAY, 21, date '2001-01-01')}")).containsExactly(row(Date.valueOf("2001-01-22")));
+            assertThat(query("select {fn timestampdiff(SQL_TSI_DAY,date '2001-01-01',date '2002-01-01')}")).containsExactly(row(365));
+            assertThat(query("select {fn ucase('ABC def 123')}")).containsExactly(row("ABC DEF 123"));
+        }
     }
 
     private QueryResult queryResult(Statement statement, String query)
