@@ -14,6 +14,7 @@
 package com.facebook.presto.type;
 
 import com.facebook.presto.metadata.BoundVariables;
+import com.facebook.presto.metadata.DefaultSignatureBinder;
 import com.facebook.presto.metadata.FunctionKind;
 import com.facebook.presto.metadata.FunctionRegistry;
 import com.facebook.presto.metadata.Signature;
@@ -31,7 +32,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.facebook.presto.metadata.Signature.typeVariable;
-import static com.facebook.presto.metadata.SignatureBinder.bindVariables;
 import static com.facebook.presto.spi.type.TypeSignature.parseTypeSignature;
 import static com.facebook.presto.type.TypeUtils.resolveTypes;
 import static com.facebook.presto.util.ImmutableCollectors.toImmutableList;
@@ -65,9 +65,9 @@ public final class NullFunction
     @Override
     public ScalarFunctionImplementation specialize(BoundVariables boundVariables, int arity, TypeManager typeManager, FunctionRegistry functionRegistry)
     {
-        List<TypeSignature> resolvedParameterTypeSignatures = bindVariables(getSignature().getArgumentTypes(), boundVariables);
+        List<TypeSignature> resolvedParameterTypeSignatures = DefaultSignatureBinder.bindVariables(getSignature().getArgumentTypes(), boundVariables);
         List<Type> resolvedParameterTypes = resolveTypes(resolvedParameterTypeSignatures, typeManager);
-        TypeSignature resolvedReturnTypeSignature = bindVariables(getSignature().getReturnType(), boundVariables);
+        TypeSignature resolvedReturnTypeSignature = DefaultSignatureBinder.bindVariables(getSignature().getReturnType(), boundVariables);
         Type resolvedReturnType = typeManager.getType(resolvedReturnTypeSignature);
 
         List<Class<?>> parametersJavaTypes = resolvedParameterTypes.stream()

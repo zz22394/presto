@@ -18,6 +18,7 @@ import com.facebook.presto.operator.scalar.CustomFunctions;
 import com.facebook.presto.operator.scalar.annotations.ScalarFunction;
 import com.facebook.presto.spi.block.BlockEncodingSerde;
 import com.facebook.presto.spi.type.StandardTypes;
+import com.facebook.presto.spi.type.TypeManager;
 import com.facebook.presto.spi.type.TypeSignature;
 import com.facebook.presto.sql.analyzer.FeaturesConfig;
 import com.facebook.presto.sql.tree.QualifiedName;
@@ -358,6 +359,12 @@ public class TestFunctionRegistry
                     public String getDescription()
                     {
                         return "testing function that does nothing";
+                    }
+
+                    @Override
+                    public SignatureBinder getSignatureBinder(TypeManager typeManager, boolean allowCoercion)
+                    {
+                        return new DefaultSignatureBinder(typeManager, getSignature(), allowCoercion);
                     }
                 });
             }

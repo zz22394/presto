@@ -235,7 +235,7 @@ public class ScalarImplementation
         @Override
         public MethodHandle resolve(BoundVariables boundVariables, TypeManager typeManager, FunctionRegistry functionRegistry)
         {
-            Signature signature = SignatureBinder.bindVariables(this.signature, boundVariables, this.signature.getArgumentTypes().size());
+            Signature signature = DefaultSignatureBinder.bindVariables(this.signature, boundVariables, this.signature.getArgumentTypes().size());
             return functionRegistry.getScalarFunctionImplementation(signature).getMethodHandle();
         }
     }
@@ -253,7 +253,7 @@ public class ScalarImplementation
         @Override
         public Type resolve(BoundVariables boundVariables, TypeManager typeManager, FunctionRegistry functionRegistry)
         {
-            return typeManager.getType(SignatureBinder.bindVariables(signature, boundVariables));
+            return typeManager.getType(DefaultSignatureBinder.bindVariables(signature, boundVariables));
         }
     }
 

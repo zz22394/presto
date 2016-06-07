@@ -579,7 +579,7 @@ public class FunctionRegistry
     {
         Optional<Signature> match = Optional.empty();
         for (SqlFunction function : candidates) {
-            Optional<Signature> signature = new SignatureBinder(typeManager, function.getSignature(), false).bind(actualParameters);
+            Optional<Signature> signature = function.getSignatureBinder(typeManager, false).bind(actualParameters);
             if (signature.isPresent()) {
                 checkArgument(!match.isPresent(), "Ambiguous call to %s with parameters %s", function.getSignature().getName(), actualParameters);
                 match = signature;
@@ -647,7 +647,7 @@ public class FunctionRegistry
         ImmutableList.Builder<ApplicableFunction> applicableFunctions = ImmutableList.builder();
         for (SqlFunction function : candidates) {
             Signature declaredSignature = function.getSignature();
-            Optional<Signature> boundSignature = new SignatureBinder(typeManager, declaredSignature, true)
+            Optional<Signature> boundSignature = function.getSignatureBinder(typeManager, true)
                     .bind(actualParameters);
             if (boundSignature.isPresent()) {
                 applicableFunctions.add(new ApplicableFunction(declaredSignature, boundSignature.get()));
@@ -975,8 +975,8 @@ public class FunctionRegistry
         public boolean isMoreSpecificThan(ApplicableFunction other)
         {
             List<Type> resolvedTypes = resolveTypes(boundSignature.getArgumentTypes(), typeManager);
-            Optional<BoundVariables> boundVariables = new SignatureBinder(typeManager, other.getDeclaredSignature(), true)
-                    .bindVariables(resolvedTypes);
+            DefaultSignatureBinder defaultSignatureBinder = new DefaultSignatureBinder(typeManager, other.getDeclaredSignature(), true);
+            Optional<BoundVariables> boundVariables = defaultSignatureBinder.bindVariables(resolvedTypes);
             return boundVariables.isPresent();
         }
 

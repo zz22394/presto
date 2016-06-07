@@ -15,9 +15,9 @@ package com.facebook.presto.operator.aggregation;
 
 import com.facebook.presto.bytecode.DynamicClassLoader;
 import com.facebook.presto.metadata.BoundVariables;
+import com.facebook.presto.metadata.DefaultSignatureBinder;
 import com.facebook.presto.metadata.FunctionKind;
 import com.facebook.presto.metadata.Signature;
-import com.facebook.presto.metadata.SignatureBinder;
 import com.facebook.presto.operator.Description;
 import com.facebook.presto.operator.aggregation.state.AccumulatorState;
 import com.facebook.presto.operator.aggregation.state.AccumulatorStateFactory;
@@ -317,7 +317,7 @@ public class AggregationCompiler
                                                       int arity)
         {
             // bind variables
-            Signature boundSignature = SignatureBinder.bindVariables(signature, variables, arity);
+            Signature boundSignature = DefaultSignatureBinder.bindVariables(signature, variables, arity);
             List<Type> inputTypes = boundSignature.getArgumentTypes().stream().map(x -> typeManager.getType(x)).collect(toImmutableList());
             Type outputType = typeManager.getType(boundSignature.getReturnType());
 
