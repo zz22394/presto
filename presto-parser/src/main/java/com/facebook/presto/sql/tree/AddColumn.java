@@ -35,7 +35,7 @@ public class AddColumn
         this(Optional.of(location), name, column);
     }
 
-    private AddColumn(Optional<NodeLocation> location, QualifiedName name, TableElement column)
+    protected AddColumn(Optional<NodeLocation> location, QualifiedName name, TableElement column)
     {
         super(location);
         this.name = requireNonNull(name, "table is null");
