@@ -38,7 +38,7 @@ public final class StartTransaction
         this(Optional.of(location), transactionModes);
     }
 
-    private StartTransaction(Optional<NodeLocation> location, List<TransactionMode> transactionModes)
+    protected StartTransaction(Optional<NodeLocation> location, List<TransactionMode> transactionModes)
     {
         super(location);
         this.transactionModes = ImmutableList.copyOf(requireNonNull(transactionModes, "transactionModes is null"));
