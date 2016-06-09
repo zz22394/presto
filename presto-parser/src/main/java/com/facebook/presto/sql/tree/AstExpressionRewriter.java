@@ -14,7 +14,7 @@
 package com.facebook.presto.sql.tree;
 
 public class AstExpressionRewriter
-        extends RewritingTraversalVisitor<Void>
+        extends RewritingVisitor<Void>
 {
     private final ExpressionRewriter rewriter;
 

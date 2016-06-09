@@ -26,19 +26,19 @@ public class Execute
         extends Statement
 {
     private final String name;
-    private final List<Literal> parameters;
+    private final List<Expression> parameters;
 
-    public Execute(NodeLocation location, String name, List<Literal> parameters)
+    public Execute(NodeLocation location, String name, List<Expression> parameters)
     {
         this(Optional.of(location), name, parameters);
     }
 
-    public Execute(String name, List<Literal> parameters)
+    public Execute(String name, List<Expression> parameters)
     {
         this(Optional.empty(), name, parameters);
     }
 
-    private Execute(Optional<NodeLocation> location, String name, List<Literal> parameters)
+    private Execute(Optional<NodeLocation> location, String name, List<Expression> parameters)
     {
         super(location);
         this.name = requireNonNull(name, "name is null");
@@ -50,7 +50,7 @@ public class Execute
         return name;
     }
 
-    public List<Literal> getParameters()
+    public List<Expression> getParameters()
     {
         return parameters;
     }
@@ -77,7 +77,8 @@ public class Execute
             return false;
         }
         Execute o = (Execute) obj;
-        return Objects.equals(name, o.name) && Objects.equals(parameters, o.parameters);
+        return Objects.equals(name, o.name) &&
+                Objects.equals(parameters, o.parameters);
     }
 
     @Override

@@ -24,10 +24,11 @@ import com.facebook.presto.sql.analyzer.SemanticException;
 import com.facebook.presto.sql.parser.ParsingException;
 import com.facebook.presto.sql.parser.ParsingOptions;
 import com.facebook.presto.sql.parser.SqlParser;
+import com.facebook.presto.sql.planner.ExpressionInterpreter.ConstantExpressionVerifierVisitor;
 import com.facebook.presto.sql.tree.AstExpressionRewriter;
 import com.facebook.presto.sql.tree.Execute;
 import com.facebook.presto.sql.tree.Explain;
-import com.facebook.presto.sql.tree.Literal;
+import com.facebook.presto.sql.tree.Expression;
 import com.facebook.presto.sql.tree.Node;
 import com.facebook.presto.sql.tree.ParameterCollector;
 import com.facebook.presto.sql.tree.Statement;
@@ -74,6 +75,7 @@ import static com.facebook.presto.util.ImmutableCollectors.toImmutableList;
 import static com.google.common.base.Preconditions.checkArgument;
 import static io.airlift.concurrent.Threads.threadsNamed;
 import static java.lang.String.format;
+import static java.util.Collections.emptySet;
 import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.Executors.newCachedThreadPool;
 
@@ -372,18 +374,21 @@ public class SqlQueryManager
         // validate that we have the right number of parameters
         validateParameters(unwrapped, execute.getParameters());
 
-        // replace Parameter expressions with the supplied values.
+        // replace Parameter expressions with the supplied values
         ParameterRewriter parameterRewriter = new ParameterRewriter(execute.getParameters());
         AstExpressionRewriter expressionRewriter = new AstExpressionRewriter(parameterRewriter);
         return (Statement) expressionRewriter.process(unwrapped, null);
     }
 
-    private static void validateParameters(Node node, List<Literal> parameterValues)
+    private static void validateParameters(Node node, List<Expression> parameterValues)
     {
         ParameterCollector collector = new ParameterCollector();
         collector.process(node, null);
         if (parameterValues.size() != collector.getParameterCount()) {
-            throw new SemanticException(INVALID_PARAMETER_USAGE, node, format("Incorrect number of parameters: expected %d but found %d", collector.getParameterCount(), parameterValues.size()));
+            throw new SemanticException(INVALID_PARAMETER_USAGE, node, "Incorrect number of parameters: expected %s but found %s", collector.getParameterCount(), parameterValues.size());
+        }
+        for (Expression expression : parameterValues) {
+            new ConstantExpressionVerifierVisitor(emptySet(), expression).process(expression, null);
         }
     }
 

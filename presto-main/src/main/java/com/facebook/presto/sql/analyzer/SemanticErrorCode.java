@@ -81,5 +81,5 @@ public enum SemanticErrorCode
 
     AMBIGUOUS_FUNCTION_CALL,
 
-    INVALID_PARAMETER_USAGE
+    INVALID_PARAMETER_USAGE,
 }

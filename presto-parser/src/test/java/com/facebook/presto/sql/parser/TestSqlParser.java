@@ -1487,7 +1487,8 @@ public class TestSqlParser
     @Test
     public void testExecuteWithUsing()
     {
-        assertStatement("EXECUTE myquery USING 1, 'abc'", new Execute("myquery", ImmutableList.of(new LongLiteral("1"), new StringLiteral("abc"))));
+        assertStatement("EXECUTE myquery USING 1, 'abc', ARRAY ['hello']",
+                new Execute("myquery", ImmutableList.of(new LongLiteral("1"), new StringLiteral("abc"), new ArrayConstructor(ImmutableList.of(new StringLiteral("hello"))))));
     }
 
     private static void assertCast(String type)

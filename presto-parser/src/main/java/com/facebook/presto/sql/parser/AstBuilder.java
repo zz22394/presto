@@ -75,7 +75,6 @@ import com.facebook.presto.sql.tree.JoinOn;
 import com.facebook.presto.sql.tree.JoinUsing;
 import com.facebook.presto.sql.tree.LambdaExpression;
 import com.facebook.presto.sql.tree.LikePredicate;
-import com.facebook.presto.sql.tree.Literal;
 import com.facebook.presto.sql.tree.LogicalBinaryExpression;
 import com.facebook.presto.sql.tree.LongLiteral;
 import com.facebook.presto.sql.tree.NaturalJoin;
@@ -146,7 +145,6 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -358,11 +356,7 @@ class AstBuilder
     public Node visitExecute(SqlBaseParser.ExecuteContext context)
     {
         String name = context.identifier().getText();
-        List<Literal> parameterValues = new ArrayList<>(context.literal().size());
-        for (SqlBaseParser.LiteralContext literalContext : context.literal()) {
-            parameterValues.add((Literal) visit(literalContext));
-        }
-        return new Execute(getLocation(context), name, parameterValues);
+        return new Execute(getLocation(context), name, visit(context.expression(), Expression.class));
     }
 
     // ********************** query expressions ********************
@@ -1356,7 +1350,9 @@ class AstBuilder
     @Override
     public Node visitParameter(SqlBaseParser.ParameterContext context)
     {
-        return new Parameter(getLocation(context), parameterPosition++);
+        Parameter parameter = new Parameter(getLocation(context), parameterPosition);
+        parameterPosition++;
+        return parameter;
     }
 
     // ***************** arguments *****************

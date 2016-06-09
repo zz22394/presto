@@ -16,7 +16,6 @@ package com.facebook.presto.execution;
 import com.facebook.presto.sql.tree.Expression;
 import com.facebook.presto.sql.tree.ExpressionRewriter;
 import com.facebook.presto.sql.tree.ExpressionTreeRewriter;
-import com.facebook.presto.sql.tree.Literal;
 import com.facebook.presto.sql.tree.Parameter;
 
 import java.util.List;
@@ -27,9 +26,9 @@ import static java.util.Objects.requireNonNull;
 public class ParameterRewriter
         extends ExpressionRewriter<Void>
 {
-    private final List<Literal> parameterValues;
+    private final List<Expression> parameterValues;
 
-    public ParameterRewriter(List<Literal> parameterValues)
+    public ParameterRewriter(List<Expression> parameterValues)
     {
         requireNonNull(parameterValues, "parameterValues is null");
         this.parameterValues = parameterValues;

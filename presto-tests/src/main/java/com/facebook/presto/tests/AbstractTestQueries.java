@@ -55,7 +55,6 @@ import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.DateType.DATE;
 import static com.facebook.presto.spi.type.DecimalType.createDecimalType;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
-import static com.facebook.presto.spi.type.IntegerType.INTEGER;
 import static com.facebook.presto.spi.type.TimeType.TIME;
 import static com.facebook.presto.spi.type.TimeWithTimeZoneType.TIME_WITH_TIME_ZONE;
 import static com.facebook.presto.spi.type.TimestampType.TIMESTAMP;
@@ -6741,16 +6740,13 @@ public abstract class AbstractTestQueries
 
     @Test
     public void testExecuteWithUsing()
+            throws Exception
     {
         String query = "SELECT a + ?, count(1) FROM (VALUES 1, 2, 3, 2) t(a) GROUP BY a + ? HAVING count(1) > ?";
         Session session = getSession().withPreparedStatement("my_query", query);
-        MaterializedResult actual = computeActual(session, "EXECUTE my_query USING 1, 1, 0");
-        MaterializedResult expected = resultBuilder(session, INTEGER, BIGINT)
-                .row(2, 1L)
-                .row(3, 2L)
-                .row(4, 1L)
-                .build();
-        assertEqualsIgnoreOrder(actual, expected);
+        assertQuery(session,
+                "EXECUTE my_query USING 1, 1, 0",
+                "VALUES (2, 1), (3, 2), (4, 1)");
     }
 
     @Test
@@ -6780,5 +6776,11 @@ public abstract class AbstractTestQueries
         assertEquals(doubleColumnResult.getRowCount(), 1);
         assertEquals(doubleColumnResult.getTypes().get(0), DOUBLE);
         assertEquals(doubleColumnResult.getMaterializedRows().get(0).getField(0), 1.0);
+    }
+
+    @Test
+    public void testParametersNonPreparedStatement()
+    {
+        assertQueryFails("SELECT ?, 1", "line 1:8: Parameters are only allowed in prepared statements");
     }
 }
