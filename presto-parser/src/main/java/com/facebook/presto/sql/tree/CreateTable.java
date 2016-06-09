@@ -42,7 +42,7 @@ public class CreateTable
         this(Optional.of(location), name, elements, notExists, properties);
     }
 
-    private CreateTable(Optional<NodeLocation> location, QualifiedName name, List<TableElement> elements, boolean notExists, Map<String, Expression> properties)
+    protected CreateTable(Optional<NodeLocation> location, QualifiedName name, List<TableElement> elements, boolean notExists, Map<String, Expression> properties)
     {
         super(location);
         this.name = requireNonNull(name, "table is null");

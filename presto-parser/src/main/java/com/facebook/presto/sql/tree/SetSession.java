@@ -34,7 +34,7 @@ public class SetSession
         this(Optional.of(location), name, value);
     }
 
-    private SetSession(Optional<NodeLocation> location, QualifiedName name, Expression value)
+    protected SetSession(Optional<NodeLocation> location, QualifiedName name, Expression value)
     {
         super(location);
         this.name = name;

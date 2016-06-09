@@ -36,7 +36,7 @@ public class CreateView
         this(Optional.of(location), name, query, replace);
     }
 
-    private CreateView(Optional<NodeLocation> location, QualifiedName name, Query query, boolean replace)
+    protected CreateView(Optional<NodeLocation> location, QualifiedName name, Query query, boolean replace)
     {
         super(location);
         this.name = requireNonNull(name, "name is null");
