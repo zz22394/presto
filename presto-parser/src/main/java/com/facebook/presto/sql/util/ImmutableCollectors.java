@@ -15,8 +15,6 @@ package com.facebook.presto.sql.util;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableMultiset;
-import com.google.common.collect.ImmutableSet;
 
 import java.util.function.Function;
 import java.util.stream.Collector;
@@ -35,32 +33,6 @@ public final class ImmutableCollectors
                     return left;
                 },
                 ImmutableList.Builder::build);
-    }
-
-    public static <T> Collector<T, ?, ImmutableSet<T>> toImmutableSet()
-    {
-        return Collector.<T, ImmutableSet.Builder<T>, ImmutableSet<T>>of(
-                ImmutableSet.Builder::new,
-                ImmutableSet.Builder::add,
-                (left, right) -> {
-                    left.addAll(right.build());
-                    return left;
-                },
-                ImmutableSet.Builder::build,
-                Collector.Characteristics.UNORDERED);
-    }
-
-    public static <T> Collector<T, ?, ImmutableMultiset<T>> toImmutableMultiset()
-    {
-        return Collector.<T, ImmutableMultiset.Builder<T>, ImmutableMultiset<T>>of(
-                ImmutableMultiset.Builder::new,
-                ImmutableMultiset.Builder::add,
-                (left, right) -> {
-                    left.addAll(right.build());
-                    return left;
-                },
-                ImmutableMultiset.Builder::build,
-                Collector.Characteristics.UNORDERED);
     }
 
     public static <K, V> Collector<V, ?, ImmutableMap<K, V>> toImmutableMap(Function<V, K> keyMapper)
