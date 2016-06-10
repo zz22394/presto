@@ -140,6 +140,7 @@ import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 import static com.facebook.presto.spi.type.DateType.DATE;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
+import static com.facebook.presto.spi.type.FloatType.FLOAT;
 import static com.facebook.presto.spi.type.HyperLogLogType.HYPER_LOG_LOG;
 import static com.facebook.presto.spi.type.IntegerType.INTEGER;
 import static com.facebook.presto.spi.type.SmallintType.SMALLINT;
@@ -673,7 +674,7 @@ public abstract class AbstractTestHiveClient
         assertPrimitiveField(map, "t_smallint", SMALLINT, false);
         assertPrimitiveField(map, "t_int", INTEGER, false);
         assertPrimitiveField(map, "t_bigint", BIGINT, false);
-        assertPrimitiveField(map, "t_float", DOUBLE, false);
+        assertPrimitiveField(map, "t_float", FLOAT, false);
         assertPrimitiveField(map, "t_double", DOUBLE, false);
         assertPrimitiveField(map, "t_boolean", BOOLEAN, false);
         assertPrimitiveField(map, "ds", createUnboundedVarcharType(), true);
@@ -899,7 +900,7 @@ public abstract class AbstractTestHiveClient
         assertTableIsBucketed(tableHandle);
 
         ImmutableMap<ColumnHandle, NullableValue> bindings = ImmutableMap.<ColumnHandle, NullableValue>builder()
-                .put(columnHandles.get(columnIndex.get("t_float")), NullableValue.of(DOUBLE, 87.1))
+                .put(columnHandles.get(columnIndex.get("t_float")), NullableValue.of(FLOAT, 87.1f))
                 .put(columnHandles.get(columnIndex.get("t_double")), NullableValue.of(DOUBLE, 88.2))
                 .build();
 
@@ -985,7 +986,7 @@ public abstract class AbstractTestHiveClient
                         assertEquals(row.getField(columnIndex.get("t_bigint")), 4 + rowNumber);
                     }
 
-                    assertEquals((Double) row.getField(columnIndex.get("t_float")), 5.1 + rowNumber, 0.001);
+                    assertEquals((Float) row.getField(columnIndex.get("t_float")), 5.1f + rowNumber, 0.001);
                     assertEquals(row.getField(columnIndex.get("t_double")), 6.2 + rowNumber);
 
                     if (rowNumber % 3 == 2) {
@@ -2183,7 +2184,7 @@ public abstract class AbstractTestHiveClient
                     assertEquals(row.getField(index), 4 + rowNumber);
                 }
 
-                assertEquals((Double) row.getField(columnIndex.get("t_float")), 5.1 + rowNumber, 0.001);
+                assertEquals((Float) row.getField(columnIndex.get("t_float")), 5.1f + rowNumber, 0.001);
                 assertEquals(row.getField(columnIndex.get("t_double")), 6.2 + rowNumber);
 
                 // BOOLEAN
