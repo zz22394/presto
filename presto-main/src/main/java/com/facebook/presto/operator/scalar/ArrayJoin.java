@@ -42,6 +42,7 @@ import static com.facebook.presto.metadata.Signature.typeVariable;
 import static com.facebook.presto.spi.StandardErrorCode.INTERNAL_ERROR;
 import static com.facebook.presto.spi.StandardErrorCode.INVALID_FUNCTION_ARGUMENT;
 import static com.facebook.presto.spi.type.TypeSignature.parseTypeSignature;
+import static com.facebook.presto.spi.type.VarcharType.UNBOUNDED_VARCHAR;
 import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.type.TypeUtils.parameterizedTypeName;
 import static com.facebook.presto.util.Reflection.methodHandle;
@@ -69,8 +70,8 @@ public final class ArrayJoin
                     FunctionKind.SCALAR,
                     ImmutableList.of(typeVariable("T")),
                     ImmutableList.of(),
-                    parseTypeSignature(StandardTypes.VARCHAR),
-                    ImmutableList.of(parseTypeSignature("array(T)"), parseTypeSignature(StandardTypes.VARCHAR), parseTypeSignature(StandardTypes.VARCHAR)),
+                    parseTypeSignature(UNBOUNDED_VARCHAR),
+                    ImmutableList.of(parseTypeSignature("array(T)"), parseTypeSignature(UNBOUNDED_VARCHAR), parseTypeSignature(UNBOUNDED_VARCHAR)),
                     false));
         }
 

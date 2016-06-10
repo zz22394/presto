@@ -32,6 +32,7 @@ import static com.facebook.presto.metadata.OperatorType.MULTIPLY;
 import static com.facebook.presto.metadata.OperatorType.NEGATION;
 import static com.facebook.presto.metadata.OperatorType.NOT_EQUAL;
 import static com.facebook.presto.metadata.OperatorType.SUBTRACT;
+import static com.facebook.presto.operator.scalar.VarcharToVarcharCast.truncate;
 import static io.airlift.slice.Slices.utf8Slice;
 
 public final class IntervalYearMonthOperators
@@ -152,9 +153,9 @@ public final class IntervalYearMonthOperators
     @LiteralParameters("x")
     @SqlType("varchar(x)")
     // FIXME @Constraint(variable = "x", expression = "x >= 22")
-    public static Slice castToSlice(@SqlType(StandardTypes.INTERVAL_YEAR_TO_MONTH) long value)
+    public static Slice castToSlice(@FromLiteralParameter("x") Long length, @SqlType(StandardTypes.INTERVAL_YEAR_TO_MONTH) long value)
     {
-        return utf8Slice(SqlIntervalYearMonth.formatMonths(value));
+        return truncate(utf8Slice(SqlIntervalYearMonth.formatMonths(value)), length);
     }
 
     @ScalarOperator(HASH_CODE)

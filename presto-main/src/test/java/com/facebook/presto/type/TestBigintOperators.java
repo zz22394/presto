@@ -21,6 +21,7 @@ import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
 import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
+import static com.facebook.presto.spi.type.VarcharType.createVarcharType;
 import static java.lang.String.format;
 
 public class TestBigintOperators
@@ -208,6 +209,9 @@ public class TestBigintOperators
     {
         assertFunction("cast(37 as varchar)", createUnboundedVarcharType(), "37");
         assertFunction("cast(100000000017 as varchar)", createUnboundedVarcharType(), "100000000017");
+        assertFunction("cast(123456789012 as varchar(12))", createVarcharType(12), "123456789012");
+        assertFunction("cast(123456789012 as varchar(20))", createVarcharType(20), "123456789012");
+        assertFunction("cast(123456789012 as varchar(11))", createVarcharType(11), "12345678901");
     }
 
     @Test

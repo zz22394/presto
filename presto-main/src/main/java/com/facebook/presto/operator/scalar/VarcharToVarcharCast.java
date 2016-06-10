@@ -69,6 +69,12 @@ public class VarcharToVarcharCast
         return MethodHandles.identity(Slice.class);
     }
 
+    public static Slice truncate(Slice slice, long length)
+    {
+        checkArgument(length <= Integer.MAX_VALUE);
+        return truncate(slice, (int) length);
+    }
+
     public static Slice truncate(Slice slice, int length)
     {
         if (length < 0) {

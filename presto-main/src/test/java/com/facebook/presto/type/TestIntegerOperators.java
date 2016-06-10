@@ -23,6 +23,7 @@ import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
 import static com.facebook.presto.spi.type.IntegerType.INTEGER;
 import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
+import static com.facebook.presto.spi.type.VarcharType.createVarcharType;
 
 public class TestIntegerOperators
         extends AbstractTestFunctions
@@ -207,6 +208,9 @@ public class TestIntegerOperators
     {
         assertFunction("cast(INTEGER'37' as varchar)", createUnboundedVarcharType(), "37");
         assertFunction("cast(INTEGER'17' as varchar)", createUnboundedVarcharType(), "17");
+        assertFunction("cast(INTEGER'17' as varchar(2))", createVarcharType(2), "17");
+        assertFunction("cast(INTEGER'17' as varchar(10))", createVarcharType(10), "17");
+        assertFunction("cast(INTEGER'17' as varchar(1))", createVarcharType(1), "1");
     }
 
     @Test
