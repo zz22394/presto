@@ -61,7 +61,7 @@ import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
 import static com.facebook.presto.spi.type.FloatType.FLOAT;
 import static com.facebook.presto.spi.type.IntegerType.INTEGER;
 import static com.facebook.presto.spi.type.TypeSignature.parseTypeSignature;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.sql.analyzer.SemanticErrorCode.INVALID_LITERAL;
 import static com.facebook.presto.sql.analyzer.SemanticErrorCode.TYPE_MISMATCH;
 import static com.facebook.presto.type.JsonType.JSON;
@@ -272,7 +272,7 @@ public final class LiteralInterpreter
             }
 
             if (JSON.equals(type)) {
-                ScalarFunctionImplementation operator = metadata.getFunctionRegistry().getScalarFunctionImplementation(new Signature("json_parse", SCALAR, JSON.getTypeSignature(), VARCHAR.getTypeSignature()));
+                ScalarFunctionImplementation operator = metadata.getFunctionRegistry().getScalarFunctionImplementation(new Signature("json_parse", SCALAR, JSON.getTypeSignature(), createUnboundedVarcharType().getTypeSignature()));
                 try {
                     return ExpressionInterpreter.invoke(session, operator, ImmutableList.<Object>of(utf8Slice(node.getValue())));
                 }
@@ -283,7 +283,7 @@ public final class LiteralInterpreter
 
             ScalarFunctionImplementation operator;
             try {
-                Signature signature = metadata.getFunctionRegistry().getCoercion(VARCHAR, type);
+                Signature signature = metadata.getFunctionRegistry().getCoercion(createUnboundedVarcharType(), type);
                 operator = metadata.getFunctionRegistry().getScalarFunctionImplementation(signature);
             }
             catch (IllegalArgumentException e) {

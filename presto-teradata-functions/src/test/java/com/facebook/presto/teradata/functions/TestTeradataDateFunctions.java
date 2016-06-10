@@ -25,7 +25,7 @@ import org.joda.time.DateTimeZone;
 import org.testng.annotations.Test;
 
 import static com.facebook.presto.spi.type.TimeZoneKey.getTimeZoneKey;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.testing.TestingSession.testSessionBuilder;
 import static com.facebook.presto.type.TimestampOperators.castToDate;
 import static com.facebook.presto.util.DateTimeZoneIndex.getDateTimeZone;
@@ -148,6 +148,6 @@ public class TestTeradataDateFunctions
 
     private void assertVarchar(String projection, String expected)
     {
-        FUNCTION_ASSERTIONS.assertFunction(projection, VARCHAR, expected);
+        FUNCTION_ASSERTIONS.assertFunction(projection, createUnboundedVarcharType(), expected);
     }
 }

@@ -35,7 +35,7 @@ import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
 import static com.facebook.presto.spi.type.TypeUtils.writeNativeValue;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static org.testng.Assert.assertEquals;
 
 public class TestInterpretedProjectionFunction
@@ -160,8 +160,8 @@ public class TestInterpretedProjectionFunction
         assertProjection("symbol", 11.1, symbolToInputMappings, ImmutableMap.<Symbol, Type>of(symbol, DOUBLE), 0, createBlock(DOUBLE, 11.1));
         assertProjection("symbol", null, symbolToInputMappings, ImmutableMap.<Symbol, Type>of(symbol, DOUBLE), 0, createBlock(DOUBLE, null));
 
-        assertProjection("symbol", "foo", symbolToInputMappings, ImmutableMap.<Symbol, Type>of(symbol, VARCHAR), 0, createBlock(VARCHAR, "foo"));
-        assertProjection("symbol", null, symbolToInputMappings, ImmutableMap.<Symbol, Type>of(symbol, VARCHAR), 0, createBlock(VARCHAR, null));
+        assertProjection("symbol", "foo", symbolToInputMappings, ImmutableMap.<Symbol, Type>of(symbol, createUnboundedVarcharType()), 0, createBlock(createUnboundedVarcharType(), "foo"));
+        assertProjection("symbol", null, symbolToInputMappings, ImmutableMap.<Symbol, Type>of(symbol, createUnboundedVarcharType()), 0, createBlock(createUnboundedVarcharType(), null));
     }
 
     public static void assertProjection(String expression, @Nullable Object expectedValue)

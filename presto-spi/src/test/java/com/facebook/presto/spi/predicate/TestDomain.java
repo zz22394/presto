@@ -31,7 +31,7 @@ import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
 import static com.facebook.presto.spi.type.HyperLogLogType.HYPER_LOG_LOG;
 import static com.facebook.presto.spi.type.TestingIdType.ID;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
@@ -571,7 +571,7 @@ public class TestDomain
         domain = Domain.notNull(HYPER_LOG_LOG);
         assertEquals(domain, mapper.readValue(mapper.writeValueAsString(domain), Domain.class));
 
-        domain = Domain.onlyNull(VARCHAR);
+        domain = Domain.onlyNull(createUnboundedVarcharType());
         assertEquals(domain, mapper.readValue(mapper.writeValueAsString(domain), Domain.class));
 
         domain = Domain.onlyNull(HYPER_LOG_LOG);

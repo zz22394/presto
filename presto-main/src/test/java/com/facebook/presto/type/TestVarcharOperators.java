@@ -17,7 +17,7 @@ import com.facebook.presto.operator.scalar.AbstractTestFunctions;
 import org.testng.annotations.Test;
 
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.spi.type.VarcharType.createVarcharType;
 
 public class TestVarcharOperators
@@ -36,9 +36,9 @@ public class TestVarcharOperators
     public void testTypeConstructor()
             throws Exception
     {
-        assertFunction("VARCHAR 'foo'", VARCHAR, "foo");
-        assertFunction("VARCHAR 'bar'", VARCHAR, "bar");
-        assertFunction("VARCHAR ''", VARCHAR, "");
+        assertFunction("VARCHAR 'foo'", createUnboundedVarcharType(), "foo");
+        assertFunction("VARCHAR 'bar'", createUnboundedVarcharType(), "bar");
+        assertFunction("VARCHAR ''", createUnboundedVarcharType(), "");
     }
 
     @Test
@@ -47,7 +47,7 @@ public class TestVarcharOperators
     {
         assertFunction("cast('bar' as varchar(20))", createVarcharType(20), "bar");
         assertFunction("cast(cast('bar' as varchar(20)) as varchar(30))", createVarcharType(30), "bar");
-        assertFunction("cast(cast('bar' as varchar(20)) as varchar)", VARCHAR, "bar");
+        assertFunction("cast(cast('bar' as varchar(20)) as varchar)", createUnboundedVarcharType(), "bar");
 
         assertFunction("cast('banana' as varchar(3))", createVarcharType(3), "ban");
         assertFunction("cast(cast('banana' as varchar(20)) as varchar(3))", createVarcharType(3), "ban");

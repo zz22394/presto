@@ -21,7 +21,7 @@ import io.airlift.slice.Slice;
 import io.airlift.slice.SliceInput;
 import io.airlift.stats.QuantileDigest;
 
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static io.airlift.slice.SizeOf.SIZE_OF_DOUBLE;
 
 public class DigestAndPercentileStateSerializer
@@ -30,7 +30,7 @@ public class DigestAndPercentileStateSerializer
     @Override
     public Type getSerializedType()
     {
-        return VARCHAR;
+        return createUnboundedVarcharType();
     }
 
     @Override
@@ -47,7 +47,7 @@ public class DigestAndPercentileStateSerializer
             sliceOutput.appendDouble(state.getPercentile());
 
             Slice slice = sliceOutput.slice();
-            VARCHAR.writeSlice(out, slice);
+            createUnboundedVarcharType().writeSlice(out, slice);
         }
     }
 
@@ -55,7 +55,7 @@ public class DigestAndPercentileStateSerializer
     public void deserialize(Block block, int index, DigestAndPercentileState state)
     {
         if (!block.isNull(index)) {
-            SliceInput input = VARCHAR.getSlice(block, index).getInput();
+            SliceInput input = createUnboundedVarcharType().getSlice(block, index).getInput();
 
             // read digest
             state.setDigest(QuantileDigest.deserialize(input));

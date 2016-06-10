@@ -28,7 +28,7 @@ import java.util.List;
 
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.VarbinaryType.VARBINARY;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static io.airlift.slice.SizeOf.SIZE_OF_BYTE;
 import static io.airlift.slice.SizeOf.SIZE_OF_DOUBLE;
 import static io.airlift.slice.SizeOf.SIZE_OF_FLOAT;
@@ -179,7 +179,7 @@ public abstract class AbstractTestBlock
             Slice[] expected = (Slice[]) expectedValue;
             assertEquals(actual.getPositionCount(), expected.length);
             for (int i = 0; i < expected.length; i++) {
-                assertEquals(VARCHAR.getSlice(actual, i), expected[i]);
+                assertEquals(createUnboundedVarcharType().getSlice(actual, i), expected[i]);
             }
         }
         else if (expectedValue instanceof long[][]) {

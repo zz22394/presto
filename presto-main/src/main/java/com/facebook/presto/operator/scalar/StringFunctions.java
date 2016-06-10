@@ -39,7 +39,7 @@ import java.util.Map;
 import java.util.OptionalInt;
 
 import static com.facebook.presto.spi.StandardErrorCode.INVALID_FUNCTION_ARGUMENT;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.util.Failures.checkCondition;
 import static io.airlift.slice.SliceUtf8.countCodePoints;
 import static io.airlift.slice.SliceUtf8.lengthOfCodePoint;
@@ -287,10 +287,10 @@ public final class StringFunctions
         checkCondition(limit > 0, INVALID_FUNCTION_ARGUMENT, "Limit must be positive");
         checkCondition(limit <= Integer.MAX_VALUE, INVALID_FUNCTION_ARGUMENT, "Limit is too large");
         checkCondition(delimiter.length() > 0, INVALID_FUNCTION_ARGUMENT, "The delimiter may not be the empty string");
-        BlockBuilder parts = VARCHAR.createBlockBuilder(new BlockBuilderStatus(), 1, string.length());
+        BlockBuilder parts = createUnboundedVarcharType().createBlockBuilder(new BlockBuilderStatus(), 1, string.length());
         // If limit is one, the last and only element is the complete string
         if (limit == 1) {
-            VARCHAR.writeSlice(parts, string);
+            createUnboundedVarcharType().writeSlice(parts, string);
             return parts.build();
         }
 
@@ -302,7 +302,7 @@ public final class StringFunctions
                 break;
             }
             // Add the part from current index to found split
-            VARCHAR.writeSlice(parts, string, index, splitIndex - index);
+            createUnboundedVarcharType().writeSlice(parts, string, index, splitIndex - index);
             // Continue searching after delimiter
             index = splitIndex + delimiter.length();
             // Reached limit-1 parts so we can stop
@@ -311,7 +311,7 @@ public final class StringFunctions
             }
         }
         // Rest of string
-        VARCHAR.writeSlice(parts, string, index, string.length() - index);
+        createUnboundedVarcharType().writeSlice(parts, string, index, string.length() - index);
 
         return parts.build();
     }
@@ -417,10 +417,10 @@ public final class StringFunctions
             entryStart = entryEnd + entryDelimiter.length();
         }
 
-        BlockBuilder builder = VARCHAR.createBlockBuilder(new BlockBuilderStatus(), map.size());
+        BlockBuilder builder = createUnboundedVarcharType().createBlockBuilder(new BlockBuilderStatus(), map.size());
         for (Map.Entry<Slice, Slice> entry : map.entrySet()) {
-            VARCHAR.writeSlice(builder, entry.getKey());
-            VARCHAR.writeSlice(builder, entry.getValue());
+            createUnboundedVarcharType().writeSlice(builder, entry.getKey());
+            createUnboundedVarcharType().writeSlice(builder, entry.getValue());
         }
 
         return builder.build();

@@ -37,7 +37,7 @@ import static com.facebook.presto.spi.type.TimeZoneKey.getTimeZoneKey;
 import static com.facebook.presto.spi.type.TimeZoneKey.getTimeZoneKeyForOffset;
 import static com.facebook.presto.spi.type.TimestampType.TIMESTAMP;
 import static com.facebook.presto.spi.type.TimestampWithTimeZoneType.TIMESTAMP_WITH_TIME_ZONE;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.testing.TestingSession.testSessionBuilder;
 import static com.facebook.presto.util.DateTimeZoneIndex.getDateTimeZone;
 import static java.util.concurrent.TimeUnit.HOURS;
@@ -266,7 +266,7 @@ public class TestDateTimeOperators
     @Test
     public void testDateToTimestampCoercing()
     {
-        assertFunction("date_format(DATE '2013-10-27', '%Y-%m-%d %H:%i:%s')", VARCHAR, "2013-10-27 00:00:00");
+        assertFunction("date_format(DATE '2013-10-27', '%Y-%m-%d %H:%i:%s')", createUnboundedVarcharType(), "2013-10-27 00:00:00");
 
         assertFunction("DATE '2013-10-27' = TIMESTAMP '2013-10-27 00:00:00'", BOOLEAN, true);
         assertFunction("DATE '2013-10-27' < TIMESTAMP '2013-10-27 00:00:01'", BOOLEAN, true);

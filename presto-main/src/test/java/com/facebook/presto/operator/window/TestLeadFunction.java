@@ -18,7 +18,7 @@ import org.testng.annotations.Test;
 import static com.facebook.presto.SessionTestUtils.TEST_SESSION;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.IntegerType.INTEGER;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.testing.MaterializedResult.resultBuilder;
 
 public class TestLeadFunction
@@ -28,7 +28,7 @@ public class TestLeadFunction
     public void testLeadFunction()
     {
         assertWindowQuery("lead(orderdate) OVER (PARTITION BY orderstatus ORDER BY orderkey)",
-                resultBuilder(TEST_SESSION, INTEGER, VARCHAR, VARCHAR)
+                resultBuilder(TEST_SESSION, INTEGER, createUnboundedVarcharType(), createUnboundedVarcharType())
                         .row(3, "F", "1994-07-30")
                         .row(5, "F", "1992-02-21")
                         .row(6, "F", "1993-10-27")
@@ -41,7 +41,7 @@ public class TestLeadFunction
                         .row(34, "O", null)
                         .build());
         assertWindowQueryWithNulls("lead(orderdate) OVER (PARTITION BY orderstatus ORDER BY orderkey)",
-                resultBuilder(TEST_SESSION, BIGINT, VARCHAR, VARCHAR)
+                resultBuilder(TEST_SESSION, BIGINT, createUnboundedVarcharType(), createUnboundedVarcharType())
                         .row(3L, "F", null)
                         .row(5L, "F", "1993-10-27")
                         .row(null, "F", "1992-02-21")
@@ -55,7 +55,7 @@ public class TestLeadFunction
                         .build());
 
         assertWindowQuery("lead(orderkey) OVER (PARTITION BY orderstatus ORDER BY orderkey)",
-                resultBuilder(TEST_SESSION, INTEGER, VARCHAR, BIGINT)
+                resultBuilder(TEST_SESSION, INTEGER, createUnboundedVarcharType(), BIGINT)
                         .row(3, "F", 5)
                         .row(5, "F", 6)
                         .row(6, "F", 33)
@@ -68,7 +68,7 @@ public class TestLeadFunction
                         .row(34, "O", null)
                         .build());
         assertWindowQueryWithNulls("lead(orderkey) OVER (PARTITION BY orderstatus ORDER BY orderkey)",
-                resultBuilder(TEST_SESSION, BIGINT, VARCHAR, BIGINT)
+                resultBuilder(TEST_SESSION, BIGINT, createUnboundedVarcharType(), BIGINT)
                         .row(3L, "F", 5L)
                         .row(5L, "F", null)
                         .row(null, "F", null)
@@ -82,7 +82,7 @@ public class TestLeadFunction
                         .build());
 
         assertWindowQuery("lead(orderdate, 2, '1977-01-01') OVER (PARTITION BY orderstatus ORDER BY orderkey)",
-                resultBuilder(TEST_SESSION, INTEGER, VARCHAR, VARCHAR)
+                resultBuilder(TEST_SESSION, INTEGER, createUnboundedVarcharType(), createUnboundedVarcharType())
                         .row(3, "F", "1992-02-21")
                         .row(5, "F", "1993-10-27")
                         .row(6, "F", "1977-01-01")
@@ -95,7 +95,7 @@ public class TestLeadFunction
                         .row(34, "O", "1977-01-01")
                         .build());
         assertWindowQueryWithNulls("lead(orderdate, 2, '1977-01-01') OVER (PARTITION BY orderstatus ORDER BY orderkey)",
-                resultBuilder(TEST_SESSION, BIGINT, VARCHAR, VARCHAR)
+                resultBuilder(TEST_SESSION, BIGINT, createUnboundedVarcharType(), createUnboundedVarcharType())
                         .row(3L, "F", "1993-10-27")
                         .row(5L, "F", "1992-02-21")
                         .row(null, "F", "1977-01-01")
@@ -109,7 +109,7 @@ public class TestLeadFunction
                         .build());
 
         assertWindowQuery("lead(orderkey, 2, -1) OVER (PARTITION BY orderstatus ORDER BY orderkey)",
-                resultBuilder(TEST_SESSION, INTEGER, VARCHAR, INTEGER)
+                resultBuilder(TEST_SESSION, INTEGER, createUnboundedVarcharType(), INTEGER)
                         .row(3, "F", 6)
                         .row(5, "F", 33)
                         .row(6, "F", -1)
@@ -122,7 +122,7 @@ public class TestLeadFunction
                         .row(34, "O", -1)
                         .build());
         assertWindowQueryWithNulls("lead(orderkey, 2, -1) OVER (PARTITION BY orderstatus ORDER BY orderkey)",
-                resultBuilder(TEST_SESSION, BIGINT, VARCHAR, BIGINT)
+                resultBuilder(TEST_SESSION, BIGINT, createUnboundedVarcharType(), BIGINT)
                         .row(3L, "F", null)
                         .row(5L, "F", null)
                         .row(null, "F", -1L)
@@ -136,7 +136,7 @@ public class TestLeadFunction
                         .build());
 
         assertWindowQuery("lead(orderkey, 8 * 1000 * 1000) OVER (PARTITION BY orderstatus ORDER BY orderkey)",
-                resultBuilder(TEST_SESSION, INTEGER, VARCHAR, INTEGER)
+                resultBuilder(TEST_SESSION, INTEGER, createUnboundedVarcharType(), INTEGER)
                         .row(3, "F", null)
                         .row(5, "F", null)
                         .row(6, "F", null)
@@ -150,7 +150,7 @@ public class TestLeadFunction
                         .build());
 
         assertWindowQuery("lead(orderkey, null, -1) OVER (PARTITION BY orderstatus ORDER BY orderkey)",
-                resultBuilder(TEST_SESSION, INTEGER, VARCHAR, INTEGER)
+                resultBuilder(TEST_SESSION, INTEGER, createUnboundedVarcharType(), INTEGER)
                         .row(3, "F", null)
                         .row(5, "F", null)
                         .row(6, "F", null)
@@ -164,7 +164,7 @@ public class TestLeadFunction
                         .build());
 
         assertWindowQuery("lead(orderkey, 0) OVER (PARTITION BY orderstatus ORDER BY orderkey)",
-                resultBuilder(TEST_SESSION, INTEGER, VARCHAR, INTEGER)
+                resultBuilder(TEST_SESSION, INTEGER, createUnboundedVarcharType(), INTEGER)
                         .row(3, "F", 3)
                         .row(5, "F", 5)
                         .row(6, "F", 6)
@@ -178,7 +178,7 @@ public class TestLeadFunction
                         .build());
 
         assertWindowQuery("date_format(lead(cast(orderdate as TIMESTAMP), 0) OVER (PARTITION BY orderstatus ORDER BY orderkey), '%Y-%m-%d')",
-                resultBuilder(TEST_SESSION, INTEGER, VARCHAR, VARCHAR)
+                resultBuilder(TEST_SESSION, INTEGER, createUnboundedVarcharType(), createUnboundedVarcharType())
                         .row(3, "F", "1993-10-14")
                         .row(5, "F", "1994-07-30")
                         .row(6, "F", "1992-02-21")

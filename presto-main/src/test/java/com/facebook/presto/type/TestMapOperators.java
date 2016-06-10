@@ -41,7 +41,7 @@ import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
 import static com.facebook.presto.spi.type.IntegerType.INTEGER;
 import static com.facebook.presto.spi.type.TimestampType.TIMESTAMP;
 import static com.facebook.presto.spi.type.VarbinaryType.VARBINARY;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.spi.type.VarcharType.createVarcharType;
 import static com.facebook.presto.type.JsonType.JSON;
 import static com.facebook.presto.type.UnknownType.UNKNOWN;
@@ -178,16 +178,16 @@ public class TestMapOperators
                 new MapType(BIGINT, new ArrayType(BIGINT)),
                 ImmutableMap.of(1L, ImmutableList.of(2L, 3L), 4L, ImmutableList.of(5L)));
         assertFunction("CAST(JSON '{\"puppies\":\"kittens\"}' AS MAP<VARCHAR, VARCHAR>)",
-                new MapType(VARCHAR, VARCHAR),
+                new MapType(createUnboundedVarcharType(), createUnboundedVarcharType()),
                 ImmutableMap.of("puppies", "kittens"));
         assertFunction("CAST(JSON '{\"true\":\"kittens\"}' AS MAP<BOOLEAN, VARCHAR>)",
-                new MapType(BOOLEAN, VARCHAR),
+                new MapType(BOOLEAN, createUnboundedVarcharType()),
                 ImmutableMap.of(true, "kittens"));
         assertFunction("CAST(JSON 'null' AS MAP<BOOLEAN, VARCHAR>)",
-                new MapType(BOOLEAN, VARCHAR),
+                new MapType(BOOLEAN, createUnboundedVarcharType()),
                 null);
         assertFunction("CAST(JSON '{\"k1\": 5, \"k2\":[1, 2, 3], \"k3\":\"e\", \"k4\":{\"a\": \"b\"}, \"k5\":null, \"k6\":\"null\", \"k7\":[null]}' AS MAP<VARCHAR, JSON>)",
-                new MapType(VARCHAR, JSON),
+                new MapType(createUnboundedVarcharType(), JSON),
                 ImmutableMap.builder()
                         .put("k1", "5")
                         .put("k2", "[1,2,3]")
@@ -203,11 +203,11 @@ public class TestMapOperators
         // The second test should never happen in real life because valid json in presto requires natural key ordering.
         // However, it is added to make sure that the order in the first test is not a coincidence.
         assertFunction("CAST(JSON '{\"k1\": {\"1klmnopq\":1, \"2klmnopq\":2, \"3klmnopq\":3, \"4klmnopq\":4, \"5klmnopq\":5, \"6klmnopq\":6, \"7klmnopq\":7}}' AS MAP<VARCHAR, JSON>)",
-                new MapType(VARCHAR, JSON),
+                new MapType(createUnboundedVarcharType(), JSON),
                 ImmutableMap.of("k1", "{\"1klmnopq\":1,\"2klmnopq\":2,\"3klmnopq\":3,\"4klmnopq\":4,\"5klmnopq\":5,\"6klmnopq\":6,\"7klmnopq\":7}")
         );
         assertFunction("CAST(unchecked_to_json('{\"k1\": {\"7klmnopq\":7, \"6klmnopq\":6, \"5klmnopq\":5, \"4klmnopq\":4, \"3klmnopq\":3, \"2klmnopq\":2, \"1klmnopq\":1}}') AS MAP<VARCHAR, JSON>)",
-                new MapType(VARCHAR, JSON),
+                new MapType(createUnboundedVarcharType(), JSON),
                 ImmutableMap.of("k1", "{\"7klmnopq\":7,\"6klmnopq\":6,\"5klmnopq\":5,\"4klmnopq\":4,\"3klmnopq\":3,\"2klmnopq\":2,\"1klmnopq\":1}")
         );
 
@@ -485,12 +485,12 @@ public class TestMapOperators
     @Test
     public void testMapToMapCast()
     {
-        assertFunction("CAST(MAP(ARRAY['1', '100'], ARRAY[true, false]) AS MAP<varchar,bigint>)", new MapType(VARCHAR, BIGINT), ImmutableMap.of("1", 1L, "100", 0L));
+        assertFunction("CAST(MAP(ARRAY['1', '100'], ARRAY[true, false]) AS MAP<varchar,bigint>)", new MapType(createUnboundedVarcharType(), BIGINT), ImmutableMap.of("1", 1L, "100", 0L));
         assertFunction("CAST(MAP(ARRAY[1,2], ARRAY[1,2]) AS MAP<bigint, boolean>)", new MapType(BIGINT, BOOLEAN), ImmutableMap.of(1L, true, 2L, true));
         assertFunction("CAST(MAP(ARRAY[1,2], ARRAY[array[1],array[2]]) AS MAP<bigint, array<boolean>>)", new MapType(BIGINT, new ArrayType(BOOLEAN)), ImmutableMap.of(1L, ImmutableList.of(true), 2L, ImmutableList.of(true)));
-        assertFunction("CAST(MAP(ARRAY[1], ARRAY[MAP(ARRAY[1.0], ARRAY[false])]) AS MAP<varchar, MAP(bigint,bigint)>)", new MapType(VARCHAR, new MapType(BIGINT, BIGINT)), ImmutableMap.of("1", ImmutableMap.of(1L, 0L)));
-        assertFunction("CAST(MAP(ARRAY[1,2], ARRAY[DATE '2016-01-02', DATE '2016-02-03']) AS MAP(bigint, varchar))", new MapType(BIGINT, VARCHAR), ImmutableMap.of(1L, "2016-01-02", 2L, "2016-02-03"));
-        assertFunction("CAST(MAP(ARRAY[1,2], ARRAY[TIMESTAMP '2016-01-02 01:02:03', TIMESTAMP '2016-02-03 03:04:05']) AS MAP(bigint, varchar))", new MapType(BIGINT, VARCHAR), ImmutableMap.of(1L, "2016-01-02 01:02:03.000", 2L, "2016-02-03 03:04:05.000"));
+        assertFunction("CAST(MAP(ARRAY[1], ARRAY[MAP(ARRAY[1.0], ARRAY[false])]) AS MAP<varchar, MAP(bigint,bigint)>)", new MapType(createUnboundedVarcharType(), new MapType(BIGINT, BIGINT)), ImmutableMap.of("1", ImmutableMap.of(1L, 0L)));
+        assertFunction("CAST(MAP(ARRAY[1,2], ARRAY[DATE '2016-01-02', DATE '2016-02-03']) AS MAP(bigint, varchar))", new MapType(BIGINT, createUnboundedVarcharType()), ImmutableMap.of(1L, "2016-01-02", 2L, "2016-02-03"));
+        assertFunction("CAST(MAP(ARRAY[1,2], ARRAY[TIMESTAMP '2016-01-02 01:02:03', TIMESTAMP '2016-02-03 03:04:05']) AS MAP(bigint, varchar))", new MapType(BIGINT, createUnboundedVarcharType()), ImmutableMap.of(1L, "2016-01-02 01:02:03.000", 2L, "2016-02-03 03:04:05.000"));
         assertInvalidCast("CAST(MAP(ARRAY[1, 2], ARRAY[6, 9]) AS MAP<boolean, bigint>)", "duplicate keys");
     }
 }

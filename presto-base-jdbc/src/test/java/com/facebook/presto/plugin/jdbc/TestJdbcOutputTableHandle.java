@@ -20,7 +20,7 @@ import org.testng.annotations.Test;
 
 import static com.facebook.presto.plugin.jdbc.MetadataUtil.OUTPUT_TABLE_CODEC;
 import static com.facebook.presto.plugin.jdbc.MetadataUtil.assertJsonRoundTrip;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 
 public class TestJdbcOutputTableHandle
 {
@@ -33,7 +33,7 @@ public class TestJdbcOutputTableHandle
                 "schema",
                 "table",
                 ImmutableList.of("abc", "xyz"),
-                ImmutableList.<Type>of(VARCHAR, VARCHAR),
+                ImmutableList.<Type>of(createUnboundedVarcharType(), createUnboundedVarcharType()),
                 "test",
                 "tmp_table",
                 "jdbc:junk",

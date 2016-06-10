@@ -26,7 +26,7 @@ import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 import static com.facebook.presto.spi.type.DateType.DATE;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
 import static com.facebook.presto.spi.type.TimestampType.TIMESTAMP;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 
 public final class SequencePageBuilder
 {
@@ -83,7 +83,7 @@ public final class SequencePageBuilder
         for (int i = 0; i < blocks.length; i++) {
             Type type = types.get(i);
             int initialValue = initialValues[i];
-            if (type.equals(VARCHAR)) {
+            if (type.equals(createUnboundedVarcharType())) {
                 blocks[i] = BlockAssertions.createStringDictionaryBlock(initialValue, initialValue + length);
             }
             else if (type.equals(BIGINT)) {

@@ -15,10 +15,10 @@ package com.facebook.presto.operator.aggregation;
 
 import com.facebook.presto.spi.type.Type;
 import com.facebook.presto.spi.type.VarcharType;
-
 import io.airlift.slice.Slices;
 
 import java.util.concurrent.ThreadLocalRandom;
+
 import static com.facebook.presto.operator.aggregation.ApproximateCountDistinctAggregations.VARBINARY_APPROXIMATE_COUNT_DISTINCT_AGGREGATIONS;
 
 public class TestApproximateCountDistinctVarBinary
@@ -33,7 +33,7 @@ public class TestApproximateCountDistinctVarBinary
     @Override
     public Type getValueType()
     {
-        return VarcharType.VARCHAR;
+        return VarcharType.createUnboundedVarcharType();
     }
 
     @Override

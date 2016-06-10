@@ -21,7 +21,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
 import static com.facebook.presto.SessionTestUtils.TEST_SESSION;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static org.testng.Assert.assertEquals;
 
 public class TestHiddenColumns
@@ -46,7 +46,7 @@ public class TestHiddenColumns
     public void testDescribeTable()
             throws Exception
     {
-        MaterializedResult expected = MaterializedResult.resultBuilder(TEST_SESSION, VARCHAR, VARCHAR, VARCHAR)
+        MaterializedResult expected = MaterializedResult.resultBuilder(TEST_SESSION, createUnboundedVarcharType(), createUnboundedVarcharType(), createUnboundedVarcharType())
                 .row("regionkey", "bigint", "")
                 .row("name", "varchar", "")
                 .row("comment", "varchar", "")

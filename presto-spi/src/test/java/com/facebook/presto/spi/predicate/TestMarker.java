@@ -32,7 +32,7 @@ import java.util.Map;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static io.airlift.slice.Slices.utf8Slice;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
@@ -182,7 +182,7 @@ public class TestMarker
         Marker marker = Marker.above(BIGINT, 0L);
         assertEquals(marker, mapper.readValue(mapper.writeValueAsString(marker), Marker.class));
 
-        marker = Marker.exactly(VARCHAR, utf8Slice("abc"));
+        marker = Marker.exactly(createUnboundedVarcharType(), utf8Slice("abc"));
         assertEquals(marker, mapper.readValue(mapper.writeValueAsString(marker), Marker.class));
 
         marker = Marker.below(DOUBLE, 0.123);

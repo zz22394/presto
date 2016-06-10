@@ -98,7 +98,7 @@ public class TestLearnAggregations
     {
         Type mapType = typeManager.getParameterizedType("map", ImmutableList.of(TypeSignatureParameter.of(parseTypeSignature(StandardTypes.BIGINT)), TypeSignatureParameter.of(parseTypeSignature(StandardTypes.DOUBLE))));
         int datapoints = 100;
-        RowPageBuilder builder = RowPageBuilder.rowPageBuilder(BigintType.BIGINT, mapType, VarcharType.VARCHAR);
+        RowPageBuilder builder = RowPageBuilder.rowPageBuilder(BigintType.BIGINT, mapType, VarcharType.createUnboundedVarcharType());
         Random rand = new Random(0);
         for (int i = 0; i < datapoints; i++) {
             long label = rand.nextDouble() < 0.5 ? 0 : 1;

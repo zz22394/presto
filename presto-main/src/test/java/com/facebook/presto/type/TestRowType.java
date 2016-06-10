@@ -21,7 +21,7 @@ import java.util.Optional;
 
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static java.util.Arrays.asList;
 import static org.testng.Assert.assertEquals;
 
@@ -30,7 +30,7 @@ public class TestRowType
     @Test
     public void testRowDisplayName()
     {
-        List<Type> types = asList(BOOLEAN, DOUBLE, new ArrayType(VARCHAR), new MapType(BOOLEAN, DOUBLE));
+        List<Type> types = asList(BOOLEAN, DOUBLE, new ArrayType(createUnboundedVarcharType()), new MapType(BOOLEAN, DOUBLE));
         Optional<List<String>> names = Optional.of(asList("bool_col", "double_col", "array_col", "map_col"));
         RowType row = new RowType(types, names);
         assertEquals(
@@ -41,7 +41,7 @@ public class TestRowType
     @Test
     public void testRowDisplayNoColumnNames()
     {
-        List<Type> types = asList(BOOLEAN, DOUBLE, new ArrayType(VARCHAR), new MapType(BOOLEAN, DOUBLE));
+        List<Type> types = asList(BOOLEAN, DOUBLE, new ArrayType(createUnboundedVarcharType()), new MapType(BOOLEAN, DOUBLE));
         RowType row = new RowType(types, Optional.empty());
         assertEquals(
                 row.getDisplayName(),

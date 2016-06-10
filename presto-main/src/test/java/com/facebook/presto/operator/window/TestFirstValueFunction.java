@@ -18,7 +18,7 @@ import org.testng.annotations.Test;
 import static com.facebook.presto.SessionTestUtils.TEST_SESSION;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.IntegerType.INTEGER;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.testing.MaterializedResult.resultBuilder;
 
 public class TestFirstValueFunction
@@ -28,7 +28,7 @@ public class TestFirstValueFunction
     public void testFirstValueUnbounded()
     {
         assertWindowQuery("first_value(orderdate) OVER (PARTITION BY orderstatus ORDER BY orderkey)",
-                resultBuilder(TEST_SESSION, INTEGER, VARCHAR, VARCHAR)
+                resultBuilder(TEST_SESSION, INTEGER, createUnboundedVarcharType(), createUnboundedVarcharType())
                         .row(3, "F", "1993-10-14")
                         .row(5, "F", "1993-10-14")
                         .row(6, "F", "1993-10-14")
@@ -41,7 +41,7 @@ public class TestFirstValueFunction
                         .row(34, "O", "1996-01-02")
                         .build());
         assertWindowQueryWithNulls("first_value(orderdate) OVER (PARTITION BY orderstatus ORDER BY orderkey)",
-                resultBuilder(TEST_SESSION, BIGINT, VARCHAR, VARCHAR)
+                resultBuilder(TEST_SESSION, BIGINT, createUnboundedVarcharType(), createUnboundedVarcharType())
                         .row(3L, "F", "1993-10-14")
                         .row(5L, "F", "1993-10-14")
                         .row(null, "F", "1993-10-14")
@@ -55,7 +55,7 @@ public class TestFirstValueFunction
                         .build());
 
         assertWindowQuery("first_value(orderkey) OVER (PARTITION BY orderstatus ORDER BY orderkey)",
-                resultBuilder(TEST_SESSION, INTEGER, VARCHAR, INTEGER)
+                resultBuilder(TEST_SESSION, INTEGER, createUnboundedVarcharType(), INTEGER)
                         .row(3, "F", 3)
                         .row(5, "F", 3)
                         .row(6, "F", 3)
@@ -68,7 +68,7 @@ public class TestFirstValueFunction
                         .row(34, "O", 1)
                         .build());
         assertWindowQueryWithNulls("first_value(orderkey) OVER (PARTITION BY orderstatus ORDER BY orderkey)",
-                resultBuilder(TEST_SESSION, BIGINT, VARCHAR, BIGINT)
+                resultBuilder(TEST_SESSION, BIGINT, createUnboundedVarcharType(), BIGINT)
                         .row(3L, "F", 3L)
                         .row(5L, "F", 3L)
                         .row(null, "F", 3L)
@@ -83,7 +83,7 @@ public class TestFirstValueFunction
 
         // Timestamp
         assertWindowQuery("date_format(first_value(cast(orderdate as TIMESTAMP)) OVER (PARTITION BY orderstatus ORDER BY orderkey), '%Y-%m-%d')",
-                resultBuilder(TEST_SESSION, INTEGER, VARCHAR, VARCHAR)
+                resultBuilder(TEST_SESSION, INTEGER, createUnboundedVarcharType(), createUnboundedVarcharType())
                         .row(3, "F", "1993-10-14")
                         .row(5, "F", "1993-10-14")
                         .row(6, "F", "1993-10-14")
@@ -102,7 +102,7 @@ public class TestFirstValueFunction
     {
         assertWindowQuery("first_value(orderkey) OVER (PARTITION BY orderstatus ORDER BY orderkey " +
                         "ROWS BETWEEN 2 PRECEDING AND 2 FOLLOWING)",
-                resultBuilder(TEST_SESSION, INTEGER, VARCHAR, INTEGER)
+                resultBuilder(TEST_SESSION, INTEGER, createUnboundedVarcharType(), INTEGER)
                         .row(3, "F", 3)
                         .row(5, "F", 3)
                         .row(6, "F", 3)
@@ -116,7 +116,7 @@ public class TestFirstValueFunction
                         .build());
         assertWindowQueryWithNulls("first_value(orderkey) OVER (PARTITION BY orderstatus ORDER BY orderkey " +
                         "ROWS BETWEEN 2 PRECEDING AND 2 FOLLOWING)",
-                resultBuilder(TEST_SESSION, BIGINT, VARCHAR, BIGINT)
+                resultBuilder(TEST_SESSION, BIGINT, createUnboundedVarcharType(), BIGINT)
                         .row(3L, "F", 3L)
                         .row(5L, "F", 3L)
                         .row(null, "F", 3L)

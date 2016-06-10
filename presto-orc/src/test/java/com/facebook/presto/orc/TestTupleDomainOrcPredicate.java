@@ -46,7 +46,7 @@ import static com.facebook.presto.spi.type.DateType.DATE;
 import static com.facebook.presto.spi.type.DecimalType.createDecimalType;
 import static com.facebook.presto.spi.type.Decimals.encodeScaledValue;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static io.airlift.slice.Slices.utf8Slice;
 import static org.testng.Assert.assertEquals;
 
@@ -151,25 +151,25 @@ public class TestTupleDomainOrcPredicate
     public void testString()
             throws Exception
     {
-        assertEquals(getDomain(VARCHAR, 0, null), none(VARCHAR));
-        assertEquals(getDomain(VARCHAR, 10, null), all(VARCHAR));
+        assertEquals(getDomain(createUnboundedVarcharType(), 0, null), none(createUnboundedVarcharType()));
+        assertEquals(getDomain(createUnboundedVarcharType(), 10, null), all(createUnboundedVarcharType()));
 
-        assertEquals(getDomain(VARCHAR, 0, stringColumnStats(null, null, null)), none(VARCHAR));
-        assertEquals(getDomain(VARCHAR, 0, stringColumnStats(0L, null, null)), none(VARCHAR));
-        assertEquals(getDomain(VARCHAR, 0, stringColumnStats(0L, "taco", "taco")), none(VARCHAR));
+        assertEquals(getDomain(createUnboundedVarcharType(), 0, stringColumnStats(null, null, null)), none(createUnboundedVarcharType()));
+        assertEquals(getDomain(createUnboundedVarcharType(), 0, stringColumnStats(0L, null, null)), none(createUnboundedVarcharType()));
+        assertEquals(getDomain(createUnboundedVarcharType(), 0, stringColumnStats(0L, "taco", "taco")), none(createUnboundedVarcharType()));
 
-        assertEquals(getDomain(VARCHAR, 10, stringColumnStats(0L, null, null)), onlyNull(VARCHAR));
-        assertEquals(getDomain(VARCHAR, 10, stringColumnStats(10L, null, null)), notNull(VARCHAR));
+        assertEquals(getDomain(createUnboundedVarcharType(), 10, stringColumnStats(0L, null, null)), onlyNull(createUnboundedVarcharType()));
+        assertEquals(getDomain(createUnboundedVarcharType(), 10, stringColumnStats(10L, null, null)), notNull(createUnboundedVarcharType()));
 
-        assertEquals(getDomain(VARCHAR, 10, stringColumnStats(10L, "taco", "taco")), singleValue(VARCHAR, utf8Slice("taco")));
+        assertEquals(getDomain(createUnboundedVarcharType(), 10, stringColumnStats(10L, "taco", "taco")), singleValue(createUnboundedVarcharType(), utf8Slice("taco")));
 
-        assertEquals(getDomain(VARCHAR, 10, stringColumnStats(10L, "apple", "taco")), create(ValueSet.ofRanges(range(VARCHAR, utf8Slice("apple"), true, utf8Slice("taco"), true)), false));
-        assertEquals(getDomain(VARCHAR, 10, stringColumnStats(10L, null, "taco")), create(ValueSet.ofRanges(lessThanOrEqual(VARCHAR, utf8Slice("taco"))), false));
-        assertEquals(getDomain(VARCHAR, 10, stringColumnStats(10L, "apple", null)), create(ValueSet.ofRanges(greaterThanOrEqual(VARCHAR, utf8Slice("apple"))), false));
+        assertEquals(getDomain(createUnboundedVarcharType(), 10, stringColumnStats(10L, "apple", "taco")), create(ValueSet.ofRanges(range(createUnboundedVarcharType(), utf8Slice("apple"), true, utf8Slice("taco"), true)), false));
+        assertEquals(getDomain(createUnboundedVarcharType(), 10, stringColumnStats(10L, null, "taco")), create(ValueSet.ofRanges(lessThanOrEqual(createUnboundedVarcharType(), utf8Slice("taco"))), false));
+        assertEquals(getDomain(createUnboundedVarcharType(), 10, stringColumnStats(10L, "apple", null)), create(ValueSet.ofRanges(greaterThanOrEqual(createUnboundedVarcharType(), utf8Slice("apple"))), false));
 
-        assertEquals(getDomain(VARCHAR, 10, stringColumnStats(5L, "apple", "taco")), create(ValueSet.ofRanges(range(VARCHAR, utf8Slice("apple"), true, utf8Slice("taco"), true)), true));
-        assertEquals(getDomain(VARCHAR, 10, stringColumnStats(5L, null, "taco")), create(ValueSet.ofRanges(lessThanOrEqual(VARCHAR, utf8Slice("taco"))), true));
-        assertEquals(getDomain(VARCHAR, 10, stringColumnStats(5L, "apple", null)), create(ValueSet.ofRanges(greaterThanOrEqual(VARCHAR, utf8Slice("apple"))), true));
+        assertEquals(getDomain(createUnboundedVarcharType(), 10, stringColumnStats(5L, "apple", "taco")), create(ValueSet.ofRanges(range(createUnboundedVarcharType(), utf8Slice("apple"), true, utf8Slice("taco"), true)), true));
+        assertEquals(getDomain(createUnboundedVarcharType(), 10, stringColumnStats(5L, null, "taco")), create(ValueSet.ofRanges(lessThanOrEqual(createUnboundedVarcharType(), utf8Slice("taco"))), true));
+        assertEquals(getDomain(createUnboundedVarcharType(), 10, stringColumnStats(5L, "apple", null)), create(ValueSet.ofRanges(greaterThanOrEqual(createUnboundedVarcharType(), utf8Slice("apple"))), true));
     }
 
     private static ColumnStatistics stringColumnStats(Long numberOfValues, String minimum, String maximum)

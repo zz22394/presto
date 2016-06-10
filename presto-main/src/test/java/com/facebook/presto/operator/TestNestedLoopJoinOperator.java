@@ -35,7 +35,7 @@ import static com.facebook.presto.SessionTestUtils.TEST_SESSION;
 import static com.facebook.presto.operator.OperatorAssertion.assertOperatorEquals;
 import static com.facebook.presto.operator.ValuesOperator.ValuesOperatorFactory;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.testing.MaterializedResult.resultBuilder;
 import static com.google.common.collect.Iterables.concat;
 import static io.airlift.concurrent.Threads.daemonThreadsNamed;
@@ -66,16 +66,16 @@ public class TestNestedLoopJoinOperator
     {
         TaskContext taskContext = createTaskContext();
         // build
-        RowPagesBuilder buildPages = rowPagesBuilder(ImmutableList.of(VARCHAR, BIGINT, BIGINT))
+        RowPagesBuilder buildPages = rowPagesBuilder(ImmutableList.of(createUnboundedVarcharType(), BIGINT, BIGINT))
                 .addSequencePage(3, 20, 30, 40);
         NestedLoopJoinPagesSupplier nestedLoopJoinPagesSupplier = buildPageSource(taskContext, buildPages);
 
         // probe
-        RowPagesBuilder probePages = rowPagesBuilder(ImmutableList.<Type>of(VARCHAR, BIGINT, BIGINT));
+        RowPagesBuilder probePages = rowPagesBuilder(ImmutableList.<Type>of(createUnboundedVarcharType(), BIGINT, BIGINT));
         List<Page> probeInput = probePages
                 .addSequencePage(2, 0, 1000, 2000)
                 .build();
-        NestedLoopJoinOperatorFactory joinOperatorFactory = new NestedLoopJoinOperatorFactory(3, new PlanNodeId("test"), nestedLoopJoinPagesSupplier, ImmutableList.<Type>of(VARCHAR, BIGINT, BIGINT));
+        NestedLoopJoinOperatorFactory joinOperatorFactory = new NestedLoopJoinOperatorFactory(3, new PlanNodeId("test"), nestedLoopJoinPagesSupplier, ImmutableList.<Type>of(createUnboundedVarcharType(), BIGINT, BIGINT));
 
         Operator joinOperator = joinOperatorFactory.createOperator(taskContext.addPipelineContext(true, true).addDriverContext());
 
@@ -92,14 +92,14 @@ public class TestNestedLoopJoinOperator
         assertOperatorEquals(joinOperator, probeInput, expected);
 
         // Test probe pages has more rows
-        buildPages = rowPagesBuilder(ImmutableList.of(VARCHAR, BIGINT, BIGINT))
+        buildPages = rowPagesBuilder(ImmutableList.of(createUnboundedVarcharType(), BIGINT, BIGINT))
                 .addSequencePage(2, 20, 30, 40);
         nestedLoopJoinPagesSupplier = buildPageSource(taskContext, buildPages);
-        joinOperatorFactory = new NestedLoopJoinOperatorFactory(3, new PlanNodeId("test"), nestedLoopJoinPagesSupplier, ImmutableList.<Type>of(VARCHAR, BIGINT, BIGINT));
+        joinOperatorFactory = new NestedLoopJoinOperatorFactory(3, new PlanNodeId("test"), nestedLoopJoinPagesSupplier, ImmutableList.<Type>of(createUnboundedVarcharType(), BIGINT, BIGINT));
         joinOperator = joinOperatorFactory.createOperator(taskContext.addPipelineContext(true, true).addDriverContext());
 
         // probe
-        probePages = rowPagesBuilder(ImmutableList.<Type>of(VARCHAR, BIGINT, BIGINT));
+        probePages = rowPagesBuilder(ImmutableList.<Type>of(createUnboundedVarcharType(), BIGINT, BIGINT));
         probeInput = probePages
                 .addSequencePage(3, 0, 1000, 2000)
                 .build();
@@ -124,14 +124,14 @@ public class TestNestedLoopJoinOperator
         TaskContext taskContext = createTaskContext();
 
         // build
-        List<Type> buildTypes = ImmutableList.<Type>of(VARCHAR);
+        List<Type> buildTypes = ImmutableList.<Type>of(createUnboundedVarcharType());
         RowPagesBuilder buildPages = rowPagesBuilder(buildTypes)
                 .row("a")
                 .row("b");
         NestedLoopJoinPagesSupplier nestedLoopJoinPagesSupplier = buildPageSource(taskContext, buildPages);
 
         // probe
-        List<Type> probeTypes = ImmutableList.<Type>of(VARCHAR);
+        List<Type> probeTypes = ImmutableList.<Type>of(createUnboundedVarcharType());
         RowPagesBuilder probePages = rowPagesBuilder(probeTypes);
         List<Page> probeInput = probePages
                 .row("A")
@@ -141,7 +141,7 @@ public class TestNestedLoopJoinOperator
                 .row("B")
                 .build();
 
-        NestedLoopJoinOperatorFactory joinOperatorFactory = new NestedLoopJoinOperatorFactory(3, new PlanNodeId("test"), nestedLoopJoinPagesSupplier, ImmutableList.<Type>of(VARCHAR));
+        NestedLoopJoinOperatorFactory joinOperatorFactory = new NestedLoopJoinOperatorFactory(3, new PlanNodeId("test"), nestedLoopJoinPagesSupplier, ImmutableList.<Type>of(createUnboundedVarcharType()));
         Operator joinOperator = joinOperatorFactory.createOperator(taskContext.addPipelineContext(true, true).addDriverContext());
 
         // expected
@@ -168,7 +168,7 @@ public class TestNestedLoopJoinOperator
         TaskContext taskContext = createTaskContext();
 
         // build
-        List<Type> buildTypes = ImmutableList.<Type>of(VARCHAR);
+        List<Type> buildTypes = ImmutableList.<Type>of(createUnboundedVarcharType());
         RowPagesBuilder buildPages = rowPagesBuilder(buildTypes)
                 .row("a")
                 .row((String) null)
@@ -178,13 +178,13 @@ public class TestNestedLoopJoinOperator
         NestedLoopJoinPagesSupplier nestedLoopJoinPagesSupplier = buildPageSource(taskContext, buildPages);
 
         // probe
-        List<Type> probeTypes = ImmutableList.<Type>of(VARCHAR);
+        List<Type> probeTypes = ImmutableList.<Type>of(createUnboundedVarcharType());
         RowPagesBuilder probePages = rowPagesBuilder(probeTypes);
         List<Page> probeInput = probePages
                 .row("A")
                 .row("B")
                 .build();
-        NestedLoopJoinOperatorFactory joinOperatorFactory = new NestedLoopJoinOperatorFactory(3, new PlanNodeId("test"), nestedLoopJoinPagesSupplier, ImmutableList.<Type>of(VARCHAR));
+        NestedLoopJoinOperatorFactory joinOperatorFactory = new NestedLoopJoinOperatorFactory(3, new PlanNodeId("test"), nestedLoopJoinPagesSupplier, ImmutableList.<Type>of(createUnboundedVarcharType()));
         Operator joinOperator = joinOperatorFactory.createOperator(taskContext.addPipelineContext(true, true).addDriverContext());
 
         // expected
@@ -211,7 +211,7 @@ public class TestNestedLoopJoinOperator
         TaskContext taskContext = createTaskContext();
 
         // build
-        List<Type> buildTypes = ImmutableList.<Type>of(VARCHAR);
+        List<Type> buildTypes = ImmutableList.<Type>of(createUnboundedVarcharType());
         RowPagesBuilder buildPages = rowPagesBuilder(buildTypes)
                 .row("a")
                 .row((String) null)
@@ -221,7 +221,7 @@ public class TestNestedLoopJoinOperator
         NestedLoopJoinPagesSupplier nestedLoopJoinPagesSupplier = buildPageSource(taskContext, buildPages);
 
         // probe
-        List<Type> probeTypes = ImmutableList.<Type>of(VARCHAR);
+        List<Type> probeTypes = ImmutableList.<Type>of(createUnboundedVarcharType());
         RowPagesBuilder probePages = rowPagesBuilder(probeTypes);
         List<Page> probeInput = probePages
                 .row("A")
@@ -229,7 +229,7 @@ public class TestNestedLoopJoinOperator
                 .row((String) null)
                 .row("C")
                 .build();
-        NestedLoopJoinOperatorFactory joinOperatorFactory = new NestedLoopJoinOperatorFactory(3, new PlanNodeId("test"), nestedLoopJoinPagesSupplier, ImmutableList.<Type>of(VARCHAR));
+        NestedLoopJoinOperatorFactory joinOperatorFactory = new NestedLoopJoinOperatorFactory(3, new PlanNodeId("test"), nestedLoopJoinPagesSupplier, ImmutableList.<Type>of(createUnboundedVarcharType()));
         Operator joinOperator = joinOperatorFactory.createOperator(taskContext.addPipelineContext(true, true).addDriverContext());
 
         // expected
@@ -266,7 +266,7 @@ public class TestNestedLoopJoinOperator
         TaskContext taskContext = createTaskContext();
 
         // build
-        List<Type> buildTypes = ImmutableList.<Type>of(VARCHAR);
+        List<Type> buildTypes = ImmutableList.<Type>of(createUnboundedVarcharType());
         RowPagesBuilder buildPages = rowPagesBuilder(buildTypes)
                 .row("a")
                 .pageBreak()
@@ -278,13 +278,13 @@ public class TestNestedLoopJoinOperator
         NestedLoopJoinPagesSupplier nestedLoopJoinPagesSupplier = buildPageSource(taskContext, buildPages);
 
         // probe
-        List<Type> probeTypes = ImmutableList.<Type>of(VARCHAR);
+        List<Type> probeTypes = ImmutableList.<Type>of(createUnboundedVarcharType());
         RowPagesBuilder probePages = rowPagesBuilder(probeTypes);
         List<Page> probeInput = probePages
                 .row("A")
                 .row("B")
                 .build();
-        NestedLoopJoinOperatorFactory joinOperatorFactory = new NestedLoopJoinOperatorFactory(3, new PlanNodeId("test"), nestedLoopJoinPagesSupplier, ImmutableList.<Type>of(VARCHAR));
+        NestedLoopJoinOperatorFactory joinOperatorFactory = new NestedLoopJoinOperatorFactory(3, new PlanNodeId("test"), nestedLoopJoinPagesSupplier, ImmutableList.<Type>of(createUnboundedVarcharType()));
         Operator joinOperator = joinOperatorFactory.createOperator(taskContext.addPipelineContext(true, true).addDriverContext());
 
         // expected
@@ -311,14 +311,14 @@ public class TestNestedLoopJoinOperator
         TaskContext taskContext = createTaskContext();
 
         // build
-        List<Type> buildTypes = ImmutableList.<Type>of(VARCHAR);
+        List<Type> buildTypes = ImmutableList.<Type>of(createUnboundedVarcharType());
         RowPagesBuilder buildPages = rowPagesBuilder(buildTypes)
                 .row("A")
                 .row("B");
         NestedLoopJoinPagesSupplier nestedLoopJoinPagesSupplier = buildPageSource(taskContext, buildPages);
 
         // probe
-        List<Type> probeTypes = ImmutableList.<Type>of(VARCHAR);
+        List<Type> probeTypes = ImmutableList.<Type>of(createUnboundedVarcharType());
         RowPagesBuilder probePages = rowPagesBuilder(probeTypes);
         List<Page> probeInput = probePages
                 .row("a")
@@ -329,7 +329,7 @@ public class TestNestedLoopJoinOperator
                 .pageBreak()
                 .row("d")
                 .build();
-        NestedLoopJoinOperatorFactory joinOperatorFactory = new NestedLoopJoinOperatorFactory(3, new PlanNodeId("test"), nestedLoopJoinPagesSupplier, ImmutableList.<Type>of(VARCHAR));
+        NestedLoopJoinOperatorFactory joinOperatorFactory = new NestedLoopJoinOperatorFactory(3, new PlanNodeId("test"), nestedLoopJoinPagesSupplier, ImmutableList.<Type>of(createUnboundedVarcharType()));
         Operator joinOperator = joinOperatorFactory.createOperator(taskContext.addPipelineContext(true, true).addDriverContext());
 
         // expected
@@ -356,7 +356,7 @@ public class TestNestedLoopJoinOperator
         TaskContext taskContext = createTaskContext();
 
         // build
-        List<Type> buildTypes = ImmutableList.<Type>of(VARCHAR);
+        List<Type> buildTypes = ImmutableList.<Type>of(createUnboundedVarcharType());
         RowPagesBuilder buildPages = rowPagesBuilder(buildTypes)
                 .row("A")
                 .row("B")
@@ -365,7 +365,7 @@ public class TestNestedLoopJoinOperator
         NestedLoopJoinPagesSupplier nestedLoopJoinPagesSupplier = buildPageSource(taskContext, buildPages);
 
         // probe
-        List<Type> probeTypes = ImmutableList.<Type>of(VARCHAR);
+        List<Type> probeTypes = ImmutableList.<Type>of(createUnboundedVarcharType());
         RowPagesBuilder probePages = rowPagesBuilder(probeTypes);
         List<Page> probeInput = probePages
                 .row("a")
@@ -376,7 +376,7 @@ public class TestNestedLoopJoinOperator
                 .pageBreak()
                 .row("d")
                 .build();
-        NestedLoopJoinOperatorFactory joinOperatorFactory = new NestedLoopJoinOperatorFactory(3, new PlanNodeId("test"), nestedLoopJoinPagesSupplier, ImmutableList.<Type>of(VARCHAR));
+        NestedLoopJoinOperatorFactory joinOperatorFactory = new NestedLoopJoinOperatorFactory(3, new PlanNodeId("test"), nestedLoopJoinPagesSupplier, ImmutableList.<Type>of(createUnboundedVarcharType()));
         Operator joinOperator = joinOperatorFactory.createOperator(taskContext.addPipelineContext(true, true).addDriverContext());
 
         // expected
@@ -408,7 +408,7 @@ public class TestNestedLoopJoinOperator
         TaskContext taskContext = createTaskContext();
 
         // build
-        List<Type> buildTypes = ImmutableList.<Type>of(VARCHAR);
+        List<Type> buildTypes = ImmutableList.<Type>of(createUnboundedVarcharType());
         RowPagesBuilder buildPages = rowPagesBuilder(buildTypes)
                 .row("A")
                 .row("B")
@@ -417,12 +417,12 @@ public class TestNestedLoopJoinOperator
         NestedLoopJoinPagesSupplier nestedLoopJoinPagesSupplier = buildPageSource(taskContext, buildPages);
 
         // probe
-        List<Type> probeTypes = ImmutableList.<Type>of(VARCHAR);
+        List<Type> probeTypes = ImmutableList.<Type>of(createUnboundedVarcharType());
         RowPagesBuilder probePages = rowPagesBuilder(probeTypes);
         List<Page> probeInput = probePages
                 .pageBreak()
                 .build();
-        NestedLoopJoinOperatorFactory joinOperatorFactory = new NestedLoopJoinOperatorFactory(3, new PlanNodeId("test"), nestedLoopJoinPagesSupplier, ImmutableList.<Type>of(VARCHAR));
+        NestedLoopJoinOperatorFactory joinOperatorFactory = new NestedLoopJoinOperatorFactory(3, new PlanNodeId("test"), nestedLoopJoinPagesSupplier, ImmutableList.<Type>of(createUnboundedVarcharType()));
         Operator joinOperator = joinOperatorFactory.createOperator(taskContext.addPipelineContext(true, true).addDriverContext());
 
         // expected
@@ -439,20 +439,20 @@ public class TestNestedLoopJoinOperator
         TaskContext taskContext = createTaskContext();
 
         // build
-        List<Type> buildTypes = ImmutableList.<Type>of(VARCHAR);
+        List<Type> buildTypes = ImmutableList.<Type>of(createUnboundedVarcharType());
         RowPagesBuilder buildPages = rowPagesBuilder(buildTypes)
                 .pageBreak();
         NestedLoopJoinPagesSupplier nestedLoopJoinPagesSupplier = buildPageSource(taskContext, buildPages);
 
         // probe
-        List<Type> probeTypes = ImmutableList.<Type>of(VARCHAR);
+        List<Type> probeTypes = ImmutableList.<Type>of(createUnboundedVarcharType());
         RowPagesBuilder probePages = rowPagesBuilder(probeTypes);
         List<Page> probeInput = probePages
                 .row("A")
                 .row("B")
                 .pageBreak()
                 .build();
-        NestedLoopJoinOperatorFactory joinOperatorFactory = new NestedLoopJoinOperatorFactory(3, new PlanNodeId("test"), nestedLoopJoinPagesSupplier, ImmutableList.<Type>of(VARCHAR));
+        NestedLoopJoinOperatorFactory joinOperatorFactory = new NestedLoopJoinOperatorFactory(3, new PlanNodeId("test"), nestedLoopJoinPagesSupplier, ImmutableList.<Type>of(createUnboundedVarcharType()));
         Operator joinOperator = joinOperatorFactory.createOperator(taskContext.addPipelineContext(true, true).addDriverContext());
 
         // expected

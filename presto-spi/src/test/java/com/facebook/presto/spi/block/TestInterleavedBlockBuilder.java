@@ -18,7 +18,7 @@ import io.airlift.slice.Slices;
 import org.testng.annotations.Test;
 
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -40,11 +40,11 @@ public class TestInterleavedBlockBuilder
 
     private void testIsFull(PageBuilderStatus pageBuilderStatus)
     {
-        BlockBuilder blockBuilder = new InterleavedBlockBuilder(ImmutableList.of(BIGINT, VARCHAR), pageBuilderStatus.createBlockBuilderStatus(), EXPECTED_ENTRY_COUNT);
+        BlockBuilder blockBuilder = new InterleavedBlockBuilder(ImmutableList.of(BIGINT, createUnboundedVarcharType()), pageBuilderStatus.createBlockBuilderStatus(), EXPECTED_ENTRY_COUNT);
         assertTrue(pageBuilderStatus.isEmpty());
         while (!pageBuilderStatus.isFull()) {
             BIGINT.writeLong(blockBuilder, 12);
-            VARCHAR.writeSlice(blockBuilder, Slices.allocate(VARCHAR_VALUE_SIZE));
+            createUnboundedVarcharType().writeSlice(blockBuilder, Slices.allocate(VARCHAR_VALUE_SIZE));
         }
         assertEquals(blockBuilder.getPositionCount(), EXPECTED_ENTRY_COUNT);
         assertEquals(pageBuilderStatus.isFull(), true);

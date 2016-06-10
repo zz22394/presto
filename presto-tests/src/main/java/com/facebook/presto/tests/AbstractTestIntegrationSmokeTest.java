@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.facebook.presto.SystemSessionProperties.QUERY_MAX_MEMORY;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.testing.TestingAccessControlManager.TestingPrivilegeType.ADD_COLUMN;
 import static com.facebook.presto.testing.TestingAccessControlManager.TestingPrivilegeType.CREATE_TABLE;
 import static com.facebook.presto.testing.TestingAccessControlManager.TestingPrivilegeType.CREATE_VIEW;
@@ -165,7 +165,7 @@ public abstract class AbstractTestIntegrationSmokeTest
     {
         MaterializedResult actualSchemas = computeActual("SHOW SCHEMAS").toJdbcTypes();
 
-        MaterializedResult.Builder resultBuilder = MaterializedResult.resultBuilder(queryRunner.getDefaultSession(), VARCHAR)
+        MaterializedResult.Builder resultBuilder = MaterializedResult.resultBuilder(queryRunner.getDefaultSession(), createUnboundedVarcharType())
                 .row("tpch");
 
         if (sampledSession.isPresent()) {
@@ -180,7 +180,7 @@ public abstract class AbstractTestIntegrationSmokeTest
             throws Exception
     {
         MaterializedResult actualTables = computeActual("SHOW TABLES").toJdbcTypes();
-        MaterializedResult expectedTables = MaterializedResult.resultBuilder(queryRunner.getDefaultSession(), VARCHAR)
+        MaterializedResult expectedTables = MaterializedResult.resultBuilder(queryRunner.getDefaultSession(), createUnboundedVarcharType())
                 .row("orders")
                 .build();
         assertContains(actualTables, expectedTables);
@@ -311,7 +311,7 @@ public abstract class AbstractTestIntegrationSmokeTest
             orderDateType = "varchar";
         }
         if (parametrizedVarchar) {
-            return MaterializedResult.resultBuilder(queryRunner.getDefaultSession(), VARCHAR, VARCHAR, VARCHAR)
+            return MaterializedResult.resultBuilder(queryRunner.getDefaultSession(), createUnboundedVarcharType(), createUnboundedVarcharType(), createUnboundedVarcharType())
                     .row("orderkey", "bigint", "")
                     .row("custkey", "bigint", "")
                     .row("orderstatus", "varchar", "")
@@ -324,7 +324,7 @@ public abstract class AbstractTestIntegrationSmokeTest
                     .build();
         }
         else {
-            return MaterializedResult.resultBuilder(queryRunner.getDefaultSession(), VARCHAR, VARCHAR, VARCHAR)
+            return MaterializedResult.resultBuilder(queryRunner.getDefaultSession(), createUnboundedVarcharType(), createUnboundedVarcharType(), createUnboundedVarcharType())
                     .row("orderkey", "bigint", "")
                     .row("custkey", "bigint", "")
                     .row("orderstatus", "varchar(1)", "")

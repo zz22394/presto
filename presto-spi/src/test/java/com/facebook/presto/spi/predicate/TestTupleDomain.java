@@ -38,7 +38,7 @@ import static com.facebook.presto.spi.predicate.TupleDomain.columnWiseUnion;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static io.airlift.slice.Slices.utf8Slice;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
@@ -64,7 +64,7 @@ public class TestTupleDomain
         assertEquals(TupleDomain.<ColumnHandle>none(),
                 TupleDomain.withColumnDomains(ImmutableMap.of(
                         A, Domain.all(BIGINT),
-                        B, Domain.none(VARCHAR))));
+                        B, Domain.none(createUnboundedVarcharType()))));
     }
 
     @Test
@@ -85,7 +85,7 @@ public class TestTupleDomain
     {
         TupleDomain<ColumnHandle> tupleDomain1 = TupleDomain.withColumnDomains(
                 ImmutableMap.<ColumnHandle, Domain>builder()
-                        .put(A, Domain.all(VARCHAR))
+                        .put(A, Domain.all(createUnboundedVarcharType()))
                         .put(B, Domain.notNull(DOUBLE))
                         .put(C, Domain.singleValue(BIGINT, 1L))
                         .put(D, Domain.create(ValueSet.ofRanges(Range.greaterThanOrEqual(DOUBLE, 0.0)), true))
@@ -93,7 +93,7 @@ public class TestTupleDomain
 
         TupleDomain<ColumnHandle> tupleDomain2 = TupleDomain.withColumnDomains(
                 ImmutableMap.<ColumnHandle, Domain>builder()
-                        .put(A, Domain.singleValue(VARCHAR, utf8Slice("value")))
+                        .put(A, Domain.singleValue(createUnboundedVarcharType(), utf8Slice("value")))
                         .put(B, Domain.singleValue(DOUBLE, 0.0))
                         .put(C, Domain.singleValue(BIGINT, 1L))
                         .put(D, Domain.create(ValueSet.ofRanges(Range.lessThan(DOUBLE, 10.0)), false))
@@ -101,7 +101,7 @@ public class TestTupleDomain
 
         TupleDomain<ColumnHandle> expectedTupleDomain = TupleDomain.withColumnDomains(
                 ImmutableMap.<ColumnHandle, Domain>builder()
-                        .put(A, Domain.singleValue(VARCHAR, utf8Slice("value")))
+                        .put(A, Domain.singleValue(createUnboundedVarcharType(), utf8Slice("value")))
                         .put(B, Domain.singleValue(DOUBLE, 0.0))
                         .put(C, Domain.singleValue(BIGINT, 1L))
                         .put(D, Domain.create(ValueSet.ofRanges(Range.range(DOUBLE, 0.0, true, 10.0, false)), false))
@@ -130,7 +130,7 @@ public class TestTupleDomain
         TupleDomain<ColumnHandle> tupleDomain1 = TupleDomain.withColumnDomains(
                 ImmutableMap.of(
                         A, Domain.all(DOUBLE),
-                        B, Domain.singleValue(VARCHAR, utf8Slice("value"))));
+                        B, Domain.singleValue(createUnboundedVarcharType(), utf8Slice("value"))));
 
         TupleDomain<ColumnHandle> tupleDomain2 = TupleDomain.withColumnDomains(
                 ImmutableMap.of(
@@ -139,7 +139,7 @@ public class TestTupleDomain
 
         TupleDomain<ColumnHandle> expectedTupleDomain = TupleDomain.withColumnDomains(ImmutableMap.of(
                 A, Domain.create(ValueSet.ofRanges(Range.greaterThanOrEqual(DOUBLE, 0.0)), true),
-                B, Domain.singleValue(VARCHAR, utf8Slice("value")),
+                B, Domain.singleValue(createUnboundedVarcharType(), utf8Slice("value")),
                 C, Domain.singleValue(BIGINT, 1L)));
 
         assertEquals(tupleDomain1.intersect(tupleDomain2), expectedTupleDomain);
@@ -151,7 +151,7 @@ public class TestTupleDomain
     {
         TupleDomain<ColumnHandle> tupleDomain1 = TupleDomain.withColumnDomains(
                 ImmutableMap.<ColumnHandle, Domain>builder()
-                        .put(A, Domain.all(VARCHAR))
+                        .put(A, Domain.all(createUnboundedVarcharType()))
                         .put(B, Domain.notNull(DOUBLE))
                         .put(C, Domain.onlyNull(BIGINT))
                         .put(D, Domain.singleValue(BIGINT, 1L))
@@ -160,7 +160,7 @@ public class TestTupleDomain
 
         TupleDomain<ColumnHandle> tupleDomain2 = TupleDomain.withColumnDomains(
                 ImmutableMap.<ColumnHandle, Domain>builder()
-                        .put(A, Domain.singleValue(VARCHAR, utf8Slice("value")))
+                        .put(A, Domain.singleValue(createUnboundedVarcharType(), utf8Slice("value")))
                         .put(B, Domain.singleValue(DOUBLE, 0.0))
                         .put(C, Domain.notNull(BIGINT))
                         .put(D, Domain.singleValue(BIGINT, 1L))
@@ -169,7 +169,7 @@ public class TestTupleDomain
 
         TupleDomain<ColumnHandle> expectedTupleDomain = TupleDomain.withColumnDomains(
                 ImmutableMap.<ColumnHandle, Domain>builder()
-                        .put(A, Domain.all(VARCHAR))
+                        .put(A, Domain.all(createUnboundedVarcharType()))
                         .put(B, Domain.notNull(DOUBLE))
                         .put(C, Domain.all(BIGINT))
                         .put(D, Domain.singleValue(BIGINT, 1L))
@@ -200,7 +200,7 @@ public class TestTupleDomain
         TupleDomain<ColumnHandle> tupleDomain1 = TupleDomain.withColumnDomains(
                 ImmutableMap.of(
                         A, Domain.all(DOUBLE),
-                        B, Domain.singleValue(VARCHAR, utf8Slice("value"))));
+                        B, Domain.singleValue(createUnboundedVarcharType(), utf8Slice("value"))));
 
         TupleDomain<ColumnHandle> tupleDomain2 = TupleDomain.withColumnDomains(
                 ImmutableMap.of(
@@ -238,7 +238,7 @@ public class TestTupleDomain
 
         assertTrue(overlaps(
                 ImmutableMap.of(A, Domain.singleValue(BIGINT, 1L)),
-                ImmutableMap.of(B, Domain.singleValue(VARCHAR, utf8Slice("value")))));
+                ImmutableMap.of(B, Domain.singleValue(createUnboundedVarcharType(), utf8Slice("value")))));
 
         assertTrue(overlaps(
                 ImmutableMap.of(A, Domain.singleValue(BIGINT, 1L)),
@@ -335,77 +335,77 @@ public class TestTupleDomain
 
         assertFalse(contains(
                 ImmutableMap.of(A, Domain.singleValue(BIGINT, 0L)),
-                ImmutableMap.of(B, Domain.singleValue(VARCHAR, utf8Slice("value")))));
+                ImmutableMap.of(B, Domain.singleValue(createUnboundedVarcharType(), utf8Slice("value")))));
 
         assertFalse(contains(
                 ImmutableMap.of(
                         A, Domain.singleValue(BIGINT, 0L),
-                        B, Domain.singleValue(VARCHAR, utf8Slice("value"))),
-                ImmutableMap.of(B, Domain.singleValue(VARCHAR, utf8Slice("value")))));
+                        B, Domain.singleValue(createUnboundedVarcharType(), utf8Slice("value"))),
+                ImmutableMap.of(B, Domain.singleValue(createUnboundedVarcharType(), utf8Slice("value")))));
 
         assertTrue(contains(
                 ImmutableMap.of(
                         A, Domain.singleValue(BIGINT, 0L),
-                        B, Domain.singleValue(VARCHAR, utf8Slice("value"))),
-                ImmutableMap.of(B, Domain.none(VARCHAR))));
+                        B, Domain.singleValue(createUnboundedVarcharType(), utf8Slice("value"))),
+                ImmutableMap.of(B, Domain.none(createUnboundedVarcharType()))));
 
         assertTrue(contains(
                 ImmutableMap.of(
                         A, Domain.singleValue(BIGINT, 0L),
-                        B, Domain.singleValue(VARCHAR, utf8Slice("value"))),
+                        B, Domain.singleValue(createUnboundedVarcharType(), utf8Slice("value"))),
                 ImmutableMap.of(
                         A, Domain.singleValue(BIGINT, 1L),
-                        B, Domain.none(VARCHAR))));
+                        B, Domain.none(createUnboundedVarcharType()))));
 
         assertTrue(contains(
                 ImmutableMap.of(
-                        B, Domain.singleValue(VARCHAR, utf8Slice("value"))),
+                        B, Domain.singleValue(createUnboundedVarcharType(), utf8Slice("value"))),
                 ImmutableMap.of(
                         A, Domain.singleValue(BIGINT, 0L),
-                        B, Domain.singleValue(VARCHAR, utf8Slice("value")))));
+                        B, Domain.singleValue(createUnboundedVarcharType(), utf8Slice("value")))));
 
         assertTrue(contains(
                 ImmutableMap.of(
                         A, Domain.all(BIGINT),
-                        B, Domain.singleValue(VARCHAR, utf8Slice("value"))),
+                        B, Domain.singleValue(createUnboundedVarcharType(), utf8Slice("value"))),
                 ImmutableMap.of(
                         A, Domain.singleValue(BIGINT, 0L),
-                        B, Domain.singleValue(VARCHAR, utf8Slice("value")))));
+                        B, Domain.singleValue(createUnboundedVarcharType(), utf8Slice("value")))));
 
         assertFalse(contains(
                 ImmutableMap.of(
                         A, Domain.all(BIGINT),
-                        B, Domain.singleValue(VARCHAR, utf8Slice("value"))),
+                        B, Domain.singleValue(createUnboundedVarcharType(), utf8Slice("value"))),
                 ImmutableMap.of(
                         A, Domain.singleValue(BIGINT, 0L),
-                        B, Domain.singleValue(VARCHAR, utf8Slice("value2")))));
+                        B, Domain.singleValue(createUnboundedVarcharType(), utf8Slice("value2")))));
 
         assertTrue(contains(
                 ImmutableMap.of(
                         A, Domain.all(BIGINT),
-                        B, Domain.singleValue(VARCHAR, utf8Slice("value"))),
+                        B, Domain.singleValue(createUnboundedVarcharType(), utf8Slice("value"))),
                 ImmutableMap.of(
                         A, Domain.singleValue(BIGINT, 0L),
-                        B, Domain.singleValue(VARCHAR, utf8Slice("value2")),
-                        C, Domain.none(VARCHAR))));
+                        B, Domain.singleValue(createUnboundedVarcharType(), utf8Slice("value2")),
+                        C, Domain.none(createUnboundedVarcharType()))));
 
         assertFalse(contains(
                 ImmutableMap.of(
                         A, Domain.all(BIGINT),
-                        B, Domain.singleValue(VARCHAR, utf8Slice("value")),
-                        C, Domain.none(VARCHAR)),
+                        B, Domain.singleValue(createUnboundedVarcharType(), utf8Slice("value")),
+                        C, Domain.none(createUnboundedVarcharType())),
                 ImmutableMap.of(
                         A, Domain.singleValue(BIGINT, 0L),
-                        B, Domain.singleValue(VARCHAR, utf8Slice("value2")))));
+                        B, Domain.singleValue(createUnboundedVarcharType(), utf8Slice("value2")))));
 
         assertTrue(contains(
                 ImmutableMap.of(
                         A, Domain.all(BIGINT),
-                        B, Domain.singleValue(VARCHAR, utf8Slice("value")),
-                        C, Domain.none(VARCHAR)),
+                        B, Domain.singleValue(createUnboundedVarcharType(), utf8Slice("value")),
+                        C, Domain.none(createUnboundedVarcharType())),
                 ImmutableMap.of(
                         A, Domain.singleValue(BIGINT, 0L),
-                        B, Domain.none(VARCHAR))));
+                        B, Domain.none(createUnboundedVarcharType()))));
     }
 
     @Test
@@ -462,24 +462,24 @@ public class TestTupleDomain
 
         assertTrue(equals(
                 ImmutableMap.of(A, Domain.all(BIGINT)),
-                ImmutableMap.of(B, Domain.all(VARCHAR))));
+                ImmutableMap.of(B, Domain.all(createUnboundedVarcharType()))));
 
         assertTrue(equals(
                 ImmutableMap.of(A, Domain.none(BIGINT)),
-                ImmutableMap.of(B, Domain.none(VARCHAR))));
+                ImmutableMap.of(B, Domain.none(createUnboundedVarcharType()))));
 
         assertTrue(equals(
                 ImmutableMap.of(A, Domain.none(BIGINT)),
                 ImmutableMap.of(
                         A, Domain.singleValue(BIGINT, 0L),
-                        B, Domain.none(VARCHAR))));
+                        B, Domain.none(createUnboundedVarcharType()))));
 
         assertFalse(equals(
                 ImmutableMap.of(
                         A, Domain.singleValue(BIGINT, 1L)),
                 ImmutableMap.of(
                         A, Domain.singleValue(BIGINT, 0L),
-                        B, Domain.none(VARCHAR))));
+                        B, Domain.none(createUnboundedVarcharType()))));
 
         assertTrue(equals(
                 ImmutableMap.of(
@@ -487,7 +487,7 @@ public class TestTupleDomain
                         C, Domain.none(DOUBLE)),
                 ImmutableMap.of(
                         A, Domain.singleValue(BIGINT, 0L),
-                        B, Domain.none(VARCHAR))));
+                        B, Domain.none(createUnboundedVarcharType()))));
 
         assertTrue(equals(
                 ImmutableMap.of(
@@ -500,7 +500,7 @@ public class TestTupleDomain
         assertTrue(equals(
                 ImmutableMap.of(
                         A, Domain.singleValue(BIGINT, 0L),
-                        B, Domain.all(VARCHAR)),
+                        B, Domain.all(createUnboundedVarcharType())),
                 ImmutableMap.of(
                         A, Domain.singleValue(BIGINT, 0L),
                         C, Domain.all(DOUBLE))));
@@ -508,7 +508,7 @@ public class TestTupleDomain
         assertFalse(equals(
                 ImmutableMap.of(
                         A, Domain.singleValue(BIGINT, 0L),
-                        B, Domain.all(VARCHAR)),
+                        B, Domain.all(createUnboundedVarcharType())),
                 ImmutableMap.of(
                         A, Domain.singleValue(BIGINT, 1L),
                         C, Domain.all(DOUBLE))));
@@ -516,7 +516,7 @@ public class TestTupleDomain
         assertFalse(equals(
                 ImmutableMap.of(
                         A, Domain.singleValue(BIGINT, 0L),
-                        B, Domain.all(VARCHAR)),
+                        B, Domain.all(createUnboundedVarcharType())),
                 ImmutableMap.of(
                         A, Domain.singleValue(BIGINT, 0L),
                         C, Domain.singleValue(DOUBLE, 0.0))));
@@ -551,12 +551,12 @@ public class TestTupleDomain
                 TupleDomain.extractFixedValues(TupleDomain.withColumnDomains(
                         ImmutableMap.<ColumnHandle, Domain>builder()
                                 .put(A, Domain.all(DOUBLE))
-                                .put(B, Domain.singleValue(VARCHAR, utf8Slice("value")))
+                                .put(B, Domain.singleValue(createUnboundedVarcharType(), utf8Slice("value")))
                                 .put(C, Domain.onlyNull(BIGINT))
                                 .put(D, Domain.create(ValueSet.ofRanges(Range.equal(BIGINT, 1L)), true))
                                 .build())).get(),
                 ImmutableMap.of(
-                        B, NullableValue.of(VARCHAR, utf8Slice("value")),
+                        B, NullableValue.of(createUnboundedVarcharType(), utf8Slice("value")),
                         C, NullableValue.asNull(BIGINT)));
     }
 
@@ -582,13 +582,13 @@ public class TestTupleDomain
                 TupleDomain.fromFixedValues(
                         ImmutableMap.<ColumnHandle, NullableValue>builder()
                                 .put(A, NullableValue.of(BIGINT, 1L))
-                                .put(B, NullableValue.of(VARCHAR, utf8Slice("value")))
+                                .put(B, NullableValue.of(createUnboundedVarcharType(), utf8Slice("value")))
                                 .put(C, NullableValue.of(DOUBLE, 0.01))
                                 .put(D, NullableValue.asNull(BOOLEAN))
                                 .build()),
                 TupleDomain.withColumnDomains(ImmutableMap.<ColumnHandle, Domain>builder()
                         .put(A, Domain.singleValue(BIGINT, 1L))
-                        .put(B, Domain.singleValue(VARCHAR, utf8Slice("value")))
+                        .put(B, Domain.singleValue(createUnboundedVarcharType(), utf8Slice("value")))
                         .put(C, Domain.singleValue(DOUBLE, 0.01))
                         .put(D, Domain.onlyNull(BOOLEAN))
                         .build()));
@@ -629,7 +629,7 @@ public class TestTupleDomain
         tupleDomain = TupleDomain.none();
         assertEquals(tupleDomain, mapper.readValue(mapper.writeValueAsString(tupleDomain), new TypeReference<TupleDomain<ColumnHandle>>() {}));
 
-        tupleDomain = TupleDomain.fromFixedValues(ImmutableMap.of(A, NullableValue.of(BIGINT, 1L), B, NullableValue.asNull(VARCHAR)));
+        tupleDomain = TupleDomain.fromFixedValues(ImmutableMap.of(A, NullableValue.of(BIGINT, 1L), B, NullableValue.asNull(createUnboundedVarcharType())));
         assertEquals(tupleDomain, mapper.readValue(mapper.writeValueAsString(tupleDomain), new TypeReference<TupleDomain<ColumnHandle>>() {}));
     }
 

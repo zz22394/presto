@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.spi.type.VarcharType.createVarcharType;
 import static com.facebook.presto.testing.TestingConnectorSession.SESSION;
 import static com.google.common.collect.Iterables.getOnlyElement;
@@ -109,56 +109,56 @@ public class TestJdbcRecordSetProvider
     {
         // single value
         getCursor(table, ImmutableList.of(textColumn, valueColumn), TupleDomain.withColumnDomains(
-                ImmutableMap.<ColumnHandle, Domain>of(textColumn, Domain.singleValue(VARCHAR, utf8Slice("foo")))
+                ImmutableMap.<ColumnHandle, Domain>of(textColumn, Domain.singleValue(createUnboundedVarcharType(), utf8Slice("foo")))
         ));
 
         // multiple values (string)
         getCursor(table, ImmutableList.of(textColumn, valueColumn), TupleDomain.withColumnDomains(
-                ImmutableMap.<ColumnHandle, Domain>of(textColumn, Domain.union(ImmutableList.of(Domain.singleValue(VARCHAR, utf8Slice("foo")), Domain.singleValue(VARCHAR, utf8Slice("bar")))))
+                ImmutableMap.<ColumnHandle, Domain>of(textColumn, Domain.union(ImmutableList.of(Domain.singleValue(createUnboundedVarcharType(), utf8Slice("foo")), Domain.singleValue(createUnboundedVarcharType(), utf8Slice("bar")))))
         ));
 
         // inequality (string)
         getCursor(table, ImmutableList.of(textColumn, valueColumn), TupleDomain.withColumnDomains(
-                ImmutableMap.<ColumnHandle, Domain>of(textColumn, Domain.create(ValueSet.ofRanges(Range.greaterThan(VARCHAR, utf8Slice("foo"))), false))
+                ImmutableMap.<ColumnHandle, Domain>of(textColumn, Domain.create(ValueSet.ofRanges(Range.greaterThan(createUnboundedVarcharType(), utf8Slice("foo"))), false))
         ));
 
         getCursor(table, ImmutableList.of(textColumn, valueColumn), TupleDomain.withColumnDomains(
-                ImmutableMap.<ColumnHandle, Domain>of(textColumn, Domain.create(ValueSet.ofRanges(Range.greaterThan(VARCHAR, utf8Slice("foo"))), false))
+                ImmutableMap.<ColumnHandle, Domain>of(textColumn, Domain.create(ValueSet.ofRanges(Range.greaterThan(createUnboundedVarcharType(), utf8Slice("foo"))), false))
         ));
 
         getCursor(table, ImmutableList.of(textColumn, valueColumn), TupleDomain.withColumnDomains(
-                ImmutableMap.<ColumnHandle, Domain>of(textColumn, Domain.create(ValueSet.ofRanges(Range.lessThanOrEqual(VARCHAR, utf8Slice("foo"))), false))
+                ImmutableMap.<ColumnHandle, Domain>of(textColumn, Domain.create(ValueSet.ofRanges(Range.lessThanOrEqual(createUnboundedVarcharType(), utf8Slice("foo"))), false))
         ));
 
         getCursor(table, ImmutableList.of(textColumn, valueColumn), TupleDomain.withColumnDomains(
-                ImmutableMap.<ColumnHandle, Domain>of(textColumn, Domain.create(ValueSet.ofRanges(Range.lessThan(VARCHAR, utf8Slice("foo"))), false))
+                ImmutableMap.<ColumnHandle, Domain>of(textColumn, Domain.create(ValueSet.ofRanges(Range.lessThan(createUnboundedVarcharType(), utf8Slice("foo"))), false))
         ));
 
         // is null
         getCursor(table, ImmutableList.of(textColumn, valueColumn), TupleDomain.withColumnDomains(
-                ImmutableMap.<ColumnHandle, Domain>of(textColumn, Domain.onlyNull(VARCHAR))
+                ImmutableMap.<ColumnHandle, Domain>of(textColumn, Domain.onlyNull(createUnboundedVarcharType()))
         ));
 
         // not null
         getCursor(table, ImmutableList.of(textColumn, valueColumn), TupleDomain.withColumnDomains(
-                ImmutableMap.<ColumnHandle, Domain>of(textColumn, Domain.notNull(VARCHAR))
+                ImmutableMap.<ColumnHandle, Domain>of(textColumn, Domain.notNull(createUnboundedVarcharType()))
         ));
 
         // specific value or null
         getCursor(table, ImmutableList.of(textColumn, valueColumn), TupleDomain.withColumnDomains(
-                ImmutableMap.<ColumnHandle, Domain>of(textColumn, Domain.union(ImmutableList.of(Domain.singleValue(VARCHAR, utf8Slice("foo")), Domain.onlyNull(VARCHAR))))
+                ImmutableMap.<ColumnHandle, Domain>of(textColumn, Domain.union(ImmutableList.of(Domain.singleValue(createUnboundedVarcharType(), utf8Slice("foo")), Domain.onlyNull(createUnboundedVarcharType()))))
         ));
 
         getCursor(table, ImmutableList.of(textColumn, valueColumn), TupleDomain.withColumnDomains(
-                ImmutableMap.<ColumnHandle, Domain>of(textColumn, Domain.create(ValueSet.ofRanges(Range.range(VARCHAR, utf8Slice("bar"), true, utf8Slice("foo"), true)), false))
+                ImmutableMap.<ColumnHandle, Domain>of(textColumn, Domain.create(ValueSet.ofRanges(Range.range(createUnboundedVarcharType(), utf8Slice("bar"), true, utf8Slice("foo"), true)), false))
         ));
 
         getCursor(table, ImmutableList.of(textColumn, textShortColumn, valueColumn), TupleDomain.withColumnDomains(
                 ImmutableMap.<ColumnHandle, Domain>of(
                         textColumn,
                         Domain.create(ValueSet.ofRanges(
-                                        Range.range(VARCHAR, utf8Slice("bar"), true, utf8Slice("foo"), true),
-                                        Range.range(VARCHAR, utf8Slice("hello"), false, utf8Slice("world"), false)),
+                                        Range.range(createUnboundedVarcharType(), utf8Slice("bar"), true, utf8Slice("foo"), true),
+                                        Range.range(createUnboundedVarcharType(), utf8Slice("hello"), false, utf8Slice("world"), false)),
                                 false
                         ),
 
@@ -175,11 +175,11 @@ public class TestJdbcRecordSetProvider
                 ImmutableMap.<ColumnHandle, Domain>of(
                         textColumn,
                         Domain.create(ValueSet.ofRanges(
-                                        Range.range(VARCHAR, utf8Slice("bar"), true, utf8Slice("foo"), true),
-                                        Range.range(VARCHAR, utf8Slice("hello"), false, utf8Slice("world"), false),
-                                        Range.equal(VARCHAR, utf8Slice("apple")),
-                                        Range.equal(VARCHAR, utf8Slice("banana")),
-                                        Range.equal(VARCHAR, utf8Slice("zoo"))),
+                                        Range.range(createUnboundedVarcharType(), utf8Slice("bar"), true, utf8Slice("foo"), true),
+                                        Range.range(createUnboundedVarcharType(), utf8Slice("hello"), false, utf8Slice("world"), false),
+                                        Range.equal(createUnboundedVarcharType(), utf8Slice("apple")),
+                                        Range.equal(createUnboundedVarcharType(), utf8Slice("banana")),
+                                        Range.equal(createUnboundedVarcharType(), utf8Slice("zoo"))),
                                 false
                         ),
 

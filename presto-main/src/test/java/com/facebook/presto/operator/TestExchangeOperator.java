@@ -60,7 +60,7 @@ import static com.facebook.presto.client.PrestoHeaders.PRESTO_PAGE_NEXT_TOKEN;
 import static com.facebook.presto.client.PrestoHeaders.PRESTO_PAGE_TOKEN;
 import static com.facebook.presto.client.PrestoHeaders.PRESTO_TASK_INSTANCE_ID;
 import static com.facebook.presto.operator.PageAssertions.assertPageEquals;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.testing.TestingTaskContext.createTaskContext;
 import static io.airlift.concurrent.Threads.daemonThreadsNamed;
 import static io.airlift.units.DataSize.Unit.MEGABYTE;
@@ -73,7 +73,7 @@ import static org.testng.Assert.assertTrue;
 @Test(singleThreaded = true)
 public class TestExchangeOperator
 {
-    private static final List<Type> TYPES = ImmutableList.<Type>of(VARCHAR);
+    private static final List<Type> TYPES = ImmutableList.<Type>of(createUnboundedVarcharType());
     private static final Page PAGE = createSequencePage(TYPES, 10, 100);
     private static final BlockEncodingManager blockEncodingSerde = new BlockEncodingManager(new TypeRegistry());
 

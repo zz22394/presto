@@ -35,7 +35,7 @@ import static com.facebook.presto.SessionTestUtils.TEST_SESSION;
 import static com.facebook.presto.operator.OperatorAssertion.assertOperatorEquals;
 import static com.facebook.presto.operator.ProjectionFunctions.singleColumn;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.testing.TestingTaskContext.createTaskContext;
 import static io.airlift.concurrent.Threads.daemonThreadsNamed;
 import static java.util.Collections.singleton;
@@ -67,7 +67,7 @@ public class TestFilterAndProjectOperator
     public void test()
             throws Exception
     {
-        List<Page> input = rowPagesBuilder(VARCHAR, BIGINT)
+        List<Page> input = rowPagesBuilder(createUnboundedVarcharType(), BIGINT)
                 .addSequencePage(100, 0, 0)
                 .build();
 
@@ -96,12 +96,12 @@ public class TestFilterAndProjectOperator
         OperatorFactory operatorFactory = new FilterAndProjectOperator.FilterAndProjectOperatorFactory(
                 0,
                 new PlanNodeId("test"),
-                () -> new GenericPageProcessor(filter, ImmutableList.of(singleColumn(VARCHAR, 0), new Add5Projection(1))),
-                ImmutableList.<Type>of(VARCHAR, BIGINT));
+                () -> new GenericPageProcessor(filter, ImmutableList.of(singleColumn(createUnboundedVarcharType(), 0), new Add5Projection(1))),
+                ImmutableList.<Type>of(createUnboundedVarcharType(), BIGINT));
 
         Operator operator = operatorFactory.createOperator(driverContext);
 
-        MaterializedResult expected = MaterializedResult.resultBuilder(driverContext.getSession(), VARCHAR, BIGINT)
+        MaterializedResult expected = MaterializedResult.resultBuilder(driverContext.getSession(), createUnboundedVarcharType(), BIGINT)
                 .row("10", 15L)
                 .row("11", 16L)
                 .row("12", 17L)

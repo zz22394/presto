@@ -47,7 +47,7 @@ import java.util.concurrent.ExecutorService;
 import static com.facebook.presto.RowPagesBuilder.rowPagesBuilder;
 import static com.facebook.presto.SessionTestUtils.TEST_SESSION;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.util.Threads.checkNotSameThreadExecutor;
 import static io.airlift.concurrent.Threads.daemonThreadsNamed;
 import static io.airlift.units.DataSize.Unit.GIGABYTE;
@@ -146,7 +146,7 @@ public class BenchmarkHashBuildAndJoinOperators
 
         protected void initializeBuildPages()
         {
-            RowPagesBuilder buildPagesBuilder = rowPagesBuilder(buildHashEnabled, hashChannels, ImmutableList.of(VARCHAR, BIGINT, BIGINT));
+            RowPagesBuilder buildPagesBuilder = rowPagesBuilder(buildHashEnabled, hashChannels, ImmutableList.of(createUnboundedVarcharType(), BIGINT, BIGINT));
             buildPagesBuilder.addSequencePage(BUILD_ROWS_NUMBER, 20, 30, 40);
 
             types = buildPagesBuilder.getTypes();
@@ -178,7 +178,7 @@ public class BenchmarkHashBuildAndJoinOperators
 
         protected void initializeProbePages()
         {
-            RowPagesBuilder probePagesBuilder = rowPagesBuilder(buildHashEnabled, hashChannels, ImmutableList.of(VARCHAR, BIGINT, BIGINT));
+            RowPagesBuilder probePagesBuilder = rowPagesBuilder(buildHashEnabled, hashChannels, ImmutableList.of(createUnboundedVarcharType(), BIGINT, BIGINT));
 
             Random random = new Random(42);
             int remainingRows = PROBE_ROWS_NUMBER;

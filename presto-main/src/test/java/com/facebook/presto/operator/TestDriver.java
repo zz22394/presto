@@ -52,7 +52,7 @@ import java.util.function.Function;
 import static com.facebook.presto.RowPagesBuilder.rowPagesBuilder;
 import static com.facebook.presto.SessionTestUtils.TEST_SESSION;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.testing.TestingTaskContext.createTaskContext;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Throwables.getRootCause;
@@ -89,7 +89,7 @@ public class TestDriver
     @Test
     public void testNormalFinish()
     {
-        List<Type> types = ImmutableList.<Type>of(VARCHAR, BIGINT, BIGINT);
+        List<Type> types = ImmutableList.<Type>of(createUnboundedVarcharType(), BIGINT, BIGINT);
         ValuesOperator source = new ValuesOperator(driverContext.addOperatorContext(0, new PlanNodeId("test"), "values"), types, rowPagesBuilder(types)
                 .addSequencePage(10, 20, 30, 40)
                 .build());
@@ -111,7 +111,7 @@ public class TestDriver
     @Test
     public void testAbruptFinish()
     {
-        List<Type> types = ImmutableList.<Type>of(VARCHAR, BIGINT, BIGINT);
+        List<Type> types = ImmutableList.<Type>of(createUnboundedVarcharType(), BIGINT, BIGINT);
         ValuesOperator source = new ValuesOperator(driverContext.addOperatorContext(0, new PlanNodeId("test"), "values"), types, rowPagesBuilder(types)
                 .addSequencePage(10, 20, 30, 40)
                 .build());
@@ -137,7 +137,7 @@ public class TestDriver
     public void testAddSourceFinish()
     {
         PlanNodeId sourceId = new PlanNodeId("source");
-        final List<Type> types = ImmutableList.<Type>of(VARCHAR, BIGINT, BIGINT);
+        final List<Type> types = ImmutableList.<Type>of(createUnboundedVarcharType(), BIGINT, BIGINT);
         TableScanOperator source = new TableScanOperator(driverContext.addOperatorContext(99, new PlanNodeId("test"), "values"),
                 sourceId,
                 new PageSourceProvider()
@@ -240,7 +240,7 @@ public class TestDriver
             throws Exception
     {
         PlanNodeId sourceId = new PlanNodeId("source");
-        final List<Type> types = ImmutableList.<Type>of(VARCHAR, BIGINT, BIGINT);
+        final List<Type> types = ImmutableList.<Type>of(createUnboundedVarcharType(), BIGINT, BIGINT);
         // create a table scan operator that does not block, which will cause the driver loop to busy wait
         TableScanOperator source = new NotBlockedTableScanOperator(driverContext.addOperatorContext(99, new PlanNodeId("test"), "values"),
                 sourceId,

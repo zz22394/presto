@@ -47,7 +47,7 @@ import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
 import static com.facebook.presto.spi.type.TypeSignature.parseTypeSignature;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.sql.relational.Expressions.call;
 import static com.facebook.presto.sql.relational.Expressions.constant;
 import static com.facebook.presto.sql.relational.Expressions.field;
@@ -93,9 +93,9 @@ public class InCodeGeneratorBenchmark
                 }
                 break;
             case StandardTypes.VARCHAR:
-                prestoType = VARCHAR;
+                prestoType = createUnboundedVarcharType();
                 for (int i = 1; i <= inListCount; i++) {
-                    arguments[i] = constant(Slices.utf8Slice(Long.toString(random.nextLong())), VARCHAR);
+                    arguments[i] = constant(Slices.utf8Slice(Long.toString(random.nextLong())), createUnboundedVarcharType());
                 }
                 break;
             default:
@@ -117,7 +117,7 @@ public class InCodeGeneratorBenchmark
                     DOUBLE.writeDouble(pageBuilder.getBlockBuilder(0), random.nextDouble());
                     break;
                 case StandardTypes.VARCHAR:
-                    VARCHAR.writeSlice(pageBuilder.getBlockBuilder(0), Slices.utf8Slice(Long.toString(random.nextLong())));
+                    createUnboundedVarcharType().writeSlice(pageBuilder.getBlockBuilder(0), Slices.utf8Slice(Long.toString(random.nextLong())));
                     break;
             }
         }

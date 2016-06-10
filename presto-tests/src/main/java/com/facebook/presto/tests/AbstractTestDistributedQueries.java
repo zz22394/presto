@@ -24,7 +24,7 @@ import org.intellij.lang.annotations.Language;
 import org.testng.annotations.Test;
 
 import static com.facebook.presto.connector.informationSchema.InformationSchemaMetadata.INFORMATION_SCHEMA;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.testing.MaterializedResult.resultBuilder;
 import static com.facebook.presto.tests.QueryAssertions.assertContains;
 import static com.google.common.collect.Iterables.getOnlyElement;
@@ -656,7 +656,7 @@ public abstract class AbstractTestDistributedQueries
         // test SHOW COLUMNS
         actual = computeActual("SHOW COLUMNS FROM meta_test_view");
 
-        expected = resultBuilder(getSession(), VARCHAR, VARCHAR, VARCHAR)
+        expected = resultBuilder(getSession(), createUnboundedVarcharType(), createUnboundedVarcharType(), createUnboundedVarcharType())
                 .row("x", "bigint", "")
                 .row("y", "varchar(3)", "")
                 .build();

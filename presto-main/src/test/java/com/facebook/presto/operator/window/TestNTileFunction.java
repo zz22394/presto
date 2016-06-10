@@ -17,7 +17,7 @@ import org.testng.annotations.Test;
 
 import static com.facebook.presto.SessionTestUtils.TEST_SESSION;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.testing.MaterializedResult.resultBuilder;
 
 public class TestNTileFunction
@@ -28,7 +28,7 @@ public class TestNTileFunction
             throws Exception
     {
         assertWindowQuery("ntile(4) OVER (ORDER BY orderkey)",
-                resultBuilder(TEST_SESSION, BIGINT, VARCHAR, BIGINT)
+                resultBuilder(TEST_SESSION, BIGINT, createUnboundedVarcharType(), BIGINT)
                         .row(1, "O", 1L)
                         .row(2, "O", 1L)
                         .row(3, "F", 1L)
@@ -42,7 +42,7 @@ public class TestNTileFunction
                         .build());
 
         assertWindowQuery("ntile(6) OVER (ORDER BY orderkey)",
-                resultBuilder(TEST_SESSION, BIGINT, VARCHAR, BIGINT)
+                resultBuilder(TEST_SESSION, BIGINT, createUnboundedVarcharType(), BIGINT)
                         .row(1, "O", 1L)
                         .row(2, "O", 1L)
                         .row(3, "F", 2L)
@@ -56,7 +56,7 @@ public class TestNTileFunction
                         .build());
 
         assertWindowQuery("ntile(20) OVER (ORDER BY orderkey)",
-                resultBuilder(TEST_SESSION, BIGINT, VARCHAR, BIGINT)
+                resultBuilder(TEST_SESSION, BIGINT, createUnboundedVarcharType(), BIGINT)
                         .row(1, "O", 1L)
                         .row(2, "O", 2L)
                         .row(3, "F", 3L)
@@ -70,7 +70,7 @@ public class TestNTileFunction
                         .build());
 
         assertWindowQuery("ntile(orderkey) OVER (ORDER BY orderkey)",
-                resultBuilder(TEST_SESSION, BIGINT, VARCHAR, BIGINT)
+                resultBuilder(TEST_SESSION, BIGINT, createUnboundedVarcharType(), BIGINT)
                         .row(1, "O", 1L)
                         .row(2, "O", 1L)
                         .row(3, "F", 1L)
@@ -83,7 +83,7 @@ public class TestNTileFunction
                         .row(34, "O", 10L)
                         .build());
         assertWindowQueryWithNulls("ntile(orderkey) OVER (ORDER BY orderkey)",
-                resultBuilder(TEST_SESSION, BIGINT, VARCHAR, BIGINT)
+                resultBuilder(TEST_SESSION, BIGINT, createUnboundedVarcharType(), BIGINT)
                         .row(1L, null, 1L)
                         .row(3L, "F", 1L)
                         .row(5L, "F", 2L)

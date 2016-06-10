@@ -19,14 +19,14 @@ import org.testng.annotations.Test;
 import static com.facebook.presto.plugin.jdbc.MetadataUtil.COLUMN_CODEC;
 import static com.facebook.presto.plugin.jdbc.MetadataUtil.assertJsonRoundTrip;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 
 public class TestJdbcColumnHandle
 {
     @Test
     public void testJsonRoundTrip()
     {
-        assertJsonRoundTrip(COLUMN_CODEC, new JdbcColumnHandle("connectorId", "columnName", VARCHAR));
+        assertJsonRoundTrip(COLUMN_CODEC, new JdbcColumnHandle("connectorId", "columnName", createUnboundedVarcharType()));
     }
 
     @Test
@@ -34,20 +34,20 @@ public class TestJdbcColumnHandle
     {
         EquivalenceTester.equivalenceTester()
                 .addEquivalentGroup(
-                        new JdbcColumnHandle("connectorId", "columnName", VARCHAR),
-                        new JdbcColumnHandle("connectorId", "columnName", VARCHAR),
+                        new JdbcColumnHandle("connectorId", "columnName", createUnboundedVarcharType()),
+                        new JdbcColumnHandle("connectorId", "columnName", createUnboundedVarcharType()),
                         new JdbcColumnHandle("connectorId", "columnName", BIGINT),
-                        new JdbcColumnHandle("connectorId", "columnName", VARCHAR))
+                        new JdbcColumnHandle("connectorId", "columnName", createUnboundedVarcharType()))
                 .addEquivalentGroup(
-                        new JdbcColumnHandle("connectorIdX", "columnName", VARCHAR),
-                        new JdbcColumnHandle("connectorIdX", "columnName", VARCHAR),
+                        new JdbcColumnHandle("connectorIdX", "columnName", createUnboundedVarcharType()),
+                        new JdbcColumnHandle("connectorIdX", "columnName", createUnboundedVarcharType()),
                         new JdbcColumnHandle("connectorIdX", "columnName", BIGINT),
-                        new JdbcColumnHandle("connectorIdX", "columnName", VARCHAR))
+                        new JdbcColumnHandle("connectorIdX", "columnName", createUnboundedVarcharType()))
                 .addEquivalentGroup(
-                        new JdbcColumnHandle("connectorId", "columnNameX", VARCHAR),
-                        new JdbcColumnHandle("connectorId", "columnNameX", VARCHAR),
+                        new JdbcColumnHandle("connectorId", "columnNameX", createUnboundedVarcharType()),
+                        new JdbcColumnHandle("connectorId", "columnNameX", createUnboundedVarcharType()),
                         new JdbcColumnHandle("connectorId", "columnNameX", BIGINT),
-                        new JdbcColumnHandle("connectorId", "columnNameX", VARCHAR))
+                        new JdbcColumnHandle("connectorId", "columnNameX", createUnboundedVarcharType()))
                 .check();
     }
 }

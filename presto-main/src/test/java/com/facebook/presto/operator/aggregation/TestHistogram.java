@@ -47,7 +47,7 @@ import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
 import static com.facebook.presto.spi.type.TimeZoneKey.getTimeZoneKey;
 import static com.facebook.presto.spi.type.TimestampWithTimeZoneType.TIMESTAMP_WITH_TIME_ZONE;
 import static com.facebook.presto.spi.type.TypeSignature.parseTypeSignature;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.util.DateTimeZoneIndex.getDateTimeZone;
 import static com.facebook.presto.util.StructuralTestUtil.mapBlockOf;
 
@@ -61,7 +61,7 @@ public class TestHistogram
     public void testSimpleHistograms()
             throws Exception
     {
-        MapType mapType = new MapType(VARCHAR, BIGINT);
+        MapType mapType = new MapType(createUnboundedVarcharType(), BIGINT);
         InternalAggregationFunction aggregationFunction = metadata.getFunctionRegistry().getAggregateFunctionImplementation(
                 new Signature(NAME,
                         AGGREGATE,
@@ -114,7 +114,7 @@ public class TestHistogram
     public void testDuplicateKeysValues()
             throws Exception
     {
-        MapType mapType = new MapType(VARCHAR, BIGINT);
+        MapType mapType = new MapType(createUnboundedVarcharType(), BIGINT);
         InternalAggregationFunction aggregationFunction = metadata.getFunctionRegistry().getAggregateFunctionImplementation(
                 new Signature(NAME,
                         AGGREGATE,
@@ -174,7 +174,7 @@ public class TestHistogram
     public void testArrayHistograms()
             throws Exception
     {
-        ArrayType arrayType = new ArrayType(VARCHAR);
+        ArrayType arrayType = new ArrayType(createUnboundedVarcharType());
         MapType mapType = new MapType(arrayType, BIGINT);
         InternalAggregationFunction aggregationFunction = metadata.getFunctionRegistry().getAggregateFunctionImplementation(
                 new Signature(NAME,
@@ -193,7 +193,7 @@ public class TestHistogram
     public void testMapHistograms()
             throws Exception
     {
-        MapType innerMapType = new MapType(VARCHAR, VARCHAR);
+        MapType innerMapType = new MapType(createUnboundedVarcharType(), createUnboundedVarcharType());
         MapType mapType = new MapType(innerMapType, BIGINT);
         InternalAggregationFunction aggregationFunction = metadata.getFunctionRegistry().getAggregateFunctionImplementation(
                 new Signature(NAME,
@@ -202,9 +202,9 @@ public class TestHistogram
                         innerMapType.getTypeSignature()));
 
         BlockBuilder builder = innerMapType.createBlockBuilder(new BlockBuilderStatus(), 3);
-        innerMapType.writeObject(builder, mapBlockOf(VARCHAR, VARCHAR, ImmutableMap.of("a", "b")));
-        innerMapType.writeObject(builder, mapBlockOf(VARCHAR, VARCHAR, ImmutableMap.of("c", "d")));
-        innerMapType.writeObject(builder, mapBlockOf(VARCHAR, VARCHAR, ImmutableMap.of("e", "f")));
+        innerMapType.writeObject(builder, mapBlockOf(createUnboundedVarcharType(), createUnboundedVarcharType(), ImmutableMap.of("a", "b")));
+        innerMapType.writeObject(builder, mapBlockOf(createUnboundedVarcharType(), createUnboundedVarcharType(), ImmutableMap.of("c", "d")));
+        innerMapType.writeObject(builder, mapBlockOf(createUnboundedVarcharType(), createUnboundedVarcharType(), ImmutableMap.of("e", "f")));
 
         assertAggregation(
                 aggregationFunction,
@@ -241,7 +241,7 @@ public class TestHistogram
     public void testLargerHistograms()
             throws Exception
     {
-        MapType mapType = new MapType(VARCHAR, BIGINT);
+        MapType mapType = new MapType(createUnboundedVarcharType(), BIGINT);
         InternalAggregationFunction aggregationFunction = metadata.getFunctionRegistry().getAggregateFunctionImplementation(
                 new Signature(NAME,
                         AGGREGATE,

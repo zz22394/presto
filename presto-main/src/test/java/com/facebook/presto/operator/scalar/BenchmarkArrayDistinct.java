@@ -60,7 +60,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.testing.TestingConnectorSession.SESSION;
 
 @SuppressWarnings("MethodMayBeStatic")
@@ -75,7 +75,7 @@ public class BenchmarkArrayDistinct
     private static final int POSITIONS = 100_000;
     private static final int ARRAY_SIZE = 2;
     private static final int NUM_TYPES = 1;
-    private static final List<Type> TYPES = ImmutableList.of(VARCHAR);
+    private static final List<Type> TYPES = ImmutableList.of(createUnboundedVarcharType());
 
     static {
         Verify.verify(NUM_TYPES == TYPES.size());
@@ -138,7 +138,7 @@ public class BenchmarkArrayDistinct
                     if (arrayType.getElementType().getJavaType() == long.class) {
                         arrayType.getElementType().writeLong(entryBuilder, ThreadLocalRandom.current().nextLong());
                     }
-                    else if (arrayType.getElementType().equals(VARCHAR)) {
+                    else if (arrayType.getElementType().equals(createUnboundedVarcharType())) {
                         arrayType.getElementType().writeSlice(entryBuilder, Slices.utf8Slice("test_string"));
                     }
                     else {
@@ -189,12 +189,12 @@ public class BenchmarkArrayDistinct
             return array;
         }
 
-        TypedSet typedSet = new TypedSet(VARCHAR, array.getPositionCount());
-        BlockBuilder distinctElementBlockBuilder = VARCHAR.createBlockBuilder(new BlockBuilderStatus(), array.getPositionCount());
+        TypedSet typedSet = new TypedSet(createUnboundedVarcharType(), array.getPositionCount());
+        BlockBuilder distinctElementBlockBuilder = createUnboundedVarcharType().createBlockBuilder(new BlockBuilderStatus(), array.getPositionCount());
         for (int i = 0; i < array.getPositionCount(); i++) {
             if (!typedSet.contains(array, i)) {
                 typedSet.add(array, i);
-                VARCHAR.appendTo(array, i, distinctElementBlockBuilder);
+                createUnboundedVarcharType().appendTo(array, i, distinctElementBlockBuilder);
             }
         }
 

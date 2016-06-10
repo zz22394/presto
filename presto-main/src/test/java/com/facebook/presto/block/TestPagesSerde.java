@@ -31,7 +31,7 @@ import static com.facebook.presto.block.PagesSerde.readPages;
 import static com.facebook.presto.block.PagesSerde.writePages;
 import static com.facebook.presto.operator.PageAssertions.assertPageEquals;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 
@@ -42,11 +42,11 @@ public class TestPagesSerde
     @Test
     public void testRoundTrip()
     {
-        BlockBuilder expectedBlockBuilder = VARCHAR.createBlockBuilder(new BlockBuilderStatus(), 5);
-        VARCHAR.writeString(expectedBlockBuilder, "alice");
-        VARCHAR.writeString(expectedBlockBuilder, "bob");
-        VARCHAR.writeString(expectedBlockBuilder, "charlie");
-        VARCHAR.writeString(expectedBlockBuilder, "dave");
+        BlockBuilder expectedBlockBuilder = createUnboundedVarcharType().createBlockBuilder(new BlockBuilderStatus(), 5);
+        createUnboundedVarcharType().writeString(expectedBlockBuilder, "alice");
+        createUnboundedVarcharType().writeString(expectedBlockBuilder, "bob");
+        createUnboundedVarcharType().writeString(expectedBlockBuilder, "charlie");
+        createUnboundedVarcharType().writeString(expectedBlockBuilder, "dave");
         Block expectedBlock = expectedBlockBuilder.build();
 
         Page expectedPage = new Page(expectedBlock, expectedBlock, expectedBlock);
@@ -54,7 +54,7 @@ public class TestPagesSerde
         DynamicSliceOutput sliceOutput = new DynamicSliceOutput(1024);
         writePages(blockEncodingManager, sliceOutput, expectedPage, expectedPage, expectedPage);
 
-        List<Type> types = ImmutableList.<Type>of(VARCHAR, VARCHAR, VARCHAR);
+        List<Type> types = ImmutableList.<Type>of(createUnboundedVarcharType(), createUnboundedVarcharType(), createUnboundedVarcharType());
         Iterator<Page> pageIterator = readPages(blockEncodingManager, sliceOutput.slice().getInput());
         assertPageEquals(types, pageIterator.next(), expectedPage);
         assertPageEquals(types, pageIterator.next(), expectedPage);
@@ -88,23 +88,23 @@ public class TestPagesSerde
     @Test
     public void testVarcharSerializedSize()
     {
-        BlockBuilder builder = VARCHAR.createBlockBuilder(new BlockBuilderStatus(), 5);
+        BlockBuilder builder = createUnboundedVarcharType().createBlockBuilder(new BlockBuilderStatus(), 5);
 
         // empty page
         Page page = new Page(builder.build());
-        int pageSize = serializedSize(ImmutableList.of(VARCHAR), page);
+        int pageSize = serializedSize(ImmutableList.of(createUnboundedVarcharType()), page);
         assertEquals(pageSize, 34); // page overhead
 
         // page with one value
-        VARCHAR.writeString(builder, "alice");
+        createUnboundedVarcharType().writeString(builder, "alice");
         page = new Page(builder.build());
-        int firstValueSize = serializedSize(ImmutableList.of(VARCHAR), page) - pageSize;
+        int firstValueSize = serializedSize(ImmutableList.of(createUnboundedVarcharType()), page) - pageSize;
         assertEquals(firstValueSize, 4 + 5 + 1); // length + "alice" + null
 
         // page with two values
-        VARCHAR.writeString(builder, "bob");
+        createUnboundedVarcharType().writeString(builder, "bob");
         page = new Page(builder.build());
-        int secondValueSize = serializedSize(ImmutableList.of(VARCHAR), page) - (pageSize + firstValueSize);
+        int secondValueSize = serializedSize(ImmutableList.of(createUnboundedVarcharType()), page) - (pageSize + firstValueSize);
         assertEquals(secondValueSize, 4  + 3); // length + "bob" (null shared with first entry)
     }
 

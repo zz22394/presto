@@ -26,7 +26,7 @@ import java.util.Base64;
 import static com.facebook.presto.spi.StandardErrorCode.INVALID_FUNCTION_ARGUMENT;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.VarbinaryType.VARBINARY;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.google.common.io.BaseEncoding.base16;
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -64,10 +64,10 @@ public class TestVarbinaryFunctions
     public void testToBase64()
             throws Exception
     {
-        assertFunction("to_base64(CAST('' AS VARBINARY))", VARCHAR, encodeBase64(""));
-        assertFunction("to_base64(CAST('a' AS VARBINARY))", VARCHAR, encodeBase64("a"));
-        assertFunction("to_base64(CAST('abc' AS VARBINARY))", VARCHAR, encodeBase64("abc"));
-        assertFunction("to_base64(CAST('hello world' AS VARBINARY))", VARCHAR, "aGVsbG8gd29ybGQ=");
+        assertFunction("to_base64(CAST('' AS VARBINARY))", createUnboundedVarcharType(), encodeBase64(""));
+        assertFunction("to_base64(CAST('a' AS VARBINARY))", createUnboundedVarcharType(), encodeBase64("a"));
+        assertFunction("to_base64(CAST('abc' AS VARBINARY))", createUnboundedVarcharType(), encodeBase64("abc"));
+        assertFunction("to_base64(CAST('hello world' AS VARBINARY))", createUnboundedVarcharType(), "aGVsbG8gd29ybGQ=");
     }
 
     @Test
@@ -80,17 +80,17 @@ public class TestVarbinaryFunctions
         assertFunction("from_base64(CAST(to_base64(CAST('' AS VARBINARY)) AS VARBINARY))", VARBINARY, sqlVarbinary(""));
         assertFunction("from_base64(CAST(to_base64(CAST('a' AS VARBINARY)) AS VARBINARY))", VARBINARY, sqlVarbinary("a"));
         assertFunction("from_base64(CAST(to_base64(CAST('abc' AS VARBINARY)) AS VARBINARY))", VARBINARY, sqlVarbinary("abc"));
-        assertFunction(format("to_base64(from_base64('%s'))", encodeBase64(ALL_BYTES)), VARCHAR, encodeBase64(ALL_BYTES));
+        assertFunction(format("to_base64(from_base64('%s'))", encodeBase64(ALL_BYTES)), createUnboundedVarcharType(), encodeBase64(ALL_BYTES));
     }
 
     @Test
     public void testToBase64Url()
             throws Exception
     {
-        assertFunction("to_base64url(CAST('' AS VARBINARY))", VARCHAR, encodeBase64Url(""));
-        assertFunction("to_base64url(CAST('a' AS VARBINARY))", VARCHAR, encodeBase64Url("a"));
-        assertFunction("to_base64url(CAST('abc' AS VARBINARY))", VARCHAR, encodeBase64Url("abc"));
-        assertFunction("to_base64url(CAST('hello world' AS VARBINARY))", VARCHAR, "aGVsbG8gd29ybGQ=");
+        assertFunction("to_base64url(CAST('' AS VARBINARY))", createUnboundedVarcharType(), encodeBase64Url(""));
+        assertFunction("to_base64url(CAST('a' AS VARBINARY))", createUnboundedVarcharType(), encodeBase64Url("a"));
+        assertFunction("to_base64url(CAST('abc' AS VARBINARY))", createUnboundedVarcharType(), encodeBase64Url("abc"));
+        assertFunction("to_base64url(CAST('hello world' AS VARBINARY))", createUnboundedVarcharType(), "aGVsbG8gd29ybGQ=");
     }
 
     @Test
@@ -103,17 +103,17 @@ public class TestVarbinaryFunctions
         assertFunction("from_base64url(CAST(to_base64url(CAST('' AS VARBINARY)) AS VARBINARY))", VARBINARY, sqlVarbinary(""));
         assertFunction("from_base64url(CAST(to_base64url(CAST('a' AS VARBINARY)) AS VARBINARY))", VARBINARY, sqlVarbinary("a"));
         assertFunction("from_base64url(CAST(to_base64url(CAST('abc' AS VARBINARY)) AS VARBINARY))", VARBINARY, sqlVarbinary("abc"));
-        assertFunction(format("to_base64url(from_base64url('%s'))", encodeBase64Url(ALL_BYTES)), VARCHAR, encodeBase64Url(ALL_BYTES));
+        assertFunction(format("to_base64url(from_base64url('%s'))", encodeBase64Url(ALL_BYTES)), createUnboundedVarcharType(), encodeBase64Url(ALL_BYTES));
     }
 
     @Test
     public void testToHex()
             throws Exception
     {
-        assertFunction("to_hex(CAST('' AS VARBINARY))", VARCHAR, encodeHex(""));
-        assertFunction("to_hex(CAST('a' AS VARBINARY))", VARCHAR, encodeHex("a"));
-        assertFunction("to_hex(CAST('abc' AS VARBINARY))", VARCHAR, encodeHex("abc"));
-        assertFunction("to_hex(CAST('hello world' AS VARBINARY))", VARCHAR, "68656C6C6F20776F726C64");
+        assertFunction("to_hex(CAST('' AS VARBINARY))", createUnboundedVarcharType(), encodeHex(""));
+        assertFunction("to_hex(CAST('a' AS VARBINARY))", createUnboundedVarcharType(), encodeHex("a"));
+        assertFunction("to_hex(CAST('abc' AS VARBINARY))", createUnboundedVarcharType(), encodeHex("abc"));
+        assertFunction("to_hex(CAST('hello world' AS VARBINARY))", createUnboundedVarcharType(), "68656C6C6F20776F726C64");
     }
 
     @Test
@@ -127,7 +127,7 @@ public class TestVarbinaryFunctions
         assertFunction("from_hex(CAST('' AS VARBINARY))", VARBINARY, sqlVarbinary(""));
         assertFunction("from_hex(CAST('61' AS VARBINARY))", VARBINARY, sqlVarbinary("a"));
         assertFunction("from_hex(CAST('617a6F' AS VARBINARY))", VARBINARY, sqlVarbinary("azo"));
-        assertFunction(format("to_hex(from_hex('%s'))", base16().encode(ALL_BYTES)), VARCHAR, base16().encode(ALL_BYTES));
+        assertFunction(format("to_hex(from_hex('%s'))", base16().encode(ALL_BYTES)), createUnboundedVarcharType(), base16().encode(ALL_BYTES));
         assertInvalidFunction("from_hex('f/')", INVALID_FUNCTION_ARGUMENT); // '0' - 1
         assertInvalidFunction("from_hex('f:')", INVALID_FUNCTION_ARGUMENT); // '9' + 1
         assertInvalidFunction("from_hex('f@')", INVALID_FUNCTION_ARGUMENT); // 'A' - 1

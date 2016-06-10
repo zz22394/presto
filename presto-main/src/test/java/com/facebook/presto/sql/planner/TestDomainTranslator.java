@@ -65,7 +65,7 @@ import static com.facebook.presto.spi.type.HyperLogLogType.HYPER_LOG_LOG;
 import static com.facebook.presto.spi.type.IntegerType.INTEGER;
 import static com.facebook.presto.spi.type.TimestampType.TIMESTAMP;
 import static com.facebook.presto.spi.type.VarbinaryType.VARBINARY;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.sql.ExpressionUtils.and;
 import static com.facebook.presto.sql.ExpressionUtils.or;
 import static com.facebook.presto.sql.tree.BooleanLiteral.FALSE_LITERAL;
@@ -106,11 +106,11 @@ public class TestDomainTranslator
     private static final Map<Symbol, Type> TYPES = ImmutableMap.<Symbol, Type>builder()
             .put(A, BIGINT)
             .put(B, DOUBLE)
-            .put(C, VARCHAR)
+            .put(C, createUnboundedVarcharType())
             .put(D, BOOLEAN)
             .put(E, BIGINT)
             .put(F, DOUBLE)
-            .put(G, VARCHAR)
+            .put(G, createUnboundedVarcharType())
             .put(H, TIMESTAMP)
             .put(I, DATE)
             .put(J, COLOR) // Equatable, but not orderable
@@ -153,11 +153,11 @@ public class TestDomainTranslator
         TupleDomain<Symbol> tupleDomain = withColumnDomains(ImmutableMap.<Symbol, Domain>builder()
                 .put(A, Domain.singleValue(BIGINT, 1L))
                 .put(B, Domain.onlyNull(DOUBLE))
-                .put(C, Domain.notNull(VARCHAR))
+                .put(C, Domain.notNull(createUnboundedVarcharType()))
                 .put(D, Domain.singleValue(BOOLEAN, true))
                 .put(E, Domain.singleValue(BIGINT, 2L))
                 .put(F, Domain.create(ValueSet.ofRanges(Range.lessThanOrEqual(DOUBLE, 1.1), Range.equal(DOUBLE, 2.0), Range.range(DOUBLE, 3.0, false, 3.5, true)), true))
-                .put(G, Domain.create(ValueSet.ofRanges(Range.lessThanOrEqual(VARCHAR, utf8Slice("2013-01-01")), Range.greaterThan(VARCHAR, utf8Slice("2013-10-01"))), false))
+                .put(G, Domain.create(ValueSet.ofRanges(Range.lessThanOrEqual(createUnboundedVarcharType(), utf8Slice("2013-01-01")), Range.greaterThan(createUnboundedVarcharType(), utf8Slice("2013-10-01"))), false))
                 .put(H, Domain.singleValue(TIMESTAMP, TIMESTAMP_VALUE))
                 .put(I, Domain.singleValue(DATE, DATE_VALUE))
                 .put(J, Domain.singleValue(COLOR, COLOR_VALUE_1))
@@ -230,7 +230,7 @@ public class TestDomainTranslator
         TupleDomain<Symbol> tupleDomain = withColumnDomains(ImmutableMap.<Symbol, Domain>builder()
                 .put(A, Domain.singleValue(BIGINT, 1L))
                 .put(B, Domain.onlyNull(DOUBLE))
-                .put(C, Domain.notNull(VARCHAR))
+                .put(C, Domain.notNull(createUnboundedVarcharType()))
                 .put(D, Domain.none(BOOLEAN))
                 .build());
 
@@ -244,7 +244,7 @@ public class TestDomainTranslator
         TupleDomain<Symbol> tupleDomain = withColumnDomains(ImmutableMap.<Symbol, Domain>builder()
                 .put(A, Domain.singleValue(BIGINT, 1L))
                 .put(B, Domain.onlyNull(DOUBLE))
-                .put(C, Domain.notNull(VARCHAR))
+                .put(C, Domain.notNull(createUnboundedVarcharType()))
                 .put(D, Domain.all(BOOLEAN))
                 .build());
 
@@ -253,7 +253,7 @@ public class TestDomainTranslator
         assertEquals(result.getTupleDomain(), withColumnDomains(ImmutableMap.<Symbol, Domain>builder()
                 .put(A, Domain.singleValue(BIGINT, 1L))
                 .put(B, Domain.onlyNull(DOUBLE))
-                .put(C, Domain.notNull(VARCHAR))
+                .put(C, Domain.notNull(createUnboundedVarcharType()))
                 .build()));
     }
 
@@ -657,7 +657,7 @@ public class TestDomainTranslator
         originalExpression = greaterThan(C, new Cast(nullLiteral(), StandardTypes.VARCHAR));
         result = fromPredicate(originalExpression);
         assertEquals(result.getRemainingExpression(), TRUE_LITERAL);
-        assertEquals(result.getTupleDomain(), withColumnDomains(ImmutableMap.of(C, Domain.create(ValueSet.none(VARCHAR), false))));
+        assertEquals(result.getTupleDomain(), withColumnDomains(ImmutableMap.of(C, Domain.create(ValueSet.none(createUnboundedVarcharType()), false))));
 
         originalExpression = greaterThanOrEqual(A, nullLiteral());
         result = fromPredicate(originalExpression);
@@ -770,7 +770,7 @@ public class TestDomainTranslator
         originalExpression = greaterThan(C, stringLiteral("test"));
         result = fromPredicate(originalExpression);
         assertEquals(result.getRemainingExpression(), TRUE_LITERAL);
-        assertEquals(result.getTupleDomain(), withColumnDomains(ImmutableMap.of(C, Domain.create(ValueSet.ofRanges(Range.greaterThan(VARCHAR, utf8Slice("test"))), false))));
+        assertEquals(result.getTupleDomain(), withColumnDomains(ImmutableMap.of(C, Domain.create(ValueSet.ofRanges(Range.greaterThan(createUnboundedVarcharType(), utf8Slice("test"))), false))));
 
         // A is a long column. Check that it can be compared against doubles
         originalExpression = greaterThan(A, doubleLiteral(2.0));
@@ -855,7 +855,7 @@ public class TestDomainTranslator
         originalExpression = not(greaterThan(C, stringLiteral("test")));
         result = fromPredicate(originalExpression);
         assertEquals(result.getRemainingExpression(), TRUE_LITERAL);
-        assertEquals(result.getTupleDomain(), withColumnDomains(ImmutableMap.of(C, Domain.create(ValueSet.ofRanges(Range.lessThanOrEqual(VARCHAR, utf8Slice("test"))), false))));
+        assertEquals(result.getTupleDomain(), withColumnDomains(ImmutableMap.of(C, Domain.create(ValueSet.ofRanges(Range.lessThanOrEqual(createUnboundedVarcharType(), utf8Slice("test"))), false))));
 
         // A is a long column. Check that it can be compared against doubles
         originalExpression = not(greaterThan(A, doubleLiteral(2.0)));

@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 
 public class TestInterleavedBlock
         extends AbstractTestBlock
@@ -50,7 +50,7 @@ public class TestInterleavedBlock
     public void testCopyPositions()
     {
         Slice[] expectedValues = createExpectedValues();
-        InterleavedBlockBuilder blockBuilder = createBlockBuilderWithValues(expectedValues, ImmutableList.of(VARCHAR, BIGINT));
+        InterleavedBlockBuilder blockBuilder = createBlockBuilderWithValues(expectedValues, ImmutableList.of(createUnboundedVarcharType(), BIGINT));
 
         assertBlockFilteredPositions(expectedValues, blockBuilder, Ints.asList(0, 1, 4, 5, 6, 7, 14, 15));
         assertBlockFilteredPositions(expectedValues, blockBuilder.build(), Ints.asList(0, 1, 4, 5, 6, 7, 14, 15));
@@ -75,7 +75,7 @@ public class TestInterleavedBlock
 
     private void assertValues(Slice[] expectedValues)
     {
-        InterleavedBlockBuilder blockBuilder = createBlockBuilderWithValues(expectedValues, ImmutableList.of(VARCHAR, BIGINT));
+        InterleavedBlockBuilder blockBuilder = createBlockBuilderWithValues(expectedValues, ImmutableList.of(createUnboundedVarcharType(), BIGINT));
 
         assertBlock(blockBuilder, expectedValues);
         assertBlock(blockBuilder.build(), expectedValues);

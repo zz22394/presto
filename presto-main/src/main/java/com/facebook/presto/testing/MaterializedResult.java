@@ -65,7 +65,7 @@ import static com.facebook.presto.spi.type.TimeWithTimeZoneType.TIME_WITH_TIME_Z
 import static com.facebook.presto.spi.type.TimestampType.TIMESTAMP;
 import static com.facebook.presto.spi.type.TimestampWithTimeZoneType.TIMESTAMP_WITH_TIME_ZONE;
 import static com.facebook.presto.spi.type.VarbinaryType.VARBINARY;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.util.ImmutableCollectors.toImmutableSet;
 import static com.google.common.base.MoreObjects.toStringHelper;
 import static com.google.common.base.Preconditions.checkArgument;
@@ -229,7 +229,7 @@ public class MaterializedResult
         else if (BOOLEAN.equals(type)) {
             type.writeBoolean(blockBuilder, (Boolean) value);
         }
-        else if (VARCHAR.equals(type)) {
+        else if (createUnboundedVarcharType().equals(type)) {
             type.writeSlice(blockBuilder, Slices.utf8Slice((String) value));
         }
         else if (VARBINARY.equals(type)) {

@@ -19,7 +19,7 @@ import static com.facebook.presto.SessionTestUtils.TEST_SESSION;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
 import static com.facebook.presto.spi.type.IntegerType.INTEGER;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.testing.MaterializedResult.resultBuilder;
 
 public class TestPercentRankFunction
@@ -29,7 +29,7 @@ public class TestPercentRankFunction
     public void testPercentRank()
     {
         assertWindowQuery("percent_rank() OVER (PARTITION BY orderstatus ORDER BY orderkey)",
-                resultBuilder(TEST_SESSION, INTEGER, VARCHAR, DOUBLE)
+                resultBuilder(TEST_SESSION, INTEGER, createUnboundedVarcharType(), DOUBLE)
                         .row(3, "F", 0.0)
                         .row(5, "F", 1 / 3.0)
                         .row(6, "F", 2 / 3.0)
@@ -42,7 +42,7 @@ public class TestPercentRankFunction
                         .row(34, "O", 1.0)
                         .build());
         assertWindowQueryWithNulls("percent_rank() OVER (PARTITION BY orderstatus ORDER BY orderkey)",
-                resultBuilder(TEST_SESSION, BIGINT, VARCHAR, BIGINT)
+                resultBuilder(TEST_SESSION, BIGINT, createUnboundedVarcharType(), BIGINT)
                         .row(3L, "F", 0.0)
                         .row(5L, "F", 1 / 3.0)
                         .row(null, "F", 2 / 3.0)
@@ -56,7 +56,7 @@ public class TestPercentRankFunction
                         .build());
 
         assertWindowQuery("percent_rank() OVER (ORDER BY orderkey)",
-                resultBuilder(TEST_SESSION, INTEGER, VARCHAR, DOUBLE)
+                resultBuilder(TEST_SESSION, INTEGER, createUnboundedVarcharType(), DOUBLE)
                         .row(1, "O", 0.0)
                         .row(2, "O", 1 / 9.0)
                         .row(3, "F", 2 / 9.0)
@@ -69,7 +69,7 @@ public class TestPercentRankFunction
                         .row(34, "O", 1.0)
                         .build());
         assertWindowQueryWithNulls("percent_rank() OVER (ORDER BY orderkey)",
-                resultBuilder(TEST_SESSION, BIGINT, VARCHAR, BIGINT)
+                resultBuilder(TEST_SESSION, BIGINT, createUnboundedVarcharType(), BIGINT)
                         .row(1L, null, 0.0)
                         .row(3L, "F", 1 / 9.0)
                         .row(5L, "F", 2 / 9.0)
@@ -83,7 +83,7 @@ public class TestPercentRankFunction
                         .build());
 
         assertWindowQuery("percent_rank() OVER (ORDER BY orderstatus)",
-                resultBuilder(TEST_SESSION, INTEGER, VARCHAR, DOUBLE)
+                resultBuilder(TEST_SESSION, INTEGER, createUnboundedVarcharType(), DOUBLE)
                         .row(3, "F", 0.0)
                         .row(5, "F", 0.0)
                         .row(6, "F", 0.0)
@@ -96,7 +96,7 @@ public class TestPercentRankFunction
                         .row(34, "O", 4 / 9.0)
                         .build());
         assertWindowQueryWithNulls("percent_rank() OVER (ORDER BY orderstatus)",
-                resultBuilder(TEST_SESSION, BIGINT, VARCHAR, BIGINT)
+                resultBuilder(TEST_SESSION, BIGINT, createUnboundedVarcharType(), BIGINT)
                         .row(3L, "F", 0.0)
                         .row(5L, "F", 0.0)
                         .row(null, "F", 0.0)
@@ -110,7 +110,7 @@ public class TestPercentRankFunction
                         .build());
 
         assertWindowQuery("percent_rank() OVER (PARTITION BY orderkey)",
-                resultBuilder(TEST_SESSION, INTEGER, VARCHAR, DOUBLE)
+                resultBuilder(TEST_SESSION, INTEGER, createUnboundedVarcharType(), DOUBLE)
                         .row(1, "O", 0.0)
                         .row(2, "O", 0.0)
                         .row(3, "F", 0.0)
@@ -123,7 +123,7 @@ public class TestPercentRankFunction
                         .row(34, "O", 0.0)
                         .build());
         assertWindowQueryWithNulls("percent_rank() OVER (PARTITION BY orderkey)",
-                resultBuilder(TEST_SESSION, BIGINT, VARCHAR, BIGINT)
+                resultBuilder(TEST_SESSION, BIGINT, createUnboundedVarcharType(), BIGINT)
                         .row(1L, null, 0.0)
                         .row(3L, "F", 0.0)
                         .row(5L, "F", 0.0)

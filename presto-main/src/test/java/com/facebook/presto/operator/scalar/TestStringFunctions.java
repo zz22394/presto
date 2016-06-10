@@ -30,8 +30,8 @@ import org.testng.annotations.Test;
 import static com.facebook.presto.spi.StandardErrorCode.INVALID_FUNCTION_ARGUMENT;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.VarbinaryType.VARBINARY;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
 import static com.facebook.presto.spi.type.VarcharType.VARCHAR_MAX_LENGTH;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.spi.type.VarcharType.createVarcharType;
 
 public class TestStringFunctions
@@ -274,7 +274,7 @@ public class TestStringFunctions
     @Test
     public void testSplitToMap()
     {
-        MapType expectedType = new MapType(VARCHAR, VARCHAR);
+        MapType expectedType = new MapType(createUnboundedVarcharType(), createUnboundedVarcharType());
 
         assertFunction("SPLIT_TO_MAP('', ',', '=')", expectedType, ImmutableMap.of());
         assertFunction("SPLIT_TO_MAP('a=123,b=.4,c=,=d', ',', '=')", expectedType, ImmutableMap.of("a", "123", "b", ".4", "c", "", "", "d"));
@@ -355,7 +355,7 @@ public class TestStringFunctions
     @Test(expectedExceptions = RuntimeException.class)
     public void testSplitPartInvalid()
     {
-        assertFunction("SPLIT_PART('abc-@-def-@-ghi', '-@-', 0)", VARCHAR, "");
+        assertFunction("SPLIT_PART('abc-@-def-@-ghi', '-@-', 0)", createUnboundedVarcharType(), "");
     }
 
     @Test
@@ -445,24 +445,24 @@ public class TestStringFunctions
     @Test
     public void testLeftPad()
     {
-        assertFunction("LPAD('text', 5, 'x')", VARCHAR, "xtext");
-        assertFunction("LPAD('text', 4, 'x')", VARCHAR, "text");
+        assertFunction("LPAD('text', 5, 'x')", createUnboundedVarcharType(), "xtext");
+        assertFunction("LPAD('text', 4, 'x')", createUnboundedVarcharType(), "text");
 
-        assertFunction("LPAD('text', 6, 'xy')", VARCHAR, "xytext");
-        assertFunction("LPAD('text', 7, 'xy')", VARCHAR, "xyxtext");
-        assertFunction("LPAD('text', 9, 'xyz')", VARCHAR, "xyzxytext");
+        assertFunction("LPAD('text', 6, 'xy')", createUnboundedVarcharType(), "xytext");
+        assertFunction("LPAD('text', 7, 'xy')", createUnboundedVarcharType(), "xyxtext");
+        assertFunction("LPAD('text', 9, 'xyz')", createUnboundedVarcharType(), "xyzxytext");
 
-        assertFunction("LPAD('\u4FE1\u5FF5 \u7231 \u5E0C\u671B  ', 10, '\u671B')", VARCHAR, "\u671B\u4FE1\u5FF5 \u7231 \u5E0C\u671B  ");
-        assertFunction("LPAD('\u4FE1\u5FF5 \u7231 \u5E0C\u671B  ', 11, '\u671B')", VARCHAR, "\u671B\u671B\u4FE1\u5FF5 \u7231 \u5E0C\u671B  ");
-        assertFunction("LPAD('\u4FE1\u5FF5 \u7231 \u5E0C\u671B  ', 12, '\u5E0C\u671B')", VARCHAR, "\u5E0C\u671B\u5E0C\u4FE1\u5FF5 \u7231 \u5E0C\u671B  ");
-        assertFunction("LPAD('\u4FE1\u5FF5 \u7231 \u5E0C\u671B  ', 13, '\u5E0C\u671B')", VARCHAR, "\u5E0C\u671B\u5E0C\u671B\u4FE1\u5FF5 \u7231 \u5E0C\u671B  ");
+        assertFunction("LPAD('\u4FE1\u5FF5 \u7231 \u5E0C\u671B  ', 10, '\u671B')", createUnboundedVarcharType(), "\u671B\u4FE1\u5FF5 \u7231 \u5E0C\u671B  ");
+        assertFunction("LPAD('\u4FE1\u5FF5 \u7231 \u5E0C\u671B  ', 11, '\u671B')", createUnboundedVarcharType(), "\u671B\u671B\u4FE1\u5FF5 \u7231 \u5E0C\u671B  ");
+        assertFunction("LPAD('\u4FE1\u5FF5 \u7231 \u5E0C\u671B  ', 12, '\u5E0C\u671B')", createUnboundedVarcharType(), "\u5E0C\u671B\u5E0C\u4FE1\u5FF5 \u7231 \u5E0C\u671B  ");
+        assertFunction("LPAD('\u4FE1\u5FF5 \u7231 \u5E0C\u671B  ', 13, '\u5E0C\u671B')", createUnboundedVarcharType(), "\u5E0C\u671B\u5E0C\u671B\u4FE1\u5FF5 \u7231 \u5E0C\u671B  ");
 
-        assertFunction("LPAD('', 3, 'a')", VARCHAR, "aaa");
-        assertFunction("LPAD('abc', 0, 'e')", VARCHAR, "");
+        assertFunction("LPAD('', 3, 'a')", createUnboundedVarcharType(), "aaa");
+        assertFunction("LPAD('abc', 0, 'e')", createUnboundedVarcharType(), "");
 
         // truncation
-        assertFunction("LPAD('text', 3, 'xy')", VARCHAR, "tex");
-        assertFunction("LPAD('\u4FE1\u5FF5 \u7231 \u5E0C\u671B  ', 5, '\u671B')", VARCHAR, "\u4FE1\u5FF5 \u7231 ");
+        assertFunction("LPAD('text', 3, 'xy')", createUnboundedVarcharType(), "tex");
+        assertFunction("LPAD('\u4FE1\u5FF5 \u7231 \u5E0C\u671B  ', 5, '\u671B')", createUnboundedVarcharType(), "\u4FE1\u5FF5 \u7231 ");
 
         // failure modes
         assertInvalidFunction("LPAD('abc', 3, '')", "Padding string must not be empty");
@@ -476,24 +476,24 @@ public class TestStringFunctions
     @Test
     public void testRightPad()
     {
-        assertFunction("RPAD('text', 5, 'x')", VARCHAR, "textx");
-        assertFunction("RPAD('text', 4, 'x')", VARCHAR, "text");
+        assertFunction("RPAD('text', 5, 'x')", createUnboundedVarcharType(), "textx");
+        assertFunction("RPAD('text', 4, 'x')", createUnboundedVarcharType(), "text");
 
-        assertFunction("RPAD('text', 6, 'xy')", VARCHAR, "textxy");
-        assertFunction("RPAD('text', 7, 'xy')", VARCHAR, "textxyx");
-        assertFunction("RPAD('text', 9, 'xyz')", VARCHAR, "textxyzxy");
+        assertFunction("RPAD('text', 6, 'xy')", createUnboundedVarcharType(), "textxy");
+        assertFunction("RPAD('text', 7, 'xy')", createUnboundedVarcharType(), "textxyx");
+        assertFunction("RPAD('text', 9, 'xyz')", createUnboundedVarcharType(), "textxyzxy");
 
-        assertFunction("RPAD('\u4FE1\u5FF5 \u7231 \u5E0C\u671B  ', 10, '\u671B')", VARCHAR, "\u4FE1\u5FF5 \u7231 \u5E0C\u671B  \u671B");
-        assertFunction("RPAD('\u4FE1\u5FF5 \u7231 \u5E0C\u671B  ', 11, '\u671B')", VARCHAR, "\u4FE1\u5FF5 \u7231 \u5E0C\u671B  \u671B\u671B");
-        assertFunction("RPAD('\u4FE1\u5FF5 \u7231 \u5E0C\u671B  ', 12, '\u5E0C\u671B')", VARCHAR, "\u4FE1\u5FF5 \u7231 \u5E0C\u671B  \u5E0C\u671B\u5E0C");
-        assertFunction("RPAD('\u4FE1\u5FF5 \u7231 \u5E0C\u671B  ', 13, '\u5E0C\u671B')", VARCHAR, "\u4FE1\u5FF5 \u7231 \u5E0C\u671B  \u5E0C\u671B\u5E0C\u671B");
+        assertFunction("RPAD('\u4FE1\u5FF5 \u7231 \u5E0C\u671B  ', 10, '\u671B')", createUnboundedVarcharType(), "\u4FE1\u5FF5 \u7231 \u5E0C\u671B  \u671B");
+        assertFunction("RPAD('\u4FE1\u5FF5 \u7231 \u5E0C\u671B  ', 11, '\u671B')", createUnboundedVarcharType(), "\u4FE1\u5FF5 \u7231 \u5E0C\u671B  \u671B\u671B");
+        assertFunction("RPAD('\u4FE1\u5FF5 \u7231 \u5E0C\u671B  ', 12, '\u5E0C\u671B')", createUnboundedVarcharType(), "\u4FE1\u5FF5 \u7231 \u5E0C\u671B  \u5E0C\u671B\u5E0C");
+        assertFunction("RPAD('\u4FE1\u5FF5 \u7231 \u5E0C\u671B  ', 13, '\u5E0C\u671B')", createUnboundedVarcharType(), "\u4FE1\u5FF5 \u7231 \u5E0C\u671B  \u5E0C\u671B\u5E0C\u671B");
 
-        assertFunction("RPAD('', 3, 'a')", VARCHAR, "aaa");
-        assertFunction("RPAD('abc', 0, 'e')", VARCHAR, "");
+        assertFunction("RPAD('', 3, 'a')", createUnboundedVarcharType(), "aaa");
+        assertFunction("RPAD('abc', 0, 'e')", createUnboundedVarcharType(), "");
 
         // truncation
-        assertFunction("RPAD('text', 3, 'xy')", VARCHAR, "tex");
-        assertFunction("RPAD('\u4FE1\u5FF5 \u7231 \u5E0C\u671B  ', 5, '\u671B')", VARCHAR, "\u4FE1\u5FF5 \u7231 ");
+        assertFunction("RPAD('text', 3, 'xy')", createUnboundedVarcharType(), "tex");
+        assertFunction("RPAD('\u4FE1\u5FF5 \u7231 \u5E0C\u671B  ', 5, '\u671B')", createUnboundedVarcharType(), "\u4FE1\u5FF5 \u7231 ");
 
         // failure modes
         assertInvalidFunction("RPAD('abc', 3, '')", "Padding string must not be empty");
@@ -507,14 +507,14 @@ public class TestStringFunctions
     @Test
     public void testNormalize()
     {
-        assertFunction("normalize('sch\u00f6n', NFD)", VARCHAR, "scho\u0308n");
-        assertFunction("normalize('sch\u00f6n')", VARCHAR, "sch\u00f6n");
-        assertFunction("normalize('sch\u00f6n', NFC)", VARCHAR, "sch\u00f6n");
-        assertFunction("normalize('sch\u00f6n', NFKD)", VARCHAR, "scho\u0308n");
+        assertFunction("normalize('sch\u00f6n', NFD)", createUnboundedVarcharType(), "scho\u0308n");
+        assertFunction("normalize('sch\u00f6n')", createUnboundedVarcharType(), "sch\u00f6n");
+        assertFunction("normalize('sch\u00f6n', NFC)", createUnboundedVarcharType(), "sch\u00f6n");
+        assertFunction("normalize('sch\u00f6n', NFKD)", createUnboundedVarcharType(), "scho\u0308n");
 
-        assertFunction("normalize('sch\u00f6n', NFKC)", VARCHAR, "sch\u00f6n");
-        assertFunction("normalize('\u3231\u3327\u3326\u2162', NFKC)", VARCHAR, "(\u682a)\u30c8\u30f3\u30c9\u30ebIII");
-        assertFunction("normalize('\uff8a\uff9d\uff76\uff78\uff76\uff85', NFKC)", VARCHAR, "\u30cf\u30f3\u30ab\u30af\u30ab\u30ca");
+        assertFunction("normalize('sch\u00f6n', NFKC)", createUnboundedVarcharType(), "sch\u00f6n");
+        assertFunction("normalize('\u3231\u3327\u3326\u2162', NFKC)", createUnboundedVarcharType(), "(\u682a)\u30c8\u30f3\u30c9\u30ebIII");
+        assertFunction("normalize('\uff8a\uff9d\uff76\uff78\uff76\uff85', NFKC)", createUnboundedVarcharType(), "\u30cf\u30f3\u30ab\u30af\u30ab\u30ca");
     }
 
     @Test
@@ -543,14 +543,14 @@ public class TestStringFunctions
     @Test
     public void testFromUtf8()
     {
-        assertFunction("from_utf8(to_utf8('hello'))", VARCHAR, "hello");
-        assertFunction("from_utf8(from_hex('58BF'))", VARCHAR, "X\uFFFD");
-        assertFunction("from_utf8(from_hex('58DF'))", VARCHAR, "X\uFFFD");
-        assertFunction("from_utf8(from_hex('58F7'))", VARCHAR, "X\uFFFD");
+        assertFunction("from_utf8(to_utf8('hello'))", createUnboundedVarcharType(), "hello");
+        assertFunction("from_utf8(from_hex('58BF'))", createUnboundedVarcharType(), "X\uFFFD");
+        assertFunction("from_utf8(from_hex('58DF'))", createUnboundedVarcharType(), "X\uFFFD");
+        assertFunction("from_utf8(from_hex('58F7'))", createUnboundedVarcharType(), "X\uFFFD");
 
-        assertFunction("from_utf8(from_hex('58BF'), '#')", VARCHAR, "X#");
-        assertFunction("from_utf8(from_hex('58DF'), 35)", VARCHAR, "X#");
-        assertFunction("from_utf8(from_hex('58BF'), '')", VARCHAR, "X");
+        assertFunction("from_utf8(from_hex('58BF'), '#')", createUnboundedVarcharType(), "X#");
+        assertFunction("from_utf8(from_hex('58DF'), 35)", createUnboundedVarcharType(), "X#");
+        assertFunction("from_utf8(from_hex('58BF'), '')", createUnboundedVarcharType(), "X");
 
         assertInvalidFunction("from_utf8(to_utf8('hello'), 'foo')", INVALID_FUNCTION_ARGUMENT);
         assertInvalidFunction("from_utf8(to_utf8('hello'), 1114112)", INVALID_FUNCTION_ARGUMENT);

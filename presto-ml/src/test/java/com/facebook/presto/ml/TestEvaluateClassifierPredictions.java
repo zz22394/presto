@@ -39,7 +39,7 @@ import java.util.Optional;
 import static com.facebook.presto.metadata.FunctionKind.AGGREGATE;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.TypeSignature.parseTypeSignature;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static org.testng.Assert.assertEquals;
 
 public class TestEvaluateClassifierPredictions
@@ -65,7 +65,7 @@ public class TestEvaluateClassifierPredictions
         accumulator.evaluateFinal(finalOut);
         Block block = finalOut.build();
 
-        String output = VARCHAR.getSlice(block, 0).toStringUtf8();
+        String output = createUnboundedVarcharType().getSlice(block, 0).toStringUtf8();
         List<String> parts = ImmutableList.copyOf(Splitter.on('\n').omitEmptyStrings().split(output));
         assertEquals(parts.size(), 7, output);
         assertEquals(parts.get(0), "Accuracy: 1/2 (50.00%)");

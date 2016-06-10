@@ -19,7 +19,7 @@ import org.testng.annotations.Test;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 
 public class TestDecimalCasts
         extends AbstractTestFunctions
@@ -148,21 +148,21 @@ public class TestDecimalCasts
     @Test
     public void testDecimalToVarcharCasts()
     {
-        assertFunction("CAST(DECIMAL '2.34' AS VARCHAR)", VARCHAR, "2.34");
-        assertFunction("CAST(DECIMAL '23400' AS VARCHAR)", VARCHAR, "23400");
-        assertFunction("CAST(DECIMAL '0.0034' AS VARCHAR)", VARCHAR, "0.0034");
-        assertFunction("CAST(DECIMAL '0' AS VARCHAR)", VARCHAR, "0");
-        assertFunction("CAST(DECIMAL '0.1234567890123456' AS VARCHAR)", VARCHAR, "0.1234567890123456");
+        assertFunction("CAST(DECIMAL '2.34' AS VARCHAR)", createUnboundedVarcharType(), "2.34");
+        assertFunction("CAST(DECIMAL '23400' AS VARCHAR)", createUnboundedVarcharType(), "23400");
+        assertFunction("CAST(DECIMAL '0.0034' AS VARCHAR)", createUnboundedVarcharType(), "0.0034");
+        assertFunction("CAST(DECIMAL '0' AS VARCHAR)", createUnboundedVarcharType(), "0");
+        assertFunction("CAST(DECIMAL '0.1234567890123456' AS VARCHAR)", createUnboundedVarcharType(), "0.1234567890123456");
 
-        assertFunction("CAST(DECIMAL '-10' AS VARCHAR)", VARCHAR, "-10");
-        assertFunction("CAST(DECIMAL '-1.0' AS VARCHAR)", VARCHAR, "-1.0");
-        assertFunction("CAST(DECIMAL '-1.00' AS VARCHAR)", VARCHAR, "-1.00");
-        assertFunction("CAST(DECIMAL '-1.00000' AS VARCHAR)", VARCHAR, "-1.00000");
-        assertFunction("CAST(DECIMAL '-0.1' AS VARCHAR)", VARCHAR, "-0.1");
-        assertFunction("CAST(DECIMAL '-.001' AS VARCHAR)", VARCHAR, "-0.001");
-        assertFunction("CAST(DECIMAL '-1234567890.1234567' AS VARCHAR)", VARCHAR, "-1234567890.1234567");
+        assertFunction("CAST(DECIMAL '-10' AS VARCHAR)", createUnboundedVarcharType(), "-10");
+        assertFunction("CAST(DECIMAL '-1.0' AS VARCHAR)", createUnboundedVarcharType(), "-1.0");
+        assertFunction("CAST(DECIMAL '-1.00' AS VARCHAR)", createUnboundedVarcharType(), "-1.00");
+        assertFunction("CAST(DECIMAL '-1.00000' AS VARCHAR)", createUnboundedVarcharType(), "-1.00000");
+        assertFunction("CAST(DECIMAL '-0.1' AS VARCHAR)", createUnboundedVarcharType(), "-0.1");
+        assertFunction("CAST(DECIMAL '-.001' AS VARCHAR)", createUnboundedVarcharType(), "-0.001");
+        assertFunction("CAST(DECIMAL '-1234567890.1234567' AS VARCHAR)", createUnboundedVarcharType(), "-1234567890.1234567");
 
-        assertFunction("CAST(DECIMAL '1234567890.1234567890' AS VARCHAR)", VARCHAR, "1234567890.1234567890");
-        assertFunction("CAST(DECIMAL '-1234567890.1234567890' AS VARCHAR)", VARCHAR, "-1234567890.1234567890");
+        assertFunction("CAST(DECIMAL '1234567890.1234567890' AS VARCHAR)", createUnboundedVarcharType(), "1234567890.1234567890");
+        assertFunction("CAST(DECIMAL '-1234567890.1234567890' AS VARCHAR)", createUnboundedVarcharType(), "-1234567890.1234567890");
     }
 }

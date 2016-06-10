@@ -36,7 +36,7 @@ import static com.facebook.presto.operator.aggregation.AggregationTestUtils.asse
 import static com.facebook.presto.operator.aggregation.MultimapAggregationFunction.NAME;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.google.common.base.Preconditions.checkState;
 
 public class TestMultimapAggAggregation
@@ -47,47 +47,47 @@ public class TestMultimapAggAggregation
     public void testSingleValueMap()
             throws Exception
     {
-        testMultimapAgg(DOUBLE, ImmutableList.of(1.0), VARCHAR, ImmutableList.of("a"));
-        testMultimapAgg(VARCHAR, ImmutableList.of("a"), BIGINT, ImmutableList.of(1L));
+        testMultimapAgg(DOUBLE, ImmutableList.of(1.0), createUnboundedVarcharType(), ImmutableList.of("a"));
+        testMultimapAgg(createUnboundedVarcharType(), ImmutableList.of("a"), BIGINT, ImmutableList.of(1L));
     }
 
     @Test
     public void testMultiValueMap()
             throws Exception
     {
-        testMultimapAgg(DOUBLE, ImmutableList.of(1.0, 1.0, 1.0), VARCHAR, ImmutableList.of("a", "b", "c"));
-        testMultimapAgg(DOUBLE, ImmutableList.of(1.0, 1.0, 2.0), VARCHAR, ImmutableList.of("a", "b", "c"));
+        testMultimapAgg(DOUBLE, ImmutableList.of(1.0, 1.0, 1.0), createUnboundedVarcharType(), ImmutableList.of("a", "b", "c"));
+        testMultimapAgg(DOUBLE, ImmutableList.of(1.0, 1.0, 2.0), createUnboundedVarcharType(), ImmutableList.of("a", "b", "c"));
     }
 
     @Test
     public void testOrderValueMap()
             throws Exception
     {
-        testMultimapAgg(VARCHAR, ImmutableList.of("a", "a", "a"), BIGINT, ImmutableList.of(1L, 2L, 3L));
-        testMultimapAgg(VARCHAR, ImmutableList.of("a", "a", "a"), BIGINT, ImmutableList.of(2L, 1L, 3L));
-        testMultimapAgg(VARCHAR, ImmutableList.of("a", "a", "a"), BIGINT, ImmutableList.of(3L, 2L, 1L));
+        testMultimapAgg(createUnboundedVarcharType(), ImmutableList.of("a", "a", "a"), BIGINT, ImmutableList.of(1L, 2L, 3L));
+        testMultimapAgg(createUnboundedVarcharType(), ImmutableList.of("a", "a", "a"), BIGINT, ImmutableList.of(2L, 1L, 3L));
+        testMultimapAgg(createUnboundedVarcharType(), ImmutableList.of("a", "a", "a"), BIGINT, ImmutableList.of(3L, 2L, 1L));
     }
 
     @Test
     public void testDuplicateValueMap()
             throws Exception
     {
-        testMultimapAgg(VARCHAR, ImmutableList.of("a", "a", "a"), BIGINT, ImmutableList.of(1L, 1L, 1L));
-        testMultimapAgg(VARCHAR, ImmutableList.of("a", "b", "a", "b", "c"), BIGINT, ImmutableList.of(1L, 1L, 1L, 1L, 1L));
+        testMultimapAgg(createUnboundedVarcharType(), ImmutableList.of("a", "a", "a"), BIGINT, ImmutableList.of(1L, 1L, 1L));
+        testMultimapAgg(createUnboundedVarcharType(), ImmutableList.of("a", "b", "a", "b", "c"), BIGINT, ImmutableList.of(1L, 1L, 1L, 1L, 1L));
     }
 
     @Test
     public void testNullMap()
             throws Exception
     {
-        testMultimapAgg(DOUBLE, ImmutableList.<Double>of(), VARCHAR, ImmutableList.<String>of());
+        testMultimapAgg(DOUBLE, ImmutableList.<Double>of(), createUnboundedVarcharType(), ImmutableList.<String>of());
     }
 
     @Test
     public void testDoubleMapMultimap()
             throws Exception
     {
-        Type mapType = new MapType(VARCHAR, BIGINT);
+        Type mapType = new MapType(createUnboundedVarcharType(), BIGINT);
         List<Double> expectedKeys = ImmutableList.of(1.0, 2.0, 3.0);
         List<Map<String, Long>> expectedValues = ImmutableList.of(ImmutableMap.of("a", 1L), ImmutableMap.of("b", 2L, "c", 3L, "d", 4L), ImmutableMap.of("a", 1L));
 
@@ -98,7 +98,7 @@ public class TestMultimapAggAggregation
     public void testDoubleArrayMultimap()
             throws Exception
     {
-        Type arrayType = new ArrayType(VARCHAR);
+        Type arrayType = new ArrayType(createUnboundedVarcharType());
         List<Double> expectedKeys = ImmutableList.of(1.0, 2.0, 3.0);
         List<List<String>> expectedValues = ImmutableList.of(ImmutableList.of("a", "b"), ImmutableList.of("c"), ImmutableList.of("d", "e", "f"));
 

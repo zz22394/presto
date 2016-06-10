@@ -27,7 +27,7 @@ import static com.facebook.presto.operator.PageAssertions.assertPageEquals;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.testing.TestingConnectorSession.SESSION;
 import static org.testng.Assert.assertEquals;
 
@@ -37,11 +37,11 @@ public class TestTupleFilterProcessor
     public void testFullPageFilter()
             throws Exception
     {
-        Page tuplePage = Iterables.getOnlyElement(rowPagesBuilder(BIGINT, VARCHAR, DOUBLE)
+        Page tuplePage = Iterables.getOnlyElement(rowPagesBuilder(BIGINT, createUnboundedVarcharType(), DOUBLE)
                 .row(1L, "a", 0.1)
                 .build());
 
-        List<Type> outputTypes = ImmutableList.<Type>of(VARCHAR, BIGINT, BOOLEAN, DOUBLE, DOUBLE);
+        List<Type> outputTypes = ImmutableList.<Type>of(createUnboundedVarcharType(), BIGINT, BOOLEAN, DOUBLE, DOUBLE);
         TupleFilterProcessor tupleFilterProcessor = new TupleFilterProcessor(tuplePage, outputTypes, new int[] { 1, 0, 3 });
 
         Page inputPage = Iterables.getOnlyElement(rowPagesBuilder(outputTypes)
@@ -68,11 +68,11 @@ public class TestTupleFilterProcessor
     public void testPartialPageFilter()
             throws Exception
     {
-        Page tuplePage = Iterables.getOnlyElement(rowPagesBuilder(BIGINT, VARCHAR, DOUBLE)
+        Page tuplePage = Iterables.getOnlyElement(rowPagesBuilder(BIGINT, createUnboundedVarcharType(), DOUBLE)
                 .row(1L, "a", 0.1)
                 .build());
 
-        List<Type> outputTypes = ImmutableList.<Type>of(VARCHAR, BIGINT, BOOLEAN, DOUBLE, DOUBLE);
+        List<Type> outputTypes = ImmutableList.<Type>of(createUnboundedVarcharType(), BIGINT, BOOLEAN, DOUBLE, DOUBLE);
         TupleFilterProcessor tupleFilterProcessor = new TupleFilterProcessor(tuplePage, outputTypes, new int[] { 1, 0, 3 });
 
         Page inputPage = Iterables.getOnlyElement(rowPagesBuilder(outputTypes)

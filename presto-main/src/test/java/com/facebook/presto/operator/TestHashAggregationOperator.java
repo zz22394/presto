@@ -60,7 +60,7 @@ import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
 import static com.facebook.presto.spi.type.TypeSignature.parseTypeSignature;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.testing.MaterializedResult.resultBuilder;
 import static com.facebook.presto.testing.TestingTaskContext.createTaskContext;
 import static io.airlift.concurrent.Threads.daemonThreadsNamed;
@@ -112,7 +112,7 @@ public class TestHashAggregationOperator
         InternalAggregationFunction maxVarcharColumn = metadata.getFunctionRegistry().getAggregateFunctionImplementation(
                 new Signature("max", AGGREGATE, parseTypeSignature(StandardTypes.VARCHAR), parseTypeSignature(StandardTypes.VARCHAR)));
         List<Integer> hashChannels = Ints.asList(1);
-        RowPagesBuilder rowPagesBuilder = rowPagesBuilder(hashEnabled, hashChannels, VARCHAR, VARCHAR, VARCHAR, BIGINT, BOOLEAN);
+        RowPagesBuilder rowPagesBuilder = rowPagesBuilder(hashEnabled, hashChannels, createUnboundedVarcharType(), createUnboundedVarcharType(), createUnboundedVarcharType(), BIGINT, BOOLEAN);
         List<Page> input = rowPagesBuilder
                 .addSequencePage(10, 100, 0, 100, 0, 500)
                 .addSequencePage(10, 100, 0, 200, 0, 500)
@@ -122,7 +122,7 @@ public class TestHashAggregationOperator
         HashAggregationOperatorFactory operatorFactory = new HashAggregationOperatorFactory(
                 0,
                 new PlanNodeId("test"),
-                ImmutableList.of(VARCHAR),
+                ImmutableList.of(createUnboundedVarcharType()),
                 hashChannels,
                 Step.SINGLE,
                 ImmutableList.of(COUNT.bind(ImmutableList.of(0), Optional.empty(), Optional.empty(), 1.0),
@@ -137,7 +137,7 @@ public class TestHashAggregationOperator
 
         Operator operator = operatorFactory.createOperator(driverContext);
 
-        MaterializedResult expected = resultBuilder(driverContext.getSession(), VARCHAR, BIGINT, BIGINT, DOUBLE, VARCHAR, BIGINT, BIGINT)
+        MaterializedResult expected = resultBuilder(driverContext.getSession(), createUnboundedVarcharType(), BIGINT, BIGINT, DOUBLE, createUnboundedVarcharType(), BIGINT, BIGINT)
                 .row("0", 3L, 0L, 0.0, "300", 3L, 3L)
                 .row("1", 3L, 3L, 1.0, "301", 3L, 3L)
                 .row("2", 3L, 6L, 2.0, "302", 3L, 3L)
@@ -161,7 +161,7 @@ public class TestHashAggregationOperator
                 new Signature("max", AGGREGATE, parseTypeSignature(StandardTypes.VARCHAR), parseTypeSignature(StandardTypes.VARCHAR)));
 
         List<Integer> hashChannels = Ints.asList(1);
-        RowPagesBuilder rowPagesBuilder = rowPagesBuilder(hashEnabled, hashChannels, VARCHAR, VARCHAR, VARCHAR, BIGINT);
+        RowPagesBuilder rowPagesBuilder = rowPagesBuilder(hashEnabled, hashChannels, createUnboundedVarcharType(), createUnboundedVarcharType(), createUnboundedVarcharType(), BIGINT);
         List<Page> input = rowPagesBuilder
                 .addSequencePage(10, 100, 0, 100, 0)
                 .addSequencePage(10, 100, 0, 200, 0)
@@ -175,7 +175,7 @@ public class TestHashAggregationOperator
         HashAggregationOperatorFactory operatorFactory = new HashAggregationOperatorFactory(
                 0,
                 new PlanNodeId("test"),
-                ImmutableList.of(VARCHAR),
+                ImmutableList.of(createUnboundedVarcharType()),
                 hashChannels,
                 Step.SINGLE,
                 ImmutableList.of(COUNT.bind(ImmutableList.of(0), Optional.empty(), Optional.empty(), 1.0),
@@ -194,12 +194,12 @@ public class TestHashAggregationOperator
     @Test(dataProvider = "hashEnabledValues")
     public void testHashBuilderResize(boolean hashEnabled)
     {
-        BlockBuilder builder = VARCHAR.createBlockBuilder(new BlockBuilderStatus(), 1, DEFAULT_MAX_BLOCK_SIZE_IN_BYTES);
-        VARCHAR.writeSlice(builder, Slices.allocate(200_000)); // this must be larger than DEFAULT_MAX_BLOCK_SIZE, 64K
+        BlockBuilder builder = createUnboundedVarcharType().createBlockBuilder(new BlockBuilderStatus(), 1, DEFAULT_MAX_BLOCK_SIZE_IN_BYTES);
+        createUnboundedVarcharType().writeSlice(builder, Slices.allocate(200_000)); // this must be larger than DEFAULT_MAX_BLOCK_SIZE, 64K
         builder.build();
 
         List<Integer> hashChannels = Ints.asList(0);
-        RowPagesBuilder rowPagesBuilder = rowPagesBuilder(hashEnabled, hashChannels, VARCHAR);
+        RowPagesBuilder rowPagesBuilder = rowPagesBuilder(hashEnabled, hashChannels, createUnboundedVarcharType());
         List<Page> input = rowPagesBuilder
                 .addSequencePage(10, 100)
                 .addBlocksPage(builder.build())
@@ -213,7 +213,7 @@ public class TestHashAggregationOperator
         HashAggregationOperatorFactory operatorFactory = new HashAggregationOperatorFactory(
                 0,
                 new PlanNodeId("test"),
-                ImmutableList.of(VARCHAR),
+                ImmutableList.of(createUnboundedVarcharType()),
                 hashChannels,
                 Step.SINGLE,
                 ImmutableList.of(COUNT.bind(ImmutableList.of(0), Optional.empty(), Optional.empty(), 1.0)),
@@ -229,12 +229,12 @@ public class TestHashAggregationOperator
     @Test(dataProvider = "hashEnabledValues", expectedExceptions = ExceededMemoryLimitException.class, expectedExceptionsMessageRegExp = "Query exceeded local memory limit of 3MB")
     public void testHashBuilderResizeLimit(boolean hashEnabled)
     {
-        BlockBuilder builder = VARCHAR.createBlockBuilder(new BlockBuilderStatus(), 1, DEFAULT_MAX_BLOCK_SIZE_IN_BYTES);
-        VARCHAR.writeSlice(builder, Slices.allocate(5_000_000)); // this must be larger than DEFAULT_MAX_BLOCK_SIZE, 64K
+        BlockBuilder builder = createUnboundedVarcharType().createBlockBuilder(new BlockBuilderStatus(), 1, DEFAULT_MAX_BLOCK_SIZE_IN_BYTES);
+        createUnboundedVarcharType().writeSlice(builder, Slices.allocate(5_000_000)); // this must be larger than DEFAULT_MAX_BLOCK_SIZE, 64K
         builder.build();
 
         List<Integer> hashChannels = Ints.asList(0);
-        RowPagesBuilder rowPagesBuilder = rowPagesBuilder(hashEnabled, hashChannels, VARCHAR);
+        RowPagesBuilder rowPagesBuilder = rowPagesBuilder(hashEnabled, hashChannels, createUnboundedVarcharType());
         List<Page> input = rowPagesBuilder
                 .addSequencePage(10, 100)
                 .addBlocksPage(builder.build())
@@ -248,7 +248,7 @@ public class TestHashAggregationOperator
         HashAggregationOperatorFactory operatorFactory = new HashAggregationOperatorFactory(
                 0,
                 new PlanNodeId("test"),
-                ImmutableList.of(VARCHAR),
+                ImmutableList.of(createUnboundedVarcharType()),
                 hashChannels,
                 Step.SINGLE,
                 ImmutableList.of(COUNT.bind(ImmutableList.of(0), Optional.empty(), Optional.empty(), 1.0)),

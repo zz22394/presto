@@ -19,30 +19,30 @@ import com.facebook.presto.spi.block.BlockBuilderStatus;
 import io.airlift.slice.Slice;
 import io.airlift.slice.Slices;
 
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 
 public class TestVarcharType
         extends AbstractTestType
 {
     public TestVarcharType()
     {
-        super(VARCHAR, String.class, createTestBlock());
+        super(createUnboundedVarcharType(), String.class, createTestBlock());
     }
 
     public static Block createTestBlock()
     {
-        BlockBuilder blockBuilder = VARCHAR.createBlockBuilder(new BlockBuilderStatus(), 15);
-        VARCHAR.writeString(blockBuilder, "apple");
-        VARCHAR.writeString(blockBuilder, "apple");
-        VARCHAR.writeString(blockBuilder, "apple");
-        VARCHAR.writeString(blockBuilder, "banana");
-        VARCHAR.writeString(blockBuilder, "banana");
-        VARCHAR.writeString(blockBuilder, "banana");
-        VARCHAR.writeString(blockBuilder, "banana");
-        VARCHAR.writeString(blockBuilder, "banana");
-        VARCHAR.writeString(blockBuilder, "cherry");
-        VARCHAR.writeString(blockBuilder, "cherry");
-        VARCHAR.writeString(blockBuilder, "date");
+        BlockBuilder blockBuilder = createUnboundedVarcharType().createBlockBuilder(new BlockBuilderStatus(), 15);
+        createUnboundedVarcharType().writeString(blockBuilder, "apple");
+        createUnboundedVarcharType().writeString(blockBuilder, "apple");
+        createUnboundedVarcharType().writeString(blockBuilder, "apple");
+        createUnboundedVarcharType().writeString(blockBuilder, "banana");
+        createUnboundedVarcharType().writeString(blockBuilder, "banana");
+        createUnboundedVarcharType().writeString(blockBuilder, "banana");
+        createUnboundedVarcharType().writeString(blockBuilder, "banana");
+        createUnboundedVarcharType().writeString(blockBuilder, "banana");
+        createUnboundedVarcharType().writeString(blockBuilder, "cherry");
+        createUnboundedVarcharType().writeString(blockBuilder, "cherry");
+        createUnboundedVarcharType().writeString(blockBuilder, "date");
         return blockBuilder.build();
     }
 

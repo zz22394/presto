@@ -26,7 +26,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static org.testng.Assert.assertEquals;
 
 public class TestTypedKeyValueHeap
@@ -81,20 +81,20 @@ public class TestTypedKeyValueHeap
     private void test(IntStream keyInputStream, Stream<String> valueInputStream, BlockComparator comparator, Iterator<String> outputIterator)
     {
         BlockBuilder keysBlockBuilder = BIGINT.createBlockBuilder(new BlockBuilderStatus(), INPUT_SIZE);
-        BlockBuilder valuesBlockBuilder = VARCHAR.createBlockBuilder(new BlockBuilderStatus(), INPUT_SIZE);
+        BlockBuilder valuesBlockBuilder = createUnboundedVarcharType().createBlockBuilder(new BlockBuilderStatus(), INPUT_SIZE);
         keyInputStream.forEach(x -> BIGINT.writeLong(keysBlockBuilder, x));
-        valueInputStream.forEach(x -> VARCHAR.writeString(valuesBlockBuilder, x));
+        valueInputStream.forEach(x -> createUnboundedVarcharType().writeString(valuesBlockBuilder, x));
 
-        TypedKeyValueHeap heap = new TypedKeyValueHeap(comparator, BIGINT, VARCHAR, OUTPUT_SIZE);
+        TypedKeyValueHeap heap = new TypedKeyValueHeap(comparator, BIGINT, createUnboundedVarcharType(), OUTPUT_SIZE);
         heap.addAll(keysBlockBuilder, valuesBlockBuilder);
 
-        BlockBuilder resultBlockBuilder = VARCHAR.createBlockBuilder(new BlockBuilderStatus(), OUTPUT_SIZE);
+        BlockBuilder resultBlockBuilder = createUnboundedVarcharType().createBlockBuilder(new BlockBuilderStatus(), OUTPUT_SIZE);
         heap.popAll(resultBlockBuilder);
 
         Block resultBlock = resultBlockBuilder.build();
         assertEquals(resultBlock.getPositionCount(), OUTPUT_SIZE);
         for (int i = 0; i < OUTPUT_SIZE; i++) {
-            assertEquals(VARCHAR.getSlice(resultBlock, i).toStringUtf8(), outputIterator.next());
+            assertEquals(createUnboundedVarcharType().getSlice(resultBlock, i).toStringUtf8(), outputIterator.next());
         }
     }
 }

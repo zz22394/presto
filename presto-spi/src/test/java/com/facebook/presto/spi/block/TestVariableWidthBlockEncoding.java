@@ -26,7 +26,7 @@ import java.util.Optional;
 
 import static com.facebook.presto.spi.StandardErrorCode.INVALID_SESSION_PROPERTY;
 import static com.facebook.presto.spi.type.TimeZoneKey.UTC_KEY;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static java.util.Locale.ENGLISH;
 import static org.testng.Assert.assertEquals;
 
@@ -74,18 +74,18 @@ public class TestVariableWidthBlockEncoding
     @Test
     public void testRoundTrip()
     {
-        BlockBuilder expectedBlockBuilder = VARCHAR.createBlockBuilder(new BlockBuilderStatus(), 4);
-        VARCHAR.writeString(expectedBlockBuilder, "alice");
-        VARCHAR.writeString(expectedBlockBuilder, "bob");
-        VARCHAR.writeString(expectedBlockBuilder, "charlie");
-        VARCHAR.writeString(expectedBlockBuilder, "dave");
+        BlockBuilder expectedBlockBuilder = createUnboundedVarcharType().createBlockBuilder(new BlockBuilderStatus(), 4);
+        createUnboundedVarcharType().writeString(expectedBlockBuilder, "alice");
+        createUnboundedVarcharType().writeString(expectedBlockBuilder, "bob");
+        createUnboundedVarcharType().writeString(expectedBlockBuilder, "charlie");
+        createUnboundedVarcharType().writeString(expectedBlockBuilder, "dave");
         Block expectedBlock = expectedBlockBuilder.build();
 
         DynamicSliceOutput sliceOutput = new DynamicSliceOutput(1024);
         BlockEncoding blockEncoding = new VariableWidthBlockEncoding();
         blockEncoding.writeBlock(sliceOutput, expectedBlock);
         Block actualBlock = blockEncoding.readBlock(sliceOutput.slice().getInput());
-        assertBlockEquals(VARCHAR, actualBlock, expectedBlock);
+        assertBlockEquals(createUnboundedVarcharType(), actualBlock, expectedBlock);
     }
 
     private static void assertBlockEquals(Type type, Block actual, Block expected)

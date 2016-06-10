@@ -24,7 +24,7 @@ import org.testng.annotations.Test;
 import java.util.Random;
 
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 
 public class TestArrayBlock
         extends AbstractTestBlock
@@ -150,15 +150,15 @@ public class TestArrayBlock
 
     private BlockBuilder createBlockBuilderWithValues(Slice[][] expectedValues)
     {
-        BlockBuilder blockBuilder = new ArrayBlockBuilder(VARCHAR, new BlockBuilderStatus(), 100, 100);
+        BlockBuilder blockBuilder = new ArrayBlockBuilder(createUnboundedVarcharType(), new BlockBuilderStatus(), 100, 100);
         for (Slice[] expectedValue : expectedValues) {
             if (expectedValue == null) {
                 blockBuilder.appendNull();
             }
             else {
-                BlockBuilder elementBlockBuilder = VARCHAR.createBlockBuilder(new BlockBuilderStatus(), expectedValue.length);
+                BlockBuilder elementBlockBuilder = createUnboundedVarcharType().createBlockBuilder(new BlockBuilderStatus(), expectedValue.length);
                 for (Slice v : expectedValue) {
-                    VARCHAR.writeSlice(elementBlockBuilder, v);
+                    createUnboundedVarcharType().writeSlice(elementBlockBuilder, v);
                 }
                 blockBuilder.writeObject(elementBlockBuilder.build()).closeEntry();
             }
