@@ -106,6 +106,7 @@ import com.facebook.presto.sql.planner.PlanNodeIdAllocator;
 import com.facebook.presto.sql.planner.PlanOptimizersFactory;
 import com.facebook.presto.sql.planner.PlanPrinter;
 import com.facebook.presto.sql.planner.SubPlan;
+import com.facebook.presto.sql.planner.optimizations.PlanOptimizer;
 import com.facebook.presto.sql.planner.plan.PlanNode;
 import com.facebook.presto.sql.planner.plan.PlanNodeId;
 import com.facebook.presto.sql.planner.plan.TableScanNode;
@@ -135,6 +136,8 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import io.airlift.units.Duration;
 import org.intellij.lang.annotations.Language;
+
+import javax.inject.Provider;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -587,20 +590,25 @@ public class LocalQueryRunner
 
     public Plan createPlan(Session session, @Language("SQL") String sql)
     {
+        FeaturesConfig featuresConfig = new FeaturesConfig()
+                .setExperimentalSyntaxEnabled(true)
+                .setDistributedIndexJoinsEnabled(false)
+                .setOptimizeHashGeneration(true);
+        PlanOptimizersFactory planOptimizersFactory = new PlanOptimizersFactory(metadata, sqlParser, featuresConfig, true);
+        return createPlan(session, sql, featuresConfig, planOptimizersFactory);
+    }
+
+    public Plan createPlan(Session session, @Language("SQL") String sql, FeaturesConfig featuresConfig, Provider<List<PlanOptimizer>> optimizerProvider)
+    {
         ParsingOptions parsingOptions = new ParsingOptions().setParseDecimalLiteralsAsDouble(isParseDecimalLiteralsAsDouble(session));
         Statement statement = unwrapExecuteStatement(sqlParser.createStatement(sql, parsingOptions), sqlParser, session);
 
         assertFormattedSql(sqlParser, statement);
 
         PlanNodeIdAllocator idAllocator = new PlanNodeIdAllocator();
-        FeaturesConfig featuresConfig = new FeaturesConfig()
-                .setExperimentalSyntaxEnabled(true)
-                .setDistributedIndexJoinsEnabled(false)
-                .setOptimizeHashGeneration(true);
-        PlanOptimizersFactory planOptimizersFactory = new PlanOptimizersFactory(metadata, sqlParser, featuresConfig, true);
 
         QueryExplainer queryExplainer = new QueryExplainer(
-                planOptimizersFactory.get(),
+                optimizerProvider.get(),
                 metadata,
                 accessControl,
                 sqlParser,
@@ -609,7 +617,7 @@ public class LocalQueryRunner
         Analyzer analyzer = new Analyzer(session, metadata, sqlParser, accessControl, Optional.of(queryExplainer), featuresConfig.isExperimentalSyntaxEnabled());
 
         Analysis analysis = analyzer.analyze(statement);
-        return new LogicalPlanner(session, planOptimizersFactory.get(), idAllocator, metadata).plan(analysis);
+        return new LogicalPlanner(session, optimizerProvider.get(), idAllocator, metadata).plan(analysis);
     }
 
     public OperatorFactory createTableScanOperator(int operatorId, PlanNodeId planNodeId, String tableName, String... columnNames)
