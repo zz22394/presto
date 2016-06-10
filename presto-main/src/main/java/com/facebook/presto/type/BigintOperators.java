@@ -35,6 +35,7 @@ import static com.facebook.presto.metadata.OperatorType.NEGATION;
 import static com.facebook.presto.metadata.OperatorType.NOT_EQUAL;
 import static com.facebook.presto.metadata.OperatorType.SATURATED_FLOOR_CAST;
 import static com.facebook.presto.metadata.OperatorType.SUBTRACT;
+import static com.facebook.presto.operator.scalar.VarcharToVarcharCast.truncate;
 import static com.facebook.presto.spi.StandardErrorCode.DIVISION_BY_ZERO;
 import static com.facebook.presto.spi.StandardErrorCode.NUMERIC_VALUE_OUT_OF_RANGE;
 import static io.airlift.slice.Slices.utf8Slice;
@@ -207,10 +208,10 @@ public final class BigintOperators
     @LiteralParameters("x")
     @SqlType("varchar(x)")
     // FIXME @Constraint(variable = "x", expression = "x >= 20")
-    public static Slice castToVarchar(@SqlType(StandardTypes.BIGINT) long value)
+    public static Slice castToVarchar(@FromLiteralParameter("x") Long length, @SqlType(StandardTypes.BIGINT) long value)
     {
         // todo optimize me
-        return utf8Slice(valueOf(value));
+        return truncate(utf8Slice(valueOf(value)), length);
     }
 
     @ScalarOperator(HASH_CODE)

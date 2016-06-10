@@ -158,7 +158,9 @@ public class TestDate
     public void testCastToSlice()
             throws Exception
     {
-        assertFunction("cast(DATE '2001-1-22' as varchar(9))", createVarcharType(9), "2001-01-22");
+        assertFunction("cast(DATE '2001-1-22' as varchar(11))", createVarcharType(11), "2001-01-22");
+        assertFunction("cast(DATE '2001-1-22' as varchar(10))", createVarcharType(10), "2001-01-22");
+        assertFunction("cast(DATE '2001-1-22' as varchar(9))", createVarcharType(9), "2001-01-2");
     }
 
     @Test

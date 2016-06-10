@@ -28,6 +28,7 @@ import static com.facebook.presto.metadata.OperatorType.HASH_CODE;
 import static com.facebook.presto.metadata.OperatorType.LESS_THAN;
 import static com.facebook.presto.metadata.OperatorType.LESS_THAN_OR_EQUAL;
 import static com.facebook.presto.metadata.OperatorType.NOT_EQUAL;
+import static com.facebook.presto.operator.scalar.VarcharToVarcharCast.truncate;
 import static java.nio.charset.StandardCharsets.US_ASCII;
 
 public final class BooleanOperators
@@ -113,9 +114,9 @@ public final class BooleanOperators
     @LiteralParameters("x")
     @SqlType("varchar(x)")
     // FIXME @Constraint(variable = "x", expression = "x >= 5")
-    public static Slice castToVarchar(@SqlType(StandardTypes.BOOLEAN) boolean value)
+    public static Slice castToVarchar(@FromLiteralParameter("x") Long length, @SqlType(StandardTypes.BOOLEAN) boolean value)
     {
-        return value ? TRUE : FALSE;
+        return truncate(value ? TRUE : FALSE, length);
     }
 
     @ScalarOperator(HASH_CODE)

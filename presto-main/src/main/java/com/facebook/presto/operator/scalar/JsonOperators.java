@@ -15,10 +15,10 @@ package com.facebook.presto.operator.scalar;
 
 import com.facebook.presto.operator.scalar.annotations.ScalarOperator;
 import com.facebook.presto.spi.PrestoException;
-import com.facebook.presto.spi.type.VarcharType;
 import com.facebook.presto.type.BigintOperators;
 import com.facebook.presto.type.BooleanOperators;
 import com.facebook.presto.type.DoubleOperators;
+import com.facebook.presto.type.FromLiteralParameter;
 import com.facebook.presto.type.LiteralParameters;
 import com.facebook.presto.type.SqlType;
 import com.facebook.presto.type.VarcharOperators;
@@ -39,6 +39,7 @@ import static com.facebook.presto.metadata.OperatorType.CAST;
 import static com.facebook.presto.metadata.OperatorType.EQUAL;
 import static com.facebook.presto.metadata.OperatorType.HASH_CODE;
 import static com.facebook.presto.metadata.OperatorType.NOT_EQUAL;
+import static com.facebook.presto.operator.scalar.VarcharToVarcharCast.truncate;
 import static com.facebook.presto.spi.StandardErrorCode.INVALID_CAST_ARGUMENT;
 import static com.facebook.presto.spi.type.StandardTypes.BIGINT;
 import static com.facebook.presto.spi.type.StandardTypes.BOOLEAN;
@@ -60,8 +61,9 @@ public final class JsonOperators
 
     @ScalarOperator(CAST)
     @Nullable
-    @SqlType(VarcharType.UNBOUNDED_VARCHAR)
-    public static Slice castToVarchar(@SqlType(JSON) Slice json)
+    @SqlType("varchar(x)")
+    @LiteralParameters("x")
+    public static Slice castToVarchar(@FromLiteralParameter("x") Long length, @SqlType(JSON) Slice json)
     {
         try (JsonParser parser = JSON_FACTORY.createParser(json.getInput())) {
             JsonToken nextToken = parser.nextToken();
@@ -75,7 +77,7 @@ public final class JsonOperators
                     break;
                 case VALUE_NUMBER_FLOAT:
                     // Avoidance of loss of precision does not seem to be possible here because of Jackson implementation.
-                    result = DoubleOperators.castToVarchar(parser.getDoubleValue());
+                    result = DoubleOperators.castToVarchar(length, parser.getDoubleValue());
                     break;
                 case VALUE_NUMBER_INT:
                     // An alternative is calling getLongValue and then BigintOperators.castToVarchar.
@@ -83,16 +85,19 @@ public final class JsonOperators
                     result = Slices.utf8Slice(parser.getText());
                     break;
                 case VALUE_TRUE:
-                    result = BooleanOperators.castToVarchar(true);
+                    result = BooleanOperators.castToVarchar(length, true);
                     break;
                 case VALUE_FALSE:
-                    result = BooleanOperators.castToVarchar(false);
+                    result = BooleanOperators.castToVarchar(length, false);
                     break;
                 default:
                     throw new PrestoException(INVALID_CAST_ARGUMENT, format("Cannot cast '%s' to %s", json.toStringUtf8(), VARCHAR));
             }
             checkCondition(parser.nextToken() == null, INVALID_CAST_ARGUMENT, "Cannot cast input json to VARCHAR"); // check no trailing token
-            return result;
+            if (result == null) {
+                return result;
+            }
+            return truncate(result, length);
         }
         catch (IOException e) {
             throw new PrestoException(INVALID_CAST_ARGUMENT, format("Cannot cast '%s' to %s", json.toStringUtf8(), VARCHAR));
