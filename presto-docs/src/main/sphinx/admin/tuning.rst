@@ -5,6 +5,15 @@ Tuning Presto
 The default Presto settings should work well for most workloads. The following
 information may help you if your cluster is facing a specific performance problem.
 
+When setting up cluster on particular machines for a particular workload you should
+pay particular attention to properly choosing values of the following properties:
+
+  * :ref:`distributed-joins-enabled <tuning-pref-general>`
+  * :ref:`query.max-memory <tuning-pref-query>`
+  * :ref:`query.max-memory-per-node <tuning-pref-query>`
+  * :ref:`query.initial-hash-partitions <tuning-pref-query>`
+  * :ref:`task.concurrency <tuning-pref-task>`
+
 .. _tuning-pref-general:
 
 General properties
@@ -222,7 +231,7 @@ Query execution properties
 
  * **Type:** ``Integer``
  * **Default value:** ``8``
- * **Description:** Serves as default value for ``hash_partition_count`` session property. This value is used to determine how many nodes may share the same query when partitioning system is set to ``FIXED``. Manipulating this value will allow to distribute work between nodes properly. Value lower then number of presto nodes may lower the utilization of cluster in low traffic environment. Setting the number to to high value will cause assigning multiple partitions of same query to one node or ignoring the setting - in some configurations the value is internally capped at number of available worker nodes.
+ * **Description:** Serves as default value for ``hash_partition_count`` session property. This value is used to determine how many nodes may share the same query when partitioning system is set to ``FIXED``. Manipulating this value will allow to distribute work between nodes properly. Value lower then number of presto nodes may lower the utilization of cluster in low traffic environment. Setting the number to to high value will cause assigning multiple partitions of same query to one node or ignoring the setting - by default the value is internally capped at number of available worker nodes (See :ref:`node-scheduler.multiple-tasks-per-node-enabled <tuning-pref-node>` property).
 
 
 ``query.low-memory-killer.delay``
@@ -331,16 +340,16 @@ Query execution properties
 
 .. _tuning-pref-task:
 
-Tasks managment properties
---------------------------
+Tasks management properties
+---------------------------
 
 
-``task.default-concurrency``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+``task.concurrency``
+^^^^^^^^^^^^^^^^^^^^
 
  * **Type:** ``Integer``
  * **Default value:** ``1``
- * **Description:** Default local concurrency for parallel operators. Serves as default value for ``task_hash_build_concurrency`` and ``task_aggregation_concurrency``. It is also a default value of ``task.join-concurrency`` property. Increasing this value is strongly recommended when any of CPU, IO or memory is not saturated on regular basis. In this scenario it will allow queries to utilize as many resources as possible. Setting this value to high will cause queries to slow down. It may happen even if none of resources is saturated as there are cases in which increasing parallelism is not possible due to algorithms limitations.
+ * **Description:** Default local concurrency for parallel operators. Increasing this value is strongly recommended when there are too few concurrently running queries to saturate available cluster's resources. Setting this value to high will cause queries to slow down, especially with multiple concurrent queries. It may happen even if none of resources is saturated as there are cases in which increasing parallelism is not possible due to algorithms limitations.
 
 
 ``task.http-response-threads``
@@ -365,14 +374,6 @@ Tasks managment properties
  * **Type:** ``String`` (duration)
  * **Default value:** ``200 ms``
  * **Description:** Controls staleness of task information which is used in scheduling. Increasing this value can reduce coordinator CPU load but may result in suboptimal split scheduling.
-
-
-``task.join-concurrency``
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
- * **Type:** ``Integer``
- * **Default value:** ``task.default-`` ``concurrency`` (``1``)
- * **Description:** Servers as default value for session property: ``task_join_concurrency``. Describes local concurrency for join operators. This value may be increased to perform join on worker using more then one thread. This will increase CPU utilization with the cost of increased memory usage.
 
 
 ``task.max-index-memory``
@@ -556,20 +557,12 @@ Session properties
  * **Description:** Use resources which are not guaranteed to be available to the query. By setting this property you allow to exceed limits of memory available per query processing and session. This may cause resources to be used more efficiently allowing to  but may cause some indeterministic query drops due to lacking memory on machine. perform more demanding queries
 
 
-``task_aggregation_concurrency``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+``task_concurrency``
+^^^^^^^^^^^^^^^^^^^^
 
  * **Type:** ``Integer``
- * **Default value:** ``task.default-concurrency`` (``1``)
- * **Description:** **Experimental.** Default number of local parallel aggregation jobs per worker. Same as ``task_join_concurrency`` but it is used for aggregation.
-
-
-``task_hash_build_concurrency``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
- * **Type:** ``Integer``
- * **Default value:** ``task.default-concurrency`` (``1``)
- * **Description:** **Experimental.** Default number of local parallel hash build jobs per worker. Same as ``task_join_concurrency`` but it is used for building hashes. The value is always rounded down to the power of 2  so it's recommended to use such value in order to avoid unexpected behavior.
+ * **Default value:** ``task.concurrency`` (``1``)
+ * **Description:** See :ref:`task.concurrency <tuning-pref-task>`.
 
 
 ``task_intermediate_aggregation``
@@ -578,14 +571,6 @@ Session properties
  * **Type:** ``Boolean``
  * **Default value:** ``optimizer.use-intermediate-aggregations`` (``false``)
  * **Description:** See :ref:`optimizer.use-intermediate-aggregations <tuning-pref-optimizer>`.
-
-
-``task_join_concurrency``
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
- * **Type:** ``Integer``
- * **Default value:** ``task.join-concurrency`` (``1``)
- * **Description:** **Experimental.** Default number of local parallel join jobs per worker. This value may be increased to perform join on worker using more then one thread to increase CPU utilization with the cost of increased memory usage.
 
 
 ``task_writer_count``
