@@ -99,7 +99,7 @@ public final class JsonFunctions
     }
 
     @ScalarFunction
-    @SqlType(VarcharType.VARCHAR_MAX_LENGTH)
+    @SqlType(VarcharType.UNBOUNDED_VARCHAR)
     public static Slice jsonFormat(@SqlType(StandardTypes.JSON) Slice slice)
     {
         return slice;
@@ -395,7 +395,7 @@ public final class JsonFunctions
     @ScalarFunction("json_extract_scalar")
     @LiteralParameters("x")
     @Nullable
-    @SqlType(VarcharType.VARCHAR_MAX_LENGTH)
+    @SqlType(VarcharType.UNBOUNDED_VARCHAR)
     public static Slice varcharJsonExtractScalar(@SqlType("varchar(x)") Slice json, @SqlType(JsonPathType.NAME) JsonPath jsonPath)
     {
         return JsonExtract.extract(json, jsonPath.getScalarExtractor());
@@ -403,7 +403,7 @@ public final class JsonFunctions
 
     @ScalarFunction
     @Nullable
-    @SqlType(VarcharType.VARCHAR_MAX_LENGTH)
+    @SqlType(VarcharType.UNBOUNDED_VARCHAR)
     public static Slice jsonExtractScalar(@SqlType(StandardTypes.JSON) Slice json, @SqlType(JsonPathType.NAME) JsonPath jsonPath)
     {
         return JsonExtract.extract(json, jsonPath.getScalarExtractor());

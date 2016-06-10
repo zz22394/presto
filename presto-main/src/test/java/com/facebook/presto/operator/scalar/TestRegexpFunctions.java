@@ -29,7 +29,7 @@ import java.util.List;
 
 import static com.facebook.presto.spi.StandardErrorCode.INVALID_FUNCTION_ARGUMENT;
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR_MAX_LENGTH;
+import static com.facebook.presto.spi.type.VarcharType.UNBOUNDED_VARCHAR;
 import static com.facebook.presto.spi.type.VarcharType.createVarcharType;
 import static com.facebook.presto.sql.analyzer.RegexLibrary.JONI;
 import static com.facebook.presto.sql.analyzer.RegexLibrary.RE2J;
@@ -60,7 +60,7 @@ public class TestRegexpFunctions
     }
 
     @ScalarFunction(deterministic = false) // if not non-deterministic, constant folding code accidentally fix invalid characters
-    @SqlType(VARCHAR_MAX_LENGTH)
+    @SqlType(UNBOUNDED_VARCHAR)
     public static Slice invalidUtf8()
     {
         return Slices.wrappedBuffer(new byte[] {
