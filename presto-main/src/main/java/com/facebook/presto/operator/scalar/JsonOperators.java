@@ -19,6 +19,7 @@ import com.facebook.presto.spi.type.VarcharType;
 import com.facebook.presto.type.BigintOperators;
 import com.facebook.presto.type.BooleanOperators;
 import com.facebook.presto.type.DoubleOperators;
+import com.facebook.presto.type.LiteralParameters;
 import com.facebook.presto.type.SqlType;
 import com.facebook.presto.type.VarcharOperators;
 import com.fasterxml.jackson.core.JsonFactory;
@@ -254,7 +255,8 @@ public final class JsonOperators
 
     @ScalarOperator(CAST)
     @SqlType(JSON)
-    public static Slice castFromVarchar(@SqlType(VARCHAR) Slice slice) throws IOException
+    @LiteralParameters("x")
+    public static Slice castFromVarchar(@SqlType("varchar(x)") Slice slice) throws IOException
     {
         try {
             SliceOutput output = new DynamicSliceOutput(slice.length() + 2);
