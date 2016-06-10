@@ -33,7 +33,6 @@ import java.util.concurrent.ExecutorService;
 
 import static com.facebook.presto.spi.session.PropertyMetadata.integerSessionProperty;
 import static com.facebook.presto.spi.type.StandardTypes.ARRAY;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
 import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.google.common.util.concurrent.MoreExecutors.shutdownAndAwaitTermination;
 import static java.util.Locale.ENGLISH;
@@ -151,7 +150,7 @@ public class BlackHoleConnector
                 new PropertyMetadata<>(
                         PAGE_PROCESSING_DELAY,
                         "Sleep duration before processing the page",
-                        VARCHAR,
+                        createUnboundedVarcharType(),
                         Duration.class,
                         Duration.valueOf("0s"),
                         false,

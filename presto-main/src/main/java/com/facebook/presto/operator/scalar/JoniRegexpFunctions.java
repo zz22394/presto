@@ -44,7 +44,7 @@ import javax.annotation.Nullable;
 import java.nio.charset.StandardCharsets;
 
 import static com.facebook.presto.spi.StandardErrorCode.INVALID_FUNCTION_ARGUMENT;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static java.lang.String.format;
 
 public final class JoniRegexpFunctions
@@ -219,7 +219,7 @@ public final class JoniRegexpFunctions
     {
         Matcher matcher = pattern.matcher(source.getBytes());
         validateGroup(groupIndex, matcher.getEagerRegion());
-        BlockBuilder blockBuilder = VARCHAR.createBlockBuilder(new BlockBuilderStatus(), 32);
+        BlockBuilder blockBuilder = createUnboundedVarcharType().createBlockBuilder(new BlockBuilderStatus(), 32);
         int group = Ints.checkedCast(groupIndex);
 
         int nextStart = 0;
@@ -242,7 +242,7 @@ public final class JoniRegexpFunctions
             }
             else {
                 Slice slice = source.slice(beg, end - beg);
-                VARCHAR.writeSlice(blockBuilder, slice);
+                createUnboundedVarcharType().writeSlice(blockBuilder, slice);
             }
         }
         return blockBuilder.build();
@@ -292,7 +292,7 @@ public final class JoniRegexpFunctions
     public static Block regexpSplit(@SqlType("varchar(x)") Slice source, @SqlType(JoniRegexpType.NAME) Regex pattern)
     {
         Matcher matcher = pattern.matcher(source.getBytes());
-        BlockBuilder blockBuilder = VARCHAR.createBlockBuilder(new BlockBuilderStatus(), 32);
+        BlockBuilder blockBuilder = createUnboundedVarcharType().createBlockBuilder(new BlockBuilderStatus(), 32);
 
         int lastEnd = 0;
         int nextStart = 0;
@@ -309,9 +309,9 @@ public final class JoniRegexpFunctions
             }
             Slice slice = source.slice(lastEnd, matcher.getBegin() - lastEnd);
             lastEnd = matcher.getEnd();
-            VARCHAR.writeSlice(blockBuilder, slice);
+            createUnboundedVarcharType().writeSlice(blockBuilder, slice);
         }
-        VARCHAR.writeSlice(blockBuilder, source.slice(lastEnd, source.length() - lastEnd));
+        createUnboundedVarcharType().writeSlice(blockBuilder, source.slice(lastEnd, source.length() - lastEnd));
 
         return blockBuilder.build();
     }

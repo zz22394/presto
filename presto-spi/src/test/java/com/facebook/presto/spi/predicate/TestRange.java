@@ -27,7 +27,7 @@ import org.testng.annotations.Test;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static io.airlift.slice.Slices.utf8Slice;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
@@ -42,7 +42,7 @@ public class TestRange
             throws Exception
     {
         // NEVER DO THIS
-        new Range(Marker.exactly(BIGINT, 1L), Marker.exactly(VARCHAR, utf8Slice("a")));
+        new Range(Marker.exactly(BIGINT, 1L), Marker.exactly(createUnboundedVarcharType(), utf8Slice("a")));
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)
@@ -73,7 +73,7 @@ public class TestRange
         assertTrue(Range.range(BIGINT, 1L, true, 1L, true).isSingleValue());
         assertFalse(Range.range(BIGINT, 1L, true, 2L, true).isSingleValue());
         assertTrue(Range.range(DOUBLE, 1.1, true, 1.1, true).isSingleValue());
-        assertTrue(Range.range(VARCHAR, utf8Slice("a"), true, utf8Slice("a"), true).isSingleValue());
+        assertTrue(Range.range(createUnboundedVarcharType(), utf8Slice("a"), true, utf8Slice("a"), true).isSingleValue());
         assertTrue(Range.range(BOOLEAN, true, true, true, true).isSingleValue());
         assertFalse(Range.range(BOOLEAN, false, true, true, true).isSingleValue());
     }
@@ -306,7 +306,7 @@ public class TestRange
         range = Range.greaterThan(BIGINT, 0L);
         assertEquals(range, mapper.readValue(mapper.writeValueAsString(range), Range.class));
 
-        range = Range.greaterThanOrEqual(VARCHAR, utf8Slice("abc"));
+        range = Range.greaterThanOrEqual(createUnboundedVarcharType(), utf8Slice("abc"));
         assertEquals(range, mapper.readValue(mapper.writeValueAsString(range), Range.class));
 
         range = Range.lessThan(BIGINT, Long.MAX_VALUE);

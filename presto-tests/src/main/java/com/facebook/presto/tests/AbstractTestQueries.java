@@ -60,7 +60,7 @@ import static com.facebook.presto.spi.type.TimeType.TIME;
 import static com.facebook.presto.spi.type.TimeWithTimeZoneType.TIME_WITH_TIME_ZONE;
 import static com.facebook.presto.spi.type.TimestampType.TIMESTAMP;
 import static com.facebook.presto.spi.type.TimestampWithTimeZoneType.TIMESTAMP_WITH_TIME_ZONE;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.sql.analyzer.SemanticErrorCode.MISSING_SCHEMA;
 import static com.facebook.presto.sql.tree.ExplainType.Type.DISTRIBUTED;
 import static com.facebook.presto.sql.tree.ExplainType.Type.LOGICAL;
@@ -3118,7 +3118,7 @@ public abstract class AbstractTestQueries
                 "FROM (SELECT * FROM orders ORDER BY orderkey LIMIT 10) x\n" +
                 "ORDER BY orderkey LIMIT 5");
 
-        MaterializedResult expected = resultBuilder(getSession(), BIGINT, VARCHAR, BIGINT)
+        MaterializedResult expected = resultBuilder(getSession(), BIGINT, createUnboundedVarcharType(), BIGINT)
                 .row(1L, "O", (1L * 10) + 100)
                 .row(2L, "O", (2L * 9) + 100)
                 .row(3L, "F", (3L * 8) + 100)
@@ -3146,7 +3146,7 @@ public abstract class AbstractTestQueries
                 "WHERE rnk <= 2\n" +
                 "ORDER BY orderstatus, rnk");
 
-        MaterializedResult expected = resultBuilder(getSession(), VARCHAR, VARCHAR, DOUBLE, BIGINT)
+        MaterializedResult expected = resultBuilder(getSession(), createUnboundedVarcharType(), createUnboundedVarcharType(), DOUBLE, BIGINT)
                 .row("F", "Clerk#000000090", 2784836.61, 1L)
                 .row("F", "Clerk#000000084", 2674447.15, 2L)
                 .row("O", "Clerk#000000500", 2569878.29, 1L)
@@ -3393,7 +3393,7 @@ public abstract class AbstractTestQueries
                 "       SELECT * FROM orders ORDER BY orderkey LIMIT 10\n" +
                 "   )\n" +
                 ")");
-        MaterializedResult expected = resultBuilder(getSession(), BIGINT, VARCHAR, BIGINT)
+        MaterializedResult expected = resultBuilder(getSession(), BIGINT, createUnboundedVarcharType(), BIGINT)
                 .row(1L, "O", 21L)
                 .row(2L, "O", 21L)
                 .row(3L, "F", 10L)
@@ -3424,7 +3424,7 @@ public abstract class AbstractTestQueries
                 "       SELECT * FROM orders ORDER BY orderkey LIMIT 10\n" +
                 "   )\n" +
                 ")");
-        MaterializedResult expected = resultBuilder(getSession(), VARCHAR, BIGINT, BIGINT, BIGINT, BIGINT, BIGINT)
+        MaterializedResult expected = resultBuilder(getSession(), createUnboundedVarcharType(), BIGINT, BIGINT, BIGINT, BIGINT, BIGINT)
                 .row("F", 3L, 72L, 3L, 3L, 3L)
                 .row("F", 5L, 72L, 8L, 11L, 11L)
                 .row("F", 6L, 72L, 14L, 25L, 25L)
@@ -3476,7 +3476,7 @@ public abstract class AbstractTestQueries
                 "   SELECT row_number() OVER (PARTITION BY orderstatus ORDER BY orderkey) rn, orderkey, orderstatus\n" +
                 "   FROM orders\n" +
                 ") WHERE rn <= 2");
-        MaterializedResult expected = resultBuilder(getSession(), BIGINT, BIGINT, VARCHAR)
+        MaterializedResult expected = resultBuilder(getSession(), BIGINT, BIGINT, createUnboundedVarcharType())
                 .row(1L, 1L, "O")
                 .row(2L, 2L, "O")
                 .row(1L, 3L, "F")
@@ -3507,7 +3507,7 @@ public abstract class AbstractTestQueries
                 "   SELECT row_number() OVER (PARTITION BY orderstatus ORDER BY orderkey) rn, orderstatus\n" +
                 "   FROM orders\n" +
                 ") WHERE rn <= 2");
-        expected = resultBuilder(getSession(), BIGINT, VARCHAR)
+        expected = resultBuilder(getSession(), BIGINT, createUnboundedVarcharType())
                 .row(1L, "O")
                 .row(2L, "O")
                 .row(1L, "F")
@@ -3527,7 +3527,7 @@ public abstract class AbstractTestQueries
                 "   SELECT row_number() OVER (ORDER BY orderkey) rn, orderkey, orderstatus\n" +
                 "   FROM orders\n" +
                 ") WHERE rn = 2");
-        MaterializedResult expected = resultBuilder(getSession(), BIGINT, BIGINT, VARCHAR)
+        MaterializedResult expected = resultBuilder(getSession(), BIGINT, BIGINT, createUnboundedVarcharType())
                 .row(2L, 2L, "O")
                 .build();
         assertEqualsIgnoreOrder(actual.getMaterializedRows(), expected.getMaterializedRows());
@@ -3542,7 +3542,7 @@ public abstract class AbstractTestQueries
                 "   SELECT row_number() OVER (ORDER BY orderkey) rn, orderkey, orderstatus\n" +
                 "   FROM orders\n" +
                 ") WHERE rn = 1 OR rn IN (3, 4) OR rn BETWEEN 6 AND 7");
-        MaterializedResult expected = resultBuilder(getSession(), BIGINT, BIGINT, VARCHAR)
+        MaterializedResult expected = resultBuilder(getSession(), BIGINT, BIGINT, createUnboundedVarcharType())
                 .row(1L, 1L, "O")
                 .row(3L, 3L, "F")
                 .row(4L, 4L, "O")
@@ -3561,7 +3561,7 @@ public abstract class AbstractTestQueries
                 "   SELECT row_number() OVER (PARTITION BY orderstatus ORDER BY orderkey) rn, orderkey, orderstatus\n" +
                 "   FROM orders\n" +
                 ") WHERE rn = 2");
-        MaterializedResult expected = resultBuilder(getSession(), BIGINT, BIGINT, VARCHAR)
+        MaterializedResult expected = resultBuilder(getSession(), BIGINT, BIGINT, createUnboundedVarcharType())
                 .row(2L, 2L, "O")
                 .row(2L, 5L, "F")
                 .row(2L, 197L, "P")
@@ -3586,7 +3586,7 @@ public abstract class AbstractTestQueries
                 "   SELECT row_number() OVER (PARTITION BY orderstatus ORDER BY orderkey) rn, orderstatus\n" +
                 "   FROM orders\n" +
                 ") WHERE rn = 2");
-        expected = resultBuilder(getSession(), BIGINT, VARCHAR)
+        expected = resultBuilder(getSession(), BIGINT, createUnboundedVarcharType())
                 .row(2L, "O")
                 .row(2L, "F")
                 .row(2L, "P")
@@ -3603,7 +3603,7 @@ public abstract class AbstractTestQueries
                 "FROM (SELECT 'foo' x)\n" +
                 "GROUP BY 1");
 
-        MaterializedResult expected = resultBuilder(getSession(), VARCHAR, BIGINT)
+        MaterializedResult expected = resultBuilder(getSession(), createUnboundedVarcharType(), BIGINT)
                 .row("foo", 1L)
                 .build();
 
@@ -3699,7 +3699,7 @@ public abstract class AbstractTestQueries
                 "FROM (SELECT * FROM orders ORDER BY orderkey, custkey LIMIT 10)\n" +
                 "ORDER BY orderkey LIMIT 5");
 
-        MaterializedResult expected = resultBuilder(getSession(), BIGINT, BIGINT, VARCHAR, BIGINT)
+        MaterializedResult expected = resultBuilder(getSession(), BIGINT, BIGINT, createUnboundedVarcharType(), BIGINT)
                 .row(1L, 370L, "5-LOW", 1L)
                 .row(2L, 781L, "1-URGENT", 1L)
                 .row(3L, 1234L, "5-LOW", 1L)
@@ -3719,7 +3719,7 @@ public abstract class AbstractTestQueries
                 "FROM (SELECT * FROM orders ORDER BY orderkey, custkey LIMIT 10)\n" +
                 "ORDER BY orderkey LIMIT 5");
 
-        MaterializedResult expected = resultBuilder(getSession(), BIGINT, BIGINT, VARCHAR, BIGINT)
+        MaterializedResult expected = resultBuilder(getSession(), BIGINT, BIGINT, createUnboundedVarcharType(), BIGINT)
                 .row(1L, 370L, 1L)
                 .row(2L, 781L, 1L)
                 .row(3L, 1234L, 1L)
@@ -3793,7 +3793,7 @@ public abstract class AbstractTestQueries
                 "  ) x\n" +
                 "ORDER BY orderkey LIMIT 5");
 
-        MaterializedResult expected = resultBuilder(getSession(), BIGINT, VARCHAR, BIGINT, BIGINT)
+        MaterializedResult expected = resultBuilder(getSession(), BIGINT, createUnboundedVarcharType(), BIGINT, BIGINT)
                 .row(1L, "O", 1001L, 1002L)
                 .row(2L, "O", 1001L, 1002L)
                 .row(3L, "F", 1003L, 1005L)
@@ -3815,7 +3815,7 @@ public abstract class AbstractTestQueries
                 "  ) x\n" +
                 "ORDER BY orderkey LIMIT 5");
 
-        MaterializedResult expected = resultBuilder(getSession(), BIGINT, VARCHAR, BIGINT)
+        MaterializedResult expected = resultBuilder(getSession(), BIGINT, createUnboundedVarcharType(), BIGINT)
                 .row(1L, "O", 1001L)
                 .row(2L, "O", 3007L)
                 .row(3L, "F", 3014L)
@@ -3833,7 +3833,7 @@ public abstract class AbstractTestQueries
                 "FROM (SELECT * FROM orders LIMIT 10)\n" +
                 "LIMIT 3");
 
-        MaterializedResult expected = resultBuilder(getSession(), BIGINT, VARCHAR, BIGINT)
+        MaterializedResult expected = resultBuilder(getSession(), BIGINT, createUnboundedVarcharType(), BIGINT)
                 .row(1L)
                 .row(1L)
                 .row(1L)
@@ -4485,7 +4485,7 @@ public abstract class AbstractTestQueries
     {
         MaterializedResult actual = computeActual("SHOW COLUMNS FROM orders");
 
-        MaterializedResult expectedUnparametrizedVarchar = resultBuilder(getSession(), VARCHAR, VARCHAR, VARCHAR)
+        MaterializedResult expectedUnparametrizedVarchar = resultBuilder(getSession(), createUnboundedVarcharType(), createUnboundedVarcharType(), createUnboundedVarcharType())
                 .row("orderkey", "bigint", "")
                 .row("custkey", "bigint", "")
                 .row("orderstatus", "varchar", "")
@@ -4497,7 +4497,7 @@ public abstract class AbstractTestQueries
                 .row("comment", "varchar", "")
                 .build();
 
-        MaterializedResult expectedParametrizedVarchar = resultBuilder(getSession(), VARCHAR, VARCHAR, VARCHAR)
+        MaterializedResult expectedParametrizedVarchar = resultBuilder(getSession(), createUnboundedVarcharType(), createUnboundedVarcharType(), createUnboundedVarcharType())
                 .row("orderkey", "bigint", "")
                 .row("custkey", "bigint", "")
                 .row("orderstatus", "varchar(1)", "")
@@ -6406,7 +6406,7 @@ public abstract class AbstractTestQueries
     {
         Session session = getSession().withPreparedStatement("my_query", "select 123, 'abc'");
         MaterializedResult actual = computeActual(session, "EXECUTE my_query");
-        MaterializedResult expected = resultBuilder(session, BIGINT, VARCHAR)
+        MaterializedResult expected = resultBuilder(session, BIGINT, createUnboundedVarcharType())
                 .row(123, "abc")
                 .build();
         assertEqualsIgnoreOrder(actual, expected);
@@ -6437,7 +6437,7 @@ public abstract class AbstractTestQueries
     {
         Session session = getSession().withPreparedStatement("my_query", "select ? from nation where nationkey = ?");
         MaterializedResult actual = computeActual(session, "DESCRIBE INPUT my_query");
-        MaterializedResult expected = resultBuilder(session, BIGINT, VARCHAR)
+        MaterializedResult expected = resultBuilder(session, BIGINT, createUnboundedVarcharType())
                 .row(0, "unknown")
                 .row(1, "bigint")
                 .build();
@@ -6449,7 +6449,7 @@ public abstract class AbstractTestQueries
     {
         Session session = getSession().withPreparedStatement("my_query", "select count(nationkey), regionkey + ? from nation group by regionkey + ? order by regionkey + ?");
         MaterializedResult actual = computeActual(session, "DESCRIBE INPUT my_query");
-        MaterializedResult expected = resultBuilder(session, BIGINT, VARCHAR)
+        MaterializedResult expected = resultBuilder(session, BIGINT, createUnboundedVarcharType())
                 .row(0, "bigint")
                 .row(1, "bigint")
                 .row(2, "bigint")
@@ -6462,7 +6462,7 @@ public abstract class AbstractTestQueries
     {
         Session session = getSession().withPreparedStatement("my_query", "select * from nation");
         MaterializedResult actual = computeActual(session, "DESCRIBE INPUT my_query");
-        MaterializedResult expected = resultBuilder(session, BIGINT, VARCHAR)
+        MaterializedResult expected = resultBuilder(session, BIGINT, createUnboundedVarcharType())
                 .row(null, null)
                 .build();
         assertEqualsIgnoreOrder(actual, expected);
@@ -6479,7 +6479,7 @@ public abstract class AbstractTestQueries
     {
         Session session = getSession().withPreparedStatement("my_query", "select * from nation");
         MaterializedResult actual = computeActual(session, "DESCRIBE OUTPUT my_query");
-        MaterializedResult expected = resultBuilder(session, VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, BIGINT, BOOLEAN, BOOLEAN)
+        MaterializedResult expected = resultBuilder(session, createUnboundedVarcharType(), createUnboundedVarcharType(), createUnboundedVarcharType(), createUnboundedVarcharType(), createUnboundedVarcharType(), BIGINT, BOOLEAN, BOOLEAN)
                 .row("nationkey", "nation", session.getSchema().get(), session.getCatalog().get(), "bigint", 8, false, false)
                 .row("name", "nation", session.getSchema().get(), session.getCatalog().get(), "varchar", 0, false, false)
                 .row("regionkey", "nation", session.getSchema().get(), session.getCatalog().get(), "bigint", 8, false, false)
@@ -6493,7 +6493,7 @@ public abstract class AbstractTestQueries
     {
         Session session = getSession().withPreparedStatement("my_query", "select 1, name, regionkey as my_alias from nation");
         MaterializedResult actual = computeActual(session, "DESCRIBE OUTPUT my_query");
-        MaterializedResult expected = resultBuilder(session, VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, BIGINT, BOOLEAN, BOOLEAN)
+        MaterializedResult expected = resultBuilder(session, createUnboundedVarcharType(), createUnboundedVarcharType(), createUnboundedVarcharType(), createUnboundedVarcharType(), createUnboundedVarcharType(), BIGINT, BOOLEAN, BOOLEAN)
                 .row("_col0", "", "", "", "integer", 4, false, false)
                 .row("name", "nation", session.getSchema().get(), session.getCatalog().get(), "varchar", 0, false, false)
                 .row("my_alias", "nation", session.getSchema().get(), session.getCatalog().get(), "bigint", 8, true, false)
@@ -6506,7 +6506,7 @@ public abstract class AbstractTestQueries
     {
         Session session = getSession().withPreparedStatement("my_query", "CREATE TABLE foo AS SELECT * FROM nation");
         MaterializedResult actual = computeActual(session, "DESCRIBE OUTPUT my_query");
-        MaterializedResult expected = resultBuilder(session, VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, BIGINT, BOOLEAN, BOOLEAN)
+        MaterializedResult expected = resultBuilder(session, createUnboundedVarcharType(), createUnboundedVarcharType(), createUnboundedVarcharType(), createUnboundedVarcharType(), createUnboundedVarcharType(), BIGINT, BOOLEAN, BOOLEAN)
                 .row(null, null, null, null, null, null, null, true)
                 .build();
         assertEqualsIgnoreOrder(actual, expected);
@@ -6517,7 +6517,7 @@ public abstract class AbstractTestQueries
     {
         Session session = getSession().withPreparedStatement("my_query", "SET SESSION optimize_hash_generation=false");
         MaterializedResult actual = computeActual(session, "DESCRIBE OUTPUT my_query");
-        MaterializedResult expected = resultBuilder(session, VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, BIGINT, BOOLEAN, BOOLEAN)
+        MaterializedResult expected = resultBuilder(session, createUnboundedVarcharType(), createUnboundedVarcharType(), createUnboundedVarcharType(), createUnboundedVarcharType(), createUnboundedVarcharType(), BIGINT, BOOLEAN, BOOLEAN)
                 .row(null, null, null, null, null, null, null, true)
                 .build();
         assertEqualsIgnoreOrder(actual, expected);
@@ -6528,7 +6528,7 @@ public abstract class AbstractTestQueries
     {
         Session session = getSession().withPreparedStatement("my_query", "SHOW TABLES");
         MaterializedResult actual = computeActual(session, "DESCRIBE OUTPUT my_query");
-        MaterializedResult expected = resultBuilder(session, VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, BIGINT, BOOLEAN, BOOLEAN)
+        MaterializedResult expected = resultBuilder(session, createUnboundedVarcharType(), createUnboundedVarcharType(), createUnboundedVarcharType(), createUnboundedVarcharType(), createUnboundedVarcharType(), BIGINT, BOOLEAN, BOOLEAN)
                 .row("Table", "tables", "information_schema", session.getCatalog().get(), "varchar", 0, true, false)
                 .build();
         assertEqualsIgnoreOrder(actual, expected);
@@ -6539,7 +6539,7 @@ public abstract class AbstractTestQueries
     {
         Session session = getSession().withPreparedStatement("my_query", "select count(*) as this_is_aliased, 1 + 2 from nation");
         MaterializedResult actual = computeActual(session, "DESCRIBE OUTPUT my_query");
-        MaterializedResult expected = resultBuilder(session, VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, BIGINT, BOOLEAN, BOOLEAN)
+        MaterializedResult expected = resultBuilder(session, createUnboundedVarcharType(), createUnboundedVarcharType(), createUnboundedVarcharType(), createUnboundedVarcharType(), createUnboundedVarcharType(), BIGINT, BOOLEAN, BOOLEAN)
                 .row("this_is_aliased", "", "", "", "bigint", 8, true, false)
                 .row("_col1", "", "", "", "integer", 4, false, false)
                 .build();

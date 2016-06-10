@@ -33,7 +33,7 @@ import static com.facebook.presto.spi.type.IntegerType.INTEGER;
 import static com.facebook.presto.spi.type.TimestampType.TIMESTAMP;
 import static com.facebook.presto.spi.type.TimestampWithTimeZoneType.TIMESTAMP_WITH_TIME_ZONE;
 import static com.facebook.presto.spi.type.VarbinaryType.VARBINARY;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 
 public class InMemoryRecordSet
         implements RecordSet
@@ -240,7 +240,7 @@ public class InMemoryRecordSet
                 else if (DOUBLE.equals(type)) {
                     checkArgument(value instanceof Double, "Expected value %d to be an instance of Double, but is a %s", i, value.getClass().getSimpleName());
                 }
-                else if (VARCHAR.equals(type)) {
+                else if (createUnboundedVarcharType().equals(type)) {
                     checkArgument(value instanceof String || value instanceof byte[],
                             "Expected value %d to be an instance of String or byte[], but is a %s", i, value.getClass().getSimpleName());
                 }

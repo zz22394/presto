@@ -20,7 +20,7 @@ import org.testng.annotations.Test;
 import static com.facebook.presto.SessionTestUtils.TEST_SESSION;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.IntegerType.INTEGER;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.testing.MaterializedResult.resultBuilder;
 
 public class TestAggregateWindowFunction
@@ -30,7 +30,7 @@ public class TestAggregateWindowFunction
     public void testCountRowsOrdered()
     {
         assertWindowQuery("count(*) OVER (PARTITION BY orderstatus ORDER BY orderkey)",
-                resultBuilder(TEST_SESSION, INTEGER, VARCHAR, BIGINT)
+                resultBuilder(TEST_SESSION, INTEGER, createUnboundedVarcharType(), BIGINT)
                         .row(3, "F", 1L)
                         .row(5, "F", 2L)
                         .row(6, "F", 3L)
@@ -43,7 +43,7 @@ public class TestAggregateWindowFunction
                         .row(34, "O", 6L)
                         .build());
         assertWindowQueryWithNulls("count(*) OVER (PARTITION BY orderstatus ORDER BY orderkey)",
-                resultBuilder(TEST_SESSION, BIGINT, VARCHAR, BIGINT)
+                resultBuilder(TEST_SESSION, BIGINT, createUnboundedVarcharType(), BIGINT)
                         .row(3L, "F", 1L)
                         .row(5L, "F", 2L)
                         .row(null, "F", 4L)
@@ -61,7 +61,7 @@ public class TestAggregateWindowFunction
     public void testCountRowsUnordered()
     {
         assertWindowQuery("count(*) OVER (PARTITION BY orderstatus)",
-                resultBuilder(TEST_SESSION, INTEGER, VARCHAR, BIGINT)
+                resultBuilder(TEST_SESSION, INTEGER, createUnboundedVarcharType(), BIGINT)
                         .row(3, "F", 4L)
                         .row(5, "F", 4L)
                         .row(6, "F", 4L)
@@ -74,7 +74,7 @@ public class TestAggregateWindowFunction
                         .row(34, "O", 6L)
                         .build());
         assertWindowQueryWithNulls("count(*) OVER (PARTITION BY orderstatus)",
-                resultBuilder(TEST_SESSION, BIGINT, VARCHAR, BIGINT)
+                resultBuilder(TEST_SESSION, BIGINT, createUnboundedVarcharType(), BIGINT)
                         .row(3L, "F", 4L)
                         .row(5L, "F", 4L)
                         .row(null, "F", 4L)
@@ -92,7 +92,7 @@ public class TestAggregateWindowFunction
     public void testCountValuesOrdered()
     {
         assertWindowQuery("count(orderkey) OVER (PARTITION BY orderstatus ORDER BY orderkey)",
-                resultBuilder(TEST_SESSION, INTEGER, VARCHAR, BIGINT)
+                resultBuilder(TEST_SESSION, INTEGER, createUnboundedVarcharType(), BIGINT)
                         .row(3, "F", 1L)
                         .row(5, "F", 2L)
                         .row(6, "F", 3L)
@@ -105,7 +105,7 @@ public class TestAggregateWindowFunction
                         .row(34, "O", 6L)
                         .build());
         assertWindowQueryWithNulls("count(orderkey) OVER (PARTITION BY orderstatus ORDER BY orderkey)",
-                resultBuilder(TEST_SESSION, BIGINT, VARCHAR, BIGINT)
+                resultBuilder(TEST_SESSION, BIGINT, createUnboundedVarcharType(), BIGINT)
                         .row(3L, "F", 1L)
                         .row(5L, "F", 2L)
                         .row(null, "F", 2L)
@@ -123,7 +123,7 @@ public class TestAggregateWindowFunction
     public void testCountValuesUnordered()
     {
         assertWindowQuery("count(orderkey) OVER (PARTITION BY orderstatus)",
-                resultBuilder(TEST_SESSION, INTEGER, VARCHAR, BIGINT)
+                resultBuilder(TEST_SESSION, INTEGER, createUnboundedVarcharType(), BIGINT)
                         .row(3, "F", 4L)
                         .row(5, "F", 4L)
                         .row(6, "F", 4L)
@@ -136,7 +136,7 @@ public class TestAggregateWindowFunction
                         .row(34, "O", 6L)
                         .build());
         assertWindowQueryWithNulls("count(orderkey) OVER (PARTITION BY orderstatus)",
-                resultBuilder(TEST_SESSION, BIGINT, VARCHAR, BIGINT)
+                resultBuilder(TEST_SESSION, BIGINT, createUnboundedVarcharType(), BIGINT)
                         .row(3L, "F", 2L)
                         .row(5L, "F", 2L)
                         .row(null, "F", 2L)
@@ -153,7 +153,7 @@ public class TestAggregateWindowFunction
     @Test
     public void testSumOrdered()
     {
-        MaterializedResult expected = resultBuilder(TEST_SESSION, INTEGER, VARCHAR, BIGINT)
+        MaterializedResult expected = resultBuilder(TEST_SESSION, INTEGER, createUnboundedVarcharType(), BIGINT)
                 .row(3, "F", 3L)
                 .row(5, "F", 8L)
                 .row(6, "F", 14L)
@@ -165,7 +165,7 @@ public class TestAggregateWindowFunction
                 .row(32, "O", 46L)
                 .row(34, "O", 80L)
                 .build();
-        MaterializedResult expectedNulls = resultBuilder(TEST_SESSION, BIGINT, VARCHAR, BIGINT)
+        MaterializedResult expectedNulls = resultBuilder(TEST_SESSION, BIGINT, createUnboundedVarcharType(), BIGINT)
                 .row(3L, "F", 3L)
                 .row(5L, "F", 8L)
                 .row(null, "F", 8L)
@@ -213,7 +213,7 @@ public class TestAggregateWindowFunction
     {
         assertWindowQuery("sum(orderkey) OVER (PARTITION BY orderstatus ORDER BY orderkey " +
                         "ROWS 2 PRECEDING)",
-                resultBuilder(TEST_SESSION, INTEGER, VARCHAR, BIGINT)
+                resultBuilder(TEST_SESSION, INTEGER, createUnboundedVarcharType(), BIGINT)
                         .row(3, "F", 3L)
                         .row(5, "F", 8L)
                         .row(6, "F", 14L)
@@ -228,7 +228,7 @@ public class TestAggregateWindowFunction
 
         assertWindowQuery("sum(orderkey) OVER (PARTITION BY orderstatus ORDER BY orderkey " +
                         "ROWS BETWEEN 4 PRECEDING AND 2 PRECEDING)",
-                resultBuilder(TEST_SESSION, INTEGER, VARCHAR, BIGINT)
+                resultBuilder(TEST_SESSION, INTEGER, createUnboundedVarcharType(), BIGINT)
                         .row(3, "F", null)
                         .row(5, "F", null)
                         .row(6, "F", 3L)
@@ -243,7 +243,7 @@ public class TestAggregateWindowFunction
 
         assertWindowQuery("sum(orderkey) OVER (PARTITION BY orderstatus ORDER BY orderkey " +
                         "ROWS BETWEEN 2 PRECEDING AND 3 FOLLOWING)",
-                resultBuilder(TEST_SESSION, INTEGER, VARCHAR, BIGINT)
+                resultBuilder(TEST_SESSION, INTEGER, createUnboundedVarcharType(), BIGINT)
                         .row(3, "F", 47L)
                         .row(5, "F", 47L)
                         .row(6, "F", 47L)
@@ -258,7 +258,7 @@ public class TestAggregateWindowFunction
 
         assertWindowQuery("sum(orderkey) OVER (PARTITION BY orderstatus ORDER BY orderkey " +
                         "ROWS BETWEEN CURRENT ROW AND 2 FOLLOWING)",
-                resultBuilder(TEST_SESSION, INTEGER, VARCHAR, BIGINT)
+                resultBuilder(TEST_SESSION, INTEGER, createUnboundedVarcharType(), BIGINT)
                         .row(3, "F", 14L)
                         .row(5, "F", 44L)
                         .row(6, "F", 39L)
@@ -273,7 +273,7 @@ public class TestAggregateWindowFunction
 
         assertWindowQuery("sum(orderkey) OVER (PARTITION BY orderstatus ORDER BY orderkey " +
                         "ROWS BETWEEN 2 FOLLOWING AND 4 FOLLOWING)",
-                resultBuilder(TEST_SESSION, INTEGER, VARCHAR, BIGINT)
+                resultBuilder(TEST_SESSION, INTEGER, createUnboundedVarcharType(), BIGINT)
                         .row(3, "F", 39L)
                         .row(5, "F", 33L)
                         .row(6, "F", null)
@@ -288,7 +288,7 @@ public class TestAggregateWindowFunction
 
         assertWindowQuery("sum(orderkey) OVER (PARTITION BY orderstatus ORDER BY orderkey " +
                         "RANGE BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING)",
-                resultBuilder(TEST_SESSION, INTEGER, VARCHAR, BIGINT)
+                resultBuilder(TEST_SESSION, INTEGER, createUnboundedVarcharType(), BIGINT)
                         .row(3, "F", 47L)
                         .row(5, "F", 44L)
                         .row(6, "F", 39L)
@@ -306,7 +306,7 @@ public class TestAggregateWindowFunction
     public void testSumCurrentRow()
             throws Exception
     {
-        MaterializedResult expected = resultBuilder(TEST_SESSION, INTEGER, VARCHAR, BIGINT)
+        MaterializedResult expected = resultBuilder(TEST_SESSION, INTEGER, createUnboundedVarcharType(), BIGINT)
                 .row(3, "F", 3L)
                 .row(5, "F", 5L)
                 .row(6, "F", 6L)
@@ -336,7 +336,7 @@ public class TestAggregateWindowFunction
     public void testSumEmptyWindow()
             throws Exception
     {
-        MaterializedResult expected = resultBuilder(TEST_SESSION, INTEGER, VARCHAR, BIGINT)
+        MaterializedResult expected = resultBuilder(TEST_SESSION, INTEGER, createUnboundedVarcharType(), BIGINT)
                 .row(3, "F", null)
                 .row(5, "F", null)
                 .row(6, "F", null)
@@ -360,7 +360,7 @@ public class TestAggregateWindowFunction
     public void testSumUnordered()
     {
         assertWindowQuery("sum(orderkey) OVER (PARTITION BY orderstatus)",
-                resultBuilder(TEST_SESSION, INTEGER, VARCHAR, BIGINT)
+                resultBuilder(TEST_SESSION, INTEGER, createUnboundedVarcharType(), BIGINT)
                         .row(3, "F", 47L)
                         .row(5, "F", 47L)
                         .row(6, "F", 47L)
@@ -373,7 +373,7 @@ public class TestAggregateWindowFunction
                         .row(34, "O", 80L)
                         .build());
         assertWindowQueryWithNulls("sum(orderkey) OVER (PARTITION BY orderstatus)",
-                resultBuilder(TEST_SESSION, BIGINT, VARCHAR, BIGINT)
+                resultBuilder(TEST_SESSION, BIGINT, createUnboundedVarcharType(), BIGINT)
                         .row(3L, "F", 8L)
                         .row(5L, "F", 8L)
                         .row(null, "F", 8L)
@@ -391,7 +391,7 @@ public class TestAggregateWindowFunction
     public void testSumAllNulls()
     {
         assertWindowQueryWithNulls("sum(orderkey) OVER (PARTITION BY orderkey)",
-                resultBuilder(TEST_SESSION, BIGINT, VARCHAR, BIGINT)
+                resultBuilder(TEST_SESSION, BIGINT, createUnboundedVarcharType(), BIGINT)
                         .row(1L, null, 1L)
                         .row(3L, "F", 3L)
                         .row(5L, "F", 5L)

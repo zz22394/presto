@@ -48,7 +48,7 @@ import static com.facebook.presto.metadata.FunctionKind.AGGREGATE;
 import static com.facebook.presto.operator.aggregation.AggregationTestUtils.assertAggregation;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
 import static com.facebook.presto.spi.type.TypeSignature.parseTypeSignature;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static io.airlift.slice.SizeOf.SIZE_OF_DOUBLE;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toSet;
@@ -85,7 +85,7 @@ public class TestMinMaxByAggregation
         List<Type> simpleTypes = METADATA.getTypeManager().getTypes();
         return new ImmutableList.Builder<Type>()
                 .addAll(simpleTypes)
-                .add(VARCHAR)
+                .add(createUnboundedVarcharType())
                 .add(DecimalType.createDecimalType(1))
                 .build();
     }
@@ -312,8 +312,8 @@ public class TestMinMaxByAggregation
         String[] keys = {"loooooong string", "short string"};
         double[] values = {3.14, 2.71};
 
-        MaxOrMinByStateSerializer serializer = new MaxOrMinByStateSerializer(DOUBLE, VARCHAR);
-        BlockBuilder builder = new RowType(ImmutableList.of(VARCHAR, DOUBLE), Optional.empty()).createBlockBuilder(new BlockBuilderStatus(), 2);
+        MaxOrMinByStateSerializer serializer = new MaxOrMinByStateSerializer(DOUBLE, createUnboundedVarcharType());
+        BlockBuilder builder = new RowType(ImmutableList.of(createUnboundedVarcharType(), DOUBLE), Optional.empty()).createBlockBuilder(new BlockBuilderStatus(), 2);
 
         for (int i = 0; i < keys.length; i++) {
             serializer.serialize(makeState(keys[i], values[i]), builder);
@@ -324,7 +324,7 @@ public class TestMinMaxByAggregation
         for (int i = 0; i < keys.length; i++) {
             MaxOrMinByState deserialized = new MaxOrMinByStateFactory().createSingleState();
             serializer.deserialize(serialized, i, deserialized);
-            assertEquals(VARCHAR.getSlice(deserialized.getKey(), 0), Slices.utf8Slice(keys[i]));
+            assertEquals(createUnboundedVarcharType().getSlice(deserialized.getKey(), 0), Slices.utf8Slice(keys[i]));
             assertEquals(DOUBLE.getDouble(deserialized.getValue(), 0), values[i]);
         }
     }

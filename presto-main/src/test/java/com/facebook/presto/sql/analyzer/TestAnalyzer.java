@@ -49,7 +49,7 @@ import java.util.function.Consumer;
 import static com.facebook.presto.metadata.ViewDefinition.ViewColumn;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.sql.analyzer.SemanticErrorCode.AMBIGUOUS_ATTRIBUTE;
 import static com.facebook.presto.sql.analyzer.SemanticErrorCode.CANNOT_HAVE_AGGREGATIONS_OR_WINDOWS;
 import static com.facebook.presto.sql.analyzer.SemanticErrorCode.CATALOG_NOT_SPECIFIED;
@@ -1035,7 +1035,7 @@ public class TestAnalyzer
         inSetupTransaction(session -> metadata.createTable(session, "tpch", new TableMetadata("tpch", new ConnectorTableMetadata(table6,
                 ImmutableList.of(
                         new ColumnMetadata("a", BIGINT),
-                        new ColumnMetadata("b", VARCHAR),
+                        new ColumnMetadata("b", createUnboundedVarcharType()),
                         new ColumnMetadata("c", BIGINT),
                         new ColumnMetadata("d", BIGINT))))));
 
@@ -1064,7 +1064,7 @@ public class TestAnalyzer
                         "select a from t1",
                         Optional.of("tpch"),
                         Optional.of("s1"),
-                        ImmutableList.of(new ViewColumn("a", VARCHAR)),
+                        ImmutableList.of(new ViewColumn("a", createUnboundedVarcharType())),
                         Optional.of("user")));
         inSetupTransaction(session -> metadata.createView(session, new QualifiedObjectName("tpch", "s1", "v2"), viewData2, false));
 

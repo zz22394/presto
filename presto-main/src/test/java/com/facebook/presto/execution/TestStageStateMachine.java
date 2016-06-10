@@ -32,7 +32,7 @@ import java.sql.SQLException;
 import java.util.concurrent.ExecutorService;
 
 import static com.facebook.presto.SessionTestUtils.TEST_SESSION;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.sql.planner.SystemPartitioningHandle.SINGLE_DISTRIBUTION;
 import static com.facebook.presto.sql.planner.SystemPartitioningHandle.SOURCE_DISTRIBUTION;
 import static java.util.concurrent.Executors.newCachedThreadPool;
@@ -294,7 +294,7 @@ public class TestStageStateMachine
         assertEquals(stageInfo.getSelf(), LOCATION);
         assertEquals(stageInfo.getSubStages(), ImmutableList.of());
         assertEquals(stageInfo.getTasks(), ImmutableList.of());
-        assertEquals(stageInfo.getTypes(), ImmutableList.of(VARCHAR));
+        assertEquals(stageInfo.getTypes(), ImmutableList.of(createUnboundedVarcharType()));
         assertSame(stageInfo.getPlan(), PLAN_FRAGMENT);
 
         assertEquals(stateMachine.getState(), expectedState);
@@ -324,7 +324,7 @@ public class TestStageStateMachine
                 new ValuesNode(valuesNodeId,
                         ImmutableList.of(symbol),
                         ImmutableList.of(ImmutableList.of(new StringLiteral("foo")))),
-                ImmutableMap.<Symbol, Type>of(symbol, VARCHAR),
+                ImmutableMap.<Symbol, Type>of(symbol, createUnboundedVarcharType()),
                 SOURCE_DISTRIBUTION,
                 ImmutableList.of(valuesNodeId),
                 new PartitionFunctionBinding(SINGLE_DISTRIBUTION, ImmutableList.of(symbol), ImmutableList.of()));

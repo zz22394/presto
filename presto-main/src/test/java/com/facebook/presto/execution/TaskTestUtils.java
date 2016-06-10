@@ -54,7 +54,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.facebook.presto.SessionTestUtils.TEST_SESSION;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.sql.planner.SystemPartitioningHandle.SINGLE_DISTRIBUTION;
 import static com.facebook.presto.sql.planner.SystemPartitioningHandle.SOURCE_DISTRIBUTION;
 
@@ -84,7 +84,7 @@ public final class TaskTestUtils
                     Optional.empty(),
                     TupleDomain.all(),
                     null),
-            ImmutableMap.<Symbol, Type>of(SYMBOL, VARCHAR),
+            ImmutableMap.<Symbol, Type>of(SYMBOL, createUnboundedVarcharType()),
             SOURCE_DISTRIBUTION,
             ImmutableList.of(TABLE_SCAN_NODE_ID),
             new PartitionFunctionBinding(SINGLE_DISTRIBUTION, ImmutableList.of(SYMBOL), ImmutableList.of())

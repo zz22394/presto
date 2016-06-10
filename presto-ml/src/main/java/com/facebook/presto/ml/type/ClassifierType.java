@@ -19,7 +19,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.List;
 
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.type.TypeUtils.parameterizedTypeName;
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -30,7 +30,7 @@ public class ClassifierType
         extends ModelType
 {
     public static final ClassifierType BIGINT_CLASSIFIER = new ClassifierType(BIGINT);
-    public static final ClassifierType VARCHAR_CLASSIFIER = new ClassifierType(VARCHAR);
+    public static final ClassifierType VARCHAR_CLASSIFIER = new ClassifierType(createUnboundedVarcharType());
 
     private final Type labelType;
 

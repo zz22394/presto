@@ -80,7 +80,7 @@ import static com.facebook.presto.spi.type.TimeWithTimeZoneType.TIME_WITH_TIME_Z
 import static com.facebook.presto.spi.type.TimestampWithTimeZoneType.TIMESTAMP_WITH_TIME_ZONE;
 import static com.facebook.presto.spi.type.TypeSignature.parseTypeSignature;
 import static com.facebook.presto.spi.type.VarbinaryType.VARBINARY;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.spi.type.VarcharType.createVarcharType;
 import static com.facebook.presto.sql.relational.Expressions.call;
 import static com.facebook.presto.sql.relational.Expressions.constant;
@@ -228,15 +228,15 @@ public final class SqlToRowExpressionTranslator
 
             if (JSON.equals(type)) {
                 return call(
-                        new Signature("json_parse", SCALAR, types.get(node).getTypeSignature(), VARCHAR.getTypeSignature()),
+                        new Signature("json_parse", SCALAR, types.get(node).getTypeSignature(), createUnboundedVarcharType().getTypeSignature()),
                         types.get(node),
-                        constant(utf8Slice(node.getValue()), VARCHAR));
+                        constant(utf8Slice(node.getValue()), createUnboundedVarcharType()));
             }
 
             return call(
-                    castSignature(types.get(node), VARCHAR),
+                    castSignature(types.get(node), createUnboundedVarcharType()),
                     types.get(node),
-                    constant(utf8Slice(node.getValue()), VARCHAR));
+                    constant(utf8Slice(node.getValue()), createUnboundedVarcharType()));
         }
 
         @Override
@@ -594,7 +594,7 @@ public final class SqlToRowExpressionTranslator
                 return call(likeSignature(), BOOLEAN, value, call(likePatternSignature(), LIKE_PATTERN, pattern, escape));
             }
 
-            return call(likeSignature(), BOOLEAN, value, call(castSignature(LIKE_PATTERN, VARCHAR), LIKE_PATTERN, pattern));
+            return call(likeSignature(), BOOLEAN, value, call(castSignature(LIKE_PATTERN, createUnboundedVarcharType()), LIKE_PATTERN, pattern));
         }
 
         @Override

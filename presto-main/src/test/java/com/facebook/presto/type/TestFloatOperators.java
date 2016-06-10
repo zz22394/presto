@@ -21,7 +21,7 @@ import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
 import static com.facebook.presto.spi.type.FloatType.FLOAT;
 import static com.facebook.presto.spi.type.IntegerType.INTEGER;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 
 public class TestFloatOperators
         extends AbstractTestFunctions
@@ -175,10 +175,10 @@ public class TestFloatOperators
     public void testCastToVarchar()
             throws Exception
     {
-        assertFunction("CAST(FLOAT'754.1985' as VARCHAR)", VARCHAR, "754.1985");
-        assertFunction("CAST(FLOAT'-754.2008' as VARCHAR)", VARCHAR, "-754.2008");
-        assertFunction("CAST(FLOAT'Infinity' as VARCHAR)", VARCHAR, "Infinity");
-        assertFunction("CAST(FLOAT'0.0' / FLOAT'0.0' as VARCHAR)", VARCHAR, "NaN");
+        assertFunction("CAST(FLOAT'754.1985' as VARCHAR)", createUnboundedVarcharType(), "754.1985");
+        assertFunction("CAST(FLOAT'-754.2008' as VARCHAR)", createUnboundedVarcharType(), "-754.2008");
+        assertFunction("CAST(FLOAT'Infinity' as VARCHAR)", createUnboundedVarcharType(), "Infinity");
+        assertFunction("CAST(FLOAT'0.0' / FLOAT'0.0' as VARCHAR)", createUnboundedVarcharType(), "NaN");
     }
 
     @Test

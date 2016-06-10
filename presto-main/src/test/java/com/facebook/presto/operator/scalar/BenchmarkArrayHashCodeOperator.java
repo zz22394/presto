@@ -66,7 +66,7 @@ import static com.facebook.presto.operator.scalar.CombineHashFunction.getHash;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.testing.TestingConnectorSession.SESSION;
 import static com.facebook.presto.type.ArrayType.ARRAY_NULL_ELEMENT_MSG;
 import static com.facebook.presto.type.TypeUtils.checkElementNotNull;
@@ -126,7 +126,7 @@ public class BenchmarkArrayHashCodeOperator
                     elementType = BIGINT;
                     break;
                 case "VARCHAR":
-                    elementType = VARCHAR;
+                    elementType = createUnboundedVarcharType();
                     break;
                 case "DOUBLE":
                     elementType = DOUBLE;
@@ -163,7 +163,7 @@ public class BenchmarkArrayHashCodeOperator
                     else if (arrayType.getElementType().getJavaType() == boolean.class) {
                         arrayType.getElementType().writeBoolean(entryBuilder, ThreadLocalRandom.current().nextBoolean());
                     }
-                    else if (arrayType.getElementType().equals(VARCHAR)) {
+                    else if (arrayType.getElementType().equals(createUnboundedVarcharType())) {
                         arrayType.getElementType().writeSlice(entryBuilder, Slices.utf8Slice("test_string"));
                     }
                     else {

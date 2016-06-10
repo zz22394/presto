@@ -104,7 +104,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.facebook.presto.execution.StageInfo.getAllStages;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.sql.planner.DomainUtils.simplifyDomain;
 import static com.facebook.presto.sql.planner.SystemPartitioningHandle.SINGLE_DISTRIBUTION;
 import static com.facebook.presto.util.ImmutableCollectors.toImmutableList;
@@ -1182,7 +1182,7 @@ public class PlanPrinter
             return "NULL";
         }
 
-        Signature coercion = metadata.getFunctionRegistry().getCoercion(type, VARCHAR);
+        Signature coercion = metadata.getFunctionRegistry().getCoercion(type, createUnboundedVarcharType());
 
         try {
             Slice coerced = (Slice) new FunctionInvoker(metadata.getFunctionRegistry()).invoke(coercion, session.toConnectorSession(), value);

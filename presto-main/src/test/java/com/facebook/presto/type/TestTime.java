@@ -32,7 +32,7 @@ import static com.facebook.presto.spi.type.TimeWithTimeZoneType.TIME_WITH_TIME_Z
 import static com.facebook.presto.spi.type.TimeZoneKey.getTimeZoneKey;
 import static com.facebook.presto.spi.type.TimestampType.TIMESTAMP;
 import static com.facebook.presto.spi.type.TimestampWithTimeZoneType.TIMESTAMP_WITH_TIME_ZONE;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.testing.TestingSession.testSessionBuilder;
 import static com.facebook.presto.util.DateTimeZoneIndex.getDateTimeZone;
 
@@ -162,9 +162,9 @@ public class TestTime
     public void testCastToSlice()
             throws Exception
     {
-        assertFunction("cast(TIME '03:04:05.321' as varchar)", VARCHAR, "03:04:05.321");
-        assertFunction("cast(TIME '03:04:05' as varchar)", VARCHAR, "03:04:05.000");
-        assertFunction("cast(TIME '03:04' as varchar)", VARCHAR, "03:04:00.000");
+        assertFunction("cast(TIME '03:04:05.321' as varchar)", createUnboundedVarcharType(), "03:04:05.321");
+        assertFunction("cast(TIME '03:04:05' as varchar)", createUnboundedVarcharType(), "03:04:05.000");
+        assertFunction("cast(TIME '03:04' as varchar)", createUnboundedVarcharType(), "03:04:00.000");
     }
 
     @Test

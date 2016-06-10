@@ -48,7 +48,7 @@ import static com.facebook.presto.spi.type.TimeWithTimeZoneType.TIME_WITH_TIME_Z
 import static com.facebook.presto.spi.type.TimeZoneKey.getTimeZoneKey;
 import static com.facebook.presto.spi.type.TimeZoneKey.getTimeZoneKeyForOffset;
 import static com.facebook.presto.spi.type.TimestampWithTimeZoneType.TIMESTAMP_WITH_TIME_ZONE;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.spi.type.VarcharType.createVarcharType;
 import static com.facebook.presto.testing.TestingSession.testSessionBuilder;
 import static com.facebook.presto.util.DateTimeZoneIndex.getDateTimeZone;
@@ -226,7 +226,7 @@ public class TestDateTimeFunctions
         assertFunction("minute(" + TIMESTAMP_LITERAL + ")", BIGINT, (long) TIMESTAMP.getMinuteOfHour());
         assertFunction("hour(" + WEIRD_TIMESTAMP_LITERAL + ")", BIGINT, (long) WEIRD_TIMESTAMP.getHourOfDay());
         assertFunction("minute(" + WEIRD_TIMESTAMP_LITERAL + ")", BIGINT, (long) WEIRD_TIMESTAMP.getMinuteOfHour());
-        assertFunction("current_timezone()", VARCHAR, TIME_ZONE_KEY.getId());
+        assertFunction("current_timezone()", createUnboundedVarcharType(), TIME_ZONE_KEY.getId());
     }
 
     @Test
@@ -684,10 +684,10 @@ public class TestDateTimeFunctions
     @Test
     public void testFormatDatetime()
     {
-        assertFunction("format_datetime(" + TIMESTAMP_LITERAL + ", 'YYYY/MM/dd HH:mm')", VARCHAR, "2001/08/22 03:04");
-        assertFunction("format_datetime(" + TIMESTAMP_LITERAL + ", 'YYYY/MM/dd HH:mm ZZZZ')", VARCHAR, "2001/08/22 03:04 Asia/Kathmandu");
-        assertFunction("format_datetime(" + WEIRD_TIMESTAMP_LITERAL + ", 'YYYY/MM/dd HH:mm')", VARCHAR, "2001/08/22 03:04");
-        assertFunction("format_datetime(" + WEIRD_TIMESTAMP_LITERAL + ", 'YYYY/MM/dd HH:mm ZZZZ')", VARCHAR, "2001/08/22 03:04 +07:09");
+        assertFunction("format_datetime(" + TIMESTAMP_LITERAL + ", 'YYYY/MM/dd HH:mm')", createUnboundedVarcharType(), "2001/08/22 03:04");
+        assertFunction("format_datetime(" + TIMESTAMP_LITERAL + ", 'YYYY/MM/dd HH:mm ZZZZ')", createUnboundedVarcharType(), "2001/08/22 03:04 Asia/Kathmandu");
+        assertFunction("format_datetime(" + WEIRD_TIMESTAMP_LITERAL + ", 'YYYY/MM/dd HH:mm')", createUnboundedVarcharType(), "2001/08/22 03:04");
+        assertFunction("format_datetime(" + WEIRD_TIMESTAMP_LITERAL + ", 'YYYY/MM/dd HH:mm ZZZZ')", createUnboundedVarcharType(), "2001/08/22 03:04 +07:09");
     }
 
     @Test
@@ -695,72 +695,72 @@ public class TestDateTimeFunctions
     {
         String dateTimeLiteral = "TIMESTAMP '2001-01-09 13:04:05.321'";
 
-        assertFunction("date_format(" + dateTimeLiteral + ", '%a')", VARCHAR, "Tue");
-        assertFunction("date_format(" + dateTimeLiteral + ", '%b')", VARCHAR, "Jan");
-        assertFunction("date_format(" + dateTimeLiteral + ", '%c')", VARCHAR, "1");
-        assertFunction("date_format(" + dateTimeLiteral + ", '%d')", VARCHAR, "09");
-        assertFunction("date_format(" + dateTimeLiteral + ", '%e')", VARCHAR, "9");
-        assertFunction("date_format(" + dateTimeLiteral + ", '%f')", VARCHAR, "321000");
-        assertFunction("date_format(" + dateTimeLiteral + ", '%H')", VARCHAR, "13");
-        assertFunction("date_format(" + dateTimeLiteral + ", '%h')", VARCHAR, "01");
-        assertFunction("date_format(" + dateTimeLiteral + ", '%I')", VARCHAR, "01");
-        assertFunction("date_format(" + dateTimeLiteral + ", '%i')", VARCHAR, "04");
-        assertFunction("date_format(" + dateTimeLiteral + ", '%j')", VARCHAR, "009");
-        assertFunction("date_format(" + dateTimeLiteral + ", '%k')", VARCHAR, "13");
-        assertFunction("date_format(" + dateTimeLiteral + ", '%l')", VARCHAR, "1");
-        assertFunction("date_format(" + dateTimeLiteral + ", '%M')", VARCHAR, "January");
-        assertFunction("date_format(" + dateTimeLiteral + ", '%m')", VARCHAR, "01");
-        assertFunction("date_format(" + dateTimeLiteral + ", '%p')", VARCHAR, "PM");
-        assertFunction("date_format(" + dateTimeLiteral + ", '%r')", VARCHAR, "01:04:05 PM");
-        assertFunction("date_format(" + dateTimeLiteral + ", '%S')", VARCHAR, "05");
-        assertFunction("date_format(" + dateTimeLiteral + ", '%s')", VARCHAR, "05");
-        assertFunction("date_format(" + dateTimeLiteral + ", '%T')", VARCHAR, "13:04:05");
-        assertFunction("date_format(" + dateTimeLiteral + ", '%v')", VARCHAR, "02");
-        assertFunction("date_format(" + dateTimeLiteral + ", '%W')", VARCHAR, "Tuesday");
-        assertFunction("date_format(" + dateTimeLiteral + ", '%w')", VARCHAR, "2");
-        assertFunction("date_format(" + dateTimeLiteral + ", '%Y')", VARCHAR, "2001");
-        assertFunction("date_format(" + dateTimeLiteral + ", '%y')", VARCHAR, "01");
-        assertFunction("date_format(" + dateTimeLiteral + ", '%%')", VARCHAR, "%");
-        assertFunction("date_format(" + dateTimeLiteral + ", 'foo')", VARCHAR, "foo");
-        assertFunction("date_format(" + dateTimeLiteral + ", '%g')", VARCHAR, "g");
-        assertFunction("date_format(" + dateTimeLiteral + ", '%4')", VARCHAR, "4");
-        assertFunction("date_format(" + dateTimeLiteral + ", '%x %v')", VARCHAR, "2001 02");
+        assertFunction("date_format(" + dateTimeLiteral + ", '%a')", createUnboundedVarcharType(), "Tue");
+        assertFunction("date_format(" + dateTimeLiteral + ", '%b')", createUnboundedVarcharType(), "Jan");
+        assertFunction("date_format(" + dateTimeLiteral + ", '%c')", createUnboundedVarcharType(), "1");
+        assertFunction("date_format(" + dateTimeLiteral + ", '%d')", createUnboundedVarcharType(), "09");
+        assertFunction("date_format(" + dateTimeLiteral + ", '%e')", createUnboundedVarcharType(), "9");
+        assertFunction("date_format(" + dateTimeLiteral + ", '%f')", createUnboundedVarcharType(), "321000");
+        assertFunction("date_format(" + dateTimeLiteral + ", '%H')", createUnboundedVarcharType(), "13");
+        assertFunction("date_format(" + dateTimeLiteral + ", '%h')", createUnboundedVarcharType(), "01");
+        assertFunction("date_format(" + dateTimeLiteral + ", '%I')", createUnboundedVarcharType(), "01");
+        assertFunction("date_format(" + dateTimeLiteral + ", '%i')", createUnboundedVarcharType(), "04");
+        assertFunction("date_format(" + dateTimeLiteral + ", '%j')", createUnboundedVarcharType(), "009");
+        assertFunction("date_format(" + dateTimeLiteral + ", '%k')", createUnboundedVarcharType(), "13");
+        assertFunction("date_format(" + dateTimeLiteral + ", '%l')", createUnboundedVarcharType(), "1");
+        assertFunction("date_format(" + dateTimeLiteral + ", '%M')", createUnboundedVarcharType(), "January");
+        assertFunction("date_format(" + dateTimeLiteral + ", '%m')", createUnboundedVarcharType(), "01");
+        assertFunction("date_format(" + dateTimeLiteral + ", '%p')", createUnboundedVarcharType(), "PM");
+        assertFunction("date_format(" + dateTimeLiteral + ", '%r')", createUnboundedVarcharType(), "01:04:05 PM");
+        assertFunction("date_format(" + dateTimeLiteral + ", '%S')", createUnboundedVarcharType(), "05");
+        assertFunction("date_format(" + dateTimeLiteral + ", '%s')", createUnboundedVarcharType(), "05");
+        assertFunction("date_format(" + dateTimeLiteral + ", '%T')", createUnboundedVarcharType(), "13:04:05");
+        assertFunction("date_format(" + dateTimeLiteral + ", '%v')", createUnboundedVarcharType(), "02");
+        assertFunction("date_format(" + dateTimeLiteral + ", '%W')", createUnboundedVarcharType(), "Tuesday");
+        assertFunction("date_format(" + dateTimeLiteral + ", '%w')", createUnboundedVarcharType(), "2");
+        assertFunction("date_format(" + dateTimeLiteral + ", '%Y')", createUnboundedVarcharType(), "2001");
+        assertFunction("date_format(" + dateTimeLiteral + ", '%y')", createUnboundedVarcharType(), "01");
+        assertFunction("date_format(" + dateTimeLiteral + ", '%%')", createUnboundedVarcharType(), "%");
+        assertFunction("date_format(" + dateTimeLiteral + ", 'foo')", createUnboundedVarcharType(), "foo");
+        assertFunction("date_format(" + dateTimeLiteral + ", '%g')", createUnboundedVarcharType(), "g");
+        assertFunction("date_format(" + dateTimeLiteral + ", '%4')", createUnboundedVarcharType(), "4");
+        assertFunction("date_format(" + dateTimeLiteral + ", '%x %v')", createUnboundedVarcharType(), "2001 02");
 
         String wierdDateTimeLiteral = "TIMESTAMP '2001-01-09 13:04:05.321 +07:09'";
 
-        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%a')", VARCHAR, "Tue");
-        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%b')", VARCHAR, "Jan");
-        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%c')", VARCHAR, "1");
-        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%d')", VARCHAR, "09");
-        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%e')", VARCHAR, "9");
-        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%f')", VARCHAR, "321000");
-        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%H')", VARCHAR, "13");
-        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%h')", VARCHAR, "01");
-        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%I')", VARCHAR, "01");
-        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%i')", VARCHAR, "04");
-        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%j')", VARCHAR, "009");
-        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%k')", VARCHAR, "13");
-        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%l')", VARCHAR, "1");
-        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%M')", VARCHAR, "January");
-        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%m')", VARCHAR, "01");
-        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%p')", VARCHAR, "PM");
-        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%r')", VARCHAR, "01:04:05 PM");
-        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%S')", VARCHAR, "05");
-        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%s')", VARCHAR, "05");
-        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%T')", VARCHAR, "13:04:05");
-        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%v')", VARCHAR, "02");
-        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%W')", VARCHAR, "Tuesday");
-        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%w')", VARCHAR, "2");
-        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%Y')", VARCHAR, "2001");
-        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%y')", VARCHAR, "01");
-        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%%')", VARCHAR, "%");
-        assertFunction("date_format(" + wierdDateTimeLiteral + ", 'foo')", VARCHAR, "foo");
-        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%g')", VARCHAR, "g");
-        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%4')", VARCHAR, "4");
-        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%x %v')", VARCHAR, "2001 02");
+        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%a')", createUnboundedVarcharType(), "Tue");
+        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%b')", createUnboundedVarcharType(), "Jan");
+        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%c')", createUnboundedVarcharType(), "1");
+        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%d')", createUnboundedVarcharType(), "09");
+        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%e')", createUnboundedVarcharType(), "9");
+        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%f')", createUnboundedVarcharType(), "321000");
+        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%H')", createUnboundedVarcharType(), "13");
+        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%h')", createUnboundedVarcharType(), "01");
+        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%I')", createUnboundedVarcharType(), "01");
+        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%i')", createUnboundedVarcharType(), "04");
+        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%j')", createUnboundedVarcharType(), "009");
+        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%k')", createUnboundedVarcharType(), "13");
+        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%l')", createUnboundedVarcharType(), "1");
+        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%M')", createUnboundedVarcharType(), "January");
+        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%m')", createUnboundedVarcharType(), "01");
+        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%p')", createUnboundedVarcharType(), "PM");
+        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%r')", createUnboundedVarcharType(), "01:04:05 PM");
+        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%S')", createUnboundedVarcharType(), "05");
+        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%s')", createUnboundedVarcharType(), "05");
+        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%T')", createUnboundedVarcharType(), "13:04:05");
+        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%v')", createUnboundedVarcharType(), "02");
+        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%W')", createUnboundedVarcharType(), "Tuesday");
+        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%w')", createUnboundedVarcharType(), "2");
+        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%Y')", createUnboundedVarcharType(), "2001");
+        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%y')", createUnboundedVarcharType(), "01");
+        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%%')", createUnboundedVarcharType(), "%");
+        assertFunction("date_format(" + wierdDateTimeLiteral + ", 'foo')", createUnboundedVarcharType(), "foo");
+        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%g')", createUnboundedVarcharType(), "g");
+        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%4')", createUnboundedVarcharType(), "4");
+        assertFunction("date_format(" + wierdDateTimeLiteral + ", '%x %v')", createUnboundedVarcharType(), "2001 02");
 
-        assertFunction("date_format(TIMESTAMP '2001-01-09 13:04:05.32', '%f')", VARCHAR, "320000");
-        assertFunction("date_format(TIMESTAMP '2001-01-09 00:04:05.32', '%k')", VARCHAR, "0");
+        assertFunction("date_format(TIMESTAMP '2001-01-09 13:04:05.32', '%f')", createUnboundedVarcharType(), "320000");
+        assertFunction("date_format(TIMESTAMP '2001-01-09 00:04:05.32', '%k')", createUnboundedVarcharType(), "0");
     }
 
     @Test
@@ -831,18 +831,18 @@ public class TestDateTimeFunctions
 
         String dateTimeLiteral = "TIMESTAMP '2001-01-09 13:04:05.321'";
 
-        localeAssertions.assertFunction("date_format(" + dateTimeLiteral + ", '%a')", VARCHAR, "火");
-        localeAssertions.assertFunction("date_format(" + dateTimeLiteral + ", '%W')", VARCHAR, "火曜日");
-        localeAssertions.assertFunction("date_format(" + dateTimeLiteral + ", '%p')", VARCHAR, "午後");
-        localeAssertions.assertFunction("date_format(" + dateTimeLiteral + ", '%r')", VARCHAR, "01:04:05 午後");
-        localeAssertions.assertFunction("date_format(" + dateTimeLiteral + ", '%b')", VARCHAR, "1");
-        localeAssertions.assertFunction("date_format(" + dateTimeLiteral + ", '%M')", VARCHAR, "1月");
+        localeAssertions.assertFunction("date_format(" + dateTimeLiteral + ", '%a')", createUnboundedVarcharType(), "火");
+        localeAssertions.assertFunction("date_format(" + dateTimeLiteral + ", '%W')", createUnboundedVarcharType(), "火曜日");
+        localeAssertions.assertFunction("date_format(" + dateTimeLiteral + ", '%p')", createUnboundedVarcharType(), "午後");
+        localeAssertions.assertFunction("date_format(" + dateTimeLiteral + ", '%r')", createUnboundedVarcharType(), "01:04:05 午後");
+        localeAssertions.assertFunction("date_format(" + dateTimeLiteral + ", '%b')", createUnboundedVarcharType(), "1");
+        localeAssertions.assertFunction("date_format(" + dateTimeLiteral + ", '%M')", createUnboundedVarcharType(), "1月");
 
-        localeAssertions.assertFunction("format_datetime(" + dateTimeLiteral + ", 'EEE')", VARCHAR, "火");
-        localeAssertions.assertFunction("format_datetime(" + dateTimeLiteral + ", 'EEEE')", VARCHAR, "火曜日");
-        localeAssertions.assertFunction("format_datetime(" + dateTimeLiteral + ", 'a')", VARCHAR, "午後");
-        localeAssertions.assertFunction("format_datetime(" + dateTimeLiteral + ", 'MMM')", VARCHAR, "1");
-        localeAssertions.assertFunction("format_datetime(" + dateTimeLiteral + ", 'MMMM')", VARCHAR, "1月");
+        localeAssertions.assertFunction("format_datetime(" + dateTimeLiteral + ", 'EEE')", createUnboundedVarcharType(), "火");
+        localeAssertions.assertFunction("format_datetime(" + dateTimeLiteral + ", 'EEEE')", createUnboundedVarcharType(), "火曜日");
+        localeAssertions.assertFunction("format_datetime(" + dateTimeLiteral + ", 'a')", createUnboundedVarcharType(), "午後");
+        localeAssertions.assertFunction("format_datetime(" + dateTimeLiteral + ", 'MMM')", createUnboundedVarcharType(), "1");
+        localeAssertions.assertFunction("format_datetime(" + dateTimeLiteral + ", 'MMMM')", createUnboundedVarcharType(), "1月");
 
         localeAssertions.assertFunction("date_parse('2013-05-17 12:35:10 午後', '%Y-%m-%d %h:%i:%s %p')",
                 TimestampType.TIMESTAMP,

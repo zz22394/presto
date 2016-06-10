@@ -41,7 +41,7 @@ import static com.facebook.presto.spi.type.HyperLogLogType.HYPER_LOG_LOG;
 import static com.facebook.presto.spi.type.IntegerType.INTEGER;
 import static com.facebook.presto.spi.type.TimestampType.TIMESTAMP;
 import static com.facebook.presto.spi.type.TimestampWithTimeZoneType.TIMESTAMP_WITH_TIME_ZONE;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.type.TypeJsonUtils.appendToBlockBuilder;
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -84,7 +84,7 @@ public final class TestingRowConstructor
             @Nullable @SqlType(StandardTypes.BOOLEAN) Boolean arg3, @Nullable @SqlType("varchar(x)") Slice arg4,
             @Nullable @SqlType(StandardTypes.TIMESTAMP) Long arg5)
     {
-        return toStackRepresentation(ImmutableList.of(INTEGER, DOUBLE, BOOLEAN, VARCHAR, TIMESTAMP), arg1, arg2, arg3, arg4, arg5);
+        return toStackRepresentation(ImmutableList.of(INTEGER, DOUBLE, BOOLEAN, createUnboundedVarcharType(), TIMESTAMP), arg1, arg2, arg3, arg4, arg5);
     }
 
     @ScalarFunction("test_row")
@@ -125,7 +125,7 @@ public final class TestingRowConstructor
     @SqlType("row(col0 double,col1 varchar(x))")
     public static Block testRowDoubleInteger(@Nullable @SqlType(StandardTypes.DOUBLE) Double arg1, @Nullable @SqlType("varchar(x)") Slice arg2)
     {
-        return toStackRepresentation(ImmutableList.of(DOUBLE, VARCHAR), arg1, arg2);
+        return toStackRepresentation(ImmutableList.of(DOUBLE, createUnboundedVarcharType()), arg1, arg2);
     }
 
     @ScalarFunction("test_row")

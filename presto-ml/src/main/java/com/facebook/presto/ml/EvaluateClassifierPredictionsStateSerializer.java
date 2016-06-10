@@ -30,7 +30,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 
 public class EvaluateClassifierPredictionsStateSerializer
         implements AccumulatorStateSerializer<EvaluateClassifierPredictionsState>
@@ -43,7 +43,7 @@ public class EvaluateClassifierPredictionsStateSerializer
     @Override
     public Type getSerializedType()
     {
-        return VARCHAR;
+        return createUnboundedVarcharType();
     }
 
     @Override
@@ -54,7 +54,7 @@ public class EvaluateClassifierPredictionsStateSerializer
         jsonState.put(FALSE_POSITIVES, state.getFalsePositives());
         jsonState.put(FALSE_NEGATIVES, state.getFalseNegatives());
         try {
-            VARCHAR.writeSlice(out, Slices.utf8Slice(OBJECT_MAPPER.writeValueAsString(jsonState)));
+            createUnboundedVarcharType().writeSlice(out, Slices.utf8Slice(OBJECT_MAPPER.writeValueAsString(jsonState)));
         }
         catch (JsonProcessingException e) {
             throw Throwables.propagate(e);
@@ -64,7 +64,7 @@ public class EvaluateClassifierPredictionsStateSerializer
     @Override
     public void deserialize(Block block, int index, EvaluateClassifierPredictionsState state)
     {
-        Slice slice = VARCHAR.getSlice(block, index);
+        Slice slice = createUnboundedVarcharType().getSlice(block, index);
         Map<String, Map<String, Integer>> jsonState;
         try {
             jsonState = OBJECT_MAPPER.readValue(slice.getBytes(), new TypeReference<Map<String, Map<String, Integer>>>() {});

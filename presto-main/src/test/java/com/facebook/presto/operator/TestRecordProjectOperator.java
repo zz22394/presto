@@ -29,7 +29,7 @@ import java.util.concurrent.ExecutorService;
 
 import static com.facebook.presto.SessionTestUtils.TEST_SESSION;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.testing.MaterializedResult.resultBuilder;
 import static com.facebook.presto.testing.TestingTaskContext.createTaskContext;
 import static io.airlift.concurrent.Threads.daemonThreadsNamed;
@@ -63,13 +63,13 @@ public class TestRecordProjectOperator
     public void testSingleColumn()
             throws Exception
     {
-        InMemoryRecordSet records = new InMemoryRecordSet(ImmutableList.of(VARCHAR), ImmutableList.copyOf(new List<?>[] {ImmutableList.of("abc"), ImmutableList.of("def"),
-                                                                                                                        ImmutableList.of("g")}));
+        InMemoryRecordSet records = new InMemoryRecordSet(ImmutableList.of(createUnboundedVarcharType()), ImmutableList.copyOf(new List<?>[] {ImmutableList.of("abc"), ImmutableList.of("def"),
+                                                                                                                                ImmutableList.of("g")}));
 
         OperatorContext operatorContext = driverContext.addOperatorContext(0, new PlanNodeId("test"), RecordProjectOperator.class.getSimpleName());
         Operator operator = new RecordProjectOperator(operatorContext, records);
 
-        MaterializedResult expected = resultBuilder(driverContext.getSession(), VARCHAR)
+        MaterializedResult expected = resultBuilder(driverContext.getSession(), createUnboundedVarcharType())
                 .row("abc")
                 .row("def")
                 .row("g")
@@ -82,7 +82,7 @@ public class TestRecordProjectOperator
     public void testMultiColumn()
             throws Exception
     {
-        InMemoryRecordSet records = new InMemoryRecordSet(ImmutableList.of(VARCHAR, BIGINT), ImmutableList.of(
+        InMemoryRecordSet records = new InMemoryRecordSet(ImmutableList.of(createUnboundedVarcharType(), BIGINT), ImmutableList.of(
                 ImmutableList.of("abc", 1L),
                 ImmutableList.of("def", 2L),
                 ImmutableList.of("g", 0L)));
@@ -90,7 +90,7 @@ public class TestRecordProjectOperator
         OperatorContext operatorContext = driverContext.addOperatorContext(0, new PlanNodeId("test"), RecordProjectOperator.class.getSimpleName());
         Operator operator = new RecordProjectOperator(operatorContext, records);
 
-        MaterializedResult expected = resultBuilder(driverContext.getSession(), VARCHAR, BIGINT)
+        MaterializedResult expected = resultBuilder(driverContext.getSession(), createUnboundedVarcharType(), BIGINT)
                 .row("abc", 1L)
                 .row("def", 2L)
                 .row("g", 0L)
@@ -103,7 +103,7 @@ public class TestRecordProjectOperator
     public void testFinish()
             throws Exception
     {
-        InfiniteRecordSet records = new InfiniteRecordSet(ImmutableList.<Type>of(VARCHAR, BIGINT), ImmutableList.of("abc", 1L));
+        InfiniteRecordSet records = new InfiniteRecordSet(ImmutableList.<Type>of(createUnboundedVarcharType(), BIGINT), ImmutableList.of("abc", 1L));
 
         OperatorContext operatorContext = driverContext.addOperatorContext(0, new PlanNodeId("test"), RecordProjectOperator.class.getSimpleName());
         Operator operator = new RecordProjectOperator(operatorContext, records);

@@ -24,7 +24,7 @@ import io.airlift.log.Logger;
 import io.airlift.slice.Slice;
 
 import static com.facebook.presto.spi.StandardErrorCode.INVALID_FUNCTION_ARGUMENT;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.primitives.Ints.checkedCast;
 import static com.google.re2j.Options.Algorithm.DFA_FALLBACK_TO_NFA;
@@ -93,7 +93,7 @@ public final class Re2JRegexp
         int group = checkedCast(groupIndex);
         validateGroup(group, matcher.groupCount());
 
-        BlockBuilder blockBuilder = VARCHAR.createBlockBuilder(new BlockBuilderStatus(), 32);
+        BlockBuilder blockBuilder = createUnboundedVarcharType().createBlockBuilder(new BlockBuilderStatus(), 32);
         while (true) {
             if (!matcher.find()) {
                 break;
@@ -104,7 +104,7 @@ public final class Re2JRegexp
                 blockBuilder.appendNull();
                 continue;
             }
-            VARCHAR.writeSlice(blockBuilder, searchedGroup);
+            createUnboundedVarcharType().writeSlice(blockBuilder, searchedGroup);
         }
         return blockBuilder.build();
     }
@@ -125,16 +125,16 @@ public final class Re2JRegexp
     public Block split(Slice source)
     {
         Matcher matcher = re2jPattern.matcher(source);
-        BlockBuilder blockBuilder = VARCHAR.createBlockBuilder(new BlockBuilderStatus(), 32);
+        BlockBuilder blockBuilder = createUnboundedVarcharType().createBlockBuilder(new BlockBuilderStatus(), 32);
 
         int lastEnd = 0;
         while (matcher.find()) {
             Slice slice = source.slice(lastEnd, matcher.start() - lastEnd);
             lastEnd = matcher.end();
-            VARCHAR.writeSlice(blockBuilder, slice);
+            createUnboundedVarcharType().writeSlice(blockBuilder, slice);
         }
 
-        VARCHAR.writeSlice(blockBuilder, source.slice(lastEnd, source.length() - lastEnd));
+        createUnboundedVarcharType().writeSlice(blockBuilder, source.slice(lastEnd, source.length() - lastEnd));
         return blockBuilder.build();
     }
 

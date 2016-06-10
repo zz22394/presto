@@ -48,7 +48,7 @@ import static com.facebook.presto.RowPagesBuilder.rowPagesBuilder;
 import static com.facebook.presto.SessionTestUtils.TEST_SESSION;
 import static com.facebook.presto.operator.OperatorAssertion.assertOperatorEquals;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.sql.planner.SystemPartitioningHandle.FIXED_HASH_DISTRIBUTION;
 import static com.google.common.collect.Iterables.concat;
 import static io.airlift.concurrent.Threads.daemonThreadsNamed;
@@ -101,10 +101,10 @@ public class TestHashJoinOperator
     {
         List<Integer> hashChannels = Ints.asList(0);
 
-        RowPagesBuilder buildPages = rowPagesBuilder(buildHashEnabled, hashChannels, ImmutableList.of(VARCHAR, BIGINT, BIGINT))
+        RowPagesBuilder buildPages = rowPagesBuilder(buildHashEnabled, hashChannels, ImmutableList.of(createUnboundedVarcharType(), BIGINT, BIGINT))
                 .addSequencePage(10, 20, 30, 40);
 
-        RowPagesBuilder probePages = rowPagesBuilder(probeHashEnabled, hashChannels, ImmutableList.<Type>of(VARCHAR, BIGINT, BIGINT))
+        RowPagesBuilder probePages = rowPagesBuilder(probeHashEnabled, hashChannels, ImmutableList.<Type>of(createUnboundedVarcharType(), BIGINT, BIGINT))
                 .addSequencePage(1000, 0, 1000, 2000);
 
         MaterializedResult expected = MaterializedResult.resultBuilder(taskContext.getSession(), concat(probePages.getTypes(), buildPages.getTypes()))
@@ -129,10 +129,10 @@ public class TestHashJoinOperator
     {
         List<Integer> hashChannels = Ints.asList(1);
 
-        RowPagesBuilder buildPages = rowPagesBuilder(buildHashEnabled, hashChannels, ImmutableList.of(VARCHAR, BIGINT, BIGINT))
+        RowPagesBuilder buildPages = rowPagesBuilder(buildHashEnabled, hashChannels, ImmutableList.of(createUnboundedVarcharType(), BIGINT, BIGINT))
                 .addSequencePage(10, 20, 1030, 40);
 
-        RowPagesBuilder probePages = rowPagesBuilder(probeHashEnabled, hashChannels, ImmutableList.<Type>of(VARCHAR, BIGINT, BIGINT))
+        RowPagesBuilder probePages = rowPagesBuilder(probeHashEnabled, hashChannels, ImmutableList.<Type>of(createUnboundedVarcharType(), BIGINT, BIGINT))
                 .addSequencePage(1000, 0, 1000, 2000);
 
         MaterializedResult expected = MaterializedResult.resultBuilder(taskContext.getSession(), concat(probePages.getTypes(), buildPages.getTypes()))
@@ -157,13 +157,13 @@ public class TestHashJoinOperator
     {
         List<Integer> hashChannels = Ints.asList(0);
 
-        List<Type> buildTypes = ImmutableList.<Type>of(VARCHAR);
+        List<Type> buildTypes = ImmutableList.<Type>of(createUnboundedVarcharType());
         RowPagesBuilder buildPages = rowPagesBuilder(buildHashEnabled, hashChannels, buildTypes)
                 .row("a")
                 .row("b")
                 .row("c");
 
-        List<Type> probeTypes = ImmutableList.<Type>of(VARCHAR);
+        List<Type> probeTypes = ImmutableList.<Type>of(createUnboundedVarcharType());
         RowPagesBuilder probePages = rowPagesBuilder(probeHashEnabled, hashChannels, probeTypes)
                 .row("a")
                 .row((String) null)
@@ -215,7 +215,7 @@ public class TestHashJoinOperator
     {
         List<Integer> hashChannels = Ints.asList(0);
 
-        List<Type> buildTypes = ImmutableList.<Type>of(VARCHAR);
+        List<Type> buildTypes = ImmutableList.<Type>of(createUnboundedVarcharType());
         RowPagesBuilder buildPages = rowPagesBuilder(buildHashEnabled, hashChannels, buildTypes)
                 .row("a")
                 .row((String) null)
@@ -223,7 +223,7 @@ public class TestHashJoinOperator
                 .row("a")
                 .row("b");
 
-        List<Type> probeTypes = ImmutableList.<Type>of(VARCHAR);
+        List<Type> probeTypes = ImmutableList.<Type>of(createUnboundedVarcharType());
         RowPagesBuilder probePages = rowPagesBuilder(probeHashEnabled, hashChannels, probeTypes)
                 .row("a")
                 .row("b")
@@ -273,7 +273,7 @@ public class TestHashJoinOperator
     {
         List<Integer> hashChannels = Ints.asList(0);
 
-        List<Type> buildTypes = ImmutableList.<Type>of(VARCHAR);
+        List<Type> buildTypes = ImmutableList.<Type>of(createUnboundedVarcharType());
         RowPagesBuilder buildPages = rowPagesBuilder(buildHashEnabled, hashChannels, buildTypes)
                 .row("a")
                 .row((String) null)
@@ -281,7 +281,7 @@ public class TestHashJoinOperator
                 .row("a")
                 .row("b");
 
-        List<Type> probeTypes = ImmutableList.<Type>of(VARCHAR);
+        List<Type> probeTypes = ImmutableList.<Type>of(createUnboundedVarcharType());
         RowPagesBuilder probePages = rowPagesBuilder(probeHashEnabled, hashChannels, probeTypes)
                 .row("a")
                 .row("b")
@@ -333,11 +333,11 @@ public class TestHashJoinOperator
     {
         List<Integer> hashChannels = Ints.asList(0);
 
-        List<Type> buildTypes = ImmutableList.<Type>of(VARCHAR, BIGINT, BIGINT);
-        RowPagesBuilder buildPages = rowPagesBuilder(buildHashEnabled, hashChannels, ImmutableList.of(VARCHAR, BIGINT, BIGINT))
+        List<Type> buildTypes = ImmutableList.<Type>of(createUnboundedVarcharType(), BIGINT, BIGINT);
+        RowPagesBuilder buildPages = rowPagesBuilder(buildHashEnabled, hashChannels, ImmutableList.of(createUnboundedVarcharType(), BIGINT, BIGINT))
                 .addSequencePage(10, 20, 30, 40);
 
-        List<Type> probeTypes = ImmutableList.<Type>of(VARCHAR, BIGINT, BIGINT);
+        List<Type> probeTypes = ImmutableList.<Type>of(createUnboundedVarcharType(), BIGINT, BIGINT);
         RowPagesBuilder probePages = rowPagesBuilder(probeHashEnabled, hashChannels, probeTypes)
                 .addSequencePage(15, 20, 1020, 2020);
 
@@ -368,11 +368,11 @@ public class TestHashJoinOperator
     {
         List<Integer> hashChannels = Ints.asList(1);
 
-        List<Type> buildTypes = ImmutableList.<Type>of(VARCHAR, BIGINT, BIGINT);
-        RowPagesBuilder buildPages = rowPagesBuilder(buildHashEnabled, hashChannels, ImmutableList.of(VARCHAR, BIGINT, BIGINT))
+        List<Type> buildTypes = ImmutableList.<Type>of(createUnboundedVarcharType(), BIGINT, BIGINT);
+        RowPagesBuilder buildPages = rowPagesBuilder(buildHashEnabled, hashChannels, ImmutableList.of(createUnboundedVarcharType(), BIGINT, BIGINT))
                 .addSequencePage(10, 30, 1020, 40);
 
-        List<Type> probeTypes = ImmutableList.<Type>of(VARCHAR, BIGINT, BIGINT);
+        List<Type> probeTypes = ImmutableList.<Type>of(createUnboundedVarcharType(), BIGINT, BIGINT);
         RowPagesBuilder probePages = rowPagesBuilder(probeHashEnabled, hashChannels, probeTypes)
                 .addSequencePage(15, 20, 1020, 2020);
 
@@ -407,13 +407,13 @@ public class TestHashJoinOperator
                 (leftPosition, leftBlocks, rightPosition, rightBlocks) -> BIGINT.getLong(rightBlocks[1], rightPosition) >= 1025));
 
         // build
-        List<Type> buildTypes = ImmutableList.<Type>of(VARCHAR, BIGINT, BIGINT);
-        RowPagesBuilder buildPages = rowPagesBuilder(buildHashEnabled, Ints.asList(0), ImmutableList.of(VARCHAR, BIGINT, BIGINT))
+        List<Type> buildTypes = ImmutableList.<Type>of(createUnboundedVarcharType(), BIGINT, BIGINT);
+        RowPagesBuilder buildPages = rowPagesBuilder(buildHashEnabled, Ints.asList(0), ImmutableList.of(createUnboundedVarcharType(), BIGINT, BIGINT))
                 .addSequencePage(10, 20, 30, 40);
         LookupSourceSupplier lookupSourceSupplier = buildHash(parallelBuild, taskContext, Ints.asList(0), buildPages, Optional.of(filterFunction));
 
         // probe
-        List<Type> probeTypes = ImmutableList.<Type>of(VARCHAR, BIGINT, BIGINT);
+        List<Type> probeTypes = ImmutableList.<Type>of(createUnboundedVarcharType(), BIGINT, BIGINT);
         RowPagesBuilder probePages = rowPagesBuilder(probeHashEnabled, Ints.asList(0), probeTypes);
         List<Page> probeInput = probePages
                 .addSequencePage(15, 20, 1020, 2020)
@@ -458,13 +458,13 @@ public class TestHashJoinOperator
     {
         List<Integer> hashChannels = Ints.asList(0);
 
-        List<Type> buildTypes = ImmutableList.<Type>of(VARCHAR);
+        List<Type> buildTypes = ImmutableList.<Type>of(createUnboundedVarcharType());
         RowPagesBuilder buildPages = rowPagesBuilder(buildHashEnabled, hashChannels, buildTypes)
                 .row("a")
                 .row("b")
                 .row("c");
 
-        List<Type> probeTypes = ImmutableList.<Type>of(VARCHAR);
+        List<Type> probeTypes = ImmutableList.<Type>of(createUnboundedVarcharType());
         RowPagesBuilder probePages = rowPagesBuilder(probeHashEnabled, hashChannels, probeTypes)
                 .row("a")
                 .row((String) null)
@@ -520,10 +520,10 @@ public class TestHashJoinOperator
         TaskContext taskContext = createTaskContext();
 
         JoinFilterFunction filterFunction = new TestJoinFilterFunction((
-                (leftPosition, leftBlocks, rightPosition, rightBlocks) -> VARCHAR.getSlice(rightBlocks[0], rightPosition).toStringAscii().equals("a")));
+                (leftPosition, leftBlocks, rightPosition, rightBlocks) -> createUnboundedVarcharType().getSlice(rightBlocks[0], rightPosition).toStringAscii().equals("a")));
 
         // build
-        List<Type> buildTypes = ImmutableList.<Type>of(VARCHAR);
+        List<Type> buildTypes = ImmutableList.<Type>of(createUnboundedVarcharType());
         RowPagesBuilder buildPages = rowPagesBuilder(buildHashEnabled, Ints.asList(0), buildTypes)
                 .row("a")
                 .row("b")
@@ -531,7 +531,7 @@ public class TestHashJoinOperator
         LookupSourceSupplier lookupSourceSupplier = buildHash(parallelBuild, taskContext, Ints.asList(0), buildPages, Optional.of(filterFunction));
 
         // probe
-        List<Type> probeTypes = ImmutableList.<Type>of(VARCHAR);
+        List<Type> probeTypes = ImmutableList.<Type>of(createUnboundedVarcharType());
         RowPagesBuilder probePages = rowPagesBuilder(probeHashEnabled, Ints.asList(0), probeTypes);
         List<Page> probeInput = probePages
                 .row("a")
@@ -568,15 +568,15 @@ public class TestHashJoinOperator
     {
         List<Integer> hashChannels = Ints.asList(0);
 
-        List<Type> buildTypes = ImmutableList.<Type>of(VARCHAR);
-        RowPagesBuilder buildPages = rowPagesBuilder(buildHashEnabled, hashChannels, ImmutableList.of(VARCHAR))
+        List<Type> buildTypes = ImmutableList.<Type>of(createUnboundedVarcharType());
+        RowPagesBuilder buildPages = rowPagesBuilder(buildHashEnabled, hashChannels, ImmutableList.of(createUnboundedVarcharType()))
                 .row("a")
                 .row((String) null)
                 .row((String) null)
                 .row("a")
                 .row("b");
 
-        List<Type> probeTypes = ImmutableList.<Type>of(VARCHAR);
+        List<Type> probeTypes = ImmutableList.<Type>of(createUnboundedVarcharType());
         RowPagesBuilder probePages = rowPagesBuilder(probeHashEnabled, hashChannels, probeTypes)
                 .row("a")
                 .row("b")
@@ -630,11 +630,11 @@ public class TestHashJoinOperator
 
         JoinFilterFunction filterFunction = new TestJoinFilterFunction((
                 (leftPosition, leftBlocks, rightPosition, rightBlocks) ->
-                        ImmutableSet.of("a", "c").contains(VARCHAR.getSlice(rightBlocks[0], rightPosition).toStringAscii())));
+                        ImmutableSet.of("a", "c").contains(createUnboundedVarcharType().getSlice(rightBlocks[0], rightPosition).toStringAscii())));
 
         // build
-        List<Type> buildTypes = ImmutableList.<Type>of(VARCHAR);
-        RowPagesBuilder buildPages = rowPagesBuilder(buildHashEnabled, Ints.asList(0), ImmutableList.of(VARCHAR))
+        List<Type> buildTypes = ImmutableList.<Type>of(createUnboundedVarcharType());
+        RowPagesBuilder buildPages = rowPagesBuilder(buildHashEnabled, Ints.asList(0), ImmutableList.of(createUnboundedVarcharType()))
                 .row("a")
                 .row((String) null)
                 .row((String) null)
@@ -643,7 +643,7 @@ public class TestHashJoinOperator
         LookupSourceSupplier lookupSourceSupplier = buildHash(parallelBuild, taskContext, Ints.asList(0), buildPages, Optional.of(filterFunction));
 
         // probe
-        List<Type> probeTypes = ImmutableList.<Type>of(VARCHAR);
+        List<Type> probeTypes = ImmutableList.<Type>of(createUnboundedVarcharType());
         RowPagesBuilder probePages = rowPagesBuilder(probeHashEnabled, Ints.asList(0), probeTypes);
         List<Page> probeInput = probePages
                 .row("a")
@@ -677,14 +677,14 @@ public class TestHashJoinOperator
     {
         List<Integer> hashChannels = Ints.asList(0);
 
-        RowPagesBuilder buildPages = rowPagesBuilder(buildHashEnabled, hashChannels, ImmutableList.of(VARCHAR))
+        RowPagesBuilder buildPages = rowPagesBuilder(buildHashEnabled, hashChannels, ImmutableList.of(createUnboundedVarcharType()))
                 .row("a")
                 .row((String) null)
                 .row((String) null)
                 .row("a")
                 .row("b");
 
-        List<Type> probeTypes = ImmutableList.<Type>of(VARCHAR);
+        List<Type> probeTypes = ImmutableList.<Type>of(createUnboundedVarcharType());
         RowPagesBuilder probePages = rowPagesBuilder(probeHashEnabled, hashChannels, probeTypes)
                 .row("a")
                 .row("b")
@@ -741,10 +741,10 @@ public class TestHashJoinOperator
 
         JoinFilterFunction filterFunction = new TestJoinFilterFunction((
                 (leftPosition, leftBlocks, rightPosition, rightBlocks) ->
-                        ImmutableSet.of("a", "c").contains(VARCHAR.getSlice(rightBlocks[0], rightPosition).toStringAscii())));
+                        ImmutableSet.of("a", "c").contains(createUnboundedVarcharType().getSlice(rightBlocks[0], rightPosition).toStringAscii())));
 
         // build
-        RowPagesBuilder buildPages = rowPagesBuilder(buildHashEnabled, Ints.asList(0), ImmutableList.of(VARCHAR))
+        RowPagesBuilder buildPages = rowPagesBuilder(buildHashEnabled, Ints.asList(0), ImmutableList.of(createUnboundedVarcharType()))
                 .row("a")
                 .row((String) null)
                 .row((String) null)
@@ -753,7 +753,7 @@ public class TestHashJoinOperator
         LookupSourceSupplier lookupSourceSupplier = buildHash(parallelBuild, taskContext, Ints.asList(0), buildPages, Optional.of(filterFunction));
 
         // probe
-        List<Type> probeTypes = ImmutableList.<Type>of(VARCHAR);
+        List<Type> probeTypes = ImmutableList.<Type>of(createUnboundedVarcharType());
         RowPagesBuilder probePages = rowPagesBuilder(probeHashEnabled, Ints.asList(0), probeTypes);
         List<Page> probeInput = probePages
                 .row("a")
@@ -789,7 +789,7 @@ public class TestHashJoinOperator
     {
         TaskContext taskContext = TestingTaskContext.createTaskContext(executor, TEST_SESSION, new DataSize(100, BYTE));
 
-        RowPagesBuilder buildPages = rowPagesBuilder(buildHashEnabled, Ints.asList(0), ImmutableList.of(VARCHAR, BIGINT, BIGINT))
+        RowPagesBuilder buildPages = rowPagesBuilder(buildHashEnabled, Ints.asList(0), ImmutableList.of(createUnboundedVarcharType(), BIGINT, BIGINT))
                 .addSequencePage(10, 20, 30, 40);
         buildHash(parallelBuild, taskContext, Ints.asList(0), buildPages, Optional.empty());
     }
@@ -800,7 +800,7 @@ public class TestHashJoinOperator
     {
         TaskContext taskContext = TestingTaskContext.createTaskContext(executor, TEST_SESSION, new DataSize(100, BYTE));
 
-        RowPagesBuilder buildPages = rowPagesBuilder(buildHashEnabled, Ints.asList(1), ImmutableList.of(VARCHAR, BIGINT, BIGINT))
+        RowPagesBuilder buildPages = rowPagesBuilder(buildHashEnabled, Ints.asList(1), ImmutableList.of(createUnboundedVarcharType(), BIGINT, BIGINT))
                 .addSequencePage(10, 20, 30, 40);
         buildHash(parallelBuild, taskContext, Ints.asList(1), buildPages, Optional.empty());
     }

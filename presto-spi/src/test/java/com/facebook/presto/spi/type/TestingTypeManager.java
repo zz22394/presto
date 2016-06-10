@@ -26,7 +26,7 @@ import static com.facebook.presto.spi.type.HyperLogLogType.HYPER_LOG_LOG;
 import static com.facebook.presto.spi.type.TestingIdType.ID;
 import static com.facebook.presto.spi.type.TimestampType.TIMESTAMP;
 import static com.facebook.presto.spi.type.VarbinaryType.VARBINARY;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 
 public class TestingTypeManager
         implements TypeManager
@@ -51,7 +51,7 @@ public class TestingTypeManager
     @Override
     public List<Type> getTypes()
     {
-        return ImmutableList.<Type>of(BOOLEAN, BIGINT, DOUBLE, VARCHAR, VARBINARY, TIMESTAMP, DATE, ID, HYPER_LOG_LOG);
+        return ImmutableList.<Type>of(BOOLEAN, BIGINT, DOUBLE, createUnboundedVarcharType(), VARBINARY, TIMESTAMP, DATE, ID, HYPER_LOG_LOG);
     }
 
     @Override

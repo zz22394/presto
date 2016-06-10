@@ -23,7 +23,7 @@ import java.util.List;
 
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.TypeSignature.parseTypeSignature;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static io.airlift.slice.Slices.utf8Slice;
 
 public class TestSimpleRowType
@@ -44,17 +44,17 @@ public class TestSimpleRowType
 
         arrayElementBlockWriter = blockBuilder.beginBlockEntry();
         BIGINT.writeLong(arrayElementBlockWriter, 1);
-        VARCHAR.writeSlice(arrayElementBlockWriter, utf8Slice("cat"));
+        createUnboundedVarcharType().writeSlice(arrayElementBlockWriter, utf8Slice("cat"));
         blockBuilder.closeEntry();
 
         arrayElementBlockWriter = blockBuilder.beginBlockEntry();
         BIGINT.writeLong(arrayElementBlockWriter, 2);
-        VARCHAR.writeSlice(arrayElementBlockWriter, utf8Slice("cats"));
+        createUnboundedVarcharType().writeSlice(arrayElementBlockWriter, utf8Slice("cats"));
         blockBuilder.closeEntry();
 
         arrayElementBlockWriter = blockBuilder.beginBlockEntry();
         BIGINT.writeLong(arrayElementBlockWriter, 3);
-        VARCHAR.writeSlice(arrayElementBlockWriter, utf8Slice("dog"));
+        createUnboundedVarcharType().writeSlice(arrayElementBlockWriter, utf8Slice("dog"));
         blockBuilder.closeEntry();
 
         return blockBuilder.build();

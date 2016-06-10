@@ -36,7 +36,7 @@ import static com.facebook.presto.spi.block.SortOrder.ASC_NULLS_LAST;
 import static com.facebook.presto.spi.block.SortOrder.DESC_NULLS_LAST;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.testing.MaterializedResult.resultBuilder;
 import static com.facebook.presto.testing.TestingTaskContext.createTaskContext;
 import static io.airlift.concurrent.Threads.daemonThreadsNamed;
@@ -100,7 +100,7 @@ public class TestOrderByOperator
     public void testMultiFieldKey()
             throws Exception
     {
-        List<Page> input = rowPagesBuilder(VARCHAR, BIGINT)
+        List<Page> input = rowPagesBuilder(createUnboundedVarcharType(), BIGINT)
                 .row("a", 1L)
                 .row("b", 2L)
                 .pageBreak()
@@ -111,7 +111,7 @@ public class TestOrderByOperator
         OrderByOperatorFactory operatorFactory = new OrderByOperatorFactory(
                 0,
                 new PlanNodeId("test"),
-                ImmutableList.of(VARCHAR, BIGINT),
+                ImmutableList.of(createUnboundedVarcharType(), BIGINT),
                 ImmutableList.of(0, 1),
                 10,
                 ImmutableList.of(0, 1),
@@ -119,7 +119,7 @@ public class TestOrderByOperator
 
         Operator operator = operatorFactory.createOperator(driverContext);
 
-        MaterializedResult expected = MaterializedResult.resultBuilder(driverContext.getSession(), VARCHAR, BIGINT)
+        MaterializedResult expected = MaterializedResult.resultBuilder(driverContext.getSession(), createUnboundedVarcharType(), BIGINT)
                 .row("a", 4L)
                 .row("a", 1L)
                 .row("b", 3L)

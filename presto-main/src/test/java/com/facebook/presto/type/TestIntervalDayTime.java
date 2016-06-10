@@ -21,7 +21,7 @@ import org.testng.annotations.Test;
 
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 import static com.facebook.presto.spi.type.IntervalDayTimeType.INTERVAL_DAY_TIME;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 
 public class TestIntervalDayTime
 {
@@ -225,43 +225,43 @@ public class TestIntervalDayTime
     public void testCastToSlice()
             throws Exception
     {
-        assertFunction("cast(INTERVAL '12 10:45:32.123' DAY TO SECOND as varchar)", VARCHAR, "12 10:45:32.123");
-        assertFunction("cast(INTERVAL '12 10:45:32.123' DAY TO SECOND as varchar)", VARCHAR, new SqlIntervalDayTime(12, 10, 45, 32, 123).toString());
-        assertFunction("cast(INTERVAL '12 10:45:32.12' DAY TO SECOND as varchar)", VARCHAR, new SqlIntervalDayTime(12, 10, 45, 32, 120).toString());
-        assertFunction("cast(INTERVAL '12 10:45:32' DAY TO SECOND as varchar)", VARCHAR, new SqlIntervalDayTime(12, 10, 45, 32, 0).toString());
-        assertFunction("cast(INTERVAL '12 10:45' DAY TO SECOND as varchar)", VARCHAR, new SqlIntervalDayTime(12, 10, 45, 0, 0).toString());
-        assertFunction("cast(INTERVAL '12 10' DAY TO SECOND as varchar)", VARCHAR, new SqlIntervalDayTime(12, 10, 0, 0, 0).toString());
-        assertFunction("cast(INTERVAL '12' DAY TO SECOND as varchar)", VARCHAR, new SqlIntervalDayTime(12, 0, 0, 0, 0).toString());
+        assertFunction("cast(INTERVAL '12 10:45:32.123' DAY TO SECOND as varchar)", createUnboundedVarcharType(), "12 10:45:32.123");
+        assertFunction("cast(INTERVAL '12 10:45:32.123' DAY TO SECOND as varchar)", createUnboundedVarcharType(), new SqlIntervalDayTime(12, 10, 45, 32, 123).toString());
+        assertFunction("cast(INTERVAL '12 10:45:32.12' DAY TO SECOND as varchar)", createUnboundedVarcharType(), new SqlIntervalDayTime(12, 10, 45, 32, 120).toString());
+        assertFunction("cast(INTERVAL '12 10:45:32' DAY TO SECOND as varchar)", createUnboundedVarcharType(), new SqlIntervalDayTime(12, 10, 45, 32, 0).toString());
+        assertFunction("cast(INTERVAL '12 10:45' DAY TO SECOND as varchar)", createUnboundedVarcharType(), new SqlIntervalDayTime(12, 10, 45, 0, 0).toString());
+        assertFunction("cast(INTERVAL '12 10' DAY TO SECOND as varchar)", createUnboundedVarcharType(), new SqlIntervalDayTime(12, 10, 0, 0, 0).toString());
+        assertFunction("cast(INTERVAL '12' DAY TO SECOND as varchar)", createUnboundedVarcharType(), new SqlIntervalDayTime(12, 0, 0, 0, 0).toString());
 
-        assertFunction("cast(INTERVAL '12 10:45' DAY TO MINUTE as varchar)", VARCHAR, new SqlIntervalDayTime(12, 10, 45, 0, 0).toString());
-        assertFunction("cast(INTERVAL '12 10' DAY TO MINUTE as varchar)", VARCHAR, new SqlIntervalDayTime(12, 10, 0, 0, 0).toString());
-        assertFunction("cast(INTERVAL '12' DAY TO MINUTE as varchar)", VARCHAR, new SqlIntervalDayTime(12, 0, 0, 0, 0).toString());
+        assertFunction("cast(INTERVAL '12 10:45' DAY TO MINUTE as varchar)", createUnboundedVarcharType(), new SqlIntervalDayTime(12, 10, 45, 0, 0).toString());
+        assertFunction("cast(INTERVAL '12 10' DAY TO MINUTE as varchar)", createUnboundedVarcharType(), new SqlIntervalDayTime(12, 10, 0, 0, 0).toString());
+        assertFunction("cast(INTERVAL '12' DAY TO MINUTE as varchar)", createUnboundedVarcharType(), new SqlIntervalDayTime(12, 0, 0, 0, 0).toString());
 
-        assertFunction("cast(INTERVAL '12 10' DAY TO HOUR as varchar)", VARCHAR, new SqlIntervalDayTime(12, 10, 0, 0, 0).toString());
-        assertFunction("cast(INTERVAL '12' DAY TO HOUR as varchar)", VARCHAR, new SqlIntervalDayTime(12, 0, 0, 0, 0).toString());
+        assertFunction("cast(INTERVAL '12 10' DAY TO HOUR as varchar)", createUnboundedVarcharType(), new SqlIntervalDayTime(12, 10, 0, 0, 0).toString());
+        assertFunction("cast(INTERVAL '12' DAY TO HOUR as varchar)", createUnboundedVarcharType(), new SqlIntervalDayTime(12, 0, 0, 0, 0).toString());
 
-        assertFunction("cast(INTERVAL '12' DAY as varchar)", VARCHAR, new SqlIntervalDayTime(12, 0, 0, 0, 0).toString());
+        assertFunction("cast(INTERVAL '12' DAY as varchar)", createUnboundedVarcharType(), new SqlIntervalDayTime(12, 0, 0, 0, 0).toString());
 
-        assertFunction("cast(INTERVAL '10:45:32.123' HOUR TO SECOND as varchar)", VARCHAR, new SqlIntervalDayTime(0, 10, 45, 32, 123).toString());
-        assertFunction("cast(INTERVAL '10:45:32.12' HOUR TO SECOND as varchar)", VARCHAR, new SqlIntervalDayTime(0, 10, 45, 32, 120).toString());
-        assertFunction("cast(INTERVAL '10:45:32' HOUR TO SECOND as varchar)", VARCHAR, new SqlIntervalDayTime(0, 10, 45, 32, 0).toString());
-        assertFunction("cast(INTERVAL '10:45' HOUR TO SECOND as varchar)", VARCHAR, new SqlIntervalDayTime(0, 10, 45, 0, 0).toString());
-        assertFunction("cast(INTERVAL '10' HOUR TO SECOND as varchar)", VARCHAR, new SqlIntervalDayTime(0, 10, 0, 0, 0).toString());
+        assertFunction("cast(INTERVAL '10:45:32.123' HOUR TO SECOND as varchar)", createUnboundedVarcharType(), new SqlIntervalDayTime(0, 10, 45, 32, 123).toString());
+        assertFunction("cast(INTERVAL '10:45:32.12' HOUR TO SECOND as varchar)", createUnboundedVarcharType(), new SqlIntervalDayTime(0, 10, 45, 32, 120).toString());
+        assertFunction("cast(INTERVAL '10:45:32' HOUR TO SECOND as varchar)", createUnboundedVarcharType(), new SqlIntervalDayTime(0, 10, 45, 32, 0).toString());
+        assertFunction("cast(INTERVAL '10:45' HOUR TO SECOND as varchar)", createUnboundedVarcharType(), new SqlIntervalDayTime(0, 10, 45, 0, 0).toString());
+        assertFunction("cast(INTERVAL '10' HOUR TO SECOND as varchar)", createUnboundedVarcharType(), new SqlIntervalDayTime(0, 10, 0, 0, 0).toString());
 
-        assertFunction("cast(INTERVAL '10:45' HOUR TO MINUTE as varchar)", VARCHAR, new SqlIntervalDayTime(0, 10, 45, 0, 0).toString());
-        assertFunction("cast(INTERVAL '10' HOUR TO MINUTE as varchar)", VARCHAR, new SqlIntervalDayTime(0, 10, 0, 0, 0).toString());
+        assertFunction("cast(INTERVAL '10:45' HOUR TO MINUTE as varchar)", createUnboundedVarcharType(), new SqlIntervalDayTime(0, 10, 45, 0, 0).toString());
+        assertFunction("cast(INTERVAL '10' HOUR TO MINUTE as varchar)", createUnboundedVarcharType(), new SqlIntervalDayTime(0, 10, 0, 0, 0).toString());
 
-        assertFunction("cast(INTERVAL '10' HOUR as varchar)", VARCHAR, new SqlIntervalDayTime(0, 10, 0, 0, 0).toString());
+        assertFunction("cast(INTERVAL '10' HOUR as varchar)", createUnboundedVarcharType(), new SqlIntervalDayTime(0, 10, 0, 0, 0).toString());
 
-        assertFunction("cast(INTERVAL '45:32.123' MINUTE TO SECOND as varchar)", VARCHAR, new SqlIntervalDayTime(0, 0, 45, 32, 123).toString());
-        assertFunction("cast(INTERVAL '45:32.12' MINUTE TO SECOND as varchar)", VARCHAR, new SqlIntervalDayTime(0, 0, 45, 32, 120).toString());
-        assertFunction("cast(INTERVAL '45:32' MINUTE TO SECOND as varchar)", VARCHAR, new SqlIntervalDayTime(0, 0, 45, 32, 0).toString());
-        assertFunction("cast(INTERVAL '45' MINUTE TO SECOND as varchar)", VARCHAR, new SqlIntervalDayTime(0, 0, 45, 0, 0).toString());
+        assertFunction("cast(INTERVAL '45:32.123' MINUTE TO SECOND as varchar)", createUnboundedVarcharType(), new SqlIntervalDayTime(0, 0, 45, 32, 123).toString());
+        assertFunction("cast(INTERVAL '45:32.12' MINUTE TO SECOND as varchar)", createUnboundedVarcharType(), new SqlIntervalDayTime(0, 0, 45, 32, 120).toString());
+        assertFunction("cast(INTERVAL '45:32' MINUTE TO SECOND as varchar)", createUnboundedVarcharType(), new SqlIntervalDayTime(0, 0, 45, 32, 0).toString());
+        assertFunction("cast(INTERVAL '45' MINUTE TO SECOND as varchar)", createUnboundedVarcharType(), new SqlIntervalDayTime(0, 0, 45, 0, 0).toString());
 
-        assertFunction("cast(INTERVAL '45' MINUTE as varchar)", VARCHAR, new SqlIntervalDayTime(0, 0, 45, 0, 0).toString());
+        assertFunction("cast(INTERVAL '45' MINUTE as varchar)", createUnboundedVarcharType(), new SqlIntervalDayTime(0, 0, 45, 0, 0).toString());
 
-        assertFunction("cast(INTERVAL '32.123' SECOND as varchar)", VARCHAR, new SqlIntervalDayTime(0, 0, 0, 32, 123).toString());
-        assertFunction("cast(INTERVAL '32.12' SECOND as varchar)", VARCHAR, new SqlIntervalDayTime(0, 0, 0, 32, 120).toString());
-        assertFunction("cast(INTERVAL '32' SECOND as varchar)", VARCHAR, new SqlIntervalDayTime(0, 0, 0, 32, 0).toString());
+        assertFunction("cast(INTERVAL '32.123' SECOND as varchar)", createUnboundedVarcharType(), new SqlIntervalDayTime(0, 0, 0, 32, 123).toString());
+        assertFunction("cast(INTERVAL '32.12' SECOND as varchar)", createUnboundedVarcharType(), new SqlIntervalDayTime(0, 0, 0, 32, 120).toString());
+        assertFunction("cast(INTERVAL '32' SECOND as varchar)", createUnboundedVarcharType(), new SqlIntervalDayTime(0, 0, 0, 32, 0).toString());
     }
 }

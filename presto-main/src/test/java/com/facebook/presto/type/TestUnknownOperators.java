@@ -22,7 +22,7 @@ import javax.annotation.Nullable;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.type.UnknownType.UNKNOWN;
 
 public class TestUnknownOperators
@@ -109,8 +109,8 @@ public class TestUnknownOperators
     public void testCastToVarchar()
             throws Exception
     {
-        assertFunction("cast(NULL as varchar)", VARCHAR, null);
-        assertFunction("cast(null_function() as varchar)", VARCHAR, null);
+        assertFunction("cast(NULL as varchar)", createUnboundedVarcharType(), null);
+        assertFunction("cast(null_function() as varchar)", createUnboundedVarcharType(), null);
     }
 
     @Test

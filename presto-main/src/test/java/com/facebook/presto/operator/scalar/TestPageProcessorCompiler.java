@@ -43,7 +43,7 @@ import static com.facebook.presto.metadata.Signature.internalOperator;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 import static com.facebook.presto.spi.type.TypeSignature.parseTypeSignature;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static io.airlift.slice.Slices.wrappedIntArray;
 import static java.lang.Boolean.TRUE;
 import static java.util.Collections.singletonList;
@@ -62,7 +62,7 @@ public class TestPageProcessorCompiler
         MetadataManager metadata = METADATA_MANAGER;
         ExpressionCompiler compiler = new ExpressionCompiler(metadata);
         ImmutableList.Builder<RowExpression> projectionsBuilder = ImmutableList.builder();
-        ArrayType arrayType = new ArrayType(VARCHAR);
+        ArrayType arrayType = new ArrayType(createUnboundedVarcharType());
         Signature signature = new Signature("concat", SCALAR, arrayType.getTypeSignature(), arrayType.getTypeSignature(), arrayType.getTypeSignature());
         projectionsBuilder.add(new CallExpression(signature, arrayType, ImmutableList.of(new InputReferenceExpression(0, arrayType), new InputReferenceExpression(1, arrayType))));
 
@@ -77,11 +77,11 @@ public class TestPageProcessorCompiler
             throws Exception
     {
         PageProcessor processor = new ExpressionCompiler(createTestMetadataManager())
-                .compilePageProcessor(new ConstantExpression(TRUE, BOOLEAN), ImmutableList.of(new InputReferenceExpression(0, BIGINT), new InputReferenceExpression(1, VARCHAR))).get();
+                .compilePageProcessor(new ConstantExpression(TRUE, BOOLEAN), ImmutableList.of(new InputReferenceExpression(0, BIGINT), new InputReferenceExpression(1, createUnboundedVarcharType()))).get();
 
         Slice varcharValue = Slices.utf8Slice("hello");
-        Page page = new Page(RunLengthEncodedBlock.create(BIGINT, 123L, 100), RunLengthEncodedBlock.create(VARCHAR, varcharValue, 100));
-        Page outputPage = processor.processColumnarDictionary(null, page, ImmutableList.of(BIGINT, VARCHAR));
+        Page page = new Page(RunLengthEncodedBlock.create(BIGINT, 123L, 100), RunLengthEncodedBlock.create(createUnboundedVarcharType(), varcharValue, 100));
+        Page outputPage = processor.processColumnarDictionary(null, page, ImmutableList.of(BIGINT, createUnboundedVarcharType()));
 
         assertEquals(outputPage.getPositionCount(), 100);
         assertTrue(outputPage.getBlock(0) instanceof RunLengthEncodedBlock);
@@ -91,7 +91,7 @@ public class TestPageProcessorCompiler
         assertEquals(BIGINT.getLong(rleBlock.getValue(), 0), 123L);
 
         RunLengthEncodedBlock rleBlock1 = (RunLengthEncodedBlock) outputPage.getBlock(1);
-        assertEquals(VARCHAR.getSlice(rleBlock1.getValue(), 0), varcharValue);
+        assertEquals(createUnboundedVarcharType().getSlice(rleBlock1.getValue(), 0), varcharValue);
     }
 
     @Test
@@ -99,15 +99,15 @@ public class TestPageProcessorCompiler
             throws Exception
     {
         CallExpression lengthVarchar = new CallExpression(
-                new Signature("length", SCALAR, parseTypeSignature(StandardTypes.BIGINT), parseTypeSignature(StandardTypes.VARCHAR)), BIGINT, ImmutableList.of(new InputReferenceExpression(0, VARCHAR)));
+                new Signature("length", SCALAR, parseTypeSignature(StandardTypes.BIGINT), parseTypeSignature(StandardTypes.VARCHAR)), BIGINT, ImmutableList.of(new InputReferenceExpression(0, createUnboundedVarcharType())));
         Signature lessThan = internalOperator(LESS_THAN, BOOLEAN, ImmutableList.of(BIGINT, BIGINT));
         CallExpression filter = new CallExpression(lessThan, BOOLEAN, ImmutableList.of(lengthVarchar, new ConstantExpression(10L, BIGINT)));
 
         PageProcessor processor = new ExpressionCompiler(createTestMetadataManager())
-                .compilePageProcessor(filter, ImmutableList.of(new InputReferenceExpression(0, VARCHAR))).get();
+                .compilePageProcessor(filter, ImmutableList.of(new InputReferenceExpression(0, createUnboundedVarcharType()))).get();
 
         Page page = new Page(createDictionaryBlock(createExpectedValues(10), 100));
-        Page outputPage = processor.processColumnarDictionary(null, page, ImmutableList.of(VARCHAR));
+        Page outputPage = processor.processColumnarDictionary(null, page, ImmutableList.of(createUnboundedVarcharType()));
 
         assertEquals(outputPage.getPositionCount(), 100);
         assertTrue(outputPage.getBlock(0) instanceof DictionaryBlock);
@@ -116,7 +116,7 @@ public class TestPageProcessorCompiler
         assertEquals(dictionaryBlock.getDictionary().getPositionCount(), 10);
 
         // test filter caching
-        Page outputPage2 = processor.processColumnarDictionary(null, page, ImmutableList.of(VARCHAR));
+        Page outputPage2 = processor.processColumnarDictionary(null, page, ImmutableList.of(createUnboundedVarcharType()));
         assertEquals(outputPage2.getPositionCount(), 100);
         assertTrue(outputPage2.getBlock(0) instanceof DictionaryBlock);
 
@@ -150,10 +150,10 @@ public class TestPageProcessorCompiler
             throws Exception
     {
         PageProcessor processor = new ExpressionCompiler(createTestMetadataManager())
-                .compilePageProcessor(new ConstantExpression(TRUE, BOOLEAN), ImmutableList.of(new InputReferenceExpression(0, VARCHAR))).get();
+                .compilePageProcessor(new ConstantExpression(TRUE, BOOLEAN), ImmutableList.of(new InputReferenceExpression(0, createUnboundedVarcharType()))).get();
 
         Page page = new Page(createDictionaryBlock(createExpectedValues(10), 100));
-        Page outputPage = processor.processColumnarDictionary(null, page, ImmutableList.of(VARCHAR));
+        Page outputPage = processor.processColumnarDictionary(null, page, ImmutableList.of(createUnboundedVarcharType()));
 
         assertEquals(outputPage.getPositionCount(), 100);
         assertTrue(outputPage.getBlock(0) instanceof DictionaryBlock);

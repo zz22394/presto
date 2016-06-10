@@ -20,7 +20,7 @@ import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
 import static com.facebook.presto.spi.type.FloatType.FLOAT;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 
 public class TestDoubleOperators
         extends AbstractTestFunctions
@@ -181,8 +181,8 @@ public class TestDoubleOperators
     public void testCastToVarchar()
             throws Exception
     {
-        assertFunction("cast(cast(37.7 as double) as varchar)", VARCHAR, "37.7");
-        assertFunction("cast(cast(17.1 as double) as varchar)", VARCHAR, "17.1");
+        assertFunction("cast(cast(37.7 as double) as varchar)", createUnboundedVarcharType(), "37.7");
+        assertFunction("cast(cast(17.1 as double) as varchar)", createUnboundedVarcharType(), "17.1");
     }
 
     @Test

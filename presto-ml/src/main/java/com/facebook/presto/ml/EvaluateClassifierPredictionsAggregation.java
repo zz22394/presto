@@ -28,7 +28,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.google.common.collect.Sets.union;
 import static io.airlift.slice.SizeOf.SIZE_OF_INT;
 import static java.lang.String.format;
@@ -112,6 +112,6 @@ public final class EvaluateClassifierPredictionsAggregation
             sb.append(format(Locale.US, "Recall: %d/%d (%.2f%%)\n", truePositives, truePositives + falseNegatives, 100.0 * truePositives / (double) (truePositives + falseNegatives)));
         }
 
-        VARCHAR.writeString(out, sb.toString());
+        createUnboundedVarcharType().writeString(out, sb.toString());
     }
 }

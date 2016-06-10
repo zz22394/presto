@@ -215,7 +215,7 @@ public final class SessionPropertyManager
         if (DoubleType.DOUBLE.equals(type)) {
             return value.toString();
         }
-        if (VarcharType.VARCHAR.equals(type)) {
+        if (VarcharType.createUnboundedVarcharType().equals(type)) {
             return value.toString();
         }
         if (type instanceof ArrayType || type instanceof MapType) {
@@ -229,7 +229,7 @@ public final class SessionPropertyManager
         if (value == null) {
             throw new PrestoException(INVALID_SESSION_PROPERTY, "Session property can not be null");
         }
-        if (VarcharType.VARCHAR.equals(type)) {
+        if (VarcharType.createUnboundedVarcharType().equals(type)) {
             return value;
         }
         if (BooleanType.BOOLEAN.equals(type)) {
@@ -249,7 +249,7 @@ public final class SessionPropertyManager
 
     private static <T> JsonCodec<T> getJsonCodecForType(Type type)
     {
-        if (VarcharType.VARCHAR.equals(type)) {
+        if (VarcharType.createUnboundedVarcharType().equals(type)) {
             return (JsonCodec<T>) JSON_CODEC_FACTORY.jsonCodec(String.class);
         }
         if (BooleanType.BOOLEAN.equals(type)) {
@@ -275,7 +275,7 @@ public final class SessionPropertyManager
 
     private static Class<?> getMapKeyType(Type type)
     {
-        if (VarcharType.VARCHAR.equals(type)) {
+        if (VarcharType.createUnboundedVarcharType().equals(type)) {
             return String.class;
         }
         if (BooleanType.BOOLEAN.equals(type)) {

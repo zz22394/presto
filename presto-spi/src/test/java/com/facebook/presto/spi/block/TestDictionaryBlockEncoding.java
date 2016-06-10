@@ -28,7 +28,7 @@ import java.util.Optional;
 
 import static com.facebook.presto.spi.StandardErrorCode.INVALID_SESSION_PROPERTY;
 import static com.facebook.presto.spi.type.TimeZoneKey.UTC_KEY;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static java.util.Locale.ENGLISH;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
@@ -80,11 +80,11 @@ public class TestDictionaryBlockEncoding
         int positionCount = 40;
 
         // build dictionary
-        BlockBuilder dictionaryBuilder = VARCHAR.createBlockBuilder(new BlockBuilderStatus(), 4);
-        VARCHAR.writeString(dictionaryBuilder, "alice");
-        VARCHAR.writeString(dictionaryBuilder, "bob");
-        VARCHAR.writeString(dictionaryBuilder, "charlie");
-        VARCHAR.writeString(dictionaryBuilder, "dave");
+        BlockBuilder dictionaryBuilder = createUnboundedVarcharType().createBlockBuilder(new BlockBuilderStatus(), 4);
+        createUnboundedVarcharType().writeString(dictionaryBuilder, "alice");
+        createUnboundedVarcharType().writeString(dictionaryBuilder, "bob");
+        createUnboundedVarcharType().writeString(dictionaryBuilder, "charlie");
+        createUnboundedVarcharType().writeString(dictionaryBuilder, "dave");
         Block dictionary = dictionaryBuilder.build();
 
         // build ids
@@ -103,7 +103,7 @@ public class TestDictionaryBlockEncoding
 
         assertTrue(actualBlock instanceof DictionaryBlock);
         DictionaryBlock actualDictionaryBlock = (DictionaryBlock) actualBlock;
-        assertBlockEquals(VARCHAR, actualDictionaryBlock.getDictionary(), dictionary);
+        assertBlockEquals(createUnboundedVarcharType(), actualDictionaryBlock.getDictionary(), dictionary);
         assertEquals(actualDictionaryBlock.getIds(), idsSlice);
         assertEquals(actualDictionaryBlock.getDictionarySourceId(), dictionaryBlock.getDictionarySourceId());
     }

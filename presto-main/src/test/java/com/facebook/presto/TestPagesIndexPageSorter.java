@@ -30,7 +30,7 @@ import static com.facebook.presto.operator.OperatorAssertion.toMaterializedResul
 import static com.facebook.presto.spi.block.SortOrder.ASC_NULLS_FIRST;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static org.testng.Assert.assertEquals;
 
 public class TestPagesIndexPageSorter
@@ -41,7 +41,7 @@ public class TestPagesIndexPageSorter
     public void testPageSorter()
             throws Exception
     {
-        List<Type> types = ImmutableList.of(BIGINT, DOUBLE, VARCHAR);
+        List<Type> types = ImmutableList.of(BIGINT, DOUBLE, createUnboundedVarcharType());
         List<Integer> sortChannels = Ints.asList(0);
         List<SortOrder> sortOrders = ImmutableList.of(ASC_NULLS_FIRST);
 
@@ -68,7 +68,7 @@ public class TestPagesIndexPageSorter
     public void testPageSorterMultipleChannels()
             throws Exception
     {
-        List<Type> types = ImmutableList.of(BIGINT, DOUBLE, VARCHAR);
+        List<Type> types = ImmutableList.of(BIGINT, DOUBLE, createUnboundedVarcharType());
         List<Integer> sortChannels = Ints.asList(0, 1, 2);
         List<SortOrder> sortOrders = Collections.nCopies(sortChannels.size(), ASC_NULLS_FIRST);
 
@@ -100,7 +100,7 @@ public class TestPagesIndexPageSorter
     public void testPageSorterSorted()
             throws Exception
     {
-        List<Type> types = ImmutableList.of(BIGINT, DOUBLE, VARCHAR);
+        List<Type> types = ImmutableList.of(BIGINT, DOUBLE, createUnboundedVarcharType());
         List<Integer> sortChannels = Ints.asList(0);
         List<SortOrder> sortOrders = ImmutableList.of(ASC_NULLS_FIRST);
 
@@ -126,7 +126,7 @@ public class TestPagesIndexPageSorter
     public void testPageSorterForceExpansion()
             throws Exception
     {
-        List<Type> types = ImmutableList.of(BIGINT, DOUBLE, VARCHAR);
+        List<Type> types = ImmutableList.of(BIGINT, DOUBLE, createUnboundedVarcharType());
         List<Integer> sortChannels = Ints.asList(0);
         List<SortOrder> sortOrders = ImmutableList.of(ASC_NULLS_FIRST);
 

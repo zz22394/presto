@@ -160,7 +160,7 @@ import static com.facebook.presto.spi.StandardErrorCode.INVALID_FUNCTION_ARGUMEN
 import static com.facebook.presto.spi.StandardErrorCode.INVALID_TABLE_PROPERTY;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.sql.QueryUtil.aliased;
 import static com.facebook.presto.sql.QueryUtil.aliasedName;
 import static com.facebook.presto.sql.QueryUtil.aliasedNullToEmpty;
@@ -1002,7 +1002,7 @@ class StatementAnalyzer
             }
             analysis.setStatement(node);
             analysis.setUpdateType(null);
-            RelationType type = new RelationType(Field.newUnqualified("Query Plan", VARCHAR));
+            RelationType type = new RelationType(Field.newUnqualified("Query Plan", createUnboundedVarcharType()));
             analysis.setOutputDescriptor(node, type);
             return type;
         }

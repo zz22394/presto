@@ -32,7 +32,7 @@ import static com.facebook.presto.spi.session.PropertyMetadata.booleanSessionPro
 import static com.facebook.presto.spi.session.PropertyMetadata.integerSessionProperty;
 import static com.facebook.presto.spi.session.PropertyMetadata.stringSessionProperty;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 
@@ -149,7 +149,7 @@ public final class SystemSessionProperties
                 new PropertyMetadata<>(
                         QUERY_MAX_RUN_TIME,
                         "Maximum run time of a query",
-                        VARCHAR,
+                        createUnboundedVarcharType(),
                         Duration.class,
                         queryManagerConfig.getQueryMaxRunTime(),
                         false,
@@ -158,7 +158,7 @@ public final class SystemSessionProperties
                 new PropertyMetadata<>(
                         QUERY_MAX_CPU_TIME,
                         "Maximum CPU time of a query",
-                        VARCHAR,
+                        createUnboundedVarcharType(),
                         Duration.class,
                         queryManagerConfig.getQueryMaxCpuTime(),
                         false,
@@ -167,7 +167,7 @@ public final class SystemSessionProperties
                 new PropertyMetadata<>(
                         QUERY_MAX_MEMORY,
                         "Maximum amount of distributed memory a query can use",
-                        VARCHAR,
+                        createUnboundedVarcharType(),
                         DataSize.class,
                         memoryManagerConfig.getMaxQueryMemory(),
                         true,
@@ -201,7 +201,7 @@ public final class SystemSessionProperties
                 new PropertyMetadata<>(
                         SPLIT_CONCURRENCY_ADJUSTMENT_INTERVAL,
                         "Experimental: Interval between changes to the number of concurrent splits per node",
-                        VARCHAR,
+                        createUnboundedVarcharType(),
                         Duration.class,
                         taskManagerConfig.getSplitConcurrencyAdjustmentInterval(),
                         false,

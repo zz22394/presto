@@ -18,7 +18,7 @@ import org.testng.annotations.Test;
 import static com.facebook.presto.SessionTestUtils.TEST_SESSION;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.IntegerType.INTEGER;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.testing.MaterializedResult.resultBuilder;
 
 public class TestLagFunction
@@ -28,7 +28,7 @@ public class TestLagFunction
     public void testLagFunction()
     {
         assertWindowQuery("lag(orderdate) OVER (PARTITION BY orderstatus ORDER BY orderkey)",
-                resultBuilder(TEST_SESSION, INTEGER, VARCHAR, VARCHAR)
+                resultBuilder(TEST_SESSION, INTEGER, createUnboundedVarcharType(), createUnboundedVarcharType())
                         .row(3, "F", null)
                         .row(5, "F", "1993-10-14")
                         .row(6, "F", "1994-07-30")
@@ -41,7 +41,7 @@ public class TestLagFunction
                         .row(34, "O", "1995-07-16")
                         .build());
         assertWindowQueryWithNulls("lag(orderdate) OVER (PARTITION BY orderstatus ORDER BY orderkey)",
-                resultBuilder(TEST_SESSION, BIGINT, VARCHAR, VARCHAR)
+                resultBuilder(TEST_SESSION, BIGINT, createUnboundedVarcharType(), createUnboundedVarcharType())
                         .row(3L, "F", null)
                         .row(5L, "F", "1993-10-14")
                         .row(null, "F", null)
@@ -55,7 +55,7 @@ public class TestLagFunction
                         .build());
 
         assertWindowQuery("lag(orderkey) OVER (PARTITION BY orderstatus ORDER BY orderkey)",
-                resultBuilder(TEST_SESSION, INTEGER, VARCHAR, INTEGER)
+                resultBuilder(TEST_SESSION, INTEGER, createUnboundedVarcharType(), INTEGER)
                         .row(3, "F", null)
                         .row(5, "F", 3)
                         .row(6, "F", 5)
@@ -68,7 +68,7 @@ public class TestLagFunction
                         .row(34, "O", 32)
                         .build());
         assertWindowQueryWithNulls("lag(orderkey) OVER (PARTITION BY orderstatus ORDER BY orderkey)",
-                resultBuilder(TEST_SESSION, BIGINT, VARCHAR, BIGINT)
+                resultBuilder(TEST_SESSION, BIGINT, createUnboundedVarcharType(), BIGINT)
                         .row(3L, "F", null)
                         .row(5L, "F", 3L)
                         .row(null, "F", 5L)
@@ -82,7 +82,7 @@ public class TestLagFunction
                         .build());
 
         assertWindowQuery("lag(orderdate, 2, '1977-01-01') OVER (PARTITION BY orderstatus ORDER BY orderkey)",
-                resultBuilder(TEST_SESSION, INTEGER, VARCHAR, VARCHAR)
+                resultBuilder(TEST_SESSION, INTEGER, createUnboundedVarcharType(), createUnboundedVarcharType())
                         .row(3, "F", "1977-01-01")
                         .row(5, "F", "1977-01-01")
                         .row(6, "F", "1993-10-14")
@@ -95,7 +95,7 @@ public class TestLagFunction
                         .row(34, "O", "1996-01-10")
                         .build());
         assertWindowQueryWithNulls("lag(orderdate, 2, '1977-01-01') OVER (PARTITION BY orderstatus ORDER BY orderkey)",
-                resultBuilder(TEST_SESSION, BIGINT, VARCHAR, VARCHAR)
+                resultBuilder(TEST_SESSION, BIGINT, createUnboundedVarcharType(), createUnboundedVarcharType())
                         .row(3L, "F", "1977-01-01")
                         .row(5L, "F", "1977-01-01")
                         .row(null, "F", "1993-10-14")
@@ -109,7 +109,7 @@ public class TestLagFunction
                         .build());
 
         assertWindowQuery("lag(orderkey, 2, -1) OVER (PARTITION BY orderstatus ORDER BY orderkey)",
-                resultBuilder(TEST_SESSION, INTEGER, VARCHAR, INTEGER)
+                resultBuilder(TEST_SESSION, INTEGER, createUnboundedVarcharType(), INTEGER)
                         .row(3, "F", -1)
                         .row(5, "F", -1)
                         .row(6, "F", 3)
@@ -122,7 +122,7 @@ public class TestLagFunction
                         .row(34, "O", 7)
                         .build());
         assertWindowQueryWithNulls("lag(orderkey, 2, -1) OVER (PARTITION BY orderstatus ORDER BY orderkey)",
-                resultBuilder(TEST_SESSION, BIGINT, VARCHAR, BIGINT)
+                resultBuilder(TEST_SESSION, BIGINT, createUnboundedVarcharType(), BIGINT)
                         .row(3L, "F", -1L)
                         .row(5L, "F", -1L)
                         .row(null, "F", 3L)
@@ -136,7 +136,7 @@ public class TestLagFunction
                         .build());
 
         assertWindowQuery("lag(orderkey, BIGINT '8' * 1000 * 1000 * 1000) OVER (PARTITION BY orderstatus ORDER BY orderkey)",
-                resultBuilder(TEST_SESSION, INTEGER, VARCHAR, BIGINT)
+                resultBuilder(TEST_SESSION, INTEGER, createUnboundedVarcharType(), BIGINT)
                         .row(3, "F", null)
                         .row(5, "F", null)
                         .row(6, "F", null)
@@ -150,7 +150,7 @@ public class TestLagFunction
                         .build());
 
         assertWindowQuery("lag(orderkey, null, -1) OVER (PARTITION BY orderstatus ORDER BY orderkey)",
-                resultBuilder(TEST_SESSION, INTEGER, VARCHAR, BIGINT)
+                resultBuilder(TEST_SESSION, INTEGER, createUnboundedVarcharType(), BIGINT)
                         .row(3, "F", null)
                         .row(5, "F", null)
                         .row(6, "F", null)
@@ -164,7 +164,7 @@ public class TestLagFunction
                         .build());
 
         assertWindowQuery("lag(orderkey, 0) OVER (PARTITION BY orderstatus ORDER BY orderkey)",
-                resultBuilder(TEST_SESSION, INTEGER, VARCHAR, INTEGER)
+                resultBuilder(TEST_SESSION, INTEGER, createUnboundedVarcharType(), INTEGER)
                         .row(3, "F", 3)
                         .row(5, "F", 5)
                         .row(6, "F", 6)
@@ -178,7 +178,7 @@ public class TestLagFunction
                         .build());
 
         assertWindowQuery("date_format(lag(cast(orderdate as TIMESTAMP), 0) OVER (PARTITION BY orderstatus ORDER BY orderkey), '%Y-%m-%d')",
-                resultBuilder(TEST_SESSION, INTEGER, VARCHAR, VARCHAR)
+                resultBuilder(TEST_SESSION, INTEGER, createUnboundedVarcharType(), createUnboundedVarcharType())
                         .row(3, "F", "1993-10-14")
                         .row(5, "F", "1994-07-30")
                         .row(6, "F", "1992-02-21")

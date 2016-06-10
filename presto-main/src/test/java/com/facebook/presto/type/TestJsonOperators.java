@@ -21,7 +21,7 @@ import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 import static com.facebook.presto.spi.type.DecimalType.createDecimalType;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.type.JsonType.JSON;
 import static java.lang.Double.NEGATIVE_INFINITY;
 import static java.lang.Double.POSITIVE_INFINITY;
@@ -173,22 +173,22 @@ public class TestJsonOperators
     @Test
     public void testCastToVarchar()
     {
-        assertFunction("cast(JSON 'null' as VARCHAR)", VARCHAR, null);
-        assertFunction("cast(JSON '128' as VARCHAR)", VARCHAR, "128");
-        assertFunction("cast(JSON '12345678901234567890' as VARCHAR)", VARCHAR, "12345678901234567890"); // overflow, no loss of precision
-        assertFunction("cast(JSON '128.9' as VARCHAR)", VARCHAR, "128.9");
-        assertFunction("cast(JSON '1e-324' as VARCHAR)", VARCHAR, "0.0"); // smaller than minimum subnormal positive
-        assertFunction("cast(JSON '1e309' as VARCHAR)", VARCHAR, "Infinity"); // overflow
-        assertFunction("cast(JSON '-1e309' as VARCHAR)", VARCHAR, "-Infinity"); // underflow
-        assertFunction("cast(JSON 'true' as VARCHAR)", VARCHAR, "true");
-        assertFunction("cast(JSON 'false' as VARCHAR)", VARCHAR, "false");
-        assertFunction("cast(JSON '\"test\"' as VARCHAR)", VARCHAR, "test");
-        assertFunction("cast(JSON '\"null\"' as VARCHAR)", VARCHAR, "null");
-        assertFunction("cast(JSON '\"\"' as VARCHAR)", VARCHAR, "");
+        assertFunction("cast(JSON 'null' as VARCHAR)", createUnboundedVarcharType(), null);
+        assertFunction("cast(JSON '128' as VARCHAR)", createUnboundedVarcharType(), "128");
+        assertFunction("cast(JSON '12345678901234567890' as VARCHAR)", createUnboundedVarcharType(), "12345678901234567890"); // overflow, no loss of precision
+        assertFunction("cast(JSON '128.9' as VARCHAR)", createUnboundedVarcharType(), "128.9");
+        assertFunction("cast(JSON '1e-324' as VARCHAR)", createUnboundedVarcharType(), "0.0"); // smaller than minimum subnormal positive
+        assertFunction("cast(JSON '1e309' as VARCHAR)", createUnboundedVarcharType(), "Infinity"); // overflow
+        assertFunction("cast(JSON '-1e309' as VARCHAR)", createUnboundedVarcharType(), "-Infinity"); // underflow
+        assertFunction("cast(JSON 'true' as VARCHAR)", createUnboundedVarcharType(), "true");
+        assertFunction("cast(JSON 'false' as VARCHAR)", createUnboundedVarcharType(), "false");
+        assertFunction("cast(JSON '\"test\"' as VARCHAR)", createUnboundedVarcharType(), "test");
+        assertFunction("cast(JSON '\"null\"' as VARCHAR)", createUnboundedVarcharType(), "null");
+        assertFunction("cast(JSON '\"\"' as VARCHAR)", createUnboundedVarcharType(), "");
 
-        assertFunction("cast(JSON ' \"test\"' as VARCHAR)", VARCHAR, "test"); // leading space
+        assertFunction("cast(JSON ' \"test\"' as VARCHAR)", createUnboundedVarcharType(), "test"); // leading space
 
-        assertFunction("cast(json_extract('{\"x\":\"y\"}', '$.x') as VARCHAR)", VARCHAR, "y");
+        assertFunction("cast(json_extract('{\"x\":\"y\"}', '$.x') as VARCHAR)", createUnboundedVarcharType(), "y");
         assertInvalidCast("cast(JSON '{ \"x\" : 123}' as VARCHAR)");
     }
 

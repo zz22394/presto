@@ -35,7 +35,7 @@ import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
 import static com.facebook.presto.spi.type.StandardTypes.ARRAY;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Arrays.asList;
 import static java.util.Objects.requireNonNull;
@@ -117,20 +117,20 @@ public final class TestingProcedures
                 .add(procedure(schema, "test_args", "args", ImmutableList.of(
                         new Argument("x", BIGINT),
                         new Argument("y", DOUBLE),
-                        new Argument("z", VARCHAR),
+                        new Argument("z", createUnboundedVarcharType()),
                         new Argument("q", BOOLEAN))))
                 .add(procedure(schema, "test_nulls", "nulls", ImmutableList.of(
                         new Argument("x", BIGINT),
-                        new Argument("y", VARCHAR))))
+                        new Argument("y", createUnboundedVarcharType()))))
                 .add(procedure(schema, "test_arrays", "arrays", ImmutableList.of(
                         new Argument("x", arrayType(BIGINT)),
-                        new Argument("y", arrayType(VARCHAR)))))
+                        new Argument("y", arrayType(createUnboundedVarcharType())))))
                 .add(procedure(schema, "test_nested", "nested", ImmutableList.of(
                         new Argument("x", arrayType(arrayType(BIGINT))))))
                 .add(procedure(schema, "test_session_first", "sessionFirst", ImmutableList.of(
                         new Argument("x", BIGINT))))
                 .add(procedure(schema, "test_session_last", "sessionLast", ImmutableList.of(
-                        new Argument("x", VARCHAR))))
+                        new Argument("x", createUnboundedVarcharType()))))
                 .add(procedure(schema, "test_exception", "exception", ImmutableList.of()))
                 .add(procedure(schema, "test_error", "error", ImmutableList.of()))
                 .build();

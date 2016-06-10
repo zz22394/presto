@@ -27,8 +27,9 @@ public final class VarcharType
         extends AbstractVariableWidthType
 {
     public static final int MAX_LENGTH = Integer.MAX_VALUE;
-    public static final VarcharType VARCHAR = new VarcharType(MAX_LENGTH);
     public static final String VARCHAR_MAX_LENGTH = "varchar(2147483647)";
+
+    private static final VarcharType VARCHAR = new VarcharType(MAX_LENGTH);
 
     public static VarcharType createUnboundedVarcharType()
     {
@@ -37,6 +38,7 @@ public final class VarcharType
 
     public static VarcharType createVarcharType(int length)
     {
+        createUnboundedVarcharType();
         return new VarcharType(length);
     }
 

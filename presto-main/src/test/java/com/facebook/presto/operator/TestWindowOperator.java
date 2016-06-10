@@ -49,7 +49,7 @@ import static com.facebook.presto.operator.WindowFunctionDefinition.window;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.sql.tree.FrameBound.Type.UNBOUNDED_FOLLOWING;
 import static com.facebook.presto.sql.tree.FrameBound.Type.UNBOUNDED_PRECEDING;
 import static com.facebook.presto.sql.tree.WindowFrame.Type.RANGE;
@@ -66,23 +66,23 @@ public class TestWindowOperator
     );
 
     private static final List<WindowFunctionDefinition> FIRST_VALUE = ImmutableList.of(
-            window(new ReflectionWindowFunctionSupplier<>("first_value", VARCHAR, ImmutableList.<Type>of(VARCHAR), FirstValueFunction.class), VARCHAR, 1)
+            window(new ReflectionWindowFunctionSupplier<>("first_value", createUnboundedVarcharType(), ImmutableList.<Type>of(createUnboundedVarcharType()), FirstValueFunction.class), createUnboundedVarcharType(), 1)
     );
 
     private static final List<WindowFunctionDefinition> LAST_VALUE = ImmutableList.of(
-            window(new ReflectionWindowFunctionSupplier<>("last_value", VARCHAR, ImmutableList.<Type>of(VARCHAR), LastValueFunction.class), VARCHAR, 1)
+            window(new ReflectionWindowFunctionSupplier<>("last_value", createUnboundedVarcharType(), ImmutableList.<Type>of(createUnboundedVarcharType()), LastValueFunction.class), createUnboundedVarcharType(), 1)
     );
 
     private static final List<WindowFunctionDefinition> NTH_VALUE = ImmutableList.of(
-            window(new ReflectionWindowFunctionSupplier<>("nth_value", VARCHAR, ImmutableList.of(VARCHAR, BIGINT), NthValueFunction.class), VARCHAR, 1, 3)
+            window(new ReflectionWindowFunctionSupplier<>("nth_value", createUnboundedVarcharType(), ImmutableList.of(createUnboundedVarcharType(), BIGINT), NthValueFunction.class), createUnboundedVarcharType(), 1, 3)
     );
 
     private static final List<WindowFunctionDefinition> LAG = ImmutableList.of(
-            window(new ReflectionWindowFunctionSupplier<>("lag", VARCHAR, ImmutableList.of(VARCHAR, BIGINT, VARCHAR), LagFunction.class), VARCHAR, 1, 3, 4)
+            window(new ReflectionWindowFunctionSupplier<>("lag", createUnboundedVarcharType(), ImmutableList.of(createUnboundedVarcharType(), BIGINT, createUnboundedVarcharType()), LagFunction.class), createUnboundedVarcharType(), 1, 3, 4)
     );
 
     private static final List<WindowFunctionDefinition> LEAD = ImmutableList.of(
-            window(new ReflectionWindowFunctionSupplier<>("lead", VARCHAR, ImmutableList.of(VARCHAR, BIGINT, VARCHAR), LeadFunction.class), VARCHAR, 1, 3, 4)
+            window(new ReflectionWindowFunctionSupplier<>("lead", createUnboundedVarcharType(), ImmutableList.of(createUnboundedVarcharType(), BIGINT, createUnboundedVarcharType()), LeadFunction.class), createUnboundedVarcharType(), 1, 3, 4)
     );
 
     private ExecutorService executor;
@@ -141,7 +141,7 @@ public class TestWindowOperator
     public void testRowNumberPartition()
             throws Exception
     {
-        List<Page> input = rowPagesBuilder(VARCHAR, BIGINT, DOUBLE, BOOLEAN)
+        List<Page> input = rowPagesBuilder(createUnboundedVarcharType(), BIGINT, DOUBLE, BOOLEAN)
                 .row("b", -1L, -0.1, true)
                 .row("a", 2L, 0.3, false)
                 .row("a", 4L, 0.2, true)
@@ -151,7 +151,7 @@ public class TestWindowOperator
                 .build();
 
         WindowOperatorFactory operatorFactory = createFactoryUnbounded(
-                ImmutableList.of(VARCHAR, BIGINT, DOUBLE, BOOLEAN),
+                ImmutableList.of(createUnboundedVarcharType(), BIGINT, DOUBLE, BOOLEAN),
                 Ints.asList(0, 1, 2, 3),
                 ROW_NUMBER,
                 Ints.asList(0),
@@ -160,7 +160,7 @@ public class TestWindowOperator
 
         Operator operator = operatorFactory.createOperator(driverContext);
 
-        MaterializedResult expected = resultBuilder(driverContext.getSession(), VARCHAR, BIGINT, DOUBLE, BOOLEAN, BIGINT)
+        MaterializedResult expected = resultBuilder(driverContext.getSession(), createUnboundedVarcharType(), BIGINT, DOUBLE, BOOLEAN, BIGINT)
                 .row("a", 2L, 0.3, false, 1L)
                 .row("a", 4L, 0.2, true, 2L)
                 .row("a", 6L, 0.1, true, 3L)
@@ -244,7 +244,7 @@ public class TestWindowOperator
     public void testFirstValuePartition()
             throws Exception
     {
-        List<Page> input = rowPagesBuilder(VARCHAR, VARCHAR, BIGINT, BOOLEAN, VARCHAR)
+        List<Page> input = rowPagesBuilder(createUnboundedVarcharType(), createUnboundedVarcharType(), BIGINT, BOOLEAN, createUnboundedVarcharType())
                 .row("b", "A1", 1L, true, "")
                 .row("a", "A2", 1L, false, "")
                 .row("a", "B1", 2L, true, "")
@@ -255,7 +255,7 @@ public class TestWindowOperator
                 .build();
 
         WindowOperatorFactory operatorFactory = createFactoryUnbounded(
-                ImmutableList.of(VARCHAR, VARCHAR, BIGINT, BOOLEAN, VARCHAR),
+                ImmutableList.of(createUnboundedVarcharType(), createUnboundedVarcharType(), BIGINT, BOOLEAN, createUnboundedVarcharType()),
                 Ints.asList(0, 1, 2, 3),
                 FIRST_VALUE,
                 Ints.asList(0),
@@ -264,7 +264,7 @@ public class TestWindowOperator
 
         Operator operator = operatorFactory.createOperator(driverContext);
 
-        MaterializedResult expected = resultBuilder(driverContext.getSession(), VARCHAR, VARCHAR, BIGINT, BOOLEAN, VARCHAR)
+        MaterializedResult expected = resultBuilder(driverContext.getSession(), createUnboundedVarcharType(), createUnboundedVarcharType(), BIGINT, BOOLEAN, createUnboundedVarcharType())
                 .row("a", "A2", 1L, false, "A2")
                 .row("a", "B1", 2L, true, "A2")
                 .row("a", "C2", 3L, true, "A2")
@@ -280,7 +280,7 @@ public class TestWindowOperator
     public void testLastValuePartition()
             throws Exception
     {
-        List<Page> input = rowPagesBuilder(VARCHAR, VARCHAR, BIGINT, BOOLEAN, VARCHAR)
+        List<Page> input = rowPagesBuilder(createUnboundedVarcharType(), createUnboundedVarcharType(), BIGINT, BOOLEAN, createUnboundedVarcharType())
                 .row("b", "A1", 1L, true, "")
                 .row("a", "A2", 1L, false, "")
                 .row("a", "B1", 2L, true, "")
@@ -291,7 +291,7 @@ public class TestWindowOperator
                 .build();
 
         WindowOperatorFactory operatorFactory = createFactoryUnbounded(
-                ImmutableList.of(VARCHAR, VARCHAR, BIGINT, BOOLEAN, VARCHAR),
+                ImmutableList.of(createUnboundedVarcharType(), createUnboundedVarcharType(), BIGINT, BOOLEAN, createUnboundedVarcharType()),
                 Ints.asList(0, 1, 2, 3),
                 LAST_VALUE,
                 Ints.asList(0),
@@ -300,7 +300,7 @@ public class TestWindowOperator
 
         Operator operator = operatorFactory.createOperator(driverContext);
 
-        MaterializedResult expected = resultBuilder(driverContext.getSession(), VARCHAR, VARCHAR, BIGINT, BOOLEAN, VARCHAR)
+        MaterializedResult expected = resultBuilder(driverContext.getSession(), createUnboundedVarcharType(), createUnboundedVarcharType(), BIGINT, BOOLEAN, createUnboundedVarcharType())
                 .row("a", "A2", 1L, false, "C2")
                 .row("a", "B1", 2L, true, "C2")
                 .row("a", "C2", 3L, true, "C2")
@@ -316,7 +316,7 @@ public class TestWindowOperator
     public void testNthValuePartition()
             throws Exception
     {
-        List<Page> input = rowPagesBuilder(VARCHAR, VARCHAR, BIGINT, BIGINT, BOOLEAN, VARCHAR)
+        List<Page> input = rowPagesBuilder(createUnboundedVarcharType(), createUnboundedVarcharType(), BIGINT, BIGINT, BOOLEAN, createUnboundedVarcharType())
                 .row("b", "A1", 1L, 2L, true, "")
                 .row("a", "A2", 1L, 3L, false, "")
                 .row("a", "B1", 2L, 2L, true, "")
@@ -327,7 +327,7 @@ public class TestWindowOperator
                 .build();
 
         WindowOperatorFactory operatorFactory = createFactoryUnbounded(
-                ImmutableList.of(VARCHAR, VARCHAR, BIGINT, BIGINT, BOOLEAN, VARCHAR),
+                ImmutableList.of(createUnboundedVarcharType(), createUnboundedVarcharType(), BIGINT, BIGINT, BOOLEAN, createUnboundedVarcharType()),
                 Ints.asList(0, 1, 2, 4),
                 NTH_VALUE,
                 Ints.asList(0),
@@ -336,7 +336,7 @@ public class TestWindowOperator
 
         Operator operator = operatorFactory.createOperator(driverContext);
 
-        MaterializedResult expected = resultBuilder(driverContext.getSession(), VARCHAR, VARCHAR, BIGINT, BOOLEAN, VARCHAR)
+        MaterializedResult expected = resultBuilder(driverContext.getSession(), createUnboundedVarcharType(), createUnboundedVarcharType(), BIGINT, BOOLEAN, createUnboundedVarcharType())
                 .row("a", "A2", 1L, false, "C2")
                 .row("a", "B1", 2L, true, "B1")
                 .row("a", "C2", 3L, true, "A2")
@@ -352,7 +352,7 @@ public class TestWindowOperator
     public void testLagPartition()
             throws Exception
     {
-        List<Page> input = rowPagesBuilder(VARCHAR, VARCHAR, BIGINT, BIGINT, VARCHAR, BOOLEAN, VARCHAR)
+        List<Page> input = rowPagesBuilder(createUnboundedVarcharType(), createUnboundedVarcharType(), BIGINT, BIGINT, createUnboundedVarcharType(), BOOLEAN, createUnboundedVarcharType())
                 .row("b", "A1", 1L, 1L, "D", true, "")
                 .row("a", "A2", 1L, 2L, "D", false, "")
                 .row("a", "B1", 2L, 2L, "D", true, "")
@@ -363,7 +363,7 @@ public class TestWindowOperator
                 .build();
 
         WindowOperatorFactory operatorFactory = createFactoryUnbounded(
-                ImmutableList.of(VARCHAR, VARCHAR, BIGINT, BIGINT, VARCHAR, BOOLEAN, VARCHAR),
+                ImmutableList.of(createUnboundedVarcharType(), createUnboundedVarcharType(), BIGINT, BIGINT, createUnboundedVarcharType(), BOOLEAN, createUnboundedVarcharType()),
                 Ints.asList(0, 1, 2, 5),
                 LAG,
                 Ints.asList(0),
@@ -372,7 +372,7 @@ public class TestWindowOperator
 
         Operator operator = operatorFactory.createOperator(driverContext);
 
-        MaterializedResult expected = resultBuilder(driverContext.getSession(), VARCHAR, VARCHAR, BIGINT, BOOLEAN, VARCHAR)
+        MaterializedResult expected = resultBuilder(driverContext.getSession(), createUnboundedVarcharType(), createUnboundedVarcharType(), BIGINT, BOOLEAN, createUnboundedVarcharType())
                 .row("a", "A2", 1L, false, "D")
                 .row("a", "B1", 2L, true, "D")
                 .row("a", "C2", 3L, true, "A2")
@@ -388,7 +388,7 @@ public class TestWindowOperator
     public void testLeadPartition()
             throws Exception
     {
-        List<Page> input = rowPagesBuilder(VARCHAR, VARCHAR, BIGINT, BIGINT, VARCHAR, BOOLEAN, VARCHAR)
+        List<Page> input = rowPagesBuilder(createUnboundedVarcharType(), createUnboundedVarcharType(), BIGINT, BIGINT, createUnboundedVarcharType(), BOOLEAN, createUnboundedVarcharType())
                 .row("b", "A1", 1L, 1L, "D", true, "")
                 .row("a", "A2", 1L, 2L, "D", false, "")
                 .row("a", "B1", 2L, 2L, "D", true, "")
@@ -399,7 +399,7 @@ public class TestWindowOperator
                 .build();
 
         WindowOperatorFactory operatorFactory = createFactoryUnbounded(
-                ImmutableList.of(VARCHAR, VARCHAR, BIGINT, BIGINT, VARCHAR, BOOLEAN, VARCHAR),
+                ImmutableList.of(createUnboundedVarcharType(), createUnboundedVarcharType(), BIGINT, BIGINT, createUnboundedVarcharType(), BOOLEAN, createUnboundedVarcharType()),
                 Ints.asList(0, 1, 2, 5),
                 LEAD,
                 Ints.asList(0),
@@ -408,7 +408,7 @@ public class TestWindowOperator
 
         Operator operator = operatorFactory.createOperator(driverContext);
 
-        MaterializedResult expected = resultBuilder(driverContext.getSession(), VARCHAR, VARCHAR, BIGINT, BOOLEAN, VARCHAR)
+        MaterializedResult expected = resultBuilder(driverContext.getSession(), createUnboundedVarcharType(), createUnboundedVarcharType(), BIGINT, BOOLEAN, createUnboundedVarcharType())
                 .row("a", "A2", 1L, false, "C2")
                 .row("a", "B1", 2L, true, "D")
                 .row("a", "C2", 3L, true, "D")
@@ -424,13 +424,13 @@ public class TestWindowOperator
     public void testPartiallyPreGroupedPartitionWithEmptyInput()
             throws Exception
     {
-        List<Page> input = rowPagesBuilder(BIGINT, VARCHAR, BIGINT, VARCHAR)
+        List<Page> input = rowPagesBuilder(BIGINT, createUnboundedVarcharType(), BIGINT, createUnboundedVarcharType())
                 .pageBreak()
                 .pageBreak()
                 .build();
 
         WindowOperatorFactory operatorFactory = createFactoryUnbounded(
-                ImmutableList.of(BIGINT, VARCHAR, BIGINT, VARCHAR),
+                ImmutableList.of(BIGINT, createUnboundedVarcharType(), BIGINT, createUnboundedVarcharType()),
                 Ints.asList(0, 1, 2, 3),
                 ROW_NUMBER,
                 Ints.asList(0, 1),
@@ -441,7 +441,7 @@ public class TestWindowOperator
 
         Operator operator = operatorFactory.createOperator(driverContext);
 
-        MaterializedResult expected = resultBuilder(driverContext.getSession(), BIGINT, VARCHAR, BIGINT, VARCHAR, BIGINT)
+        MaterializedResult expected = resultBuilder(driverContext.getSession(), BIGINT, createUnboundedVarcharType(), BIGINT, createUnboundedVarcharType(), BIGINT)
                 .build();
 
         assertOperatorEquals(operator, input, expected);
@@ -451,7 +451,7 @@ public class TestWindowOperator
     public void testPartiallyPreGroupedPartition()
             throws Exception
     {
-        List<Page> input = rowPagesBuilder(BIGINT, VARCHAR, BIGINT, VARCHAR)
+        List<Page> input = rowPagesBuilder(BIGINT, createUnboundedVarcharType(), BIGINT, createUnboundedVarcharType())
                 .pageBreak()
                 .row(1L, "a", 100L, "A")
                 .row(2L, "a", 101L, "B")
@@ -465,7 +465,7 @@ public class TestWindowOperator
                 .build();
 
         WindowOperatorFactory operatorFactory = createFactoryUnbounded(
-                ImmutableList.of(BIGINT, VARCHAR, BIGINT, VARCHAR),
+                ImmutableList.of(BIGINT, createUnboundedVarcharType(), BIGINT, createUnboundedVarcharType()),
                 Ints.asList(0, 1, 2, 3),
                 ROW_NUMBER,
                 Ints.asList(0, 1),
@@ -476,7 +476,7 @@ public class TestWindowOperator
 
         Operator operator = operatorFactory.createOperator(driverContext);
 
-        MaterializedResult expected = resultBuilder(driverContext.getSession(), BIGINT, VARCHAR, BIGINT, VARCHAR, BIGINT)
+        MaterializedResult expected = resultBuilder(driverContext.getSession(), BIGINT, createUnboundedVarcharType(), BIGINT, createUnboundedVarcharType(), BIGINT)
                 .row(1L, "a", 100L, "A", 1L)
                 .row(2L, "a", 101L, "B", 1L)
                 .row(3L, "b", 104L, "C", 1L)
@@ -492,7 +492,7 @@ public class TestWindowOperator
     public void testFullyPreGroupedPartition()
             throws Exception
     {
-        List<Page> input = rowPagesBuilder(BIGINT, VARCHAR, BIGINT, VARCHAR)
+        List<Page> input = rowPagesBuilder(BIGINT, createUnboundedVarcharType(), BIGINT, createUnboundedVarcharType())
                 .pageBreak()
                 .row(1L, "a", 100L, "A")
                 .pageBreak()
@@ -507,7 +507,7 @@ public class TestWindowOperator
                 .build();
 
         WindowOperatorFactory operatorFactory = createFactoryUnbounded(
-                ImmutableList.of(BIGINT, VARCHAR, BIGINT, VARCHAR),
+                ImmutableList.of(BIGINT, createUnboundedVarcharType(), BIGINT, createUnboundedVarcharType()),
                 Ints.asList(0, 1, 2, 3),
                 ROW_NUMBER,
                 Ints.asList(1, 0),
@@ -518,7 +518,7 @@ public class TestWindowOperator
 
         Operator operator = operatorFactory.createOperator(driverContext);
 
-        MaterializedResult expected = resultBuilder(driverContext.getSession(), BIGINT, VARCHAR, BIGINT, VARCHAR, BIGINT)
+        MaterializedResult expected = resultBuilder(driverContext.getSession(), BIGINT, createUnboundedVarcharType(), BIGINT, createUnboundedVarcharType(), BIGINT)
                 .row(1L, "a", 100L, "A", 1L)
                 .row(2L, "a", 101L, "B", 1L)
                 .row(2L, "b", 103L, "C", 1L)
@@ -535,7 +535,7 @@ public class TestWindowOperator
     public void testFullyPreGroupedAndPartiallySortedPartition()
             throws Exception
     {
-        List<Page> input = rowPagesBuilder(BIGINT, VARCHAR, BIGINT, VARCHAR)
+        List<Page> input = rowPagesBuilder(BIGINT, createUnboundedVarcharType(), BIGINT, createUnboundedVarcharType())
                 .pageBreak()
                 .row(1L, "a", 100L, "A")
                 .pageBreak()
@@ -551,7 +551,7 @@ public class TestWindowOperator
                 .build();
 
         WindowOperatorFactory operatorFactory = createFactoryUnbounded(
-                ImmutableList.of(BIGINT, VARCHAR, BIGINT, VARCHAR),
+                ImmutableList.of(BIGINT, createUnboundedVarcharType(), BIGINT, createUnboundedVarcharType()),
                 Ints.asList(0, 1, 2, 3),
                 ROW_NUMBER,
                 Ints.asList(1, 0),
@@ -562,7 +562,7 @@ public class TestWindowOperator
 
         Operator operator = operatorFactory.createOperator(driverContext);
 
-        MaterializedResult expected = resultBuilder(driverContext.getSession(), BIGINT, VARCHAR, BIGINT, VARCHAR, BIGINT)
+        MaterializedResult expected = resultBuilder(driverContext.getSession(), BIGINT, createUnboundedVarcharType(), BIGINT, createUnboundedVarcharType(), BIGINT)
                 .row(1L, "a", 100L, "A", 1L)
                 .row(2L, "a", 100L, "A", 1L)
                 .row(2L, "b", 101L, "A", 1L)
@@ -580,7 +580,7 @@ public class TestWindowOperator
     public void testFullyPreGroupedAndFullySortedPartition()
             throws Exception
     {
-        List<Page> input = rowPagesBuilder(BIGINT, VARCHAR, BIGINT, VARCHAR)
+        List<Page> input = rowPagesBuilder(BIGINT, createUnboundedVarcharType(), BIGINT, createUnboundedVarcharType())
                 .pageBreak()
                 .row(1L, "a", 100L, "A")
                 .pageBreak()
@@ -596,7 +596,7 @@ public class TestWindowOperator
                 .build();
 
         WindowOperatorFactory operatorFactory = createFactoryUnbounded(
-                ImmutableList.of(BIGINT, VARCHAR, BIGINT, VARCHAR),
+                ImmutableList.of(BIGINT, createUnboundedVarcharType(), BIGINT, createUnboundedVarcharType()),
                 Ints.asList(0, 1, 2, 3),
                 ROW_NUMBER,
                 Ints.asList(1, 0),
@@ -607,7 +607,7 @@ public class TestWindowOperator
 
         Operator operator = operatorFactory.createOperator(driverContext);
 
-        MaterializedResult expected = resultBuilder(driverContext.getSession(), BIGINT, VARCHAR, BIGINT, VARCHAR, BIGINT)
+        MaterializedResult expected = resultBuilder(driverContext.getSession(), BIGINT, createUnboundedVarcharType(), BIGINT, createUnboundedVarcharType(), BIGINT)
                 .row(1L, "a", 100L, "A", 1L)
                 .row(2L, "a", 101L, "A", 1L)
                 .row(2L, "b", 102L, "A", 1L)

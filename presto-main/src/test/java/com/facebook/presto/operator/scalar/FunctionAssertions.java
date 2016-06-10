@@ -100,7 +100,7 @@ import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
 import static com.facebook.presto.spi.type.IntegerType.INTEGER;
 import static com.facebook.presto.spi.type.TimestampWithTimeZoneType.TIMESTAMP_WITH_TIME_ZONE;
 import static com.facebook.presto.spi.type.VarbinaryType.VARBINARY;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.sql.analyzer.ExpressionAnalyzer.analyzeExpressionsWithSymbols;
 import static com.facebook.presto.sql.analyzer.ExpressionAnalyzer.getExpressionTypesFromInput;
 import static com.facebook.presto.sql.planner.LocalExecutionPlanner.toTypes;
@@ -139,12 +139,12 @@ public final class FunctionAssertions
 
     private static final Map<Integer, Type> INPUT_TYPES = ImmutableMap.<Integer, Type>builder()
             .put(0, BIGINT)
-            .put(1, VARCHAR)
+            .put(1, createUnboundedVarcharType())
             .put(2, DOUBLE)
             .put(3, BOOLEAN)
             .put(4, BIGINT)
-            .put(5, VARCHAR)
-            .put(6, VARCHAR)
+            .put(5, createUnboundedVarcharType())
+            .put(6, createUnboundedVarcharType())
             .put(7, TIMESTAMP_WITH_TIME_ZONE)
             .put(8, VARBINARY)
             .put(9, INTEGER)
@@ -165,12 +165,12 @@ public final class FunctionAssertions
 
     private static final Map<Symbol, Type> SYMBOL_TYPES = ImmutableMap.<Symbol, Type>builder()
             .put(new Symbol("bound_long"), BIGINT)
-            .put(new Symbol("bound_string"), VARCHAR)
+            .put(new Symbol("bound_string"), createUnboundedVarcharType())
             .put(new Symbol("bound_double"), DOUBLE)
             .put(new Symbol("bound_boolean"), BOOLEAN)
             .put(new Symbol("bound_timestamp"), BIGINT)
-            .put(new Symbol("bound_pattern"), VARCHAR)
-            .put(new Symbol("bound_null_string"), VARCHAR)
+            .put(new Symbol("bound_pattern"), createUnboundedVarcharType())
+            .put(new Symbol("bound_null_string"), createUnboundedVarcharType())
             .put(new Symbol("bound_timestamp_with_timezone"), TIMESTAMP_WITH_TIME_ZONE)
             .put(new Symbol("bound_binary_literal"), VARBINARY)
             .put(new Symbol("bound_integer"), INTEGER)
@@ -700,7 +700,7 @@ public final class FunctionAssertions
             assertInstanceOf(split.getConnectorSplit(), FunctionAssertions.TestSplit.class);
             FunctionAssertions.TestSplit testSplit = (FunctionAssertions.TestSplit) split.getConnectorSplit();
             if (testSplit.isRecordSet()) {
-                RecordSet records = InMemoryRecordSet.builder(ImmutableList.<Type>of(BIGINT, VARCHAR, DOUBLE, BOOLEAN, BIGINT, VARCHAR, VARCHAR, TIMESTAMP_WITH_TIME_ZONE, VARBINARY, INTEGER))
+                RecordSet records = InMemoryRecordSet.builder(ImmutableList.<Type>of(BIGINT, createUnboundedVarcharType(), DOUBLE, BOOLEAN, BIGINT, createUnboundedVarcharType(), createUnboundedVarcharType(), TIMESTAMP_WITH_TIME_ZONE, VARBINARY, INTEGER))
                         .addRow(
                                 1234L,
                                 "hello",
