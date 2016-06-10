@@ -19,7 +19,7 @@ import com.facebook.presto.spi.type.StandardTypes;
 import com.facebook.presto.type.SqlType;
 
 import static com.facebook.presto.operator.aggregation.ApproximateUtils.formatApproximateResult;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR_MAX_LENGTH;
+import static com.facebook.presto.spi.type.VarcharType.UNBOUNDED_VARCHAR;
 import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 
 @AggregationFunction(value = "avg", approximate = true)
@@ -80,7 +80,7 @@ public final class ApproximateAverageAggregations
         }
     }
 
-    @OutputFunction(VARCHAR_MAX_LENGTH)
+    @OutputFunction(UNBOUNDED_VARCHAR)
     public static void output(ApproximateAverageState state, double confidence, BlockBuilder out)
     {
         if (state.getCount() == 0) {

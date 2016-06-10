@@ -46,7 +46,7 @@ public final class MLFunctions
     }
 
     @ScalarFunction("classify")
-    @SqlType(VarcharType.VARCHAR_MAX_LENGTH)
+    @SqlType(VarcharType.UNBOUNDED_VARCHAR)
     public static Slice varcharClassify(@SqlType(MAP_BIGINT_DOUBLE) Block featuresMap, @SqlType("Classifier<varchar>") Slice modelSlice)
     {
         FeatureVector features = ModelUtils.toFeatures(featuresMap);

@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
 import static com.facebook.presto.spi.StandardErrorCode.INVALID_FUNCTION_ARGUMENT;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.VarbinaryType.VARBINARY;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR_MAX_LENGTH;
+import static com.facebook.presto.spi.type.VarcharType.UNBOUNDED_VARCHAR;
 import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.spi.type.VarcharType.createVarcharType;
 
@@ -52,7 +52,7 @@ public class TestStringFunctions
     }
 
     @ScalarFunction(value = "utf8", deterministic = false)
-    @SqlType(VARCHAR_MAX_LENGTH)
+    @SqlType(UNBOUNDED_VARCHAR)
     public static Slice convertBinaryToVarchar(@SqlType(StandardTypes.VARBINARY) Slice binary)
     {
         return binary;

@@ -191,14 +191,14 @@ public final class ColorFunctions
     }
 
     @ScalarFunction
-    @SqlType(VarcharType.VARCHAR_MAX_LENGTH)
+    @SqlType(VarcharType.UNBOUNDED_VARCHAR)
     public static Slice bar(@SqlType(StandardTypes.DOUBLE) double percent, @SqlType(StandardTypes.BIGINT) long width)
     {
         return bar(percent, width, rgb(255, 0, 0), rgb(0, 255, 0));
     }
 
     @ScalarFunction
-    @SqlType(VarcharType.VARCHAR_MAX_LENGTH)
+    @SqlType(VarcharType.UNBOUNDED_VARCHAR)
     public static Slice bar(
             @SqlType(StandardTypes.DOUBLE) double percent,
             @SqlType(StandardTypes.BIGINT) long width,

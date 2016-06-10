@@ -59,7 +59,7 @@ public final class JsonOperators
 
     @ScalarOperator(CAST)
     @Nullable
-    @SqlType(VarcharType.VARCHAR_MAX_LENGTH)
+    @SqlType(VarcharType.UNBOUNDED_VARCHAR)
     public static Slice castToVarchar(@SqlType(JSON) Slice json)
     {
         try (JsonParser parser = JSON_FACTORY.createParser(json.getInput())) {
