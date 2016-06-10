@@ -40,7 +40,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.sql.planner.SystemPartitioningHandle.SINGLE_DISTRIBUTION;
 import static com.facebook.presto.sql.planner.SystemPartitioningHandle.SOURCE_DISTRIBUTION;
 import static com.facebook.presto.sql.planner.plan.JoinNode.Type.INNER;
@@ -234,7 +234,7 @@ public class TestPhasedExecutionSchedule
     {
         ImmutableMap.Builder<Symbol, Type> types = ImmutableMap.builder();
         for (Symbol symbol : planNode.getOutputSymbols()) {
-            types.put(symbol, VARCHAR);
+            types.put(symbol, createUnboundedVarcharType());
         }
         return new PlanFragment(
                 new PlanFragmentId(planNode.getId() + "_fragment_id"),

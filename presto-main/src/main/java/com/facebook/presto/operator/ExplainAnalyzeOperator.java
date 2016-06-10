@@ -25,7 +25,7 @@ import com.google.common.collect.ImmutableList;
 
 import java.util.List;
 
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.sql.planner.PlanPrinter.textDistributedPlan;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
@@ -53,7 +53,7 @@ public class ExplainAnalyzeOperator
         @Override
         public List<Type> getTypes()
         {
-            return ImmutableList.of(VARCHAR);
+            return ImmutableList.of(createUnboundedVarcharType());
         }
 
         @Override
@@ -99,7 +99,7 @@ public class ExplainAnalyzeOperator
     @Override
     public List<Type> getTypes()
     {
-        return ImmutableList.of(VARCHAR);
+        return ImmutableList.of(createUnboundedVarcharType());
     }
 
     @Override
@@ -139,8 +139,8 @@ public class ExplainAnalyzeOperator
         // Skip the output stage, since that's the one that has the ExplainAnalyzeOperator itself
         checkState(queryInfo.getOutputStage().isPresent(), "Output stage is missing");
         String plan = textDistributedPlan(queryInfo.getOutputStage().get().getSubStages(), metadata, operatorContext.getSession());
-        BlockBuilder builder = VARCHAR.createBlockBuilder(new BlockBuilderStatus(), 1);
-        VARCHAR.writeString(builder, plan);
+        BlockBuilder builder = createUnboundedVarcharType().createBlockBuilder(new BlockBuilderStatus(), 1);
+        createUnboundedVarcharType().writeString(builder, plan);
         return new Page(builder.build());
     }
 }

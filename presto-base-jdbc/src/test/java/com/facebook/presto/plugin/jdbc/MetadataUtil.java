@@ -26,7 +26,7 @@ import io.airlift.json.ObjectMapperProvider;
 import java.util.Map;
 
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Locale.ENGLISH;
 import static org.testng.Assert.assertEquals;
@@ -53,7 +53,7 @@ final class MetadataUtil
     {
         private final Map<String, Type> types = ImmutableMap.<String, Type>of(
                 StandardTypes.BIGINT, BIGINT,
-                StandardTypes.VARCHAR, VARCHAR);
+                StandardTypes.VARCHAR, createUnboundedVarcharType());
 
         public TestingTypeDeserializer()
         {

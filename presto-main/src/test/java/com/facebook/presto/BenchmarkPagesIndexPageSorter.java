@@ -42,7 +42,7 @@ import static com.facebook.presto.spi.block.SortOrder.ASC_NULLS_FIRST;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static java.util.Collections.nCopies;
 
 @State(Scope.Thread)
@@ -71,7 +71,7 @@ public class BenchmarkPagesIndexPageSorter
                 if (type.equals(BIGINT)) {
                     blocks[numChannel] = BlockAssertions.createLongSequenceBlock(0, positionCount);
                 }
-                else if (type.equals(VARCHAR)) {
+                else if (type.equals(createUnboundedVarcharType())) {
                     blocks[numChannel] = BlockAssertions.createStringSequenceBlock(0, positionCount);
                 }
                 else if (type.equals(DOUBLE)) {
@@ -125,7 +125,7 @@ public class BenchmarkPagesIndexPageSorter
                 case "BIGINT":
                     return BIGINT;
                 case "VARCHAR":
-                    return VARCHAR;
+                    return createUnboundedVarcharType();
                 case "DOUBLE":
                     return DOUBLE;
                 case "BOOLEAN":

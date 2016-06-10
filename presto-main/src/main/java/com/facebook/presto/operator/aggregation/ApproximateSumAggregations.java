@@ -23,7 +23,7 @@ import static com.facebook.presto.operator.aggregation.AggregationUtils.mergeVar
 import static com.facebook.presto.operator.aggregation.AggregationUtils.updateVarianceState;
 import static com.facebook.presto.operator.aggregation.ApproximateUtils.formatApproximateResult;
 import static com.facebook.presto.operator.aggregation.ApproximateUtils.sumError;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 
 @AggregationFunction(value = "sum", approximate = true)
 public final class ApproximateSumAggregations
@@ -59,7 +59,7 @@ public final class ApproximateSumAggregations
                 sumError(state.getCount(), state.getWeightedCount(), state.getM2(), state.getMean()),
                 confidence,
                 false);
-        VARCHAR.writeSlice(out, Slices.utf8Slice(result));
+        createUnboundedVarcharType().writeSlice(out, Slices.utf8Slice(result));
     }
 
     @InputFunction
@@ -91,7 +91,7 @@ public final class ApproximateSumAggregations
                 sumError(state.getCount(), state.getWeightedCount(), state.getM2(), state.getMean()),
                 confidence,
                 true);
-        VARCHAR.writeSlice(out, Slices.utf8Slice(result));
+        createUnboundedVarcharType().writeSlice(out, Slices.utf8Slice(result));
     }
 
     public interface ApproximateDoubleSumState

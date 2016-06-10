@@ -57,7 +57,7 @@ import static com.facebook.presto.metadata.FunctionKind.SCALAR;
 import static com.facebook.presto.metadata.MetadataManager.createTestMetadataManager;
 import static com.facebook.presto.operator.scalar.FunctionAssertions.createExpression;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.sql.analyzer.ExpressionAnalyzer.getExpressionTypesFromInput;
 import static java.util.Locale.ENGLISH;
 import static java.util.stream.Collectors.toList;
@@ -70,7 +70,7 @@ import static java.util.stream.Collectors.toList;
 @BenchmarkMode(Mode.AverageTime)
 public class PageProcessorBenchmark
 {
-    private static final Map<String, Type> TYPE_MAP = ImmutableMap.of("bigint", BIGINT, "varchar", VARCHAR);
+    private static final Map<String, Type> TYPE_MAP = ImmutableMap.of("bigint", BIGINT, "varchar", createUnboundedVarcharType());
     private static final SqlParser SQL_PARSER = new SqlParser();
     private static final Metadata METADATA = createTestMetadataManager();
     private static final Session TEST_SESSION = TestingSession.testSessionBuilder().build();
@@ -132,8 +132,8 @@ public class PageProcessorBenchmark
 
     private RowExpression getFilter(Type type)
     {
-        if (type == VARCHAR) {
-            return rowExpression("cast(varchar0 as bigint) % 2 = 0", VARCHAR);
+        if (type == createUnboundedVarcharType()) {
+            return rowExpression("cast(varchar0 as bigint) % 2 = 0", createUnboundedVarcharType());
         }
         if (type == BIGINT) {
             return rowExpression("bigint0 % 2 = 0", BIGINT);
@@ -149,7 +149,7 @@ public class PageProcessorBenchmark
                 builder.add(rowExpression("bigint" + i + " + 5", type));
             }
         }
-        else if (type == VARCHAR) {
+        else if (type == createUnboundedVarcharType()) {
             for (int i = 0; i < columnCount; i++) {
                 // alternatively use identity expression rowExpression("varchar" + i, type) or
                 // rowExpression("substr(varchar" + i + ", 1, 1)", type)

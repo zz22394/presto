@@ -37,7 +37,7 @@ import java.util.concurrent.ExecutorService;
 import static com.facebook.presto.SessionTestUtils.TEST_SESSION;
 import static com.facebook.presto.operator.OperatorAssertion.toMaterializedResult;
 import static com.facebook.presto.operator.ProjectionFunctions.singleColumn;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.testing.TestingTaskContext.createTaskContext;
 import static io.airlift.concurrent.Threads.daemonThreadsNamed;
 import static java.util.concurrent.Executors.newCachedThreadPool;
@@ -57,7 +57,7 @@ public class TestScanFilterAndProjectOperator
     public void testPageSource()
             throws Exception
     {
-        final Page input = SequencePageBuilder.createSequencePage(ImmutableList.of(VARCHAR), 10_000, 0);
+        final Page input = SequencePageBuilder.createSequencePage(ImmutableList.of(createUnboundedVarcharType()), 10_000, 0);
         DriverContext driverContext = newDriverContext();
 
         ScanFilterAndProjectOperator.ScanFilterAndProjectOperatorFactory factory = new ScanFilterAndProjectOperator.ScanFilterAndProjectOperatorFactory(
@@ -71,17 +71,17 @@ public class TestScanFilterAndProjectOperator
                         return new FixedPageSource(ImmutableList.of(input));
                     }
                 },
-                () -> new GenericCursorProcessor(FilterFunctions.TRUE_FUNCTION, ImmutableList.of(singleColumn(VARCHAR, 0))),
-                () -> new GenericPageProcessor(FilterFunctions.TRUE_FUNCTION, ImmutableList.of(singleColumn(VARCHAR, 0))),
+                () -> new GenericCursorProcessor(FilterFunctions.TRUE_FUNCTION, ImmutableList.of(singleColumn(createUnboundedVarcharType(), 0))),
+                () -> new GenericPageProcessor(FilterFunctions.TRUE_FUNCTION, ImmutableList.of(singleColumn(createUnboundedVarcharType(), 0))),
                 ImmutableList.<ColumnHandle>of(),
-                ImmutableList.<Type>of(VARCHAR));
+                ImmutableList.<Type>of(createUnboundedVarcharType()));
 
         SourceOperator operator = factory.createOperator(driverContext);
         operator.addSplit(new Split("test", TestingTransactionHandle.create("test"), TestingSplit.createLocalSplit()));
         operator.noMoreSplits();
 
-        MaterializedResult expected = toMaterializedResult(driverContext.getSession(), ImmutableList.<Type>of(VARCHAR), ImmutableList.of(input));
-        MaterializedResult actual = toMaterializedResult(driverContext.getSession(), ImmutableList.<Type>of(VARCHAR), toPages(operator));
+        MaterializedResult expected = toMaterializedResult(driverContext.getSession(), ImmutableList.<Type>of(createUnboundedVarcharType()), ImmutableList.of(input));
+        MaterializedResult actual = toMaterializedResult(driverContext.getSession(), ImmutableList.<Type>of(createUnboundedVarcharType()), toPages(operator));
 
         assertEquals(actual.getRowCount(), expected.getRowCount());
         assertEquals(actual, expected);
@@ -91,7 +91,7 @@ public class TestScanFilterAndProjectOperator
     public void testRecordCursorSource()
             throws Exception
     {
-        final Page input = SequencePageBuilder.createSequencePage(ImmutableList.of(VARCHAR), 10_000, 0);
+        final Page input = SequencePageBuilder.createSequencePage(ImmutableList.of(createUnboundedVarcharType()), 10_000, 0);
         DriverContext driverContext = newDriverContext();
 
         ScanFilterAndProjectOperator.ScanFilterAndProjectOperatorFactory factory = new ScanFilterAndProjectOperator.ScanFilterAndProjectOperatorFactory(
@@ -102,20 +102,20 @@ public class TestScanFilterAndProjectOperator
                     @Override
                     public ConnectorPageSource createPageSource(Session session, Split split, List<ColumnHandle> columns)
                     {
-                        return new RecordPageSource(new PageRecordSet(ImmutableList.<Type>of(VARCHAR), input));
+                        return new RecordPageSource(new PageRecordSet(ImmutableList.<Type>of(createUnboundedVarcharType()), input));
                     }
                 },
-                () -> new GenericCursorProcessor(FilterFunctions.TRUE_FUNCTION, ImmutableList.of(singleColumn(VARCHAR, 0))),
-                () -> new GenericPageProcessor(FilterFunctions.TRUE_FUNCTION, ImmutableList.of(singleColumn(VARCHAR, 0))),
+                () -> new GenericCursorProcessor(FilterFunctions.TRUE_FUNCTION, ImmutableList.of(singleColumn(createUnboundedVarcharType(), 0))),
+                () -> new GenericPageProcessor(FilterFunctions.TRUE_FUNCTION, ImmutableList.of(singleColumn(createUnboundedVarcharType(), 0))),
                 ImmutableList.<ColumnHandle>of(),
-                ImmutableList.<Type>of(VARCHAR));
+                ImmutableList.<Type>of(createUnboundedVarcharType()));
 
         SourceOperator operator = factory.createOperator(driverContext);
         operator.addSplit(new Split("test", TestingTransactionHandle.create("test"), TestingSplit.createLocalSplit()));
         operator.noMoreSplits();
 
-        MaterializedResult expected = toMaterializedResult(driverContext.getSession(), ImmutableList.<Type>of(VARCHAR), ImmutableList.of(input));
-        MaterializedResult actual = toMaterializedResult(driverContext.getSession(), ImmutableList.<Type>of(VARCHAR), toPages(operator));
+        MaterializedResult expected = toMaterializedResult(driverContext.getSession(), ImmutableList.<Type>of(createUnboundedVarcharType()), ImmutableList.of(input));
+        MaterializedResult actual = toMaterializedResult(driverContext.getSession(), ImmutableList.<Type>of(createUnboundedVarcharType()), toPages(operator));
 
         assertEquals(actual.getRowCount(), expected.getRowCount());
         assertEquals(actual, expected);

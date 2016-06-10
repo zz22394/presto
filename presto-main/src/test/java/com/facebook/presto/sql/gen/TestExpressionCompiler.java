@@ -79,7 +79,7 @@ import static com.facebook.presto.spi.type.TimeZoneKey.UTC_KEY;
 import static com.facebook.presto.spi.type.TimestampType.TIMESTAMP;
 import static com.facebook.presto.spi.type.TimestampWithTimeZoneType.TIMESTAMP_WITH_TIME_ZONE;
 import static com.facebook.presto.spi.type.VarbinaryType.VARBINARY;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.spi.type.VarcharType.createVarcharType;
 import static com.facebook.presto.type.JsonType.JSON;
 import static com.facebook.presto.type.UnknownType.UNKNOWN;
@@ -204,12 +204,12 @@ public class TestExpressionCompiler
         assertExecute("X' '", VARBINARY, new SqlVarbinary(new byte[0]));
         assertExecute("bound_integer", INTEGER, 1234);
         assertExecute("bound_long", BIGINT, 1234L);
-        assertExecute("bound_string", VARCHAR, "hello");
+        assertExecute("bound_string", createUnboundedVarcharType(), "hello");
         assertExecute("bound_double", DOUBLE, 12.34);
         assertExecute("bound_boolean", BOOLEAN, true);
         assertExecute("bound_timestamp", BIGINT, new DateTime(2001, 8, 22, 3, 4, 5, 321, UTC).getMillis());
-        assertExecute("bound_pattern", VARCHAR, "%el%");
-        assertExecute("bound_null_string", VARCHAR, null);
+        assertExecute("bound_pattern", createUnboundedVarcharType(), "%el%");
+        assertExecute("bound_null_string", createUnboundedVarcharType(), null);
         assertExecute("bound_timestamp_with_timezone", TIMESTAMP_WITH_TIME_ZONE, new SqlTimestampWithTimeZone(new DateTime(1970, 1, 1, 0, 1, 0, 999, DateTimeZone.UTC).getMillis(), TimeZoneKey.getTimeZoneKey("Z")));
         assertExecute("bound_binary_literal", VARBINARY, new SqlVarbinary(new byte[] {(byte) 0xab}));
 
@@ -809,7 +809,7 @@ public class TestExpressionCompiler
             assertExecute(generateExpression("cast(%s as integer)", value), INTEGER, value == null ? null : (value ? 1 : 0));
             assertExecute(generateExpression("cast(%s as bigint)", value), BIGINT, value == null ? null : (value ? 1L : 0L));
             assertExecute(generateExpression("cast(%s as double)", value), DOUBLE, value == null ? null : (value ? 1.0 : 0.0));
-            assertExecute(generateExpression("cast(%s as varchar)", value), VARCHAR, value == null ? null : (value ? "true" : "false"));
+            assertExecute(generateExpression("cast(%s as varchar)", value), createUnboundedVarcharType(), value == null ? null : (value ? "true" : "false"));
         }
 
         for (Integer value : intLefts) {
@@ -817,14 +817,14 @@ public class TestExpressionCompiler
             assertExecute(generateExpression("cast(%s as integer)", value), INTEGER, value == null ? null : value);
             assertExecute(generateExpression("cast(%s as bigint)", value), BIGINT, value == null ? null : (long) value);
             assertExecute(generateExpression("cast(%s as double)", value), DOUBLE, value == null ? null : value.doubleValue());
-            assertExecute(generateExpression("cast(%s as varchar)", value), VARCHAR, value == null ? null : String.valueOf(value));
+            assertExecute(generateExpression("cast(%s as varchar)", value), createUnboundedVarcharType(), value == null ? null : String.valueOf(value));
         }
 
         for (Double value : doubleLefts) {
             assertExecute(generateExpression("cast(%s as boolean)", value), BOOLEAN, value == null ? null : (value != 0.0 ? true : false));
             assertExecute(generateExpression("cast(%s as bigint)", value), BIGINT, value == null ? null : value.longValue());
             assertExecute(generateExpression("cast(%s as double)", value), DOUBLE, value == null ? null : value);
-            assertExecute(generateExpression("cast(%s as varchar)", value), VARCHAR, value == null ? null : String.valueOf(value));
+            assertExecute(generateExpression("cast(%s as varchar)", value), createUnboundedVarcharType(), value == null ? null : String.valueOf(value));
         }
 
         assertExecute("cast('true' as boolean)", BOOLEAN, true);
@@ -851,7 +851,7 @@ public class TestExpressionCompiler
             }
         }
         for (String value : stringLefts) {
-            assertExecute(generateExpression("cast(%s as varchar)", value), VARCHAR, value == null ? null : value);
+            assertExecute(generateExpression("cast(%s as varchar)", value), createUnboundedVarcharType(), value == null ? null : value);
         }
 
         Futures.allAsList(futures).get();
@@ -871,8 +871,8 @@ public class TestExpressionCompiler
         assertExecute("coalesce(try(cast (concat('a', cast (123 AS VARCHAR)) AS INTEGER)), 0)", INTEGER, 0);
         assertExecute("coalesce(try(cast (concat('a', cast (123 AS VARCHAR)) AS BIGINT)), 0)", BIGINT, 0L);
         assertExecute("123 + TRY(ABS(-9223372036854775807 - 1))", BIGINT, null);
-        assertExecute("JSON_FORMAT(TRY(JSON '[]')) || '123'", VARCHAR, "[]123");
-        assertExecute("JSON_FORMAT(TRY(JSON 'INVALID')) || '123'", VARCHAR, null);
+        assertExecute("JSON_FORMAT(TRY(JSON '[]')) || '123'", createUnboundedVarcharType(), "[]123");
+        assertExecute("JSON_FORMAT(TRY(JSON 'INVALID')) || '123'", createUnboundedVarcharType(), null);
 
         Futures.allAsList(futures).get();
     }
@@ -885,7 +885,7 @@ public class TestExpressionCompiler
         assertExecute("try_cast('123' as integer)", INTEGER, 123);
         assertExecute("try_cast(null as bigint)", BIGINT, null);
         assertExecute("try_cast('123' as bigint)", BIGINT, 123L);
-        assertExecute("try_cast('foo' as varchar)", VARCHAR, "foo");
+        assertExecute("try_cast('foo' as varchar)", createUnboundedVarcharType(), "foo");
         assertExecute("try_cast('foo' as bigint)", BIGINT, null);
         assertExecute("try_cast('foo' as integer)", INTEGER, null);
         assertExecute("try_cast('2001-08-22' as timestamp)", TIMESTAMP, new SqlTimestamp(new DateTime(2001, 8, 22, 0, 0, 0, 0, UTC).getMillis(), UTC_KEY));
@@ -894,9 +894,9 @@ public class TestExpressionCompiler
         assertExecute("try_cast(bound_long / 13  as bigint)", BIGINT, 94L);
         assertExecute("coalesce(try_cast('123' as bigint), 456)", BIGINT, 123L);
         assertExecute("coalesce(try_cast('foo' as bigint), 456)", BIGINT, 456L);
-        assertExecute("concat('foo', cast('bar' as varchar))", VARCHAR, "foobar");
+        assertExecute("concat('foo', cast('bar' as varchar))", createUnboundedVarcharType(), "foobar");
         assertExecute("try_cast(try_cast(123 as varchar) as bigint)", BIGINT, 123L);
-        assertExecute("try_cast('foo' as varchar) || try_cast('bar' as varchar)", VARCHAR, "foobar");
+        assertExecute("try_cast('foo' as varchar) || try_cast('bar' as varchar)", createUnboundedVarcharType(), "foobar");
 
         Futures.allAsList(futures).get();
     }
@@ -1381,7 +1381,7 @@ public class TestExpressionCompiler
                     else {
                         expected = StringFunctions.substr(utf8Slice(value), start, length).toStringUtf8();
                     }
-                    VarcharType expectedType = value != null ? createVarcharType(value.length()) : VARCHAR;
+                    VarcharType expectedType = value != null ? createVarcharType(value.length()) : createUnboundedVarcharType();
 
                     assertExecute(generateExpression("substr(%s, %s, %s)", value, start, length), expectedType, expected);
                 }
@@ -1422,14 +1422,14 @@ public class TestExpressionCompiler
                         JSON,
                         value == null || pattern == null ? null : JsonFunctions.jsonExtract(utf8Slice(value), new JsonPath(pattern)));
                 assertExecute(generateExpression("json_extract_scalar(%s, %s)", value, pattern),
-                        VARCHAR,
+                        createUnboundedVarcharType(),
                         value == null || pattern == null ? null : JsonFunctions.jsonExtractScalar(utf8Slice(value), new JsonPath(pattern)));
 
                 assertExecute(generateExpression("json_extract(%s, %s || '')", value, pattern),
                         JSON,
                         value == null || pattern == null ? null : JsonFunctions.jsonExtract(utf8Slice(value), new JsonPath(pattern)));
                 assertExecute(generateExpression("json_extract_scalar(%s, %s || '')", value, pattern),
-                        VARCHAR,
+                        createUnboundedVarcharType(),
                         value == null || pattern == null ? null : JsonFunctions.jsonExtractScalar(utf8Slice(value), new JsonPath(pattern)));
             }
         }
@@ -1563,13 +1563,13 @@ public class TestExpressionCompiler
 
         assertExecute("coalesce('foo', 'banana')", createVarcharType(6), "foo");
         assertExecute("coalesce('foo', null)", createVarcharType(3), "foo");
-        assertExecute("coalesce('foo', cast(null as varchar))", VARCHAR, "foo");
+        assertExecute("coalesce('foo', cast(null as varchar))", createUnboundedVarcharType(), "foo");
         assertExecute("coalesce(null, 'foo', 'banana')", createVarcharType(6), "foo");
         assertExecute("coalesce(null, 'foo', null)", createVarcharType(3), "foo");
-        assertExecute("coalesce(null, 'foo', cast(null as varchar))", VARCHAR, "foo");
-        assertExecute("coalesce(cast(null as varchar), 'foo', 'bar')", VARCHAR, "foo");
-        assertExecute("coalesce(cast(null as varchar), 'foo', null)", VARCHAR, "foo");
-        assertExecute("coalesce(cast(null as varchar), 'foo', cast(null as varchar))", VARCHAR, "foo");
+        assertExecute("coalesce(null, 'foo', cast(null as varchar))", createUnboundedVarcharType(), "foo");
+        assertExecute("coalesce(cast(null as varchar), 'foo', 'bar')", createUnboundedVarcharType(), "foo");
+        assertExecute("coalesce(cast(null as varchar), 'foo', null)", createUnboundedVarcharType(), "foo");
+        assertExecute("coalesce(cast(null as varchar), 'foo', cast(null as varchar))", createUnboundedVarcharType(), "foo");
 
         assertExecute("coalesce(cast(null as bigint), null, cast(null as bigint))", BIGINT, null);
 

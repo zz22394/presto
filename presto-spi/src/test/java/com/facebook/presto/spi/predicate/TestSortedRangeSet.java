@@ -29,7 +29,7 @@ import org.testng.annotations.Test;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static io.airlift.slice.Slices.utf8Slice;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
@@ -442,7 +442,7 @@ public class TestSortedRangeSet
         set = SortedRangeSet.none(DOUBLE);
         assertEquals(set, mapper.readValue(mapper.writeValueAsString(set), SortedRangeSet.class));
 
-        set = SortedRangeSet.of(VARCHAR, utf8Slice("abc"));
+        set = SortedRangeSet.of(createUnboundedVarcharType(), utf8Slice("abc"));
         assertEquals(set, mapper.readValue(mapper.writeValueAsString(set), SortedRangeSet.class));
 
         set = SortedRangeSet.of(Range.equal(BOOLEAN, true), Range.equal(BOOLEAN, false));

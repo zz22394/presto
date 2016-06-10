@@ -42,7 +42,7 @@ import java.util.concurrent.ExecutorService;
 import static com.facebook.presto.SessionTestUtils.TEST_SESSION;
 import static com.facebook.presto.operator.PageAssertions.assertPageEquals;
 import static com.facebook.presto.operator.SyntheticAddress.encodeSyntheticAddress;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.testing.TestingTaskContext.createTaskContext;
 import static io.airlift.concurrent.Threads.daemonThreadsNamed;
 import static java.util.concurrent.Executors.newCachedThreadPool;
@@ -81,7 +81,7 @@ public class TestJoinProbeCompiler
     {
         DriverContext driverContext = taskContext.addPipelineContext(true, true).addDriverContext();
 
-        ImmutableList<Type> types = ImmutableList.<Type>of(VARCHAR);
+        ImmutableList<Type> types = ImmutableList.<Type>of(createUnboundedVarcharType());
         LookupSourceFactory lookupSourceFactoryFactory = joinCompiler.compileLookupSourceFactory(types, Ints.asList(0));
 
         // crate hash strategy with a single channel blocks -- make sure there is some overlap in values
@@ -103,9 +103,9 @@ public class TestJoinProbeCompiler
         if (hashEnabled) {
             ImmutableList.Builder<Block> hashChannelBuilder = ImmutableList.builder();
             for (Block block : channel) {
-                hashChannelBuilder.add(TypeUtils.getHashBlock(ImmutableList.<Type>of(VARCHAR), block));
+                hashChannelBuilder.add(TypeUtils.getHashBlock(ImmutableList.<Type>of(createUnboundedVarcharType()), block));
             }
-            types = ImmutableList.<Type>of(VARCHAR, BigintType.BIGINT);
+            types = ImmutableList.<Type>of(createUnboundedVarcharType(), BigintType.BIGINT);
             hashChannel = Optional.of(1);
             channels = ImmutableList.of(channel, hashChannelBuilder.build());
         }
@@ -116,7 +116,7 @@ public class TestJoinProbeCompiler
 
         Page page = SequencePageBuilder.createSequencePage(types, 10, 10);
         if (hashEnabled) {
-            page = new Page(page.getBlock(0), TypeUtils.getHashBlock(ImmutableList.of(VARCHAR), page.getBlock(0)));
+            page = new Page(page.getBlock(0), TypeUtils.getHashBlock(ImmutableList.of(createUnboundedVarcharType()), page.getBlock(0)));
         }
         JoinProbe joinProbe = probeFactory.createJoinProbe(lookupSource, page);
 

@@ -23,7 +23,7 @@ import io.airlift.slice.Slices;
 
 import static com.facebook.presto.operator.aggregation.ApproximateUtils.countError;
 import static com.facebook.presto.operator.aggregation.ApproximateUtils.formatApproximateResult;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 
 @AggregationFunction(value = "count", approximate = true)
 public final class ApproximateCountColumnAggregations
@@ -70,7 +70,7 @@ public final class ApproximateCountColumnAggregations
     public static void output(ApproximateCountState state, double confidence, BlockBuilder out)
     {
         String result = formatApproximateResult(state.getCount(), countError(state.getSamples(), state.getCount()), confidence, true);
-        VARCHAR.writeSlice(out, Slices.utf8Slice(result));
+        createUnboundedVarcharType().writeSlice(out, Slices.utf8Slice(result));
     }
 
     public interface ApproximateCountState

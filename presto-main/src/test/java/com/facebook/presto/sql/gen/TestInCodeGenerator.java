@@ -29,7 +29,7 @@ import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.DateType.DATE;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
 import static com.facebook.presto.spi.type.IntegerType.INTEGER;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.sql.gen.InCodeGenerator.SwitchGenerationCase.DIRECT_SWITCH;
 import static com.facebook.presto.sql.gen.InCodeGenerator.SwitchGenerationCase.HASH_SWITCH;
 import static com.facebook.presto.sql.gen.InCodeGenerator.SwitchGenerationCase.SET_CONTAINS;
@@ -149,17 +149,17 @@ public class TestInCodeGenerator
         values.add(new ConstantExpression(Slices.utf8Slice("1"), DOUBLE));
         values.add(new ConstantExpression(Slices.utf8Slice("2"), DOUBLE));
         values.add(new ConstantExpression(Slices.utf8Slice("3"), DOUBLE));
-        assertEquals(checkSwitchGenerationCase(VARCHAR, values), HASH_SWITCH);
+        assertEquals(checkSwitchGenerationCase(createUnboundedVarcharType(), values), HASH_SWITCH);
 
-        values.add(new ConstantExpression(null, VARCHAR));
-        assertEquals(checkSwitchGenerationCase(VARCHAR, values), HASH_SWITCH);
+        values.add(new ConstantExpression(null, createUnboundedVarcharType()));
+        assertEquals(checkSwitchGenerationCase(createUnboundedVarcharType(), values), HASH_SWITCH);
 
         for  (int i = 5; i <= 32; ++i) {
-            values.add(new ConstantExpression(Slices.utf8Slice(String.valueOf(i)), VARCHAR));
+            values.add(new ConstantExpression(Slices.utf8Slice(String.valueOf(i)), createUnboundedVarcharType()));
         }
-        assertEquals(checkSwitchGenerationCase(VARCHAR, values), HASH_SWITCH);
+        assertEquals(checkSwitchGenerationCase(createUnboundedVarcharType(), values), HASH_SWITCH);
 
-        values.add(new ConstantExpression(Slices.utf8Slice("33"), VARCHAR));
-        assertEquals(checkSwitchGenerationCase(VARCHAR, values), SET_CONTAINS);
+        values.add(new ConstantExpression(Slices.utf8Slice("33"), createUnboundedVarcharType()));
+        assertEquals(checkSwitchGenerationCase(createUnboundedVarcharType(), values), SET_CONTAINS);
     }
 }

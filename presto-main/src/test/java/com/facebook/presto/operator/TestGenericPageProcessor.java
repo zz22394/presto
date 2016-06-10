@@ -27,13 +27,13 @@ import static com.facebook.presto.operator.FilterFunctions.TRUE_FUNCTION;
 import static com.facebook.presto.operator.PageAssertions.assertPageEquals;
 import static com.facebook.presto.operator.ProjectionFunctions.singleColumn;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.testing.TestingConnectorSession.SESSION;
 
 public class TestGenericPageProcessor
 {
     private static final int POSITIONS = 100;
-    private final List<Type> types = ImmutableList.of(BIGINT, VARCHAR);
+    private final List<Type> types = ImmutableList.of(BIGINT, createUnboundedVarcharType());
     private final PageProcessor processor = new GenericPageProcessor(TRUE_FUNCTION, ImmutableList.of(singleColumn(types.get(0), 0), singleColumn(types.get(1), 1)));
 
     private final PageBuilder pageBuilder = new PageBuilder(types);

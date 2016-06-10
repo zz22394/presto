@@ -42,7 +42,7 @@ import static com.facebook.presto.operator.aggregation.LongSumAggregation.LONG_S
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
 import static com.facebook.presto.spi.type.TypeSignature.parseTypeSignature;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.testing.MaterializedResult.resultBuilder;
 import static com.facebook.presto.testing.TestingTaskContext.createTaskContext;
 import static io.airlift.concurrent.Threads.daemonThreadsNamed;
@@ -79,7 +79,7 @@ public class TestAggregationOperator
                 new Signature("count", AGGREGATE, parseTypeSignature(StandardTypes.BIGINT), parseTypeSignature(StandardTypes.VARCHAR)));
         InternalAggregationFunction maxVarcharColumn = metadata.getFunctionRegistry().getAggregateFunctionImplementation(
                 new Signature("max", AGGREGATE, parseTypeSignature(StandardTypes.VARCHAR), parseTypeSignature(StandardTypes.VARCHAR)));
-        List<Page> input = rowPagesBuilder(VARCHAR, BIGINT, VARCHAR, BIGINT, DOUBLE, VARCHAR)
+        List<Page> input = rowPagesBuilder(createUnboundedVarcharType(), BIGINT, createUnboundedVarcharType(), BIGINT, DOUBLE, createUnboundedVarcharType())
                 .addSequencePage(100, 0, 0, 300, 500, 500, 500)
                 .build();
 
@@ -97,7 +97,7 @@ public class TestAggregationOperator
                         maxVarcharColumn.bind(ImmutableList.of(5), Optional.empty(), Optional.empty(), 1.0)));
         Operator operator = operatorFactory.createOperator(driverContext);
 
-        MaterializedResult expected = resultBuilder(driverContext.getSession(), BIGINT, BIGINT, DOUBLE, VARCHAR, BIGINT, BIGINT, DOUBLE, VARCHAR)
+        MaterializedResult expected = resultBuilder(driverContext.getSession(), BIGINT, BIGINT, DOUBLE, createUnboundedVarcharType(), BIGINT, BIGINT, DOUBLE, createUnboundedVarcharType())
                 .row(100L, 4950L, 49.5, "399", 100L, 54950L, 54950.0, "599")
                 .build();
 

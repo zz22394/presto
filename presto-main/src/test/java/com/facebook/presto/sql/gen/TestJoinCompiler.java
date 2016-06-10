@@ -35,7 +35,7 @@ import static com.facebook.presto.operator.PageAssertions.assertPageEquals;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.type.TypeUtils.hashPosition;
 import static com.facebook.presto.type.TypeUtils.positionEqualsPosition;
 import static org.testng.Assert.assertEquals;
@@ -55,7 +55,7 @@ public class TestJoinCompiler
     public void testSingleChannel(boolean hashEnabled)
             throws Exception
     {
-        List<Type> joinTypes = ImmutableList.<Type>of(VARCHAR);
+        List<Type> joinTypes = ImmutableList.<Type>of(createUnboundedVarcharType());
         List<Integer> joinChannels = Ints.asList(0);
 
         // compile a single channel hash strategy
@@ -86,11 +86,11 @@ public class TestJoinCompiler
         for (int leftBlockIndex = 0; leftBlockIndex < channel.size(); leftBlockIndex++) {
             Block leftBlock = channel.get(leftBlockIndex);
 
-            PageBuilder pageBuilder = new PageBuilder(ImmutableList.of(VARCHAR));
+            PageBuilder pageBuilder = new PageBuilder(ImmutableList.of(createUnboundedVarcharType()));
 
             for (int leftBlockPosition = 0; leftBlockPosition < leftBlock.getPositionCount(); leftBlockPosition++) {
                 // hash code of position must match block hash
-                assertEquals(hashStrategy.hashPosition(leftBlockIndex, leftBlockPosition), hashPosition(VARCHAR, leftBlock, leftBlockPosition));
+                assertEquals(hashStrategy.hashPosition(leftBlockIndex, leftBlockPosition), hashPosition(createUnboundedVarcharType(), leftBlock, leftBlockPosition));
 
                 // position must be equal to itself
                 assertTrue(hashStrategy.positionEqualsPosition(leftBlockIndex, leftBlockPosition, leftBlockIndex, leftBlockPosition));
@@ -99,7 +99,7 @@ public class TestJoinCompiler
                 for (int rightBlockIndex = 0; rightBlockIndex < channel.size(); rightBlockIndex++) {
                     Block rightBlock = channel.get(rightBlockIndex);
                     for (int rightBlockPosition = 0; rightBlockPosition < rightBlock.getPositionCount(); rightBlockPosition++) {
-                        boolean expected = positionEqualsPosition(VARCHAR, leftBlock, leftBlockPosition, rightBlock, rightBlockPosition);
+                        boolean expected = positionEqualsPosition(createUnboundedVarcharType(), leftBlock, leftBlockPosition, rightBlock, rightBlockPosition);
                         assertEquals(hashStrategy.positionEqualsRow(leftBlockIndex, leftBlockPosition, rightBlockPosition, new Block[] {rightBlock}), expected);
                         assertEquals(hashStrategy.rowEqualsRow(leftBlockPosition, new Block[] {leftBlock}, rightBlockPosition, new Block[] {rightBlock}), expected);
                         assertEquals(hashStrategy.positionEqualsPosition(leftBlockIndex, leftBlockPosition, rightBlockIndex, rightBlockPosition), expected);
@@ -110,7 +110,7 @@ public class TestJoinCompiler
                 for (int rightBlockIndex = 0; rightBlockIndex < channel.size(); rightBlockIndex++) {
                     Block rightBlock = channel.get(rightBlockIndex);
                     for (int rightBlockPosition = 0; rightBlockPosition < rightBlock.getPositionCount(); rightBlockPosition++) {
-                        boolean expected = positionEqualsPosition(VARCHAR, leftBlock, leftBlockPosition, rightBlock, rightBlockPosition);
+                        boolean expected = positionEqualsPosition(createUnboundedVarcharType(), leftBlock, leftBlockPosition, rightBlock, rightBlockPosition);
                         assertEquals(hashStrategy.positionEqualsRow(leftBlockIndex, leftBlockPosition, rightBlockPosition, new Block[] {rightBlock}), expected);
                         assertEquals(hashStrategy.rowEqualsRow(leftBlockPosition, new Block[] {leftBlock}, rightBlockPosition, new Block[] {rightBlock}), expected);
                         assertEquals(hashStrategy.positionEqualsPosition(leftBlockIndex, leftBlockPosition, rightBlockIndex, rightBlockPosition), expected);
@@ -123,7 +123,7 @@ public class TestJoinCompiler
             }
 
             // verify output block matches
-            assertBlockEquals(VARCHAR, pageBuilder.build().getBlock(0), leftBlock);
+            assertBlockEquals(createUnboundedVarcharType(), pageBuilder.build().getBlock(0), leftBlock);
         }
     }
 
@@ -133,8 +133,8 @@ public class TestJoinCompiler
     {
         // compile a single channel hash strategy
         JoinCompiler joinCompiler = new JoinCompiler();
-        List<Type> types = ImmutableList.<Type>of(VARCHAR, VARCHAR, BIGINT, DOUBLE, BOOLEAN);
-        List<Type> joinTypes = ImmutableList.<Type>of(VARCHAR, BIGINT, DOUBLE, BOOLEAN);
+        List<Type> types = ImmutableList.<Type>of(createUnboundedVarcharType(), createUnboundedVarcharType(), BIGINT, DOUBLE, BOOLEAN);
+        List<Type> joinTypes = ImmutableList.<Type>of(createUnboundedVarcharType(), BIGINT, DOUBLE, BOOLEAN);
         List<Integer> joinChannels = Ints.asList(1, 2, 3, 4);
 
         // crate hash strategy with a single channel blocks -- make sure there is some overlap in values
@@ -170,7 +170,7 @@ public class TestJoinCompiler
             hashChannel = Optional.of(5);
             precomputedHash = hashChannelBuilder.build();
             channels = ImmutableList.of(extraChannel, varcharChannel, longChannel, doubleChannel, booleanChannel, precomputedHash);
-            types = ImmutableList.<Type>of(VARCHAR, VARCHAR, BIGINT, DOUBLE, BOOLEAN, BIGINT);
+            types = ImmutableList.<Type>of(createUnboundedVarcharType(), createUnboundedVarcharType(), BIGINT, DOUBLE, BOOLEAN, BIGINT);
         }
 
         PagesHashStrategyFactory pagesHashStrategyFactory = joinCompiler.compilePagesHashStrategyFactory(types, joinChannels);

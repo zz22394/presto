@@ -145,7 +145,7 @@ public class TestStateCompiler
         singleState.setCount(2);
         singleState.setM2(3);
 
-        BlockBuilder builder = VarcharType.VARCHAR.createBlockBuilder(new BlockBuilderStatus(), 1);
+        BlockBuilder builder = VarcharType.createUnboundedVarcharType().createBlockBuilder(new BlockBuilderStatus(), 1);
         serializer.serialize(singleState, builder);
 
         Block block = builder.build();
@@ -171,7 +171,7 @@ public class TestStateCompiler
         singleState.setDouble(2.0);
         singleState.setByte((byte) 3);
 
-        BlockBuilder builder = VarcharType.VARCHAR.createBlockBuilder(new BlockBuilderStatus(), 1);
+        BlockBuilder builder = VarcharType.createUnboundedVarcharType().createBlockBuilder(new BlockBuilderStatus(), 1);
         serializer.serialize(singleState, builder);
 
         Block block = builder.build();

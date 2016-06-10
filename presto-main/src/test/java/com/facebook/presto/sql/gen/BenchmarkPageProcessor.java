@@ -51,7 +51,7 @@ import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 import static com.facebook.presto.spi.type.DateType.DATE;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
 import static com.facebook.presto.spi.type.TypeSignature.parseTypeSignature;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.sql.relational.Expressions.call;
 import static com.facebook.presto.sql.relational.Expressions.constant;
 import static com.facebook.presto.sql.relational.Expressions.field;
@@ -120,7 +120,7 @@ public class BenchmarkPageProcessor
 
     public static Page createInputPage()
     {
-        PageBuilder pageBuilder = new PageBuilder(ImmutableList.of(DOUBLE, DOUBLE, VARCHAR, DOUBLE));
+        PageBuilder pageBuilder = new PageBuilder(ImmutableList.of(DOUBLE, DOUBLE, createUnboundedVarcharType(), DOUBLE));
         LineItemGenerator lineItemGenerator = new LineItemGenerator(1, 1, 1);
         Iterator<LineItem> iterator = lineItemGenerator.iterator();
         for (int i = 0; i < 10_000; i++) {
@@ -182,8 +182,8 @@ public class BenchmarkPageProcessor
 
         private static boolean filter(int position, Block discountBlock, Block shipDateBlock, Block quantityBlock)
         {
-            return !shipDateBlock.isNull(position) && VARCHAR.getSlice(shipDateBlock, position).compareTo(MIN_SHIP_DATE) >= 0 &&
-                    !shipDateBlock.isNull(position) && VARCHAR.getSlice(shipDateBlock, position).compareTo(MAX_SHIP_DATE) < 0 &&
+            return !shipDateBlock.isNull(position) && createUnboundedVarcharType().getSlice(shipDateBlock, position).compareTo(MIN_SHIP_DATE) >= 0 &&
+                    !shipDateBlock.isNull(position) && createUnboundedVarcharType().getSlice(shipDateBlock, position).compareTo(MAX_SHIP_DATE) < 0 &&
                     !discountBlock.isNull(position) && DOUBLE.getDouble(discountBlock, position) >= 0.05 &&
                     !discountBlock.isNull(position) && DOUBLE.getDouble(discountBlock, position) <= 0.07 &&
                     !quantityBlock.isNull(position) && DOUBLE.getDouble(quantityBlock, position) < 24;
@@ -199,14 +199,14 @@ public class BenchmarkPageProcessor
             BOOLEAN,
             call(new Signature(OperatorType.GREATER_THAN_OR_EQUAL.name(), SCALAR, parseTypeSignature(StandardTypes.BOOLEAN), parseTypeSignature(StandardTypes.VARCHAR), parseTypeSignature(StandardTypes.VARCHAR)),
                     BOOLEAN,
-                    field(SHIP_DATE, VARCHAR),
-                    constant(MIN_SHIP_DATE, VARCHAR)),
+                    field(SHIP_DATE, createUnboundedVarcharType()),
+                    constant(MIN_SHIP_DATE, createUnboundedVarcharType())),
             call(new Signature("AND", SCALAR, parseTypeSignature(StandardTypes.BOOLEAN)),
                     BOOLEAN,
                     call(new Signature(OperatorType.LESS_THAN.name(), SCALAR, parseTypeSignature(StandardTypes.BOOLEAN), parseTypeSignature(StandardTypes.VARCHAR), parseTypeSignature(StandardTypes.VARCHAR)),
                             BOOLEAN,
-                            field(SHIP_DATE, VARCHAR),
-                            constant(MAX_SHIP_DATE, VARCHAR)),
+                            field(SHIP_DATE, createUnboundedVarcharType()),
+                            constant(MAX_SHIP_DATE, createUnboundedVarcharType())),
                     call(new Signature("AND", SCALAR, parseTypeSignature(StandardTypes.BOOLEAN)),
                             BOOLEAN,
                             call(new Signature(OperatorType.GREATER_THAN_OR_EQUAL.name(), SCALAR, parseTypeSignature(StandardTypes.BOOLEAN), parseTypeSignature(StandardTypes.DOUBLE), parseTypeSignature(StandardTypes.DOUBLE)),

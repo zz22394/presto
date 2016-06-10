@@ -42,7 +42,7 @@ import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
 import static com.facebook.presto.spi.type.IntegerType.INTEGER;
 import static com.facebook.presto.spi.type.TypeSignature.parseTypeSignature;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.util.StructuralTestUtil.mapBlockOf;
 
 public class TestMapAggAggregation
@@ -53,7 +53,7 @@ public class TestMapAggAggregation
     public void testDuplicateKeysValues()
             throws Exception
     {
-        MapType mapType = new MapType(DOUBLE, VARCHAR);
+        MapType mapType = new MapType(DOUBLE, createUnboundedVarcharType());
         InternalAggregationFunction aggFunc = metadata.getFunctionRegistry().getAggregateFunctionImplementation(
                 new Signature(NAME,
                         AGGREGATE,
@@ -86,7 +86,7 @@ public class TestMapAggAggregation
     public void testSimpleMaps()
             throws Exception
     {
-        MapType mapType = new MapType(DOUBLE, VARCHAR);
+        MapType mapType = new MapType(DOUBLE, createUnboundedVarcharType());
         InternalAggregationFunction aggFunc = metadata.getFunctionRegistry().getAggregateFunctionImplementation(
                 new Signature(NAME,
                         AGGREGATE,
@@ -169,7 +169,7 @@ public class TestMapAggAggregation
     public void testDoubleArrayMap()
             throws Exception
     {
-        ArrayType arrayType = new ArrayType(VARCHAR);
+        ArrayType arrayType = new ArrayType(createUnboundedVarcharType());
         MapType mapType = new MapType(DOUBLE, arrayType);
         InternalAggregationFunction aggFunc = metadata.getFunctionRegistry().getAggregateFunctionImplementation(new Signature(NAME,
                                                                                     AGGREGATE,
@@ -191,7 +191,7 @@ public class TestMapAggAggregation
     public void testDoubleMapMap()
             throws Exception
     {
-        MapType innerMapType = new MapType(VARCHAR, VARCHAR);
+        MapType innerMapType = new MapType(createUnboundedVarcharType(), createUnboundedVarcharType());
         MapType mapType = new MapType(DOUBLE, innerMapType);
         InternalAggregationFunction aggFunc = metadata.getFunctionRegistry().getAggregateFunctionImplementation(new Signature(NAME,
                 AGGREGATE,
@@ -200,9 +200,9 @@ public class TestMapAggAggregation
                 innerMapType.getTypeSignature()));
 
         BlockBuilder builder = innerMapType.createBlockBuilder(new BlockBuilderStatus(), 3);
-        innerMapType.writeObject(builder, mapBlockOf(VARCHAR, VARCHAR, ImmutableMap.of("a", "b")));
-        innerMapType.writeObject(builder, mapBlockOf(VARCHAR, VARCHAR, ImmutableMap.of("c", "d")));
-        innerMapType.writeObject(builder, mapBlockOf(VARCHAR, VARCHAR, ImmutableMap.of("e", "f")));
+        innerMapType.writeObject(builder, mapBlockOf(createUnboundedVarcharType(), createUnboundedVarcharType(), ImmutableMap.of("a", "b")));
+        innerMapType.writeObject(builder, mapBlockOf(createUnboundedVarcharType(), createUnboundedVarcharType(), ImmutableMap.of("c", "d")));
+        innerMapType.writeObject(builder, mapBlockOf(createUnboundedVarcharType(), createUnboundedVarcharType(), ImmutableMap.of("e", "f")));
 
         assertAggregation(
                 aggFunc,
@@ -245,7 +245,7 @@ public class TestMapAggAggregation
     public void testArrayDoubleMap()
             throws Exception
     {
-        ArrayType arrayType = new ArrayType(VARCHAR);
+        ArrayType arrayType = new ArrayType(createUnboundedVarcharType());
         MapType mapType = new MapType(arrayType, DOUBLE);
         InternalAggregationFunction aggFunc = metadata.getFunctionRegistry().getAggregateFunctionImplementation(new Signature(
                 NAME,

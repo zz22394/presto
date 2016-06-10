@@ -111,7 +111,7 @@ public class TestChecksumAggregation
                         parseTypeSignature(VARBINARY),
                         parseTypeSignature(VARCHAR)));
         Block block = createStringsBlock("a", "a", null, "b", "c");
-        assertAggregation(stringAgg, 1.0, expectedChecksum(VarcharType.VARCHAR, block), block);
+        assertAggregation(stringAgg, 1.0, expectedChecksum(VarcharType.createUnboundedVarcharType(), block), block);
     }
 
     @Test

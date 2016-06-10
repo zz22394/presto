@@ -20,7 +20,7 @@ import static com.facebook.presto.spi.StandardErrorCode.NUMERIC_VALUE_OUT_OF_RAN
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static java.lang.String.format;
 
 public class TestBigintOperators
@@ -206,8 +206,8 @@ public class TestBigintOperators
     public void testCastToVarchar()
             throws Exception
     {
-        assertFunction("cast(37 as varchar)", VARCHAR, "37");
-        assertFunction("cast(100000000017 as varchar)", VARCHAR, "100000000017");
+        assertFunction("cast(37 as varchar)", createUnboundedVarcharType(), "37");
+        assertFunction("cast(100000000017 as varchar)", createUnboundedVarcharType(), "100000000017");
     }
 
     @Test

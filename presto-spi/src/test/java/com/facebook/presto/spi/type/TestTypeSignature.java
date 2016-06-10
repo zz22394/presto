@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Set;
 
 import static com.facebook.presto.spi.type.TypeSignature.parseTypeSignature;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
 import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.spi.type.VarcharType.createVarcharType;
 import static com.google.common.collect.Lists.transform;
@@ -188,7 +187,7 @@ public class TestTypeSignature
     public void testVarchar()
             throws Exception
     {
-        assertEquals(VARCHAR.getTypeSignature().toString(), "varchar");
+        assertEquals(createUnboundedVarcharType().getTypeSignature().toString(), "varchar");
         assertEquals(createVarcharType(42).getTypeSignature().toString(), "varchar(42)");
         assertEquals(parseTypeSignature("varchar"), createUnboundedVarcharType().getTypeSignature());
         assertEquals(createUnboundedVarcharType().getTypeSignature(), parseTypeSignature("varchar"));

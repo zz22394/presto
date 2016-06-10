@@ -21,7 +21,7 @@ import org.testng.annotations.Test;
 
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 import static com.facebook.presto.spi.type.IntervalYearMonthType.INTERVAL_YEAR_MONTH;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 
 public class TestIntervalYearMonth
 {
@@ -194,12 +194,12 @@ public class TestIntervalYearMonth
     public void testCastToSlice()
             throws Exception
     {
-        assertFunction("cast(INTERVAL '124-30' YEAR TO MONTH as varchar)", VARCHAR, "126-6");
-        assertFunction("cast(INTERVAL '124-30' YEAR TO MONTH as varchar)", VARCHAR, new SqlIntervalYearMonth(124, 30).toString());
+        assertFunction("cast(INTERVAL '124-30' YEAR TO MONTH as varchar)", createUnboundedVarcharType(), "126-6");
+        assertFunction("cast(INTERVAL '124-30' YEAR TO MONTH as varchar)", createUnboundedVarcharType(), new SqlIntervalYearMonth(124, 30).toString());
 
-        assertFunction("cast(INTERVAL '124' YEAR TO MONTH as varchar)", VARCHAR, new SqlIntervalYearMonth(124, 0).toString());
-        assertFunction("cast(INTERVAL '124' YEAR as varchar)", VARCHAR, new SqlIntervalYearMonth(124, 0).toString());
+        assertFunction("cast(INTERVAL '124' YEAR TO MONTH as varchar)", createUnboundedVarcharType(), new SqlIntervalYearMonth(124, 0).toString());
+        assertFunction("cast(INTERVAL '124' YEAR as varchar)", createUnboundedVarcharType(), new SqlIntervalYearMonth(124, 0).toString());
 
-        assertFunction("cast(INTERVAL '30' MONTH as varchar)", VARCHAR, new SqlIntervalYearMonth(0, 30).toString());
+        assertFunction("cast(INTERVAL '30' MONTH as varchar)", createUnboundedVarcharType(), new SqlIntervalYearMonth(0, 30).toString());
     }
 }

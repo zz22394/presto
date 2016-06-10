@@ -32,7 +32,7 @@ import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
 import static com.facebook.presto.spi.type.StandardTypes.ARRAY;
 import static com.facebook.presto.spi.type.StandardTypes.MAP;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.stream.Collectors.toList;
 
@@ -89,7 +89,7 @@ public class ProcedureRegistry
         if (type.equals(DOUBLE)) {
             return double.class;
         }
-        if (type.equals(VARCHAR)) {
+        if (type.equals(createUnboundedVarcharType())) {
             return String.class;
         }
         if (type.getTypeSignature().getBase().equals(ARRAY)) {

@@ -18,7 +18,7 @@ import org.testng.annotations.Test;
 import static com.facebook.presto.SessionTestUtils.TEST_SESSION;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.IntegerType.INTEGER;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.testing.MaterializedResult.resultBuilder;
 
 public class TestDenseRankFunction
@@ -28,7 +28,7 @@ public class TestDenseRankFunction
     public void testDenseRank()
     {
         assertWindowQuery("dense_rank() OVER (ORDER BY orderstatus)",
-                resultBuilder(TEST_SESSION, INTEGER, VARCHAR, BIGINT)
+                resultBuilder(TEST_SESSION, INTEGER, createUnboundedVarcharType(), BIGINT)
                         .row(3, "F", 1L)
                         .row(5, "F", 1L)
                         .row(6, "F", 1L)
@@ -41,7 +41,7 @@ public class TestDenseRankFunction
                         .row(34, "O", 2L)
                         .build());
         assertWindowQueryWithNulls("dense_rank() OVER (ORDER BY orderstatus)",
-                resultBuilder(TEST_SESSION, BIGINT, VARCHAR, BIGINT)
+                resultBuilder(TEST_SESSION, BIGINT, createUnboundedVarcharType(), BIGINT)
                         .row(3L, "F", 1L)
                         .row(5L, "F", 1L)
                         .row(null, "F", 1L)

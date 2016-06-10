@@ -18,7 +18,7 @@ import org.testng.annotations.Test;
 import static com.facebook.presto.SessionTestUtils.TEST_SESSION;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.IntegerType.INTEGER;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.testing.MaterializedResult.resultBuilder;
 
 public class TestNthValueFunction
@@ -29,7 +29,7 @@ public class TestNthValueFunction
     {
         // constant offset
         assertUnboundedWindowQuery("nth_value(orderkey, 2) OVER (PARTITION BY orderstatus ORDER BY orderkey)",
-                resultBuilder(TEST_SESSION, INTEGER, VARCHAR, VARCHAR)
+                resultBuilder(TEST_SESSION, INTEGER, createUnboundedVarcharType(), createUnboundedVarcharType())
                         .row(3, "F", 5)
                         .row(5, "F", 5)
                         .row(6, "F", 5)
@@ -42,7 +42,7 @@ public class TestNthValueFunction
                         .row(34, "O", 2)
                         .build());
         assertUnboundedWindowQueryWithNulls("nth_value(orderkey, 2) OVER (PARTITION BY orderstatus ORDER BY orderkey)",
-                resultBuilder(TEST_SESSION, BIGINT, VARCHAR, VARCHAR)
+                resultBuilder(TEST_SESSION, BIGINT, createUnboundedVarcharType(), createUnboundedVarcharType())
                         .row(3L, "F", 5L)
                         .row(5L, "F", 5L)
                         .row(null, "F", 5L)
@@ -57,7 +57,7 @@ public class TestNthValueFunction
 
         // variable offset
         assertUnboundedWindowQuery("nth_value(orderkey, orderkey) OVER (PARTITION BY orderstatus ORDER BY orderkey)",
-                resultBuilder(TEST_SESSION, INTEGER, VARCHAR, VARCHAR)
+                resultBuilder(TEST_SESSION, INTEGER, createUnboundedVarcharType(), createUnboundedVarcharType())
                         .row(3, "F", 6)
                         .row(5, "F", null)
                         .row(6, "F", null)
@@ -71,7 +71,7 @@ public class TestNthValueFunction
                         .build());
         assertUnboundedWindowQueryWithNulls(
                 "nth_value(orderkey, orderkey) OVER (PARTITION BY orderstatus ORDER BY orderkey DESC NULLS FIRST)",
-                resultBuilder(TEST_SESSION, BIGINT, VARCHAR, VARCHAR)
+                resultBuilder(TEST_SESSION, BIGINT, createUnboundedVarcharType(), createUnboundedVarcharType())
                         .row(3L, "F", 5L)
                         .row(5L, "F", null)
                         .row(null, "F", null)
@@ -86,7 +86,7 @@ public class TestNthValueFunction
 
         // null offset
         assertUnboundedWindowQuery("nth_value(orderkey, null) OVER (PARTITION BY orderstatus ORDER BY orderkey)",
-                resultBuilder(TEST_SESSION, INTEGER, VARCHAR, VARCHAR)
+                resultBuilder(TEST_SESSION, INTEGER, createUnboundedVarcharType(), createUnboundedVarcharType())
                         .row(3, "F", null)
                         .row(5, "F", null)
                         .row(6, "F", null)
@@ -101,7 +101,7 @@ public class TestNthValueFunction
 
         // huge offset (larger than an int)
         assertUnboundedWindowQuery("nth_value(orderkey, BIGINT '8' * 1000 * 1000 * 1000) OVER (PARTITION BY orderstatus ORDER BY orderkey)",
-                resultBuilder(TEST_SESSION, INTEGER, VARCHAR, VARCHAR)
+                resultBuilder(TEST_SESSION, INTEGER, createUnboundedVarcharType(), createUnboundedVarcharType())
                         .row(3, "F", null)
                         .row(5, "F", null)
                         .row(6, "F", null)
@@ -120,7 +120,7 @@ public class TestNthValueFunction
     {
         assertWindowQuery("nth_value(orderkey, 4) OVER (PARTITION BY orderstatus ORDER BY orderkey " +
                         "ROWS BETWEEN 2 PRECEDING AND 2 FOLLOWING)",
-                resultBuilder(TEST_SESSION, INTEGER, VARCHAR, BIGINT)
+                resultBuilder(TEST_SESSION, INTEGER, createUnboundedVarcharType(), BIGINT)
                         .row(3, "F", null)
                         .row(5, "F", 33)
                         .row(6, "F", 33)
@@ -134,7 +134,7 @@ public class TestNthValueFunction
                         .build());
         assertWindowQueryWithNulls("nth_value(orderkey, 4) OVER (PARTITION BY orderstatus ORDER BY orderkey " +
                         "ROWS BETWEEN 2 PRECEDING AND 2 FOLLOWING)",
-                resultBuilder(TEST_SESSION, BIGINT, VARCHAR, BIGINT)
+                resultBuilder(TEST_SESSION, BIGINT, createUnboundedVarcharType(), BIGINT)
                         .row(3L, "F", null)
                         .row(5L, "F", null)
                         .row(null, "F", null)
@@ -149,7 +149,7 @@ public class TestNthValueFunction
 
         // Timestamp
         assertWindowQuery("date_format(nth_value(cast(orderdate as TIMESTAMP), 2) OVER (PARTITION BY orderstatus ORDER BY orderkey), '%Y-%m-%d')",
-                resultBuilder(TEST_SESSION, INTEGER, VARCHAR, VARCHAR)
+                resultBuilder(TEST_SESSION, INTEGER, createUnboundedVarcharType(), createUnboundedVarcharType())
                         .row(3, "F", null)
                         .row(5, "F", "1994-07-30")
                         .row(6, "F", "1994-07-30")

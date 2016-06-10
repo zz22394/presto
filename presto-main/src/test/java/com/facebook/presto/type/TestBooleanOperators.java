@@ -17,7 +17,7 @@ import com.facebook.presto.operator.scalar.AbstractTestFunctions;
 import org.testng.annotations.Test;
 
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 
 public class TestBooleanOperators
         extends AbstractTestFunctions
@@ -116,8 +116,8 @@ public class TestBooleanOperators
     public void testCastToVarchar()
             throws Exception
     {
-        assertFunction("cast(true as varchar)", VARCHAR, "true");
-        assertFunction("cast(false as varchar)", VARCHAR, "false");
+        assertFunction("cast(true as varchar)", createUnboundedVarcharType(), "true");
+        assertFunction("cast(false as varchar)", createUnboundedVarcharType(), "false");
     }
 
     @Test

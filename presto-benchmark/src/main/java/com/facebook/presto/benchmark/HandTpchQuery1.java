@@ -41,7 +41,7 @@ import static com.facebook.presto.operator.aggregation.CountAggregation.COUNT;
 import static com.facebook.presto.operator.aggregation.DoubleSumAggregation.DOUBLE_SUM;
 import static com.facebook.presto.spi.type.DateType.DATE;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.google.common.base.Preconditions.checkState;
 import static io.airlift.units.DataSize.Unit.MEGABYTE;
 import static java.util.Objects.requireNonNull;
@@ -118,8 +118,8 @@ public class HandTpchQuery1
             implements com.facebook.presto.operator.Operator // TODO: use import when Java 7 compiler bug is fixed
     {
         private static final ImmutableList<Type> TYPES = ImmutableList.<Type>of(
-                VARCHAR,
-                VARCHAR,
+                createUnboundedVarcharType(),
+                createUnboundedVarcharType(),
                 DOUBLE,
                 DOUBLE,
                 DOUBLE,
@@ -265,13 +265,13 @@ public class HandTpchQuery1
                         pageBuilder.getBlockBuilder(0).appendNull();
                     }
                     else {
-                        VARCHAR.appendTo(returnFlagBlock, position, pageBuilder.getBlockBuilder(0));
+                        createUnboundedVarcharType().appendTo(returnFlagBlock, position, pageBuilder.getBlockBuilder(0));
                     }
                     if (lineStatusBlock.isNull(position)) {
                         pageBuilder.getBlockBuilder(1).appendNull();
                     }
                     else {
-                        VARCHAR.appendTo(lineStatusBlock, position, pageBuilder.getBlockBuilder(1));
+                        createUnboundedVarcharType().appendTo(lineStatusBlock, position, pageBuilder.getBlockBuilder(1));
                     }
 
                     double quantity = DOUBLE.getDouble(quantityBlock, position);

@@ -63,7 +63,7 @@ import static com.facebook.presto.spi.type.IntervalDayTimeType.INTERVAL_DAY_TIME
 import static com.facebook.presto.spi.type.TimeType.TIME;
 import static com.facebook.presto.spi.type.TimeZoneKey.getTimeZoneKey;
 import static com.facebook.presto.spi.type.TimestampType.TIMESTAMP;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.spi.type.VarcharType.createVarcharType;
 import static com.facebook.presto.sql.ExpressionFormatter.formatExpression;
 import static com.facebook.presto.sql.analyzer.ExpressionAnalyzer.getExpressionTypes;
@@ -88,23 +88,23 @@ public class TestExpressionInterpreter
             .put(new Symbol("bound_date"), DATE)
             .put(new Symbol("bound_time"), TIME)
             .put(new Symbol("bound_timestamp"), TIMESTAMP)
-            .put(new Symbol("bound_pattern"), VARCHAR)
-            .put(new Symbol("bound_null_string"), VARCHAR)
+            .put(new Symbol("bound_pattern"), createUnboundedVarcharType())
+            .put(new Symbol("bound_null_string"), createUnboundedVarcharType())
             .put(new Symbol("bound_decimal_short"), createDecimalType(5, 2))
             .put(new Symbol("bound_decimal_long"), createDecimalType(23, 3))
             .put(new Symbol("time"), BIGINT) // for testing reserved identifiers
             .put(new Symbol("unbound_integer"), INTEGER)
             .put(new Symbol("unbound_long"), BIGINT)
             .put(new Symbol("unbound_long2"), BIGINT)
-            .put(new Symbol("unbound_string"), VARCHAR)
+            .put(new Symbol("unbound_string"), createUnboundedVarcharType())
             .put(new Symbol("unbound_double"), DOUBLE)
             .put(new Symbol("unbound_boolean"), BOOLEAN)
             .put(new Symbol("unbound_date"), DATE)
             .put(new Symbol("unbound_time"), TIME)
             .put(new Symbol("unbound_timestamp"), TIMESTAMP)
             .put(new Symbol("unbound_interval"), INTERVAL_DAY_TIME)
-            .put(new Symbol("unbound_pattern"), VARCHAR)
-            .put(new Symbol("unbound_null_string"), VARCHAR)
+            .put(new Symbol("unbound_pattern"), createUnboundedVarcharType())
+            .put(new Symbol("unbound_null_string"), createUnboundedVarcharType())
             .build();
 
     private static final SqlParser SQL_PARSER = new SqlParser();

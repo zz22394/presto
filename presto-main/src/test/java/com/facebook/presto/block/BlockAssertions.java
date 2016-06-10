@@ -38,7 +38,7 @@ import static com.facebook.presto.spi.type.IntegerType.INTEGER;
 import static com.facebook.presto.spi.type.TimestampType.TIMESTAMP;
 import static com.facebook.presto.spi.type.TimestampWithTimeZoneType.TIMESTAMP_WITH_TIME_ZONE;
 import static com.facebook.presto.spi.type.VarbinaryType.VARBINARY;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.testing.TestingConnectorSession.SESSION;
 import static com.google.common.base.Preconditions.checkArgument;
 import static io.airlift.slice.Slices.wrappedIntArray;
@@ -93,14 +93,14 @@ public final class BlockAssertions
 
     public static Block createStringsBlock(Iterable<String> values)
     {
-        BlockBuilder builder = VARCHAR.createBlockBuilder(new BlockBuilderStatus(), 100);
+        BlockBuilder builder = createUnboundedVarcharType().createBlockBuilder(new BlockBuilderStatus(), 100);
 
         for (String value : values) {
             if (value == null) {
                 builder.appendNull();
             }
             else {
-                VARCHAR.writeString(builder, value);
+                createUnboundedVarcharType().writeString(builder, value);
             }
         }
 
@@ -131,10 +131,10 @@ public final class BlockAssertions
 
     public static Block createStringSequenceBlock(int start, int end)
     {
-        BlockBuilder builder = VARCHAR.createBlockBuilder(new BlockBuilderStatus(), 100);
+        BlockBuilder builder = createUnboundedVarcharType().createBlockBuilder(new BlockBuilderStatus(), 100);
 
         for (int i = start; i < end; i++) {
-            VARCHAR.writeString(builder, String.valueOf(i));
+            createUnboundedVarcharType().writeString(builder, String.valueOf(i));
         }
 
         return builder.build();
@@ -145,9 +145,9 @@ public final class BlockAssertions
         checkArgument(length > 5, "block must have more than 5 entries");
 
         int dictionarySize = length / 5;
-        BlockBuilder builder = VARCHAR.createBlockBuilder(new BlockBuilderStatus(), dictionarySize);
+        BlockBuilder builder = createUnboundedVarcharType().createBlockBuilder(new BlockBuilderStatus(), dictionarySize);
         for (int i = start; i < start + dictionarySize; i++) {
-            VARCHAR.writeString(builder, String.valueOf(i));
+            createUnboundedVarcharType().writeString(builder, String.valueOf(i));
         }
         int[] ids = new int[length];
         for (int i = 0; i < length; i++) {
@@ -158,7 +158,7 @@ public final class BlockAssertions
 
     public static Block createStringArraysBlock(Iterable<? extends Iterable<String>> values)
     {
-        ArrayType arrayType = new ArrayType(VARCHAR);
+        ArrayType arrayType = new ArrayType(createUnboundedVarcharType());
         BlockBuilder builder = arrayType.createBlockBuilder(new BlockBuilderStatus(), 100);
 
         for (Iterable<String> value : values) {

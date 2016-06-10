@@ -20,7 +20,7 @@ import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
 import static com.facebook.presto.spi.type.IntegerType.INTEGER;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.spi.type.VarcharType.createVarcharType;
 
 public class TestConditions
@@ -288,7 +288,7 @@ public class TestConditions
                         "when true then cast(null as varchar) " +
                         "else 'foo' " +
                         "end",
-                VARCHAR,
+                createUnboundedVarcharType(),
                 null);
 
         assertFunction("case true " +

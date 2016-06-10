@@ -46,7 +46,7 @@ import static com.facebook.presto.spi.type.DecimalType.createDecimalType;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
 import static com.facebook.presto.spi.type.IntegerType.INTEGER;
 import static com.facebook.presto.spi.type.TimestampType.TIMESTAMP;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.spi.type.VarcharType.createVarcharType;
 import static com.facebook.presto.sql.analyzer.SemanticErrorCode.FUNCTION_NOT_FOUND;
 import static com.facebook.presto.sql.analyzer.SemanticErrorCode.TYPE_MISMATCH;
@@ -114,11 +114,11 @@ public class TestArrayOperators
         assertFunction("CAST(ARRAY [1, 2, 3] AS ARRAY<DOUBLE>)", new ArrayType(DOUBLE), ImmutableList.of(1.0, 2.0, 3.0));
         assertFunction("CAST(ARRAY [1, null, 3] AS ARRAY<DOUBLE>)", new ArrayType(DOUBLE), asList(1.0, null, 3.0));
 
-        assertFunction("CAST(ARRAY ['1', '2'] AS ARRAY<VARCHAR>)", new ArrayType(VARCHAR), ImmutableList.of("1", "2"));
+        assertFunction("CAST(ARRAY ['1', '2'] AS ARRAY<VARCHAR>)", new ArrayType(createUnboundedVarcharType()), ImmutableList.of("1", "2"));
         assertFunction("CAST(ARRAY ['1', '2'] AS ARRAY<DOUBLE>)", new ArrayType(DOUBLE), ImmutableList.of(1.0, 2.0));
 
         assertFunction("CAST(ARRAY [true, false] AS ARRAY<BOOLEAN>)", new ArrayType(BOOLEAN), ImmutableList.of(true, false));
-        assertFunction("CAST(ARRAY [true, false] AS ARRAY<VARCHAR>)", new ArrayType(VARCHAR), ImmutableList.of("true", "false"));
+        assertFunction("CAST(ARRAY [true, false] AS ARRAY<VARCHAR>)", new ArrayType(createUnboundedVarcharType()), ImmutableList.of("true", "false"));
         assertFunction("CAST(ARRAY [1, 0] AS ARRAY<BOOLEAN>)", new ArrayType(BOOLEAN), ImmutableList.of(true, false));
 
         assertFunction("CAST(ARRAY [ARRAY[1], ARRAY[2, 3]] AS ARRAY<ARRAY<DOUBLE>>)", new ArrayType(new ArrayType(DOUBLE)), asList(asList(1.0), asList(2.0, 3.0)));
@@ -159,7 +159,7 @@ public class TestArrayOperators
         assertFunction("CAST(JSON '[1, null, 3]' AS ARRAY<BIGINT>)", new ArrayType(BIGINT), asList(1L, null, 3L));
         assertFunction("CAST(JSON '[1, 2.0, 3]' AS ARRAY<DOUBLE>)", new ArrayType(DOUBLE), ImmutableList.of(1.0, 2.0, 3.0));
         assertFunction("CAST(JSON '[1.0, 2.5, 3.0]' AS ARRAY<DOUBLE>)", new ArrayType(DOUBLE), ImmutableList.of(1.0, 2.5, 3.0));
-        assertFunction("CAST(JSON '[\"puppies\", \"kittens\"]' AS ARRAY<VARCHAR>)", new ArrayType(VARCHAR), ImmutableList.of("puppies", "kittens"));
+        assertFunction("CAST(JSON '[\"puppies\", \"kittens\"]' AS ARRAY<VARCHAR>)", new ArrayType(createUnboundedVarcharType()), ImmutableList.of("puppies", "kittens"));
         assertFunction("CAST(JSON '[true, false]' AS ARRAY<BOOLEAN>)", new ArrayType(BOOLEAN), ImmutableList.of(true, false));
         assertFunction("CAST(JSON '[[1], [null]]' AS ARRAY<ARRAY<BIGINT>>)", new ArrayType(new ArrayType(BIGINT)), asList(asList(1L), asList((Long) null)));
         assertFunction("CAST(JSON 'null' AS ARRAY<BIGINT>)", new ArrayType(BIGINT), null);
@@ -329,28 +329,28 @@ public class TestArrayOperators
     public void testArrayJoin()
             throws Exception
     {
-        assertFunction("array_join(ARRAY[1, NULL, 2], ',')", VARCHAR, "1,2");
-        assertFunction("ARRAY_JOIN(ARRAY [1, 2, 3], ';', 'N/A')", VARCHAR, "1;2;3");
-        assertFunction("ARRAY_JOIN(ARRAY [1, 2, null], ';', 'N/A')", VARCHAR, "1;2;N/A");
-        assertFunction("ARRAY_JOIN(ARRAY [1, 2, 3], 'x')", VARCHAR, "1x2x3");
-        assertFunction("ARRAY_JOIN(ARRAY [BIGINT '1', 2, 3], 'x')", VARCHAR, "1x2x3");
-        assertFunction("ARRAY_JOIN(ARRAY [null], '=')", VARCHAR, "");
-        assertFunction("ARRAY_JOIN(ARRAY [null,null], '=')", VARCHAR, "");
-        assertFunction("ARRAY_JOIN(ARRAY [], 'S')", VARCHAR, "");
-        assertFunction("ARRAY_JOIN(ARRAY [''], '', '')", VARCHAR, "");
-        assertFunction("ARRAY_JOIN(ARRAY [1, 2, 3, null, 5], ',', '*')", VARCHAR, "1,2,3,*,5");
-        assertFunction("ARRAY_JOIN(ARRAY ['a', 'b', 'c', null, null, 'd'], '-', 'N/A')", VARCHAR, "a-b-c-N/A-N/A-d");
-        assertFunction("ARRAY_JOIN(ARRAY ['a', 'b', 'c', null, null, 'd'], '-')", VARCHAR, "a-b-c-d");
-        assertFunction("ARRAY_JOIN(ARRAY [null, null, null, null], 'X')", VARCHAR, "");
-        assertFunction("ARRAY_JOIN(ARRAY [true, false], 'XX')", VARCHAR, "trueXXfalse");
-        assertFunction("ARRAY_JOIN(ARRAY [sqrt(-1), infinity()], ',')", VARCHAR, "NaN,Infinity");
-        assertFunction("ARRAY_JOIN(ARRAY [from_unixtime(1), from_unixtime(10)], '|')", VARCHAR, sqlTimestamp(1000).toString() + "|" + sqlTimestamp(10_000).toString());
-        assertFunction("ARRAY_JOIN(ARRAY [null, from_unixtime(10)], '|')", VARCHAR, sqlTimestamp(10_000).toString());
-        assertFunction("ARRAY_JOIN(ARRAY [null, from_unixtime(10)], '|', 'XYZ')", VARCHAR, "XYZ|" + sqlTimestamp(10_000).toString());
-        assertFunction("ARRAY_JOIN(ARRAY [1.0, 2.1, 3.3], 'x')", VARCHAR, "1.0x2.1x3.3");
-        assertFunction("ARRAY_JOIN(ARRAY [1.0, 2.100, 3.3], 'x')", VARCHAR, "1.000x2.100x3.300");
-        assertFunction("ARRAY_JOIN(ARRAY [1.0, 2.100, NULL], 'x', 'N/A')", VARCHAR, "1.000x2.100xN/A");
-        assertFunction("ARRAY_JOIN(ARRAY [1.0, DOUBLE '002.100', 3.3], 'x')", VARCHAR, "1.0x2.1x3.3");
+        assertFunction("array_join(ARRAY[1, NULL, 2], ',')", createUnboundedVarcharType(), "1,2");
+        assertFunction("ARRAY_JOIN(ARRAY [1, 2, 3], ';', 'N/A')", createUnboundedVarcharType(), "1;2;3");
+        assertFunction("ARRAY_JOIN(ARRAY [1, 2, null], ';', 'N/A')", createUnboundedVarcharType(), "1;2;N/A");
+        assertFunction("ARRAY_JOIN(ARRAY [1, 2, 3], 'x')", createUnboundedVarcharType(), "1x2x3");
+        assertFunction("ARRAY_JOIN(ARRAY [BIGINT '1', 2, 3], 'x')", createUnboundedVarcharType(), "1x2x3");
+        assertFunction("ARRAY_JOIN(ARRAY [null], '=')", createUnboundedVarcharType(), "");
+        assertFunction("ARRAY_JOIN(ARRAY [null,null], '=')", createUnboundedVarcharType(), "");
+        assertFunction("ARRAY_JOIN(ARRAY [], 'S')", createUnboundedVarcharType(), "");
+        assertFunction("ARRAY_JOIN(ARRAY [''], '', '')", createUnboundedVarcharType(), "");
+        assertFunction("ARRAY_JOIN(ARRAY [1, 2, 3, null, 5], ',', '*')", createUnboundedVarcharType(), "1,2,3,*,5");
+        assertFunction("ARRAY_JOIN(ARRAY ['a', 'b', 'c', null, null, 'd'], '-', 'N/A')", createUnboundedVarcharType(), "a-b-c-N/A-N/A-d");
+        assertFunction("ARRAY_JOIN(ARRAY ['a', 'b', 'c', null, null, 'd'], '-')", createUnboundedVarcharType(), "a-b-c-d");
+        assertFunction("ARRAY_JOIN(ARRAY [null, null, null, null], 'X')", createUnboundedVarcharType(), "");
+        assertFunction("ARRAY_JOIN(ARRAY [true, false], 'XX')", createUnboundedVarcharType(), "trueXXfalse");
+        assertFunction("ARRAY_JOIN(ARRAY [sqrt(-1), infinity()], ',')", createUnboundedVarcharType(), "NaN,Infinity");
+        assertFunction("ARRAY_JOIN(ARRAY [from_unixtime(1), from_unixtime(10)], '|')", createUnboundedVarcharType(), sqlTimestamp(1000).toString() + "|" + sqlTimestamp(10_000).toString());
+        assertFunction("ARRAY_JOIN(ARRAY [null, from_unixtime(10)], '|')", createUnboundedVarcharType(), sqlTimestamp(10_000).toString());
+        assertFunction("ARRAY_JOIN(ARRAY [null, from_unixtime(10)], '|', 'XYZ')", createUnboundedVarcharType(), "XYZ|" + sqlTimestamp(10_000).toString());
+        assertFunction("ARRAY_JOIN(ARRAY [1.0, 2.1, 3.3], 'x')", createUnboundedVarcharType(), "1.0x2.1x3.3");
+        assertFunction("ARRAY_JOIN(ARRAY [1.0, 2.100, 3.3], 'x')", createUnboundedVarcharType(), "1.000x2.100x3.300");
+        assertFunction("ARRAY_JOIN(ARRAY [1.0, 2.100, NULL], 'x', 'N/A')", createUnboundedVarcharType(), "1.000x2.100xN/A");
+        assertFunction("ARRAY_JOIN(ARRAY [1.0, DOUBLE '002.100', 3.3], 'x')", createUnboundedVarcharType(), "1.0x2.1x3.3");
 
         assertInvalidFunction("ARRAY_JOIN(ARRAY [ARRAY [1], ARRAY [2]], '-')", INVALID_FUNCTION_ARGUMENT);
         assertInvalidFunction("ARRAY_JOIN(ARRAY [MAP(ARRAY [1], ARRAY [2])], '-')", INVALID_FUNCTION_ARGUMENT);

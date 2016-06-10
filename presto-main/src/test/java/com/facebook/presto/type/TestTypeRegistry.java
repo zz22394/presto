@@ -31,7 +31,6 @@ import static com.facebook.presto.spi.type.TimeWithTimeZoneType.TIME_WITH_TIME_Z
 import static com.facebook.presto.spi.type.TimestampType.TIMESTAMP;
 import static com.facebook.presto.spi.type.TimestampWithTimeZoneType.TIMESTAMP_WITH_TIME_ZONE;
 import static com.facebook.presto.spi.type.VarbinaryType.VARBINARY;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
 import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.spi.type.VarcharType.createVarcharType;
 import static com.facebook.presto.type.JoniRegexpType.JONI_REGEXP;
@@ -89,15 +88,15 @@ public class TestTypeRegistry
         assertTrue(typeRegistry.canCoerce(DATE, TIMESTAMP_WITH_TIME_ZONE));
         assertTrue(typeRegistry.canCoerce(TIME, TIME_WITH_TIME_ZONE));
         assertTrue(typeRegistry.canCoerce(TIMESTAMP, TIMESTAMP_WITH_TIME_ZONE));
-        assertTrue(typeRegistry.canCoerce(VARCHAR, JONI_REGEXP));
-        assertTrue(typeRegistry.canCoerce(VARCHAR, RE2J_REGEXP));
-        assertTrue(typeRegistry.canCoerce(VARCHAR, LIKE_PATTERN));
-        assertTrue(typeRegistry.canCoerce(VARCHAR, JSON_PATH));
+        assertTrue(typeRegistry.canCoerce(createUnboundedVarcharType(), JONI_REGEXP));
+        assertTrue(typeRegistry.canCoerce(createUnboundedVarcharType(), RE2J_REGEXP));
+        assertTrue(typeRegistry.canCoerce(createUnboundedVarcharType(), LIKE_PATTERN));
+        assertTrue(typeRegistry.canCoerce(createUnboundedVarcharType(), JSON_PATH));
 
         assertFalse(typeRegistry.canCoerce(DOUBLE, BIGINT));
         assertFalse(typeRegistry.canCoerce(TIMESTAMP, TIME_WITH_TIME_ZONE));
         assertFalse(typeRegistry.canCoerce(TIMESTAMP_WITH_TIME_ZONE, TIMESTAMP));
-        assertFalse(typeRegistry.canCoerce(VARBINARY, VARCHAR));
+        assertFalse(typeRegistry.canCoerce(VARBINARY, createUnboundedVarcharType()));
 
         assertTrue(canCoerce("unknown", "array(bigint)"));
         assertFalse(canCoerce("array(bigint)", "unknown"));
@@ -139,13 +138,13 @@ public class TestTypeRegistry
         assertCommonSuperType(DATE, TIMESTAMP_WITH_TIME_ZONE, TIMESTAMP_WITH_TIME_ZONE);
         assertCommonSuperType(TIME, TIME_WITH_TIME_ZONE, TIME_WITH_TIME_ZONE);
         assertCommonSuperType(TIMESTAMP, TIMESTAMP_WITH_TIME_ZONE, TIMESTAMP_WITH_TIME_ZONE);
-        assertCommonSuperType(VARCHAR, JONI_REGEXP, JONI_REGEXP);
-        assertCommonSuperType(VARCHAR, RE2J_REGEXP, RE2J_REGEXP);
-        assertCommonSuperType(VARCHAR, LIKE_PATTERN, LIKE_PATTERN);
-        assertCommonSuperType(VARCHAR, JSON_PATH, JSON_PATH);
+        assertCommonSuperType(createUnboundedVarcharType(), JONI_REGEXP, JONI_REGEXP);
+        assertCommonSuperType(createUnboundedVarcharType(), RE2J_REGEXP, RE2J_REGEXP);
+        assertCommonSuperType(createUnboundedVarcharType(), LIKE_PATTERN, LIKE_PATTERN);
+        assertCommonSuperType(createUnboundedVarcharType(), JSON_PATH, JSON_PATH);
 
         assertCommonSuperType(TIMESTAMP, TIME_WITH_TIME_ZONE, null);
-        assertCommonSuperType(VARBINARY, VARCHAR, null);
+        assertCommonSuperType(VARBINARY, createUnboundedVarcharType(), null);
 
         assertCommonSuperType("unknown", "array(bigint)", "array(bigint)");
         assertCommonSuperType("array(bigint)", "array(double)", "array(double)");

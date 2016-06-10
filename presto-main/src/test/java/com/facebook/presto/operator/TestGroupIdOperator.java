@@ -32,7 +32,7 @@ import static com.facebook.presto.operator.OperatorAssertion.toMaterializedResul
 import static com.facebook.presto.operator.OperatorAssertion.toPages;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.testing.MaterializedResult.resultBuilder;
 import static com.facebook.presto.testing.TestingTaskContext.createTaskContext;
 import static io.airlift.concurrent.Threads.daemonThreadsNamed;
@@ -64,18 +64,18 @@ public class TestGroupIdOperator
     public void testGroupId()
             throws Exception
     {
-        RowPagesBuilder rowPagesBuilder = rowPagesBuilder(false, ImmutableList.of(), BIGINT, VARCHAR, BOOLEAN, BIGINT);
+        RowPagesBuilder rowPagesBuilder = rowPagesBuilder(false, ImmutableList.of(), BIGINT, createUnboundedVarcharType(), BOOLEAN, BIGINT);
         List<Page> input = rowPagesBuilder
                 .addSequencePage(3, 100, 400, 0, 1000)
                 .addSequencePage(3, 200, 500, 0, 1100)
                 .build();
 
         GroupIdOperatorFactory operatorFactory =
-                new GroupIdOperatorFactory(0, new PlanNodeId("test"), ImmutableList.of(BIGINT, VARCHAR, BOOLEAN, BIGINT), ImmutableList.of(ImmutableList.of(1, 2), ImmutableList.of(3)));
+                new GroupIdOperatorFactory(0, new PlanNodeId("test"), ImmutableList.of(BIGINT, createUnboundedVarcharType(), BOOLEAN, BIGINT), ImmutableList.of(ImmutableList.of(1, 2), ImmutableList.of(3)));
 
         Operator operator = operatorFactory.createOperator(driverContext);
 
-        MaterializedResult expected = resultBuilder(driverContext.getSession(), BIGINT, VARCHAR, BOOLEAN, BIGINT, BIGINT)
+        MaterializedResult expected = resultBuilder(driverContext.getSession(), BIGINT, createUnboundedVarcharType(), BOOLEAN, BIGINT, BIGINT)
                 .row(100L, "400", true, null, 0L)
                 .row(101L, "401", false, null, 0L)
                 .row(102L, "402", true, null, 0L)
