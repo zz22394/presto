@@ -52,7 +52,6 @@ import static com.facebook.presto.spi.type.StandardTypes.DECIMAL;
 import static com.facebook.presto.spi.type.StandardTypes.DOUBLE;
 import static com.facebook.presto.spi.type.StandardTypes.INTEGER;
 import static com.facebook.presto.spi.type.StandardTypes.JSON;
-import static com.facebook.presto.spi.type.StandardTypes.VARCHAR;
 import static com.facebook.presto.spi.type.TypeSignature.parseTypeSignature;
 import static com.facebook.presto.util.Failures.checkCondition;
 import static com.facebook.presto.util.Types.checkType;
@@ -73,7 +72,7 @@ public final class DecimalCasts
     public static final SqlScalarFunction DECIMAL_TO_DOUBLE_CAST = castFunctionFromDecimalTo(DOUBLE, "shortDecimalToDouble", "longDecimalToDouble");
     public static final SqlScalarFunction DOUBLE_TO_DECIMAL_CAST = castFunctionToDecimalFrom(DOUBLE, "doubleToShortDecimal", "doubleToLongDecimal");
     public static final SqlScalarFunction DECIMAL_TO_VARCHAR_CAST = castFunctionFromDecimalTo("varchar(x)", "shortDecimalToVarchar", "longDecimalToVarchar"); //x <= 19, x <= 40
-    public static final SqlScalarFunction VARCHAR_TO_DECIMAL_CAST = castFunctionToDecimalFrom(VARCHAR, "varcharToShortDecimal", "varcharToLongDecimal");
+    public static final SqlScalarFunction VARCHAR_TO_DECIMAL_CAST = castFunctionToDecimalFrom("varchar(x)", "varcharToShortDecimal", "varcharToLongDecimal");
     public static final SqlScalarFunction DECIMAL_TO_JSON_CAST = castFunctionFromDecimalTo(JSON, "shortDecimalToJson", "longDecimalToJson");
     public static final SqlScalarFunction JSON_TO_DECIMAL_CAST = castFunctionToDecimalFromBuilder(JSON, "jsonToShortDecimal", "jsonToLongDecimal").nullableResult(true).build();
 
@@ -110,7 +109,7 @@ public final class DecimalCasts
                 .kind(SCALAR)
                 .operatorType(CAST)
                 .typeVariableConstraints(withVariadicBound("X", DECIMAL))
-                .argumentTypes(parseTypeSignature(from))
+                .argumentTypes(parseTypeSignature(from, ImmutableSet.of("x", "precision", "scale")))
                 .returnType(parseTypeSignature("X"))
                 .build();
         return SqlScalarFunction.builder(DecimalCasts.class)
