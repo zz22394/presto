@@ -17,6 +17,7 @@ import com.facebook.presto.spi.ColumnHandle;
 import com.facebook.presto.spi.Page;
 import com.facebook.presto.spi.block.Block;
 import com.facebook.presto.spi.predicate.NullableValue;
+import com.facebook.presto.spi.type.FloatType;
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Ints;
 import com.google.common.primitives.Shorts;
@@ -51,6 +52,7 @@ import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 import static com.facebook.presto.spi.type.DateType.DATE;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
+import static com.facebook.presto.spi.type.FloatType.FLOAT;
 import static com.facebook.presto.spi.type.IntegerType.INTEGER;
 import static com.facebook.presto.spi.type.SmallintType.SMALLINT;
 import static com.facebook.presto.spi.type.TimestampType.TIMESTAMP;
@@ -130,7 +132,7 @@ final class HiveBucketing
                         long bigintValue = BIGINT.getLong(block, position);
                         return (int) ((bigintValue >>> 32) ^ bigintValue);
                     case FLOAT:
-                        return Float.floatToIntBits((float) DOUBLE.getDouble(block, position));
+                        return (int) FLOAT.getLong(block, position);
                     case DOUBLE:
                         long doubleValue = doubleToLongBits(DOUBLE.getDouble(block, position));
                         return (int) ((doubleValue >>> 32) ^ doubleValue);

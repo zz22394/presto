@@ -94,6 +94,7 @@ import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 import static com.facebook.presto.spi.type.CharType.createCharType;
 import static com.facebook.presto.spi.type.Chars.isCharType;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
+import static com.facebook.presto.spi.type.FloatType.FLOAT;
 import static com.facebook.presto.spi.type.IntegerType.INTEGER;
 import static com.facebook.presto.spi.type.SmallintType.SMALLINT;
 import static com.facebook.presto.spi.type.TinyintType.TINYINT;
@@ -207,7 +208,7 @@ public abstract class AbstractTestHiveFileFormats
             .add(new TestColumn("p_char_10", CHAR_INSPECTOR_LENGTH_10, "test", Slices.utf8Slice("test"), true))
             .add(new TestColumn("p_int", javaIntObjectInspector, "3", 3, true))
             .add(new TestColumn("p_bigint", javaLongObjectInspector, "4", 4L, true))
-            .add(new TestColumn("p_float", javaFloatObjectInspector, "5.1", 5.1, true))
+            .add(new TestColumn("p_float", javaFloatObjectInspector, "5.1", 5.1f, true))
             .add(new TestColumn("p_double", javaDoubleObjectInspector, "6.2", 6.2, true))
             .add(new TestColumn("p_boolean", javaBooleanObjectInspector, "true", true, true))
             .add(new TestColumn("p_date", javaDateObjectInspector, DATE_STRING, DATE_DAYS, true))
@@ -259,7 +260,7 @@ public abstract class AbstractTestHiveFileFormats
             .add(new TestColumn("t_char", CHAR_INSPECTOR_LENGTH_10, "test", Slices.utf8Slice("test"), true))
             .add(new TestColumn("t_int", javaIntObjectInspector, 3, 3))
             .add(new TestColumn("t_bigint", javaLongObjectInspector, 4L, 4L))
-            .add(new TestColumn("t_float", javaFloatObjectInspector, 5.1f, 5.1))
+            .add(new TestColumn("t_float", javaFloatObjectInspector, 5.1f, 5.1f))
             .add(new TestColumn("t_double", javaDoubleObjectInspector, 6.2, 6.2))
             .add(new TestColumn("t_boolean_true", javaBooleanObjectInspector, true, true))
             .add(new TestColumn("t_boolean_false", javaBooleanObjectInspector, false, false))
@@ -295,7 +296,7 @@ public abstract class AbstractTestHiveFileFormats
             .add(new TestColumn("t_map_null_key", getStandardMapObjectInspector(javaLongObjectInspector, javaLongObjectInspector), asMap(new Long[] {null, 2L}, new Long[] {0L,  3L}), mapBlockOf(BIGINT, BIGINT, 2, 3)))
             .add(new TestColumn("t_map_int", getStandardMapObjectInspector(javaIntObjectInspector, javaIntObjectInspector), ImmutableMap.of(3, 3), mapBlockOf(INTEGER, INTEGER, 3, 3)))
             .add(new TestColumn("t_map_bigint", getStandardMapObjectInspector(javaLongObjectInspector, javaLongObjectInspector), ImmutableMap.of(4L, 4L), mapBlockOf(BIGINT, BIGINT, 4L, 4L)))
-            .add(new TestColumn("t_map_float", getStandardMapObjectInspector(javaFloatObjectInspector, javaFloatObjectInspector), ImmutableMap.of(5.0f, 5.0f), mapBlockOf(DOUBLE, DOUBLE, 5.0f, 5.0f)))
+            .add(new TestColumn("t_map_float", getStandardMapObjectInspector(javaFloatObjectInspector, javaFloatObjectInspector), ImmutableMap.of(5.0f, 5.0f), mapBlockOf(FLOAT, FLOAT, 5.0f, 5.0f)))
             .add(new TestColumn("t_map_double", getStandardMapObjectInspector(javaDoubleObjectInspector, javaDoubleObjectInspector), ImmutableMap.of(6.0, 6.0), mapBlockOf(DOUBLE, DOUBLE, 6.0, 6.0)))
             .add(new TestColumn("t_map_boolean",
                     getStandardMapObjectInspector(javaBooleanObjectInspector, javaBooleanObjectInspector),
@@ -345,7 +346,7 @@ public abstract class AbstractTestHiveFileFormats
             .add(new TestColumn("t_array_smallint", getStandardListObjectInspector(javaShortObjectInspector), ImmutableList.of((short) 2), arrayBlockOf(SMALLINT, (short) 2)))
             .add(new TestColumn("t_array_int", getStandardListObjectInspector(javaIntObjectInspector), ImmutableList.of(3), arrayBlockOf(INTEGER, 3)))
             .add(new TestColumn("t_array_bigint", getStandardListObjectInspector(javaLongObjectInspector), ImmutableList.of(4L), arrayBlockOf(BIGINT, 4L)))
-            .add(new TestColumn("t_array_float", getStandardListObjectInspector(javaFloatObjectInspector), ImmutableList.of(5.0f), arrayBlockOf(DOUBLE, 5.0f)))
+            .add(new TestColumn("t_array_float", getStandardListObjectInspector(javaFloatObjectInspector), ImmutableList.of(5.0f), arrayBlockOf(FLOAT, 5.0f)))
             .add(new TestColumn("t_array_double", getStandardListObjectInspector(javaDoubleObjectInspector), ImmutableList.of(6.0), StructuralTestUtil.arrayBlockOf(DOUBLE, 6.0)))
             .add(new TestColumn("t_array_boolean", getStandardListObjectInspector(javaBooleanObjectInspector), ImmutableList.of(true), arrayBlockOf(BOOLEAN, true)))
             .add(new TestColumn(
@@ -614,6 +615,9 @@ public abstract class AbstractTestHiveFileFormats
                         fieldFromCursor = new BigDecimal(Decimals.decodeUnscaledValue(cursor.getSlice(i)), decimalType.getScale());
                     }
                 }
+                else if (FLOAT.equals(type)) {
+                    fieldFromCursor = Float.intBitsToFloat((int) cursor.getLong(i));
+                }
                 else {
                     throw new RuntimeException("unknown type");
                 }
@@ -621,8 +625,10 @@ public abstract class AbstractTestHiveFileFormats
                 if (fieldFromCursor == null) {
                     assertEquals(null, testColumn.getExpectedValue(), String.format("Expected null for column %s", testColumn.getName()));
                 }
-                else if (testColumn.getObjectInspector().getTypeName().equals("float") ||
-                        testColumn.getObjectInspector().getTypeName().equals("double")) {
+                else if (testColumn.getObjectInspector().getTypeName().equals("float")) {
+                    assertEquals((float) fieldFromCursor, (float) testColumn.getExpectedValue(), EPSILON);
+                }
+                else if (testColumn.getObjectInspector().getTypeName().equals("double")) {
                     assertEquals((double) fieldFromCursor, (double) testColumn.getExpectedValue(), EPSILON);
                 }
                 else if (testColumn.getObjectInspector().getTypeName().equals("tinyint")) {
@@ -668,8 +674,10 @@ public abstract class AbstractTestHiveFileFormats
                     if (actualValue == null || expectedValue == null) {
                         assertEquals(actualValue, expectedValue, "Wrong value for column " + testColumn.getName());
                     }
-                    else if (testColumn.getObjectInspector().getTypeName().equals("float") ||
-                            testColumn.getObjectInspector().getTypeName().equals("double")) {
+                    else if (testColumn.getObjectInspector().getTypeName().equals("float")) {
+                        assertEquals((float) actualValue, (float) expectedValue, EPSILON, "Wrong value for column " + testColumn.getName());
+                    }
+                    else if (testColumn.getObjectInspector().getTypeName().equals("double")) {
                         assertEquals((double) actualValue, (double) expectedValue, EPSILON, "Wrong value for column " + testColumn.getName());
                     }
                     else if (testColumn.getObjectInspector().getTypeName().equals("date")) {
