@@ -16,11 +16,38 @@ package com.facebook.presto.tests.utils;
 import com.facebook.presto.jdbc.PrestoConnection;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
 public class JdbcDriverUtils
 {
+    public static String getSessionProperty(Connection connection, String key) throws SQLException
+    {
+        try (Statement statement = connection.createStatement()) {
+            ResultSet rs = statement.executeQuery("SHOW SESSION");
+            while (rs.next()) {
+                if (rs.getString("Name").equals(key)) {
+                    return rs.getString("Value");
+                }
+            }
+        }
+        return null;
+    }
+
+    public static String getSessionPropertyDefault(Connection connection, String key) throws SQLException
+    {
+        try (Statement statement = connection.createStatement()) {
+            ResultSet rs = statement.executeQuery("SHOW SESSION");
+            while (rs.next()) {
+                if (rs.getString("Name").equals(key)) {
+                    return rs.getString("Default");
+                }
+            }
+        }
+        return null;
+    }
+
     public static void setSessionProperty(Connection connection, String key, String value) throws SQLException
     {
         if (usingFacebookJdbcDriver(connection)) {
@@ -30,6 +57,21 @@ public class JdbcDriverUtils
         else if (usingSimbaJdbcDriver(connection)) {
             try (Statement statement = connection.createStatement()) {
                 statement.execute(String.format("set session %s=%s", key, value));
+            }
+        }
+        else {
+            throw new IllegalStateException();
+        }
+    }
+
+    public static void resetSessionProperty(Connection connection, String key) throws SQLException
+    {
+        if (usingFacebookJdbcDriver(connection)) {
+            setSessionProperty(connection, key, getSessionPropertyDefault(connection, key));
+        }
+        else if (usingSimbaJdbcDriver(connection)) {
+            try (Statement statement = connection.createStatement()) {
+                statement.execute(String.format("RESET SESSION %s", key));
             }
         }
         else {
