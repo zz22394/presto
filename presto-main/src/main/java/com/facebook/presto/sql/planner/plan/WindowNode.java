@@ -27,6 +27,7 @@ import com.google.common.collect.ImmutableSet;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -47,7 +48,7 @@ public class WindowNode
     private final List<Symbol> orderBy;
     private final Map<Symbol, SortOrder> orderings;
     private final int preSortedOrderPrefix;
-    private final Frame frame;
+    private final Map<Symbol, List<Frame>> framesForFunctions;
     private final Map<Symbol, FunctionCall> windowFunctions;
     private final Map<Symbol, Signature> functionHandles;
     private final Optional<Symbol> hashSymbol;
@@ -59,7 +60,7 @@ public class WindowNode
             @JsonProperty("partitionBy") List<Symbol> partitionBy,
             @JsonProperty("orderBy") List<Symbol> orderBy,
             @JsonProperty("orderings") Map<Symbol, SortOrder> orderings,
-            @JsonProperty("frame") Frame frame,
+            @JsonProperty("frames") Map<Symbol, List<Frame>> framesForFunctions,
             @JsonProperty("windowFunctions") Map<Symbol, FunctionCall> windowFunctions,
             @JsonProperty("signatures") Map<Symbol, Signature> signatures,
             @JsonProperty("hashSymbol") Optional<Symbol> hashSymbol,
@@ -73,7 +74,7 @@ public class WindowNode
         requireNonNull(orderBy, "orderBy is null");
         checkArgument(orderings.size() == orderBy.size(), "orderBy and orderings sizes don't match");
         checkArgument(orderings.keySet().containsAll(orderBy), "Every orderBy symbol must have an ordering direction");
-        requireNonNull(frame, "frame is null");
+        requireNonNull(framesForFunctions, "framesForFunctions is null");
         requireNonNull(windowFunctions, "windowFunctions is null");
         requireNonNull(signatures, "signatures is null");
         checkArgument(windowFunctions.keySet().equals(signatures.keySet()), "windowFunctions does not match signatures");
@@ -87,11 +88,45 @@ public class WindowNode
         this.prePartitionedInputs = ImmutableSet.copyOf(prePartitionedInputs);
         this.orderBy = ImmutableList.copyOf(orderBy);
         this.orderings = ImmutableMap.copyOf(orderings);
-        this.frame = frame;
+        this.framesForFunctions = ImmutableMap.copyOf(framesForFunctions);
         this.windowFunctions = ImmutableMap.copyOf(windowFunctions);
         this.functionHandles = ImmutableMap.copyOf(signatures);
         this.hashSymbol = hashSymbol;
         this.preSortedOrderPrefix = preSortedOrderPrefix;
+    }
+
+    public WindowNode(PlanNodeId id,
+            PlanNode source,
+            List<Symbol> partitionBy,
+            List<Symbol> orderBy,
+            Map<Symbol, SortOrder> orderings,
+            Frame frame,
+            Map<Symbol, FunctionCall> windowFunctions,
+            Map<Symbol, Signature> signatures,
+            Optional<Symbol> hashSymbol,
+            Set<Symbol> prePartitionedInputs,
+            int preSortedOrderPrefix)
+    {
+        this(id,
+                source,
+                partitionBy,
+                orderBy,
+                orderings,
+                generateFrames(requireNonNull(frame, "frame is null"), windowFunctions.keySet()),
+                windowFunctions,
+                signatures,
+                hashSymbol,
+                prePartitionedInputs,
+                preSortedOrderPrefix);
+    }
+
+    private static Map<Symbol, List<Frame>> generateFrames(Frame frame, Collection<Symbol> symbols)
+    {
+        ImmutableMap.Builder<Symbol, List<Frame>> builder = ImmutableMap.builder();
+        for (Symbol s : symbols) {
+            builder.put(s, ImmutableList.of(frame));
+        }
+        return builder.build();
     }
 
     @Override
@@ -131,9 +166,14 @@ public class WindowNode
     }
 
     @JsonProperty
-    public Frame getFrame()
+    public Map<Symbol, List<Frame>> getFrames()
     {
-        return frame;
+        return framesForFunctions;
+    }
+
+    public List<Frame> getFramesForFunction(Symbol function)
+    {
+        return framesForFunctions.getOrDefault(function, ImmutableList.of());
     }
 
     @JsonProperty

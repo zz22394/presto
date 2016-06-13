@@ -192,7 +192,7 @@ public class ChildReplacer
                 node.getPartitionBy(),
                 node.getOrderBy(),
                 node.getOrderings(),
-                node.getFrame(),
+                node.getFrames(),
                 node.getWindowFunctions(),
                 node.getSignatures(),
                 node.getHashSymbol(),

@@ -90,7 +90,8 @@ public class PlanOptimizersFactory
                 new MergeProjections(),
                 new PruneUnreferencedOutputs(), // Make sure to run this at the end to help clean the plan for logging/execution and not remove info that other optimizers might need at an earlier point
                 new PruneIdentityProjections(), // This MUST run after PruneUnreferencedOutputs as it may introduce new redundant projections
-                new MetadataQueryOptimizer(metadata));
+                new MetadataQueryOptimizer(metadata),
+                new WindowCombineSamePartitionAndOrder());
 
         if (featuresConfig.isOptimizeSingleDistinct()) {
             builder.add(new SingleDistinctOptimizer());

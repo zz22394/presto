@@ -66,7 +66,7 @@ public class PlanComparator
                 && Objects.equals(node.getPartitionBy(), other.getPartitionBy())
                 && Objects.equals(node.getOrderBy(), other.getOrderBy())
                 && Objects.equals(node.getOrderings(), other.getOrderings())
-                && Objects.equals(node.getFrame(), other.getFrame())
+                && Objects.equals(node.getFrames(), other.getFrames())
                 && Objects.equals(node.getWindowFunctions(), other.getWindowFunctions())
                 && Objects.equals(node.getHashSymbol(), other.getHashSymbol())
                 && Objects.equals(node.getPrePartitionedInputs(), other.getPrePartitionedInputs())

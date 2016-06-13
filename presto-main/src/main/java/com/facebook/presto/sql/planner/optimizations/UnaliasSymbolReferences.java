@@ -82,6 +82,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.facebook.presto.util.ImmutableCollectors.toImmutableList;
+import static com.facebook.presto.util.ImmutableCollectors.toImmutableMap;
 import static com.facebook.presto.util.ImmutableCollectors.toImmutableSet;
 import static java.util.Objects.requireNonNull;
 
@@ -215,23 +216,29 @@ public class UnaliasSymbolReferences
                 orderings.put(canonicalize(entry.getKey()), entry.getValue());
             }
 
-            WindowNode.Frame frame = node.getFrame();
-            frame = new WindowNode.Frame(frame.getType(),
-                    frame.getStartType(), canonicalize(frame.getStartValue()),
-                    frame.getEndType(), canonicalize(frame.getEndValue()));
-
             return new WindowNode(
                     node.getId(),
                     source,
                     canonicalizeAndDistinct(node.getPartitionBy()),
                     canonicalizeAndDistinct(node.getOrderBy()),
                     orderings.build(),
-                    frame,
+                    canonicalizeFrames(node.getFrames()),
                     functionCalls.build(),
                     functionInfos.build(),
                     canonicalize(node.getHashSymbol()),
                     canonicalize(node.getPrePartitionedInputs()),
                     node.getPreSortedOrderPrefix());
+        }
+
+        private Map<Symbol, List<WindowNode.Frame>> canonicalizeFrames(Map<Symbol, List<WindowNode.Frame>> frames)
+        {
+            return frames.entrySet().stream().collect(toImmutableMap(
+                    Map.Entry::getKey,
+                    e -> e.getValue().stream().map(f -> new WindowNode.Frame(f.getType(),
+                            f.getStartType(), canonicalize(f.getStartValue()),
+                            f.getEndType(), canonicalize(f.getEndValue()))
+                    ).collect(toImmutableList())
+            ));
         }
 
         @Override
