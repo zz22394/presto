@@ -24,6 +24,7 @@ import com.teradata.tempto.query.QueryType;
 import org.testng.annotations.Test;
 
 import java.math.BigDecimal;
+import java.sql.Connection;
 import java.sql.Date;
 import java.sql.SQLException;
 
@@ -37,6 +38,7 @@ import static com.facebook.presto.tests.hive.AllSimpleTypesTableDefinitions.ALL_
 import static com.teradata.tempto.assertions.QueryAssert.Row.row;
 import static com.teradata.tempto.assertions.QueryAssert.assertThat;
 import static com.teradata.tempto.fulfillment.table.TableRequirements.immutableTable;
+import static com.teradata.tempto.query.QueryExecutor.defaultQueryExecutor;
 import static com.teradata.tempto.query.QueryExecutor.query;
 import static com.teradata.tempto.util.DateTimeUtils.parseTimestampInUTC;
 import static java.sql.JDBCType.BIGINT;
