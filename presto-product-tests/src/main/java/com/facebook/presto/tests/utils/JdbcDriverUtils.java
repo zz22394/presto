@@ -13,31 +13,31 @@
  */
 package com.facebook.presto.tests.utils;
 
-import static com.teradata.tempto.query.QueryExecutor.defaultQueryExecutor;
+import java.sql.Connection;
 
 public class JdbcDriverUtils
 {
-    public static boolean usingFacebookJdbcDriver()
+    public static boolean usingFacebookJdbcDriver(Connection connection)
     {
-        return getClassNameForJdbcDriver().equals("com.facebook.presto.jdbc.PrestoConnection");
+        return getClassNameForJdbcDriver(connection).equals("com.facebook.presto.jdbc.PrestoConnection");
     }
 
-    public static boolean usingSimbaJdbcDriver()
+    public static boolean usingSimbaJdbcDriver(Connection connection)
     {
-        String className = getClassNameForJdbcDriver();
+        String className = getClassNameForJdbcDriver(connection);
         return  className.equals("com.teradata.jdbc.jdbc4.S4Connection") ||
                 className.equals("com.teradata.jdbc.jdbc41.S41Connection") ||
                 className.equals("com.teradata.jdbc.jdbc42.S42Connection");
     }
 
-    public static boolean usingSimbaJdbc4Driver()
+    public static boolean usingSimbaJdbc4Driver(Connection connection)
     {
-        return getClassNameForJdbcDriver().contains("jdbc4.");
+        return getClassNameForJdbcDriver(connection).contains("jdbc4.");
     }
 
-    private static String getClassNameForJdbcDriver()
+    private static String getClassNameForJdbcDriver(Connection connection)
     {
-        return defaultQueryExecutor().getConnection().getClass().getCanonicalName();
+        return connection.getClass().getCanonicalName();
     }
 
     private JdbcDriverUtils() {}

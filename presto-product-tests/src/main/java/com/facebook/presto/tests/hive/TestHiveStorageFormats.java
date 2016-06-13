@@ -231,7 +231,7 @@ public class TestHiveStorageFormats
     {
         Connection connection = defaultQueryExecutor().getConnection();
         try {
-            if (usingFacebookJdbcDriver()) {
+            if (usingFacebookJdbcDriver(connection)) {
                 PrestoConnection prestoConnection = connection.unwrap(PrestoConnection.class);
                 // create more than one split
                 prestoConnection.setSessionProperty("task_writer_count", "4");
@@ -240,7 +240,7 @@ public class TestHiveStorageFormats
                     prestoConnection.setSessionProperty(sessionProperty.getKey(), sessionProperty.getValue());
                 }
             }
-            else if (usingSimbaJdbcDriver()) {
+            else if (usingSimbaJdbcDriver(connection)) {
                 try (Statement statement = connection.createStatement()) {
                     statement.execute("set session task_writer_count=4");
                     statement.execute("set session redistribute_writes=false");
