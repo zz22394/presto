@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import static com.facebook.presto.sql.planner.plan.ChildReplacer.replaceChildren;
-import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 
 public class WindowCombineSamePartitionAndOrder
@@ -47,34 +46,35 @@ public class WindowCombineSamePartitionAndOrder
         @Override
         public PlanNode visitWindow(WindowNode node, RewriteContext<Context> context)
         {
-            PartitionAndOrder partitionAndOrder = new PartitionAndOrder(node.getPartitionBy(), node.getOrderBy(), node.getOrderings());
-            Context ctx = context.get();
-            boolean elideCurrentNode = ctx.isPartitionAndOrderRegistered(partitionAndOrder);
-            ctx.addWindowSpecification(partitionAndOrder, new WindowSpecification(node.getFrames()));
+//            PartitionAndOrder partitionAndOrder = new PartitionAndOrder(node.getPartitionBy(), node.getOrderBy(), node.getOrderings());
+//            Context ctx = context.get();
+//            boolean elideCurrentNode = ctx.isPartitionAndOrderRegistered(partitionAndOrder);
+//            ctx.addWindowSpecification(partitionAndOrder, new WindowSpecification(node.getFrames()));
 
             PlanNode rewrittenSource = context.rewrite(node.getSource());
 
-            if (elideCurrentNode) {
-                return rewrittenSource;
-            }
+//            if (elideCurrentNode) {
+//                return rewrittenSource;
+//            }
 
-            WindowSpecification specification = ctx.getWindowSpecification(partitionAndOrder);
-            checkState(specification != null, "WindowSpecification cannot be null while processing WindowNode");
+//            WindowSpecification specification = ctx.getWindowSpecification(partitionAndOrder);
+//            checkState(specification != null, "WindowSpecification cannot be null while processing WindowNode");
 
-            WindowNode rewrittenNode = new WindowNode(node.getId(),
-                    rewrittenSource,
-                    node.getPartitionBy(),
-                    node.getOrderBy(),
-                    node.getOrderings(),
-                    specification.framesForFunctions,
-                    node.getWindowFunctions(),
-                    node.getSignatures(),
-                    node.getHashSymbol(),
-                    node.getPrePartitionedInputs(),
-                    node.getPreSortedOrderPrefix()
-                    );
+//            WindowNode rewrittenNode = new WindowNode(node.getId(),
+//                    rewrittenSource,
+//                    node.getPartitionBy(),
+//                    node.getOrderBy(),
+//                    node.getOrderings(),
+//                    specification.framesForFunctions,
+//                    node.getWindowFunctions(),
+//                    node.getSignatures(),
+//                    node.getHashSymbol(),
+//                    node.getPrePartitionedInputs(),
+//                    node.getPreSortedOrderPrefix()
+//                    );
 
-            return replaceChildren(rewrittenNode, ImmutableList.of(rewrittenSource));
+//            return replaceChildren(rewrittenNode, ImmutableList.of(rewrittenSource));
+            return replaceChildren(node, ImmutableList.of(rewrittenSource));
         }
     }
 
