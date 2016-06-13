@@ -13,10 +13,30 @@
  */
 package com.facebook.presto.tests.utils;
 
+import com.facebook.presto.jdbc.PrestoConnection;
+
 import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 public class JdbcDriverUtils
 {
+    public static void setSessionProperty(Connection connection, String key, String value) throws SQLException
+    {
+        if (usingFacebookJdbcDriver(connection)) {
+            PrestoConnection prestoConnection = connection.unwrap(PrestoConnection.class);
+            prestoConnection.setSessionProperty(key, value);
+        }
+        else if (usingSimbaJdbcDriver(connection)) {
+            try (Statement statement = connection.createStatement()) {
+                statement.execute(String.format("set session %s=%s", key, value));
+            }
+        }
+        else {
+            throw new IllegalStateException();
+        }
+    }
+
     public static boolean usingFacebookJdbcDriver(Connection connection)
     {
         return getClassNameForJdbcDriver(connection).equals("com.facebook.presto.jdbc.PrestoConnection");
