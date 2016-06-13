@@ -35,6 +35,10 @@ import static com.facebook.presto.tests.TestGroups.JDBC;
 import static com.facebook.presto.tests.TestGroups.QUARANTINE;
 import static com.facebook.presto.tests.TestGroups.SIMBA_JDBC;
 import static com.facebook.presto.tests.TpchTableResults.PRESTO_NATION_RESULT;
+
+import static com.facebook.presto.tests.utils.JdbcDriverUtils.getSessionProperty;
+import static com.facebook.presto.tests.utils.JdbcDriverUtils.resetSessionProperty;
+import static com.facebook.presto.tests.utils.JdbcDriverUtils.setSessionProperty;
 import static com.facebook.presto.tests.utils.JdbcDriverUtils.usingFacebookJdbcDriver;
 import static com.facebook.presto.tests.utils.JdbcDriverUtils.usingSimbaJdbc4Driver;
 import static com.facebook.presto.tests.utils.JdbcDriverUtils.usingSimbaJdbcDriver;
@@ -49,6 +53,8 @@ import static com.teradata.tempto.fulfillment.table.hive.tpch.TpchTableDefinitio
 import static com.teradata.tempto.internal.convention.SqlResultDescriptor.sqlResultDescriptorForResource;
 import static com.teradata.tempto.query.QueryExecutor.defaultQueryExecutor;
 import static com.teradata.tempto.query.QueryExecutor.query;
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
 import static java.util.Locale.CHINESE;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -227,6 +233,19 @@ public class JdbcTests
             assertThat(query("select {fn timestampdiff(SQL_TSI_DAY,date '2001-01-01',date '2002-01-01')}")).containsExactly(row(365));
             assertThat(query("select {fn ucase('ABC def 123')}")).containsExactly(row("ABC DEF 123"));
         }
+    }
+
+    @Test(groups = JDBC)
+    public void testSessionProperties()
+            throws SQLException
+    {
+        final String distributedJoin = "distributed_join";
+
+        assertThat(getSessionProperty(connection, distributedJoin)).isEqualTo(TRUE.toString());
+        setSessionProperty(connection, distributedJoin, FALSE.toString());
+        assertThat(getSessionProperty(connection, distributedJoin)).isEqualTo(FALSE.toString());
+        resetSessionProperty(connection, distributedJoin);
+        assertThat(getSessionProperty(connection, distributedJoin)).isEqualTo(TRUE.toString());
     }
 
     private QueryResult queryResult(Statement statement, String query)
