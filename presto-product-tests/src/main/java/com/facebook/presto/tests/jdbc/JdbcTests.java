@@ -120,7 +120,7 @@ public class JdbcTests
     public void shouldSetTimezone()
             throws SQLException
     {
-        if (usingFacebookJdbcDriver()) {
+        if (usingFacebookJdbcDriver(connection)) {
             String timeZoneId = "Indian/Kerguelen";
             ((PrestoConnection) connection).setTimeZoneId(timeZoneId);
             try (Statement statement = connection.createStatement()) {
@@ -134,7 +134,7 @@ public class JdbcTests
     public void shouldSetLocale()
             throws SQLException
     {
-        if (usingFacebookJdbcDriver()) {
+        if (usingFacebookJdbcDriver(connection)) {
             ((PrestoConnection) connection).setLocale(CHINESE);
             try (Statement statement = connection.createStatement()) {
                 QueryResult result = queryResult(statement, "SELECT date_format(TIMESTAMP '2001-01-09 09:04', '%M')");
@@ -166,14 +166,15 @@ public class JdbcTests
             throws SQLException
     {
         // The JDBC spec is vague on what values getColumns() should return, so accept the values that Facebook or Simba return.
+
         QueryResult result = QueryResult.forResultSet(metaData().getColumns("hive", "default", "nation", null));
-        if (usingFacebookJdbcDriver()) {
+        if (usingFacebookJdbcDriver(connection)) {
             assertThat(result).matches(sqlResultDescriptorForResource("com/facebook/presto/tests/jdbc/get_nation_columns.result"));
         }
-        else if (usingSimbaJdbc4Driver()) {
+        else if (usingSimbaJdbc4Driver(connection)) {
             assertThat(result).matches(sqlResultDescriptorForResource("com/facebook/presto/tests/jdbc/get_nation_columns_simba4.result"));
         }
-        else if (usingSimbaJdbcDriver()) {
+        else if (usingSimbaJdbcDriver(connection)) {
             assertThat(result).matches(sqlResultDescriptorForResource("com/facebook/presto/tests/jdbc/get_nation_columns_simba.result"));
         }
         else {
