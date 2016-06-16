@@ -32,9 +32,9 @@ import static com.facebook.presto.metadata.OperatorType.HASH_CODE;
 import static com.facebook.presto.metadata.OperatorType.LESS_THAN;
 import static com.facebook.presto.metadata.OperatorType.LESS_THAN_OR_EQUAL;
 import static com.facebook.presto.metadata.OperatorType.NOT_EQUAL;
-import static com.facebook.presto.operator.scalar.VarcharToVarcharCast.truncate;
 import static com.facebook.presto.spi.StandardErrorCode.INVALID_CAST_ARGUMENT;
 import static com.facebook.presto.spi.type.DateTimeEncoding.packDateTimeWithZone;
+import static com.facebook.presto.spi.type.Varchars.truncateToLength;
 import static com.facebook.presto.util.DateTimeUtils.parseTimestampWithTimeZone;
 import static com.facebook.presto.util.DateTimeUtils.printDate;
 import static com.facebook.presto.util.DateTimeUtils.timestampWithTimeZoneToDate;
@@ -128,7 +128,7 @@ public final class DateOperators
     // FIXME @Constraint(variable = "x", expression = "x >= 16")
     public static Slice castToVarchar(@FromLiteralParameter("x") Long length, @SqlType(StandardTypes.DATE) long value)
     {
-        return truncate(utf8Slice(printDate((int) value)), length);
+        return truncateToLength(utf8Slice(printDate((int) value)), length);
     }
 
     @ScalarFunction("date")

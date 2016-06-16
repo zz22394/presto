@@ -25,7 +25,7 @@ import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
 import static com.facebook.presto.spi.type.IntegerType.INTEGER;
 import static com.facebook.presto.spi.type.SmallintType.SMALLINT;
 import static com.facebook.presto.spi.type.TinyintType.TINYINT;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 
 public class TestSmallintOperators
         extends AbstractTestFunctions
@@ -225,8 +225,8 @@ public class TestSmallintOperators
     public void testCastToVarchar()
             throws Exception
     {
-        assertFunction("cast(SMALLINT'37' as varchar)", VARCHAR, "37");
-        assertFunction("cast(SMALLINT'17' as varchar)", VARCHAR, "17");
+        assertFunction("cast(SMALLINT'37' as varchar)", createUnboundedVarcharType(), "37");
+        assertFunction("cast(SMALLINT'17' as varchar)", createUnboundedVarcharType(), "17");
     }
 
     @Test

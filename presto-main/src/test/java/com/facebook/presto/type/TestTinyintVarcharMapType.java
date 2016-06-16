@@ -23,7 +23,7 @@ import java.util.Map;
 
 import static com.facebook.presto.spi.type.TinyintType.TINYINT;
 import static com.facebook.presto.spi.type.TypeSignature.parseTypeSignature;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.util.StructuralTestUtil.mapBlockOf;
 
 public class TestTinyintVarcharMapType
@@ -37,8 +37,8 @@ public class TestTinyintVarcharMapType
     public static Block createTestBlock(Type mapType)
     {
         BlockBuilder blockBuilder = mapType.createBlockBuilder(new BlockBuilderStatus(), 2);
-        mapType.writeObject(blockBuilder, mapBlockOf(TINYINT, VARCHAR, ImmutableMap.of(1, "hi")));
-        mapType.writeObject(blockBuilder, mapBlockOf(TINYINT, VARCHAR, ImmutableMap.of(1, "2", 2, "hello")));
+        mapType.writeObject(blockBuilder, mapBlockOf(TINYINT, createUnboundedVarcharType(), ImmutableMap.of(1, "hi")));
+        mapType.writeObject(blockBuilder, mapBlockOf(TINYINT, createUnboundedVarcharType(), ImmutableMap.of(1, "2", 2, "hello")));
         return blockBuilder.build();
     }
 
