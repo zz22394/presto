@@ -37,6 +37,7 @@ import static com.facebook.presto.metadata.OperatorType.NOT_EQUAL;
 import static com.facebook.presto.metadata.OperatorType.SUBTRACT;
 import static com.facebook.presto.spi.StandardErrorCode.DIVISION_BY_ZERO;
 import static com.facebook.presto.spi.StandardErrorCode.NUMERIC_VALUE_OUT_OF_RANGE;
+import static com.facebook.presto.spi.type.Varchars.truncateToLength;
 import static io.airlift.slice.Slices.utf8Slice;
 import static java.lang.String.valueOf;
 
@@ -208,11 +209,12 @@ public final class SmallintOperators
     }
 
     @ScalarOperator(CAST)
-    @SqlType(StandardTypes.VARCHAR)
-    public static Slice castToVarchar(@SqlType(StandardTypes.SMALLINT) long value)
+    @LiteralParameters("x")
+    @SqlType("varchar(x)")
+    public static Slice castToVarchar(@FromLiteralParameter("x") Long length, @SqlType(StandardTypes.SMALLINT) long value)
     {
         // todo optimize me
-        return utf8Slice(valueOf(value));
+        return truncateToLength(utf8Slice(valueOf(value)), length);
     }
 
     @ScalarOperator(HASH_CODE)

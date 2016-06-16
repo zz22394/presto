@@ -18,7 +18,7 @@ import org.testng.annotations.Test;
 
 import static com.facebook.presto.operator.scalar.CharacterStringCasts.varcharToCharSaturatedFloorCast;
 import static com.facebook.presto.spi.type.CharType.createCharType;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.spi.type.VarcharType.createVarcharType;
 import static io.airlift.slice.Slices.utf8Slice;
 import static org.testng.Assert.assertEquals;
@@ -32,7 +32,7 @@ public class TestCharacterStringCasts
     {
         assertFunction("cast('bar' as varchar(20))", createVarcharType(20), "bar");
         assertFunction("cast(cast('bar' as varchar(20)) as varchar(30))", createVarcharType(30), "bar");
-        assertFunction("cast(cast('bar' as varchar(20)) as varchar)", VARCHAR, "bar");
+        assertFunction("cast(cast('bar' as varchar(20)) as varchar)", createUnboundedVarcharType(), "bar");
 
         assertFunction("cast('banana' as varchar(3))", createVarcharType(3), "ban");
         assertFunction("cast(cast('banana' as varchar(20)) as varchar(3))", createVarcharType(3), "ban");

@@ -43,6 +43,14 @@ public final class Varchars
         return truncateToLength(slice, varcharType.getLength());
     }
 
+    public static Slice truncateToLength(Slice slice, long maxLength)
+    {
+        if (maxLength > Integer.MAX_VALUE) {
+            throw new RuntimeException("Slice can only have length in integer range");
+        }
+        return truncateToLength(slice, (int) maxLength);
+    }
+
     public static Slice truncateToLength(Slice slice, int maxLength)
     {
         requireNonNull(slice, "slice is null");

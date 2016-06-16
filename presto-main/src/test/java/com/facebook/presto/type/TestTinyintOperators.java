@@ -26,7 +26,8 @@ import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
 import static com.facebook.presto.spi.type.IntegerType.INTEGER;
 import static com.facebook.presto.spi.type.SmallintType.SMALLINT;
 import static com.facebook.presto.spi.type.TinyintType.TINYINT;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
+import static com.facebook.presto.spi.type.VarcharType.createVarcharType;
 
 public class TestTinyintOperators
         extends AbstractTestFunctions
@@ -226,8 +227,9 @@ public class TestTinyintOperators
     public void testCastToVarchar()
             throws Exception
     {
-        assertFunction("cast(TINYINT'37' as varchar)", VARCHAR, "37");
-        assertFunction("cast(TINYINT'17' as varchar)", VARCHAR, "17");
+        assertFunction("cast(TINYINT'37' as varchar(2))", createVarcharType(2), "37");
+        assertFunction("cast(TINYINT'17' as varchar)", createUnboundedVarcharType(), "17");
+        assertFunction("cast(TINYINT'17' as varchar(1))", createVarcharType(1), "1");
     }
 
     @Test

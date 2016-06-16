@@ -28,9 +28,9 @@ import static com.facebook.presto.metadata.OperatorType.HASH_CODE;
 import static com.facebook.presto.metadata.OperatorType.LESS_THAN;
 import static com.facebook.presto.metadata.OperatorType.LESS_THAN_OR_EQUAL;
 import static com.facebook.presto.metadata.OperatorType.NOT_EQUAL;
-import static com.facebook.presto.operator.scalar.VarcharToVarcharCast.truncate;
 import static com.facebook.presto.spi.StandardErrorCode.INVALID_CAST_ARGUMENT;
 import static com.facebook.presto.spi.type.DateTimeEncoding.unpackMillisUtc;
+import static com.facebook.presto.spi.type.Varchars.truncateToLength;
 import static com.facebook.presto.util.DateTimeUtils.parseTime;
 import static com.facebook.presto.util.DateTimeUtils.printTimeWithTimeZone;
 import static io.airlift.slice.Slices.utf8Slice;
@@ -117,12 +117,13 @@ public final class TimeWithTimeZoneOperators
     // FIXME @Constraint(variable = "x", expression = "x >= 18")
     public static Slice castToVarchar(@FromLiteralParameter("x") Long length, @SqlType(StandardTypes.TIME_WITH_TIME_ZONE) long value)
     {
-        return truncate(utf8Slice(printTimeWithTimeZone(value)), length);
+        return truncateToLength(utf8Slice(printTimeWithTimeZone(value)), length);
     }
 
     @ScalarOperator(CAST)
+    @LiteralParameters("x")
     @SqlType(StandardTypes.TIME_WITH_TIME_ZONE)
-    public static long castFromVarchar(ConnectorSession session, @SqlType(StandardTypes.VARCHAR) Slice value)
+    public static long castFromVarchar(ConnectorSession session, @SqlType("varchar(x)") Slice value)
     {
         try {
             return parseTime(session.getTimeZoneKey(), value.toStringUtf8());

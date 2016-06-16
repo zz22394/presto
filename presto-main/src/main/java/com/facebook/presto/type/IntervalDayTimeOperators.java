@@ -31,8 +31,8 @@ import static com.facebook.presto.metadata.OperatorType.MULTIPLY;
 import static com.facebook.presto.metadata.OperatorType.NEGATION;
 import static com.facebook.presto.metadata.OperatorType.NOT_EQUAL;
 import static com.facebook.presto.metadata.OperatorType.SUBTRACT;
-import static com.facebook.presto.operator.scalar.VarcharToVarcharCast.truncate;
 import static com.facebook.presto.spi.type.SqlIntervalDayTime.formatMillis;
+import static com.facebook.presto.spi.type.Varchars.truncateToLength;
 import static io.airlift.slice.Slices.utf8Slice;
 
 public final class IntervalDayTimeOperators
@@ -155,7 +155,7 @@ public final class IntervalDayTimeOperators
     // FIXME @Constraint(variable = "x", expression = "x >= 26")
     public static Slice castToSlice(@FromLiteralParameter("x") Long length, @SqlType(StandardTypes.INTERVAL_DAY_TO_SECOND) long value)
     {
-        return truncate(utf8Slice(formatMillis(value)), length);
+        return truncateToLength(utf8Slice(formatMillis(value)), length);
     }
 
     @ScalarOperator(HASH_CODE)
