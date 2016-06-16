@@ -17,7 +17,6 @@ import com.facebook.presto.spi.ColumnHandle;
 import com.facebook.presto.spi.Page;
 import com.facebook.presto.spi.block.Block;
 import com.facebook.presto.spi.predicate.NullableValue;
-import com.facebook.presto.spi.type.FloatType;
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Ints;
 import com.google.common.primitives.Shorts;
