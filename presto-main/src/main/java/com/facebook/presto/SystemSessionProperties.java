@@ -30,6 +30,7 @@ import java.util.List;
 
 import static com.facebook.presto.spi.session.PropertyMetadata.booleanSessionProperty;
 import static com.facebook.presto.spi.session.PropertyMetadata.integerSessionProperty;
+import static com.facebook.presto.spi.session.PropertyMetadata.longSessionProperty;
 import static com.facebook.presto.spi.session.PropertyMetadata.stringSessionProperty;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
@@ -62,6 +63,8 @@ public final class SystemSessionProperties
     public static final String OPTIMIZE_METADATA_QUERIES = "optimize_metadata_queries";
     public static final String QUERY_PRIORITY = "query_priority";
     public static final String PARSE_DECIMAL_LITERALS_AS_DOUBLE = "parse_decimal_literals_as_double";
+    public static final String OPERATOR_MEMORY_LIMIT_BEFORE_SPILL = "operator_memory_limit_before_spill";
+    public static final String MAX_ENTRIES_BEFORE_SPILL = "max_entries_before_spill";
 
     private final List<PropertyMetadata<?>> sessionProperties;
 
@@ -225,7 +228,21 @@ public final class SystemSessionProperties
                         PARSE_DECIMAL_LITERALS_AS_DOUBLE,
                         "Parse decimal literals as DOUBLE instead of DECIMAL",
                         featuresConfig.isParseDecimalLiteralsAsDouble(),
-                        false));
+                        false),
+                new PropertyMetadata<>(
+                        OPERATOR_MEMORY_LIMIT_BEFORE_SPILL,
+                        "Experimental: Operator memory limit before spill",
+                        VARCHAR,
+                        DataSize.class,
+                        featuresConfig.getOperatorMemoryLimitBeforeSpill(),
+                        false,
+                        value -> DataSize.valueOf((String) value),
+                        DataSize::toString),
+                longSessionProperty(
+                        MAX_ENTRIES_BEFORE_SPILL,
+                        "Experimental: Limit max number of entries before spill",
+                        0L,
+                        true));
     }
 
     public List<PropertyMetadata<?>> getSessionProperties()
@@ -353,5 +370,19 @@ public final class SystemSessionProperties
     public static boolean isParseDecimalLiteralsAsDouble(Session session)
     {
         return session.getProperty(PARSE_DECIMAL_LITERALS_AS_DOUBLE, Boolean.class);
+    }
+
+    public static DataSize getOperatorMemoryLimitBeforeSpill(Session session)
+    {
+        DataSize memoryLimitBeforeSpill = session.getProperty(OPERATOR_MEMORY_LIMIT_BEFORE_SPILL, DataSize.class);
+        checkArgument(memoryLimitBeforeSpill.toBytes() >= 0, "%s must be positive", OPERATOR_MEMORY_LIMIT_BEFORE_SPILL);
+        return memoryLimitBeforeSpill;
+    }
+
+    public static long getMaxEntriesBeforeSpill(Session session)
+    {
+        Long maxEntriesBeforeSpill = session.getProperty(MAX_ENTRIES_BEFORE_SPILL, Long.class);
+        checkArgument(maxEntriesBeforeSpill >= 0, "%s must be positive", MAX_ENTRIES_BEFORE_SPILL);
+        return maxEntriesBeforeSpill;
     }
 }

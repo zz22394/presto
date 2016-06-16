@@ -15,6 +15,7 @@ package com.facebook.presto.sql.analyzer;
 
 import com.google.common.collect.ImmutableMap;
 import io.airlift.configuration.testing.ConfigAssertions;
+import io.airlift.units.DataSize;
 import org.testng.annotations.Test;
 
 import java.util.Map;
@@ -52,7 +53,8 @@ public class TestFeaturesConfig
                 .setResourceGroupManager(FILE_BASED_RESOURCE_GROUP_MANAGER)
                 .setParseDecimalLiteralsAsDouble(false)
                 .setCharPadSpaces(false)
-                .setResourceGroupManager(FILE_BASED_RESOURCE_GROUP_MANAGER));
+                .setResourceGroupManager(FILE_BASED_RESOURCE_GROUP_MANAGER)
+                .setOperatorMemoryLimitBeforeSpill(DataSize.valueOf("0MB")));
     }
 
     @Test
@@ -77,6 +79,7 @@ public class TestFeaturesConfig
                 .put("char.pad-spaces", "true")
                 .put("resource-group-manager", "test")
                 .put("parse-decimal-literals-as-double", "true")
+                .put("experimental.operator-memory-limit-before-spill", "100MB")
                 .build();
         Map<String, String> properties = new ImmutableMap.Builder<String, String>()
                 .put("experimental-syntax-enabled", "true")
@@ -97,6 +100,7 @@ public class TestFeaturesConfig
                 .put("char.pad-spaces", "true")
                 .put("resource-group-manager", "test")
                 .put("parse-decimal-literals-as-double", "true")
+                .put("experimental.operator-memory-limit-before-spill", "100MB")
                 .build();
 
         FeaturesConfig expected = new FeaturesConfig()
@@ -118,7 +122,8 @@ public class TestFeaturesConfig
                 .setResourceGroupManager("test")
                 .setParseDecimalLiteralsAsDouble(true)
                 .setCharPadSpaces(true)
-                .setResourceGroupManager("test");
+                .setResourceGroupManager("test")
+                .setOperatorMemoryLimitBeforeSpill(DataSize.valueOf("100MB"));
 
         assertFullMapping(properties, expected);
         assertDeprecatedEquivalence(FeaturesConfig.class, properties, propertiesLegacy);

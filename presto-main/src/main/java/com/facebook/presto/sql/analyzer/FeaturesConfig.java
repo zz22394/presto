@@ -17,6 +17,7 @@ import com.google.common.collect.ImmutableList;
 import io.airlift.configuration.Config;
 import io.airlift.configuration.ConfigDescription;
 import io.airlift.configuration.LegacyConfig;
+import io.airlift.units.DataSize;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -57,8 +58,8 @@ public class FeaturesConfig
     private int re2JDfaRetries = 5;
     private RegexLibrary regexLibrary = JONI;
     private boolean parseDecimalLiteralsAsDouble;
-
     private boolean charPadSpaces = false;
+    private DataSize operatorMemoryLimitBeforeSpill = new DataSize(0, DataSize.Unit.MEGABYTE);
 
     @NotNull
     public String getResourceGroupManager()
@@ -281,6 +282,18 @@ public class FeaturesConfig
     public FeaturesConfig setCharPadSpaces(boolean charPadSpaces)
     {
         this.charPadSpaces = charPadSpaces;
+        return this;
+    }
+
+    public DataSize getOperatorMemoryLimitBeforeSpill()
+    {
+        return operatorMemoryLimitBeforeSpill;
+    }
+
+    @Config("experimental.operator-memory-limit-before-spill")
+    public FeaturesConfig setOperatorMemoryLimitBeforeSpill(DataSize operatorMemoryLimitBeforeSpill)
+    {
+        this.operatorMemoryLimitBeforeSpill = operatorMemoryLimitBeforeSpill;
         return this;
     }
 }
