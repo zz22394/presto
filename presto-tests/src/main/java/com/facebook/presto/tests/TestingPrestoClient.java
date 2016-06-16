@@ -43,14 +43,17 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
+import static com.facebook.presto.spi.type.Chars.isCharType;
 import static com.facebook.presto.spi.type.DateTimeEncoding.unpackMillisUtc;
 import static com.facebook.presto.spi.type.DateType.DATE;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
 import static com.facebook.presto.spi.type.IntegerType.INTEGER;
+import static com.facebook.presto.spi.type.SmallintType.SMALLINT;
 import static com.facebook.presto.spi.type.TimeType.TIME;
 import static com.facebook.presto.spi.type.TimeWithTimeZoneType.TIME_WITH_TIME_ZONE;
 import static com.facebook.presto.spi.type.TimestampType.TIMESTAMP;
 import static com.facebook.presto.spi.type.TimestampWithTimeZoneType.TIMESTAMP_WITH_TIME_ZONE;
+import static com.facebook.presto.spi.type.TinyintType.TINYINT;
 import static com.facebook.presto.spi.type.VarbinaryType.VARBINARY;
 import static com.facebook.presto.testing.MaterializedResult.DEFAULT_PRECISION;
 import static com.facebook.presto.util.DateTimeUtils.parseDate;
@@ -164,16 +167,25 @@ public class TestingPrestoClient
         if (BOOLEAN.equals(type)) {
             return value;
         }
-        else if (BIGINT.equals(type)) {
-            return ((Number) value).longValue();
+        else if (TINYINT.equals(type)) {
+            return ((Number) value).byteValue();
+        }
+        else if (SMALLINT.equals(type)) {
+            return ((Number) value).shortValue();
         }
         else if (INTEGER.equals(type)) {
             return ((Number) value).intValue();
+        }
+        else if (BIGINT.equals(type)) {
+            return ((Number) value).longValue();
         }
         else if (DOUBLE.equals(type)) {
             return ((Number) value).doubleValue();
         }
         else if (type instanceof VarcharType) {
+            return value;
+        }
+        else if (isCharType(type)) {
             return value;
         }
         else if (VARBINARY.equals(type)) {

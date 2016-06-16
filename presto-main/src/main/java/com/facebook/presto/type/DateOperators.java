@@ -126,7 +126,7 @@ public final class DateOperators
     @LiteralParameters("x")
     @SqlType("varchar(x)")
     // FIXME @Constraint(variable = "x", expression = "x >= 16")
-    public static Slice castToSlice(@FromLiteralParameter("x") Long length, @SqlType(StandardTypes.DATE) long value)
+    public static Slice castToVarchar(@FromLiteralParameter("x") Long length, @SqlType(StandardTypes.DATE) long value)
     {
         return truncate(utf8Slice(printDate((int) value)), length);
     }
@@ -135,7 +135,22 @@ public final class DateOperators
     @ScalarOperator(CAST)
     @LiteralParameters("x")
     @SqlType(StandardTypes.DATE)
-    public static long castFromSlice(ConnectorSession session, @SqlType("varchar(x)") Slice value)
+    public static long castFromVarchar(ConnectorSession session, @SqlType("varchar(x)") Slice value)
+    {
+        try {
+            final long timestampValue = parseTimestampWithTimeZone(session.getTimeZoneKey(), trim(value).toStringUtf8());
+            return timestampWithTimeZoneToDate(timestampValue);
+        }
+        catch (IllegalArgumentException e) {
+            throw new PrestoException(INVALID_CAST_ARGUMENT, "Value cannot be cast to date: " + value.toStringUtf8(), e);
+        }
+    }
+
+    @ScalarFunction("date")
+    @ScalarOperator(CAST)
+    @LiteralParameters("x")
+    @SqlType(StandardTypes.DATE)
+    public static long castFromChar(ConnectorSession session, @SqlType("char(x)") Slice value)
     {
         try {
             final long timestampValue = parseTimestampWithTimeZone(session.getTimeZoneKey(), trim(value).toStringUtf8());

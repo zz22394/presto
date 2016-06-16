@@ -14,6 +14,7 @@
 package com.facebook.presto.hive;
 
 import com.facebook.presto.spi.PrestoException;
+import com.facebook.presto.spi.type.CharType;
 import com.facebook.presto.spi.type.DecimalType;
 import com.facebook.presto.spi.type.NamedTypeSignature;
 import com.facebook.presto.spi.type.StandardTypes;
@@ -25,6 +26,7 @@ import com.facebook.presto.spi.type.VarcharType;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.google.common.collect.ImmutableList;
+import org.apache.hadoop.hive.common.type.HiveChar;
 import org.apache.hadoop.hive.common.type.HiveVarchar;
 import org.apache.hadoop.hive.serde2.typeinfo.CharTypeInfo;
 import org.apache.hadoop.hive.serde2.typeinfo.DecimalTypeInfo;
@@ -46,11 +48,14 @@ import static com.facebook.presto.hive.util.Types.checkType;
 import static com.facebook.presto.spi.StandardErrorCode.NOT_SUPPORTED;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
+import static com.facebook.presto.spi.type.CharType.createCharType;
 import static com.facebook.presto.spi.type.DateType.DATE;
 import static com.facebook.presto.spi.type.DecimalType.createDecimalType;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
 import static com.facebook.presto.spi.type.IntegerType.INTEGER;
+import static com.facebook.presto.spi.type.SmallintType.SMALLINT;
 import static com.facebook.presto.spi.type.TimestampType.TIMESTAMP;
+import static com.facebook.presto.spi.type.TinyintType.TINYINT;
 import static com.facebook.presto.spi.type.VarbinaryType.VARBINARY;
 import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.spi.type.VarcharType.createVarcharType;
@@ -64,6 +69,7 @@ import static org.apache.hadoop.hive.serde2.typeinfo.TypeInfoFactory.byteTypeInf
 import static org.apache.hadoop.hive.serde2.typeinfo.TypeInfoFactory.dateTypeInfo;
 import static org.apache.hadoop.hive.serde2.typeinfo.TypeInfoFactory.doubleTypeInfo;
 import static org.apache.hadoop.hive.serde2.typeinfo.TypeInfoFactory.floatTypeInfo;
+import static org.apache.hadoop.hive.serde2.typeinfo.TypeInfoFactory.getCharTypeInfo;
 import static org.apache.hadoop.hive.serde2.typeinfo.TypeInfoFactory.getListTypeInfo;
 import static org.apache.hadoop.hive.serde2.typeinfo.TypeInfoFactory.getMapTypeInfo;
 import static org.apache.hadoop.hive.serde2.typeinfo.TypeInfoFactory.getStructTypeInfo;
@@ -224,6 +230,12 @@ public final class HiveType
         if (INTEGER.equals(type)) {
             return HIVE_INT.typeInfo;
         }
+        if (SMALLINT.equals(type)) {
+            return HIVE_SHORT.typeInfo;
+        }
+        if (TINYINT.equals(type)) {
+            return HIVE_BYTE.typeInfo;
+        }
         if (DOUBLE.equals(type)) {
             return HIVE_DOUBLE.typeInfo;
         }
@@ -240,6 +252,15 @@ public final class HiveType
                 throw new PrestoException(NOT_SUPPORTED, format("Unsupported Hive type: %s. Supported VARCHAR types: VARCHAR(<=%d), VARCHAR.",
                         type, HiveVarchar.MAX_VARCHAR_LENGTH));
             }
+        }
+        if (type instanceof CharType) {
+            CharType charType = (CharType) type;
+            int charLength = charType.getLength();
+            if (charLength <= HiveChar.MAX_CHAR_LENGTH) {
+                return getCharTypeInfo(charLength);
+            }
+            throw new PrestoException(NOT_SUPPORTED, format("Unsupported Hive type: %s. Supported CHAR types: CHAR(<=%d).",
+                    type, HiveChar.MAX_CHAR_LENGTH));
         }
         if (VARBINARY.equals(type)) {
             return HIVE_BINARY.typeInfo;
@@ -321,9 +342,9 @@ public final class HiveType
             case BOOLEAN:
                 return BOOLEAN;
             case BYTE:
-                return INTEGER;
+                return TINYINT;
             case SHORT:
-                return INTEGER;
+                return SMALLINT;
             case INT:
                 return INTEGER;
             case LONG:
@@ -337,7 +358,7 @@ public final class HiveType
             case VARCHAR:
                 return createVarcharType(((VarcharTypeInfo) typeInfo).getLength());
             case CHAR:
-                return createVarcharType(((CharTypeInfo) typeInfo).getLength());
+                return createCharType(((CharTypeInfo) typeInfo).getLength());
             case DATE:
                 return DATE;
             case TIMESTAMP:

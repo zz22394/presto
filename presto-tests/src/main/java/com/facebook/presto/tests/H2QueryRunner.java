@@ -19,6 +19,7 @@ import com.facebook.presto.spi.ConnectorTableMetadata;
 import com.facebook.presto.spi.RecordCursor;
 import com.facebook.presto.spi.RecordSet;
 import com.facebook.presto.spi.SchemaTableName;
+import com.facebook.presto.spi.type.CharType;
 import com.facebook.presto.spi.type.DecimalType;
 import com.facebook.presto.spi.type.Type;
 import com.facebook.presto.spi.type.VarcharType;
@@ -49,13 +50,16 @@ import java.util.concurrent.TimeUnit;
 
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
+import static com.facebook.presto.spi.type.Chars.isCharType;
 import static com.facebook.presto.spi.type.DateType.DATE;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
 import static com.facebook.presto.spi.type.IntegerType.INTEGER;
+import static com.facebook.presto.spi.type.SmallintType.SMALLINT;
 import static com.facebook.presto.spi.type.TimeType.TIME;
 import static com.facebook.presto.spi.type.TimeWithTimeZoneType.TIME_WITH_TIME_ZONE;
 import static com.facebook.presto.spi.type.TimestampType.TIMESTAMP;
 import static com.facebook.presto.spi.type.TimestampWithTimeZoneType.TIMESTAMP_WITH_TIME_ZONE;
+import static com.facebook.presto.spi.type.TinyintType.TINYINT;
 import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.tpch.TpchMetadata.TINY_SCHEMA_NAME;
 import static com.facebook.presto.tpch.TpchRecordSet.createTpchRecordSet;
@@ -64,6 +68,7 @@ import static com.facebook.presto.util.DateTimeZoneIndex.getDateTimeZone;
 import static com.facebook.presto.util.ImmutableCollectors.toImmutableList;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.base.Strings.padEnd;
 import static io.airlift.tpch.TpchTable.LINE_ITEM;
 import static io.airlift.tpch.TpchTable.ORDERS;
 import static java.lang.String.format;
@@ -158,13 +163,22 @@ public class H2QueryRunner
                             row.add(booleanValue);
                         }
                     }
-                    else if (BIGINT.equals(type)) {
-                        long longValue = resultSet.getLong(i);
+                    else if (TINYINT.equals(type)) {
+                        byte byteValue = resultSet.getByte(i);
                         if (resultSet.wasNull()) {
                             row.add(null);
                         }
                         else {
-                            row.add(longValue);
+                            row.add(byteValue);
+                        }
+                    }
+                    else if (SMALLINT.equals(type)) {
+                        short shortValue = resultSet.getShort(i);
+                        if (resultSet.wasNull()) {
+                            row.add(null);
+                        }
+                        else {
+                            row.add(shortValue);
                         }
                     }
                     else if (INTEGER.equals(type)) {
@@ -174,6 +188,15 @@ public class H2QueryRunner
                         }
                         else {
                             row.add(intValue);
+                        }
+                    }
+                    else if (BIGINT.equals(type)) {
+                        long longValue = resultSet.getLong(i);
+                        if (resultSet.wasNull()) {
+                            row.add(null);
+                        }
+                        else {
+                            row.add(longValue);
                         }
                     }
                     else if (DOUBLE.equals(type)) {
@@ -192,6 +215,15 @@ public class H2QueryRunner
                         }
                         else {
                             row.add(stringValue);
+                        }
+                    }
+                    else if (isCharType(type)) {
+                        String stringValue = resultSet.getString(i);
+                        if (resultSet.wasNull()) {
+                            row.add(null);
+                        }
+                        else {
+                            row.add(padEnd(stringValue, ((CharType) type).getLength(), ' '));
                         }
                     }
                     else if (DATE.equals(type)) {

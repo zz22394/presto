@@ -51,18 +51,23 @@ import static com.facebook.presto.hive.HiveUtil.doublePartitionKey;
 import static com.facebook.presto.hive.HiveUtil.integerPartitionKey;
 import static com.facebook.presto.hive.HiveUtil.longDecimalPartitionKey;
 import static com.facebook.presto.hive.HiveUtil.shortDecimalPartitionKey;
+import static com.facebook.presto.hive.HiveUtil.smallintPartitionKey;
 import static com.facebook.presto.hive.HiveUtil.timestampPartitionKey;
+import static com.facebook.presto.hive.HiveUtil.tinyintPartitionKey;
 import static com.facebook.presto.hive.HiveUtil.varcharPartitionKey;
 import static com.facebook.presto.hive.parquet.ParquetTypeUtils.getParquetType;
 import static com.facebook.presto.spi.StandardErrorCode.NOT_SUPPORTED;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
+import static com.facebook.presto.spi.type.Chars.isCharType;
 import static com.facebook.presto.spi.type.DateType.DATE;
 import static com.facebook.presto.spi.type.Decimals.isLongDecimal;
 import static com.facebook.presto.spi.type.Decimals.isShortDecimal;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
 import static com.facebook.presto.spi.type.IntegerType.INTEGER;
+import static com.facebook.presto.spi.type.SmallintType.SMALLINT;
 import static com.facebook.presto.spi.type.TimestampType.TIMESTAMP;
+import static com.facebook.presto.spi.type.TinyintType.TINYINT;
 import static com.facebook.presto.spi.type.Varchars.isVarcharType;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
@@ -162,6 +167,18 @@ class ParquetPageSource
                         BOOLEAN.writeBoolean(blockBuilder, value);
                     }
                 }
+                else if (type.equals(TINYINT)) {
+                    long value = tinyintPartitionKey(partitionKey.getValue(), name);
+                    for (int i = 0; i < MAX_VECTOR_LENGTH; i++) {
+                        TINYINT.writeLong(blockBuilder, value);
+                    }
+                }
+                else if (type.equals(SMALLINT)) {
+                    long value = smallintPartitionKey(partitionKey.getValue(), name);
+                    for (int i = 0; i < MAX_VECTOR_LENGTH; i++) {
+                        SMALLINT.writeLong(blockBuilder, value);
+                    }
+                }
                 else if (type.equals(INTEGER)) {
                     long value = integerPartitionKey(partitionKey.getValue(), name);
                     for (int i = 0; i < MAX_VECTOR_LENGTH; i++) {
@@ -182,6 +199,12 @@ class ParquetPageSource
                 }
                 else if (isVarcharType(type)) {
                     Slice value = varcharPartitionKey(partitionKey.getValue(), name, type);
+                    for (int i = 0; i < MAX_VECTOR_LENGTH; i++) {
+                        type.writeSlice(blockBuilder, value);
+                    }
+                }
+                else if (isCharType(type)) {
+                    Slice value = HiveUtil.charParitionKey(partitionKey.getValue(), name, type);
                     for (int i = 0; i < MAX_VECTOR_LENGTH; i++) {
                         type.writeSlice(blockBuilder, value);
                     }

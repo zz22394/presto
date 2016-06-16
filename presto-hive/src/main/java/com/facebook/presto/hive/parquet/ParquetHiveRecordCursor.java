@@ -71,13 +71,16 @@ import static com.facebook.presto.hive.HiveErrorCode.HIVE_CURSOR_ERROR;
 import static com.facebook.presto.hive.HiveErrorCode.HIVE_MISSING_DATA;
 import static com.facebook.presto.hive.HiveUtil.bigintPartitionKey;
 import static com.facebook.presto.hive.HiveUtil.booleanPartitionKey;
+import static com.facebook.presto.hive.HiveUtil.charParitionKey;
 import static com.facebook.presto.hive.HiveUtil.datePartitionKey;
 import static com.facebook.presto.hive.HiveUtil.doublePartitionKey;
 import static com.facebook.presto.hive.HiveUtil.getDecimalType;
 import static com.facebook.presto.hive.HiveUtil.integerPartitionKey;
 import static com.facebook.presto.hive.HiveUtil.longDecimalPartitionKey;
 import static com.facebook.presto.hive.HiveUtil.shortDecimalPartitionKey;
+import static com.facebook.presto.hive.HiveUtil.smallintPartitionKey;
 import static com.facebook.presto.hive.HiveUtil.timestampPartitionKey;
+import static com.facebook.presto.hive.HiveUtil.tinyintPartitionKey;
 import static com.facebook.presto.hive.HiveUtil.varcharPartitionKey;
 import static com.facebook.presto.hive.parquet.HdfsParquetDataSource.buildHdfsParquetDataSource;
 import static com.facebook.presto.hive.parquet.ParquetTypeUtils.getParquetType;
@@ -86,16 +89,20 @@ import static com.facebook.presto.hive.parquet.predicate.ParquetPredicateUtils.p
 import static com.facebook.presto.spi.StandardErrorCode.NOT_SUPPORTED;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
+import static com.facebook.presto.spi.type.Chars.isCharType;
+import static com.facebook.presto.spi.type.Chars.trimSpacesAndTruncateToLength;
 import static com.facebook.presto.spi.type.DateType.DATE;
 import static com.facebook.presto.spi.type.DecimalType.createDecimalType;
 import static com.facebook.presto.spi.type.Decimals.isLongDecimal;
 import static com.facebook.presto.spi.type.Decimals.isShortDecimal;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
 import static com.facebook.presto.spi.type.IntegerType.INTEGER;
+import static com.facebook.presto.spi.type.SmallintType.SMALLINT;
 import static com.facebook.presto.spi.type.StandardTypes.ARRAY;
 import static com.facebook.presto.spi.type.StandardTypes.MAP;
 import static com.facebook.presto.spi.type.StandardTypes.ROW;
 import static com.facebook.presto.spi.type.TimestampType.TIMESTAMP;
+import static com.facebook.presto.spi.type.TinyintType.TINYINT;
 import static com.facebook.presto.spi.type.Varchars.isVarcharType;
 import static com.facebook.presto.spi.type.Varchars.truncateToLength;
 import static com.google.common.base.Preconditions.checkArgument;
@@ -206,6 +213,12 @@ public class ParquetHiveRecordCursor
                 else if (type.equals(INTEGER)) {
                     longs[columnIndex] = integerPartitionKey(partitionKeyValue, columnName);
                 }
+                else if (type.equals(SMALLINT)) {
+                    longs[columnIndex] = smallintPartitionKey(partitionKeyValue, columnName);
+                }
+                else if (type.equals(TINYINT)) {
+                    longs[columnIndex] = tinyintPartitionKey(partitionKeyValue, columnName);
+                }
                 else if (type.equals(BIGINT)) {
                     longs[columnIndex] = bigintPartitionKey(partitionKeyValue, columnName);
                 }
@@ -214,6 +227,9 @@ public class ParquetHiveRecordCursor
                 }
                 else if (isVarcharType(type)) {
                     slices[columnIndex] = varcharPartitionKey(partitionKeyValue, columnName, type);
+                }
+                else if (isCharType(type)) {
+                    slices[columnIndex] = charParitionKey(partitionKeyValue, columnName, type);
                 }
                 else if (type.equals(TIMESTAMP)) {
                     longs[columnIndex] = timestampPartitionKey(partitionKey.getValue(), hiveStorageTimeZone, columnName);
@@ -671,6 +687,9 @@ public class ParquetHiveRecordCursor
             }
             else if (isVarcharType(type)) {
                 slices[fieldIndex] = truncateToLength(wrappedBuffer(value.getBytes()), type);
+            }
+            else if (isCharType(type)) {
+                slices[fieldIndex] = trimSpacesAndTruncateToLength(wrappedBuffer(value.getBytes()), type);
             }
             else {
                 slices[fieldIndex] = wrappedBuffer(value.getBytes());
@@ -1360,6 +1379,9 @@ public class ParquetHiveRecordCursor
             }
             else if (isVarcharType(type)) {
                 type.writeSlice(builder, truncateToLength(wrappedBuffer(value.getBytes()), type));
+            }
+            else if (isCharType(type)) {
+                type.writeSlice(builder, trimSpacesAndTruncateToLength(wrappedBuffer(value.getBytes()), type));
             }
             else {
                 type.writeSlice(builder, wrappedBuffer(value.getBytes()));

@@ -19,13 +19,17 @@ import com.facebook.presto.spi.block.BlockBuilderStatus;
 import com.facebook.presto.spi.block.InterleavedBlockBuilder;
 import com.facebook.presto.spi.type.BigintType;
 import com.facebook.presto.spi.type.BooleanType;
+import com.facebook.presto.spi.type.CharType;
 import com.facebook.presto.spi.type.DateType;
 import com.facebook.presto.spi.type.DecimalType;
 import com.facebook.presto.spi.type.DoubleType;
 import com.facebook.presto.spi.type.IntegerType;
+import com.facebook.presto.spi.type.SmallintType;
 import com.facebook.presto.spi.type.TimestampType;
+import com.facebook.presto.spi.type.TinyintType;
 import com.facebook.presto.spi.type.Type;
 import io.airlift.slice.Slices;
+import org.apache.hadoop.hive.common.type.HiveChar;
 import org.apache.hadoop.hive.serde2.io.DateWritable;
 import org.apache.hadoop.hive.serde2.io.HiveDecimalWritable;
 import org.apache.hadoop.hive.serde2.io.TimestampWritable;
@@ -58,6 +62,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static com.facebook.presto.hive.util.Types.checkType;
+import static com.facebook.presto.spi.type.Chars.trimSpacesAndTruncateToLength;
 import static com.facebook.presto.spi.type.VarbinaryType.VARBINARY;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
@@ -101,10 +106,10 @@ public final class SerDeUtils
                 BooleanType.BOOLEAN.writeBoolean(builder, ((BooleanObjectInspector) inspector).get(object));
                 return;
             case BYTE:
-                IntegerType.INTEGER.writeLong(builder, ((ByteObjectInspector) inspector).get(object));
+                TinyintType.TINYINT.writeLong(builder, ((ByteObjectInspector) inspector).get(object));
                 return;
             case SHORT:
-                IntegerType.INTEGER.writeLong(builder, ((ShortObjectInspector) inspector).get(object));
+                SmallintType.SMALLINT.writeLong(builder, ((ShortObjectInspector) inspector).get(object));
                 return;
             case INT:
                 IntegerType.INTEGER.writeLong(builder, ((IntObjectInspector) inspector).get(object));
@@ -121,11 +126,13 @@ public final class SerDeUtils
             case STRING:
                 type.writeSlice(builder, Slices.utf8Slice(((StringObjectInspector) inspector).getPrimitiveJavaObject(object)));
                 return;
-            case CHAR:
-                type.writeSlice(builder, Slices.utf8Slice(((HiveCharObjectInspector) inspector).getPrimitiveJavaObject(object).getValue()));
-                return;
             case VARCHAR:
                 type.writeSlice(builder, Slices.utf8Slice(((HiveVarcharObjectInspector) inspector).getPrimitiveJavaObject(object).getValue()));
+                return;
+            case CHAR:
+                CharType charType = checkType(type, CharType.class, "type");
+                HiveChar hiveChar = ((HiveCharObjectInspector) inspector).getPrimitiveJavaObject(object);
+                type.writeSlice(builder, trimSpacesAndTruncateToLength(Slices.utf8Slice(hiveChar.getValue()), charType.getLength()));
                 return;
             case DATE:
                 DateType.DATE.writeLong(builder, formatDateAsLong(object, (DateObjectInspector) inspector));

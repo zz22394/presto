@@ -18,6 +18,7 @@ import com.facebook.presto.spi.ErrorCodeSupplier;
 import com.facebook.presto.spi.PrestoException;
 import com.facebook.presto.spi.SchemaTableName;
 import com.facebook.presto.spi.predicate.NullableValue;
+import com.facebook.presto.spi.type.CharType;
 import com.facebook.presto.spi.type.DecimalType;
 import com.facebook.presto.spi.type.Decimals;
 import com.facebook.presto.spi.type.StandardTypes;
@@ -83,20 +84,26 @@ import static com.facebook.presto.hive.util.Types.checkType;
 import static com.facebook.presto.spi.StandardErrorCode.NOT_SUPPORTED;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
+import static com.facebook.presto.spi.type.Chars.isCharType;
+import static com.facebook.presto.spi.type.Chars.trimSpaces;
 import static com.facebook.presto.spi.type.DateType.DATE;
 import static com.facebook.presto.spi.type.DecimalType.createDecimalType;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
 import static com.facebook.presto.spi.type.IntegerType.INTEGER;
+import static com.facebook.presto.spi.type.SmallintType.SMALLINT;
 import static com.facebook.presto.spi.type.TimestampType.TIMESTAMP;
+import static com.facebook.presto.spi.type.TinyintType.TINYINT;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Predicates.not;
 import static com.google.common.base.Strings.emptyToNull;
 import static com.google.common.base.Strings.nullToEmpty;
 import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Lists.transform;
+import static java.lang.Byte.parseByte;
 import static java.lang.Double.parseDouble;
 import static java.lang.Integer.parseInt;
 import static java.lang.Long.parseLong;
+import static java.lang.Short.parseShort;
 import static java.lang.String.format;
 import static java.math.BigDecimal.ROUND_UNNECESSARY;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -387,6 +394,26 @@ public final class HiveUtil
             return NullableValue.of(BOOLEAN, booleanPartitionKey(value, partitionName));
         }
 
+        if (TINYINT.equals(type)) {
+            if (isNull) {
+                return NullableValue.asNull(TINYINT);
+            }
+            if (value.isEmpty()) {
+                return NullableValue.of(TINYINT, 0L);
+            }
+            return NullableValue.of(TINYINT, tinyintPartitionKey(value, partitionName));
+        }
+
+        if (SMALLINT.equals(type)) {
+            if (isNull) {
+                return NullableValue.asNull(SMALLINT);
+            }
+            if (value.isEmpty()) {
+                return NullableValue.of(SMALLINT, 0L);
+            }
+            return NullableValue.of(SMALLINT, smallintPartitionKey(value, partitionName));
+        }
+
         if (INTEGER.equals(type)) {
             if (isNull) {
                 return NullableValue.asNull(INTEGER);
@@ -436,6 +463,13 @@ public final class HiveUtil
                 return NullableValue.asNull(type);
             }
             return NullableValue.of(type, varcharPartitionKey(value, partitionName, type));
+        }
+
+        if (isCharType(type)) {
+            if (isNull) {
+                return NullableValue.asNull(type);
+            }
+            return NullableValue.of(type, charParitionKey(value, partitionName, type));
         }
 
         throw new PrestoException(NOT_SUPPORTED, format("Unsupported Type [%s] for partition: %s", type, partitionName));
@@ -535,6 +569,26 @@ public final class HiveUtil
         }
     }
 
+    public static long smallintPartitionKey(String value, String name)
+    {
+        try {
+            return parseShort(value);
+        }
+        catch (NumberFormatException e) {
+            throw new PrestoException(HIVE_INVALID_PARTITION_VALUE, format("Invalid partition value '%s' for SMALLINT partition key: %s", value, name));
+        }
+    }
+
+    public static long tinyintPartitionKey(String value, String name)
+    {
+        try {
+            return parseByte(value);
+        }
+        catch (NumberFormatException e) {
+            throw new PrestoException(HIVE_INVALID_PARTITION_VALUE, format("Invalid partition value '%s' for TINYINT partition key: %s", value, name));
+        }
+    }
+
     public static double doublePartitionKey(String value, String name)
     {
         try {
@@ -599,6 +653,16 @@ public final class HiveUtil
         Slice partitionKey = Slices.utf8Slice(value);
         VarcharType varcharType = checkType(columnType, VarcharType.class, "columnType");
         if (SliceUtf8.countCodePoints(partitionKey) > varcharType.getLength()) {
+            throw new PrestoException(HIVE_INVALID_PARTITION_VALUE, format("Invalid partition value '%s' for %s partition key: %s", value, columnType.toString(), name));
+        }
+        return partitionKey;
+    }
+
+    public static Slice charParitionKey(String value, String name, Type columnType)
+    {
+        Slice partitionKey = trimSpaces(Slices.utf8Slice(value));
+        CharType charType = checkType(columnType, CharType.class, "columnType");
+        if (SliceUtf8.countCodePoints(partitionKey) > charType.getLength()) {
             throw new PrestoException(HIVE_INVALID_PARTITION_VALUE, format("Invalid partition value '%s' for %s partition key: %s", value, columnType.toString(), name));
         }
         return partitionKey;

@@ -47,6 +47,7 @@ import java.util.concurrent.TimeUnit;
 import static com.facebook.presto.hive.HiveErrorCode.HIVE_CURSOR_ERROR;
 import static com.facebook.presto.hive.HiveUtil.bigintPartitionKey;
 import static com.facebook.presto.hive.HiveUtil.booleanPartitionKey;
+import static com.facebook.presto.hive.HiveUtil.charParitionKey;
 import static com.facebook.presto.hive.HiveUtil.datePartitionKey;
 import static com.facebook.presto.hive.HiveUtil.doublePartitionKey;
 import static com.facebook.presto.hive.HiveUtil.getDeserializer;
@@ -55,19 +56,25 @@ import static com.facebook.presto.hive.HiveUtil.integerPartitionKey;
 import static com.facebook.presto.hive.HiveUtil.isStructuralType;
 import static com.facebook.presto.hive.HiveUtil.longDecimalPartitionKey;
 import static com.facebook.presto.hive.HiveUtil.shortDecimalPartitionKey;
+import static com.facebook.presto.hive.HiveUtil.smallintPartitionKey;
 import static com.facebook.presto.hive.HiveUtil.timestampPartitionKey;
+import static com.facebook.presto.hive.HiveUtil.tinyintPartitionKey;
 import static com.facebook.presto.hive.HiveUtil.varcharPartitionKey;
 import static com.facebook.presto.hive.util.SerDeUtils.getBlockObject;
 import static com.facebook.presto.spi.StandardErrorCode.NOT_SUPPORTED;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
+import static com.facebook.presto.spi.type.Chars.isCharType;
+import static com.facebook.presto.spi.type.Chars.trimSpacesAndTruncateToLength;
 import static com.facebook.presto.spi.type.DateType.DATE;
 import static com.facebook.presto.spi.type.Decimals.isLongDecimal;
 import static com.facebook.presto.spi.type.Decimals.isShortDecimal;
 import static com.facebook.presto.spi.type.Decimals.rescale;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
 import static com.facebook.presto.spi.type.IntegerType.INTEGER;
+import static com.facebook.presto.spi.type.SmallintType.SMALLINT;
 import static com.facebook.presto.spi.type.TimestampType.TIMESTAMP;
+import static com.facebook.presto.spi.type.TinyintType.TINYINT;
 import static com.facebook.presto.spi.type.VarbinaryType.VARBINARY;
 import static com.facebook.presto.spi.type.Varchars.isVarcharType;
 import static com.facebook.presto.spi.type.Varchars.truncateToLength;
@@ -199,11 +206,20 @@ class GenericHiveRecordCursor<K, V extends Writable>
                 else if (INTEGER.equals(type)) {
                     longs[columnIndex] = integerPartitionKey(partitionKey.getValue(), name);
                 }
+                else if (SMALLINT.equals(type)) {
+                    longs[columnIndex] = smallintPartitionKey(partitionKey.getValue(), name);
+                }
+                else if (TINYINT.equals(type)) {
+                    longs[columnIndex] = tinyintPartitionKey(partitionKey.getValue(), name);
+                }
                 else if (DOUBLE.equals(type)) {
                     doubles[columnIndex] = doublePartitionKey(partitionKey.getValue(), name);
                 }
                 else if (isVarcharType(type)) {
                     slices[columnIndex] = varcharPartitionKey(partitionKey.getValue(), name, type);
+                }
+                else if (isCharType(type)) {
+                    slices[columnIndex] = charParitionKey(partitionKey.getValue(), name, type);
                 }
                 else if (DATE.equals(type)) {
                     longs[columnIndex] = datePartitionKey(partitionKey.getValue(), name);
@@ -443,12 +459,18 @@ class GenericHiveRecordCursor<K, V extends Writable>
             else if (fieldValue instanceof HiveVarchar) {
                 value = Slices.utf8Slice(((HiveVarchar) fieldValue).getValue());
             }
+            else if (fieldValue instanceof HiveChar) {
+                value = Slices.utf8Slice(((HiveChar) fieldValue).getValue());
+            }
             else {
                 throw new IllegalStateException("unsupported string field type: " + fieldValue.getClass().getName());
             }
             Type type = types[column];
             if (isVarcharType(type)) {
                 value = truncateToLength(value, type);
+            }
+            if (isCharType(type)) {
+                value = trimSpacesAndTruncateToLength(value, type);
             }
             slices[column] = value;
             nulls[column] = false;
@@ -538,10 +560,19 @@ class GenericHiveRecordCursor<K, V extends Writable>
         else if (INTEGER.equals(type)) {
             parseLongColumn(column);
         }
+        else if (SMALLINT.equals(type)) {
+            parseLongColumn(column);
+        }
+        else if (TINYINT.equals(type)) {
+            parseLongColumn(column);
+        }
         else if (DOUBLE.equals(type)) {
             parseDoubleColumn(column);
         }
         else if (isVarcharType(type) || VARBINARY.equals(type)) {
+            parseStringColumn(column);
+        }
+        else if (isCharType(type)) {
             parseStringColumn(column);
         }
         else if (isStructuralType(hiveTypes[column])) {
