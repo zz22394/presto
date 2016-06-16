@@ -115,7 +115,18 @@ public class SqlStandardAccessControl
     public void checkCanSelectFromTable(ConnectorTransactionHandle transaction, Identity identity, SchemaTableName tableName)
     {
         if (!checkTablePermission(identity, tableName, SELECT)) {
-            denySelectTable(identity.getUser(), tableName.toString());
+            Set<HivePrivilege> privilegeSet = metastore.getTablePrivileges(identity.getUser(), tableName.getSchemaName(), tableName.getTableName()).stream()
+                    .map(HivePrivilegeInfo::getHivePrivilege)
+                    .collect(Collectors.toSet());
+            String userPrivileges = privilegeSet.toString();
+            if (!checkTablePermission(identity, tableName, OWNERSHIP)) {
+                userPrivileges.concat("NO OWNERSHIP");
+            }
+            else {
+                userPrivileges.concat("OWNERSHIP");
+            }
+
+            denySelectTable(identity.getUser(), tableName.toString(), userPrivileges);
         }
     }
 
@@ -233,6 +244,7 @@ public class SqlStandardAccessControl
         Set<HivePrivilege> privilegeSet = metastore.getTablePrivileges(identity.getUser(), tableName.getSchemaName(), tableName.getTableName()).stream()
                 .map(HivePrivilegeInfo::getHivePrivilege)
                 .collect(Collectors.toSet());
+
         return privilegeSet.containsAll(ImmutableSet.copyOf(requiredPrivileges));
     }
 }
