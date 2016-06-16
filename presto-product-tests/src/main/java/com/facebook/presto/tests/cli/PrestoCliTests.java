@@ -130,6 +130,7 @@ public class PrestoCliTests
     public void shouldRunQuery()
             throws IOException, InterruptedException
     {
+        presto.getProcessInput().println("˜˜˜˜˜˜˜˜˜ USER VALUE IS ˜˜˜˜˜˜˜˜˜˜˜ %s" + jdbcUser);
         launchPrestoCliWithServerArgument();
         presto.waitForPrompt();
         presto.getProcessInput().println("select * from hive.default.nation;");
@@ -167,6 +168,7 @@ public class PrestoCliTests
     private void launchPrestoCliWithServerArgument(String... arguments)
             throws IOException, InterruptedException
     {
+        presto.getProcessInput().println("˜˜˜˜˜˜˜˜˜ USER VALUE IS ˜˜˜˜˜˜˜˜˜˜˜ %s" + jdbcUser);
         if (!authentication) {
             ImmutableList.Builder<String> prestoClientOptions = ImmutableList.builder();
             prestoClientOptions.add(
