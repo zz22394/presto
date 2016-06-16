@@ -82,6 +82,9 @@ public class AlterTableTests
     @Test(groups = {ALTER_TABLE, SMOKE})
     public void addColumn()
     {
+        query(format("CREATE TABLE amrutas_table(a bigint)"));
+        query(format("SELECT * from amrutas_table"));
+
         String tableName = "tableName";
         try {
             query(format("CREATE TABLE %s AS SELECT * FROM nation", tableName));

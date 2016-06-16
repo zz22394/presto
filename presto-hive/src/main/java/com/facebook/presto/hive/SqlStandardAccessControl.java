@@ -119,14 +119,27 @@ public class SqlStandardAccessControl
                     .map(HivePrivilegeInfo::getHivePrivilege)
                     .collect(Collectors.toSet());
             String userPrivileges = privilegeSet.toString();
+            if (privilegeSet.contains(HivePrivilege.DELETE)) {
+                userPrivileges.concat("# DELETE");
+            }
+            if (privilegeSet.contains(HivePrivilege.INSERT)) {
+                userPrivileges.concat("# INSERT");
+            }
+            if (privilegeSet.contains(HivePrivilege.UPDATE)) {
+                userPrivileges.concat("# UPDATE");
+            }
+            if (privilegeSet.contains(HivePrivilege.SELECT)) {
+                userPrivileges.concat("# SELECT");
+            }
             if (!checkTablePermission(identity, tableName, OWNERSHIP)) {
-                userPrivileges.concat("NO OWNERSHIP");
+                userPrivileges.concat("# NO OWNERSHIP");
             }
             else {
-                userPrivileges.concat("OWNERSHIP");
+                userPrivileges.concat("# OWNERSHIP");
             }
+            userPrivileges.concat("##");
 
-            denySelectTable(identity.getUser(), tableName.toString(), userPrivileges);
+            denySelectTable(userPrivileges, tableName.toString(), identity.getUser());
         }
     }
 
