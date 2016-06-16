@@ -216,26 +216,24 @@ setup outlined below:
     ```
     docker-compose -f presto-product-tests/conf/docker/singlenode/docker-compose.yml logs
     ```
+
+3. Start postgres and mysql databases
+
+    ```
+    docker-compose -f presto-product-tests/conf/docker/singlenode/docker-compose.yml up -d postgres mysql
     
-3. Add an IP-to-host mapping for the `hadoop-master` host in `/etc/hosts`.
+4. Add an IP-to-host mapping for the `hadoop-master` host in `/etc/hosts`.
 The format of `/etc/hosts` entries is `<ip> <host>`:
 
-    - On GNU/Linux add the following mapping: `<container ip> hadoop-master`.
-    The container IP can be obtained by running:
+    - On GNU/Linux map names `hadoop-master`, `postgres` and `mysql` to localhost address `127.0.0.1`
 
-        ```
-        docker inspect $(docker-compose -f presto-product-tests/conf/docker/singlenode/docker-compose.yml ps -q hadoop-master) | grep -i IPAddress
-        ```
-
-    - On OS X add the following mapping: `<docker machine ip> hadoop-master`.
-    Since Docker containers run inside a Linux VM, on OS X we map the VM IP to
-    the `hadoop-master` hostname. To obtain the IP of the Linux VM run:
+    - On OS X map names `hadoop-master`, `postgres` and `mysql` to the IP returned by: 
 
         ```
         docker-machine ip <machine>
         ```
     
-4. [Create a run configuration in IntelliJ](https://www.jetbrains.com/help/idea/2016.1/creating-and-editing-run-debug-configurations.html)
+5. [Create a run configuration in IntelliJ](https://www.jetbrains.com/help/idea/2016.1/creating-and-editing-run-debug-configurations.html)
 with the following parameters:
     
     - Use classpath of module: `presto-main`
@@ -243,12 +241,12 @@ with the following parameters:
     - Working directory: `presto-product-tests/conf/presto`
     - VM options: `-ea -Xmx2G -Dconfig=etc/config.properties -Dlog.levels-file=etc/log.properties -DHADOOP_USER_NAME=hive -Duser.timezone=UTC`
 
-5. Start the Presto server with the newly created run configuration.
+6. Start the Presto server with the newly created run configuration.
 
-6. In IntelliJ, right click on a test method name or test class to run
+7. In IntelliJ, right click on a test method name or test class to run
 or debug the respective test(s).
 
-7. Remember to stop the Hadoop container once debugging is done with the
+8. Remember to stop the Hadoop container once debugging is done with the
 following command:
 
     ```
@@ -262,7 +260,7 @@ Some of the product tests are implemented in a
 manner. Such tests can not be run directly from IntelliJ and the following
 steps explain how to debug convention based tests:
 
-1. Follow steps [1-5] from the [Debugging Java based tests](#debugging-java-based-tests)
+1. Follow steps [1-6] from the [Debugging Java based tests](#debugging-java-based-tests)
 section.
 
 2. Run a convention based test with the following JVM debug flags:
