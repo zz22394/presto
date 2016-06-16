@@ -49,7 +49,7 @@ public final class AllSimpleTypesTableDefinitions
         HiveDataSource dataSource = createResourceDataSource(tableName, "" + System.currentTimeMillis(), "com/facebook/presto/tests/hive/data/all_types/data." + fileFormat.toLowerCase());
         return HiveTableDefinition.builder(tableName)
                 .setCreateTableDDLTemplate("" +
-                        "CREATE EXTERNAL TABLE %NAME%(" +
+                        "CREATE %EXTERNAL% TABLE %NAME%(" +
                         "   c_tinyint            TINYINT," +
                         "   c_smallint           SMALLINT," +
                         "   c_int                INT," +
@@ -67,8 +67,7 @@ public final class AllSimpleTypesTableDefinitions
                         "   c_binary             BINARY" +
                         ") " +
                         (rowFormat.isPresent() ? "ROW FORMAT " + rowFormat.get() + " " : " ") +
-                        "STORED AS " + fileFormat + " " +
-                        "LOCATION '%LOCATION%'")
+                        "STORED AS " + fileFormat)
                 .setDataSource(dataSource)
                 .build();
     }
@@ -79,7 +78,7 @@ public final class AllSimpleTypesTableDefinitions
         HiveDataSource dataSource = createResourceDataSource(tableName, "" + System.currentTimeMillis(), "com/facebook/presto/tests/hive/data/all_types/data.parquet");
         return HiveTableDefinition.builder(tableName)
                 .setCreateTableDDLTemplate("" +
-                        "CREATE EXTERNAL TABLE %NAME%(" +
+                        "CREATE %EXTERNAL% TABLE %NAME%(" +
                         "   c_tinyint            TINYINT," +
                         "   c_smallint           SMALLINT," +
                         "   c_int                INT," +
@@ -92,8 +91,7 @@ public final class AllSimpleTypesTableDefinitions
                         "   c_char               CHAR(10)," +
                         "   c_boolean            BOOLEAN" +
                         ") " +
-                        "STORED AS PARQUET " +
-                        "LOCATION '%LOCATION%'")
+                        "STORED AS PARQUET")
                 .setDataSource(dataSource)
                 .build();
     }
@@ -104,7 +102,7 @@ public final class AllSimpleTypesTableDefinitions
         HiveDataSource dataSource = createResourceDataSource(tableName, "" + System.currentTimeMillis(), "com/facebook/presto/tests/hive/data/all_types_known_to_presto/data.textfile");
         return HiveTableDefinition.builder(tableName)
                 .setCreateTableDDLTemplate("" +
-                        "CREATE EXTERNAL TABLE %NAME%(" +
+                        "CREATE %EXTERNAL% TABLE %NAME%(" +
                         "   c_tinyint            TINYINT," +
                         "   c_smallint           SMALLINT," +
                         "   c_int                INT," +
@@ -120,8 +118,7 @@ public final class AllSimpleTypesTableDefinitions
                         "   c_binary             BINARY" +
                         ") " +
                         "ROW FORMAT DELIMITED FIELDS TERMINATED BY '|' " +
-                        "STORED AS TEXTFILE " +
-                        "LOCATION '%LOCATION%'")
+                        "STORED AS TEXTFILE")
                 .setDataSource(dataSource)
                 .build();
     }
