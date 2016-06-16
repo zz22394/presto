@@ -159,7 +159,7 @@ public class TestingAccessControlManager
     public void checkCanSelectFromTable(TransactionId transactionId, Identity identity, QualifiedObjectName tableName)
     {
         if (shouldDenyPrivilege(identity.getUser(), tableName.getObjectName(), SELECT_TABLE)) {
-            denySelectTable(tableName.toString());
+            denySelectTable(identity.getUser(), tableName.toString());
         }
         if (denyPrivileges.isEmpty()) {
             super.checkCanSelectFromTable(transactionId, identity, tableName);
@@ -236,7 +236,7 @@ public class TestingAccessControlManager
     public void checkCanCreateViewWithSelectFromTable(TransactionId transactionId, Identity identity, QualifiedObjectName tableName)
     {
         if (shouldDenyPrivilege(identity.getUser(), tableName.getObjectName(), CREATE_VIEW_WITH_SELECT_TABLE)) {
-            denySelectTable(tableName.toString());
+            denySelectTable(identity.getUser(), tableName.toString());
         }
         if (denyPrivileges.isEmpty()) {
             super.checkCanCreateViewWithSelectFromTable(transactionId, identity, tableName);

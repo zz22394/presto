@@ -115,7 +115,7 @@ public class SqlStandardAccessControl
     public void checkCanSelectFromTable(ConnectorTransactionHandle transaction, Identity identity, SchemaTableName tableName)
     {
         if (!checkTablePermission(identity, tableName, SELECT)) {
-            denySelectTable(tableName.toString());
+            denySelectTable(identity.getUser(), tableName.toString());
         }
     }
 
@@ -163,7 +163,7 @@ public class SqlStandardAccessControl
     public void checkCanCreateViewWithSelectFromTable(ConnectorTransactionHandle transaction, Identity identity, SchemaTableName tableName)
     {
         if (!checkTablePermission(identity, tableName, SELECT) || !getGrantOptionForPrivilege(identity, Privilege.SELECT, tableName)) {
-            denySelectTable(tableName.toString());
+            denySelectTable(identity.getUser(), tableName.toString());
         }
     }
 

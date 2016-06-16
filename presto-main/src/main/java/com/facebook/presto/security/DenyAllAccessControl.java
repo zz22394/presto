@@ -79,7 +79,7 @@ public class DenyAllAccessControl
     @Override
     public void checkCanSelectFromTable(TransactionId transactionId, Identity identity, QualifiedObjectName tableName)
     {
-        denySelectTable(tableName.toString());
+        denySelectTable(identity.getUser(), tableName.toString());
     }
 
     @Override
@@ -115,7 +115,7 @@ public class DenyAllAccessControl
     @Override
     public void checkCanCreateViewWithSelectFromTable(TransactionId transactionId, Identity identity, QualifiedObjectName tableName)
     {
-        denySelectTable(tableName.toString());
+        denySelectTable(identity.getUser(), tableName.toString());
     }
 
     @Override

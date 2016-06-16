@@ -197,7 +197,7 @@ public class TestAccessControlManager
         @Override
         public void checkCanSelectFromTable(ConnectorTransactionHandle transactionHandle, Identity identity, SchemaTableName tableName)
         {
-            denySelectTable(tableName.toString());
+            denySelectTable(identity.getUser(), tableName.toString());
         }
 
         @Override

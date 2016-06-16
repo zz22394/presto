@@ -88,14 +88,14 @@ public class AccessDeniedException
         throw new AccessDeniedException(format("Cannot rename a column in table %s%s", tableName, formatExtraInfo(extraInfo)));
     }
 
-    public static void denySelectTable(String tableName)
+    public static void denySelectTable(String identity, String tableName)
     {
-        denySelectTable(tableName, null);
+        denySelectTable(identity, tableName, null);
     }
 
-    public static void denySelectTable(String tableName, String extraInfo)
+    public static void denySelectTable(String identity, String tableName, String extraInfo)
     {
-        throw new AccessDeniedException(format("Cannot select from table %s%s", tableName, formatExtraInfo(extraInfo)));
+        throw new AccessDeniedException(format("%s Cannot select from table %s%s", identity, tableName, formatExtraInfo(extraInfo)));
     }
 
     public static void denyInsertTable(String tableName)
