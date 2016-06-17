@@ -43,339 +43,8 @@ Pre-requisities
 -  openssl >= 1.0.1e-16
 -  Ambari (optional) 2.1
 
-Presto App Package configuration
---------------------------------
-
-There are some sample configuration options files available at
-``presto-yarn-package/src/main/resources`` directory in the repository.
-``appConfig.json`` and ``resources-[singlenode|mutlinode].json`` files
-are the two major configuration files you need to configure before you
-can get Presto running on YARN. Copy the
-``presto-yarn-package/src/main/resources/appConfig.json`` and
-``presto-yarn-package/src/main/resources/resources-[singlenode|multinode].json``
-to a local file at a location where you are planning to run Slider. Name
-them as ``appConfig.json`` and ``resources.json``. Update these sample
-json files with whatever configurations you want to have for Presto. If
-you are ok with the default values in the sample file you can just use
-them as-is.
-
-The "default" values listed for the sections
-`appConfig.json <#appconfig-json>`__ and `resources.json <#resources-json>`__ are
-from ``presto-yarn-package/src/main/resources/appConfig.json`` and
-``presto-yarn-package/src/main/resources/resources-multinode.json``
-files respectively. These default values will also be used for
-installation using `Ambari <#installation-using-ambari-slider-view>`__ Slider View.
-
-``Note``: If you are planning to use Ambari for your installation skip
-to this `section <#installation-using-ambari-slider-view>`__. Changing these files manually is
-needed only if you are going to install Presto on YARN manually using
-Slider. If installing via Ambari, you can change these configurations
-from the Slider view.
-
-Follow the steps here and configure the presto-yarn configuration files
-to match your cluster requirements. Optional ones are marked (optional).
-Please do not change any variables other than the ones listed below.
-
-appConfig.json
-~~~~~~~~~~~~~~
-
--  ``site.global.app_user`` (default - ``yarn``): This is the user which
-   will be launching the YARN application for Presto. So all the Slider
-   commands (using ``bin/slider`` script) will be run as this user. Make
-   sure that you have a HDFS home directory created for the
-   ``app_user``. Eg: for user ``yarn`` create ``/user/yarn`` with
-   ``yarn`` user as an owner.
-
-::
-
-    hdfs dfs -mkdir -p /user/yarn
-    hdfs dfs -chown yarn:yarn /user/yarn
-
-``Note``: For operations involving Hive connector in Presto, especially
-INSERT, ALTER TABLE etc, it may require that the user running Presto has
-access to HDFS directories like Hive warehouse directories. So make sure
-that the ``app_user`` you set has appropriate access permissions to
-those HDFS directories. For eg: ``/apps/hive/warehouse`` is usually
-where Presto user will need access for various DML operations involving
-Hive connector and is owned by ``hdfs`` in most cases. In that case, one
-way to fix the permission issue is to set ``site.global.app_user`` to
-user ``hdfs`` and also create ``/user/hdfs`` directory in HDFS if not
-already there (as above). You will also need to run any slider
-scripts(bin/slider) as user ``hdfs`` in this case.
-
--  ``site.global.user_group`` (default - ``hadoop``): The group owning
-   the application.
-
--  ``site.global.data_dir`` (default - ``/var/lib/presto/data``): The
-   data directory configured should be pre-created on all nodes and must
-   be owned by user ``yarn``, otherwise slider will fail to start Presto
-   with permission errors.
-
-::
-
-    mkdir -p /var/lib/presto/data
-    chown -R yarn:hadoop /var/lib/presto/data
-
-
--  ``site.global.config_dir`` (default - ``/var/lib/presto/etc``): The
-   configuration directory on the cluster where the Presto config files
-   node.properties, jvm.config, config.properties and connector
-   configuration files are deployed. These files will have configuration
-   values created from templates
-   ``presto-yarn-package/package/templates/*.j2`` and other relevant
-   ``appConfig.json`` parameters.
-
--  ``site.global.singlenode`` (default - ``true``): If set to true, the
-   node used act as both coordinator and worker (singlenode mode). For
-   multi-node set up, this should be set to false.
-
--  ``site.global.presto_query_max_memory`` (default - ``50GB``): This
-   will be used as ``query.max-memory`` in Presto's config.properties
-   file.
-
--  ``site.global.presto_query_max_memory_per_node`` (default - ``1GB``):
-   This will be used as ``query.max-memory-per-node`` in Presto's
-   config.properties file.
-
--  ``site.global.presto_server_port`` (default - ``8080``): Presto
-   server's http port.
-
--  ``site.global.catalog`` (optional) (default - configures ``tpch``
-   connector): It should be of the format (note the single quotes around
-   each value) - {'connector1' : ['key1=value1', 'key2=value2'..],
-   'connector2' : ['key1=value1', 'key2=value2'..]..}. This will create
-   files connector1.properties, connector2.properties for Presto with
-   entries key1=value1 etc.
-
-::
-
-        "site.global.catalog": "{'hive': ['connector.name=hive-cdh5', 'hive.metastore.uri=thrift://${NN_HOST}:9083'], 'tpch': ['connector.name=tpch']}"
-
-``Note``: The ``NN_HOST`` used in ``hive.metastore.uri`` is a variable
-for your HDFS Namenode and this expects that your hive metastore is up
-and running on your HDFS Namenode host. You do not have to replace that
-with your actual Namenode hostname. This variable will be substituted
-with your Namenode hostname during runtime. If you have hive metastore
-running elsewhere make sure you update ``NN_HOST`` with the appropriate
-hostname.
-
--  ``site.global.jvm_args`` (default - as in example below): This
-   configures Presto ``jvm.config`` file and default heapsize is
-   ``1GB``. Since Presto needs the ``jvm.config`` format to be a list of
-   options, one per line, this property must be a String representation
-   of list of strings. Each entry of this list will be a new line in
-   your jvm.config. For example the configuration should look like:
-
-::
-
-        "site.global.jvm_args": "['-server', '-Xmx1024M', '-XX:+UseG1GC', '-XX:G1HeapRegionSize=32M', '-XX:+UseGCOverheadLimit', '-XX:+ExplicitGCInvokesConcurrent', '-XX:+HeapDumpOnOutOfMemoryError', '-XX:OnOutOfMemoryError=kill -9 %p']",
-
--  ``site.global.additional_node_properties`` and
-   ``site.global.additional_config_properties`` (optional) (default -
-   None): Presto launched via Slider will use ``config.properties`` and
-   ``node.properties`` created from templates
-   ``presto-yarn-package/package/templates/config.properties*.j2`` and
-   ``presto-yarn-package/package/target/node.properties.j2``
-   respectively. If you want to add any additional properties to these
-   configuration files, add ``site.global.additional_config_properties``
-   and ``site.global.additional_node_properties`` to your
-   ``appConfig.json``. The value of these has to be a string
-   representation of an array of entries (key=value) that has to go to
-   the ``.properties`` file. Eg:
-
-::
-
-        "site.global.additional_config_properties": "['task.max-worker-threads=50', 'distributed-joins-enabled=true']"
-
--  ``site.global.plugin`` (optional) (default - None): This allows you
-   to add any additional jars you want to copy to plugin
-   ``presto-server-<version>/plugin/<connector>`` directory in addition
-   to what is already available there. It should be of the format
-   {'connector1' : ['jar1', 'jar2'..], 'connector2' : ['jar3',
-   'jar4'..]..}. This will copy jar1, jar2 to Presto plugin directory at
-   plugin/connector1 directory and jar3, jar4 at plugin/connector2
-   directory. Make sure you have the plugin jars you want to add to
-   Presto available at
-   ``presto-yarn-package/src/main/slider/package/plugins/`` prior to
-   building the presto-yarn app package and thus the app package built
-   ``presto-yarn-package-<version>-<presto-version>.zip`` will have the
-   jars under ``package/plugins`` directory.
-
-::
-
-        "site.global.plugin": "{'ml': ['presto-ml-${presto.version}.jar']}",
-
--  ``java_home`` (default - ``/usr/lib/jvm/java``): Presto requires Java
-   1.8. So make jdk8 the default java or add it to ``java_home`` here
-
--  Variables in ``appConfig.json`` like ``${COORDINATOR_HOST}``,
-   ``${AGENT_WORK_ROOT}`` etc. do not need any substitution and will be
-   appropriately configured during runtime.
-
-resources.json
-~~~~~~~~~~~~~~
-
-The configuration here can be added either globally (for COORDINATOR and
-WORKER) or for each component. Refer `configuration <#advanced-configuration>`__
-section for further details.
-
--  ``yarn.vcores`` (default - ``1``): By default this is set globally.
-
--  ``yarn.component.instances`` (default - ``1`` for COORDINATOR and
-   ``3`` for WORKER): The multinode
-   ``presto-yarn-package/src/main/resources/resources-multinode.json``
-   sample file is now configured for a 4 node cluster where there will
-   be 1 coordinator and 3 workers with strict placement policy, meaning,
-   there will be one component instance running on every node
-   irrespective of failure history. If there are insufficient number of
-   nodemanager nodes in your cluster to accomodate the number of workers
-   requested, the application launch will fail. The number of workers
-   could be ``number of nodemanagers in your cluster - 1``, with 1 node
-   reserved for the coordinator, if you want Presto to be on all YARN
-   nodes.
-   If you want to deploy Presto on a single node
-   (``site.global.singlenode`` set to true), make sure you set 1 for the
-   COORDINATOR and just not add the WORKER component section (Refer
-   ``presto-yarn-package/src/main/resources/resources-singlenode.json``).
-   You can also just set ``yarn.component.instances`` to 0 for WORKER in
-   this case.
-
--  ``yarn.memory`` (default - ``1500MB``): The heapsize defined as -Xmx
-   of ``site.global.jvm_args`` in ``appConfig.json``, is used by the
-   Presto JVM itself. Slider suggests that the value of ``yarn.memory``
-   must be bigger than this heapsize. The value of ``yarn.memory`` MUST
-   be bigger than the heap size allocated to any JVM and Slider suggests
-   using atleast 50% more appears to work, though some experimentation
-   will be needed.
-
--  ``yarn.label.expression`` (optional) (default - ``coordinator`` for
-   COORDINATOR and ``worker`` for WORKER\`\`): See `label <#using-yarn-label>`__
-   section for details.
-
-Now you are ready to deploy Presto on YARN either manually or via
-Ambari.
-
-Manual Installation via Slider
-------------------------------
-
--  Download the slider 0.80.0 installation file from
-   http://slider.incubator.apache.org/index.html to one of your nodes in
-   the cluster
-
-::
-
-    tar -xvf slider-0.80.0-incubating-all.tar.gz
-
--  Now configure Slider with JAVA\_HOME and HADOOP\_CONF\_DIR in
-   ``slider-0.80.0-incubating/conf/slider-env.sh``
-
-::
-
-    export JAVA_HOME=/usr/lib/jvm/java
-    export HADOOP_CONF_DIR=/etc/hadoop/conf
-
--  Configure zookeeper in ``conf/slider-client.xml``. In case zookeper
-   is listening on ``master:2181`` you need to add there the following
-   section:
-
-::
-
-      <property>
-          <name>slider.zookeeper.quorum</name>
-          <value>master:2181</value>
-      </property>
-
--  Configure path where slider packages will be installed
-
-::
-
-      <property>
-        <name>fs.defaultFS</name>
-        <value>hdfs://master/</value>
-      </property>
-
--  Make sure the user running slider, which should be same as
-   ``site.global.app_user`` in ``appConfig.json``, has a home dir in
-   HDFS (See note `here <#appconfig-json>`__).
-
-::
-
-    su hdfs
-    $ hdfs dfs -mkdir -p /user/<user>
-    $ hdfs dfs -chown <user>:<user> -R /user/<user>
-
--  Now run slider as
-
-For more details on `appConfig.json <#appconfig-json>`__ and
-`resources.json <#resources-json>`__ follow `configuration <#advanced-configuration>`__
-section.
-
-::
-
-    su <user>
-    cd slider-0.80.0-incubating
-    bin/slider package --install --name PRESTO --package ../presto-yarn-package-*.zip
-    bin/slider create presto1 --template appConfig.json --resources resources.json (using modified .json files as per your requirement)
-
-This should start your application, and you can see it under the Yarn
-ResourceManager webUI.
-
-Additional Slider commands
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Some additional slider commands to manage your existing Presto
-application.
-
-Check the status
-^^^^^^^^^^^^^^^^
-
-If you want to check the status of running application you run the
-following, and you will have status printed to a file ``status_file``
-
-::
-
-    bin/slider status presto1 --out status_file
-
-Destroy the app and re-create
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-If you want to re-create the app due to some failures or you want to
-reconfigure Presto (eg: add a new connector)
-
-::
-
-    bin/slider destroy presto1
-    bin/slider create presto1 --template appConfig.json --resources resources.json
-
-'Flex'ible app
-^^^^^^^^^^^^^^
-
-Flex the number of Presto workers to the new value. If greater than
-before, new copies of the worker will be requested. If less, component
-instances will be destroyed.
-
-Changes are immediate and depend on the availability of resources in the
-YARN cluster. Make sure while flex that there are extra nodes
-available(if adding) with YARN nodemanagers running and also Presto data
-directory pre-created/owned by ``yarn`` user. Also make sure these nodes
-do not have a Presto component already running, which may cause flex-ing
-to deploy worker on these nodes and eventually failing.
-
-eg: Asumme there are 2 nodes (with YARN nodemanagers running) in the
-cluster and you initially deployed only one of the nodes with Presto via
-Slider. If you want to deploy and start Presto WORKER component on the
-second node (assuming it meets all resource requirements) and thus have
-the total number of WORKERS to be 2, then run:
-
-::
-
-    bin/slider flex presto1 --component WORKER 2
-
-Please note that if your cluster already had 3 WORKER nodes running, the
-above command will destroy one of them and retain 2 WORKERs.
-
-Installation using Ambari Slider View
--------------------------------------
+Installation using Ambari with YARN Integration
+-----------------------------------------------
 
 You can also deploy Presto in Yarn via Ambari. Ambari provides Slider
 integration and also supports deploying any Slider application package
@@ -476,10 +145,11 @@ The steps for deploying Presto on Yarn via Slider views in Ambari are:
     script. Once successfully deployed, you will see the Yarn application
     started for Presto. You can click on app launched, and then if monitor the 
     status either from Slider view or you can click on the ``Quick Links`` which
-    should take you to the YARN WebUI.
+    should take you to the YARN WebUI. If your application is successfully run, it 
+    should continuously be available in the YARN resource manager as a "RUNNING" application.
 
-19. If the application fails to launch refer `this <#debugging-and-logging>`__
-    section to debug.
+19. If the job fails, please be sure to check the job history’s logs along with the logs on the node’s disk. 
+    Refer `this <#debugging-and-logging>`__ section for more details.
 
 20. You can manage the application lifecycle (e.g. start, stop, flex,
     destroy) from the View UI.
@@ -496,6 +166,137 @@ have an option to ``Destroy`` the existing Presto instance running via
 Slider. ``Destroy`` the existing one and re-create a new app
 (``Create App`` button) with whatever updates you want to make to the
 configuration.
+
+Manual Installation using Apache Slider
+---------------------------------------
+
+1. Download the slider 0.80.0 installation file from
+   http://slider.incubator.apache.org/index.html to one of your nodes in
+   the cluster
+
+::
+
+    tar -xvf slider-0.80.0-incubating-all.tar.gz
+
+2. Now configure Slider with JAVA\_HOME and HADOOP\_CONF\_DIR in
+   ``slider-0.80.0-incubating/conf/slider-env.sh``
+
+::
+
+    export JAVA_HOME=/usr/lib/jvm/java
+    export HADOOP_CONF_DIR=/etc/hadoop/conf
+
+3. Configure zookeeper in ``conf/slider-client.xml``. In case zookeper
+   is listening on ``master:2181`` you need to add there the following
+   section:
+
+::
+
+      <property>
+          <name>slider.zookeeper.quorum</name>
+          <value>master:2181</value>
+      </property>
+
+4. Configure path where slider packages will be installed
+
+::
+
+      <property>
+        <name>fs.defaultFS</name>
+        <value>hdfs://master/</value>
+      </property>
+
+5. Make sure the user running slider, which should be same as
+   ``site.global.app_user`` in ``appConfig.json``, has a home dir in
+   HDFS (See note `here <#appconfig-json>`__).
+
+::
+
+    su hdfs
+    $ hdfs dfs -mkdir -p /user/<user>
+    $ hdfs dfs -chown <user>:<user> -R /user/<user>
+
+6. Now run slider as
+
+For more details on `appConfig.json <#appconfig-json>`__ and
+`resources.json <#resources-json>`__ follow `configuration <#advanced-configuration>`__
+section.
+
+::
+
+    su <user>
+    cd slider-0.80.0-incubating
+    bin/slider package --install --name PRESTO --package ../presto-yarn-package-*.zip
+    bin/slider create presto1 --template appConfig.json --resources resources.json (using modified .json files as per your requirement)
+
+This should start your application, and you can see it under the Yarn
+ResourceManager webUI.If your application is successfully run, it should continuously be available in the 
+YARN resource manager as a "RUNNING" application. If the job fails, please be sure to check the job history's logs 
+along with the logs on the node's disk (more information `below <#debugging-and-logging>`__).
+
+Additional Slider commands
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Some additional slider commands to manage your existing Presto
+application.
+
+Check the status
+^^^^^^^^^^^^^^^^
+
+If you want to check the status of running application you run the
+following, and you will have status printed to a file ``status_file``
+
+::
+
+    bin/slider status presto1 --out status_file
+
+Destroy the app and re-create
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If you want to re-create the app due to some failures or you want to
+reconfigure Presto (eg: add a new connector)
+
+::
+
+    bin/slider destroy presto1
+    bin/slider create presto1 --template appConfig.json --resources resources.json
+
+Completely remove the app
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Delete the app including the app package.
+
+
+::
+
+     bin/slider package --delete --name PRESTO
+
+'Flex'ible app
+^^^^^^^^^^^^^^
+
+Flex the number of Presto workers to the new value. If greater than
+before, new copies of the worker will be requested. If less, component
+instances will be destroyed.
+
+Changes are immediate and depend on the availability of resources in the
+YARN cluster. Make sure while flex that there are extra nodes
+available(if adding) with YARN nodemanagers running and also Presto data
+directory pre-created/owned by ``yarn`` user. Also make sure these nodes
+do not have a Presto component already running, which may cause flex-ing
+to deploy worker on these nodes and eventually failing.
+
+eg: Asumme there are 2 nodes (with YARN nodemanagers running) in the
+cluster and you initially deployed only one of the nodes with Presto via
+Slider. If you want to deploy and start Presto WORKER component on the
+second node (assuming it meets all resource requirements) and thus have
+the total number of WORKERS to be 2, then run:
+
+::
+
+    bin/slider flex presto1 --component WORKER 2
+
+Please note that if your cluster already had 3 WORKER nodes running, the
+above command will destroy one of them and retain 2 WORKERs.
 
 Presto Installation Directory Structure
 ---------------------------------------
@@ -529,6 +330,219 @@ for data directory. If you have it configured at
 ``/var/lib/presto/data`` in ``appConfig.json`` then you will have Presto
 logs at ``/var/lib/presto/data/var/log/``.
 
+
+Presto App Package configuration
+--------------------------------
+
+There are some sample configuration options files available at
+``presto-yarn-package/src/main/resources`` directory in the repository.
+``appConfig.json`` and ``resources-[singlenode|mutlinode].json`` files
+are the two major configuration files you need to configure before you
+can get Presto running on YARN. Copy the
+``presto-yarn-package/src/main/resources/appConfig.json`` and
+``presto-yarn-package/src/main/resources/resources-[singlenode|multinode].json``
+to a local file at a location where you are planning to run Slider. Name
+them as ``appConfig.json`` and ``resources.json``. Update these sample
+json files with whatever configurations you want to have for Presto. If
+you are ok with the default values in the sample file you can just use
+them as-is.
+
+The "default" values listed for the sections
+`appConfig.json <#appconfig-json>`__ and `resources.json <#resources-json>`__ are
+from ``presto-yarn-package/src/main/resources/appConfig.json`` and
+``presto-yarn-package/src/main/resources/resources-multinode.json``
+files respectively. These default values will also be used for
+installation using `Ambari <#installation-using-ambari-slider-view>`__ Slider View.
+
+``Note``: If you are planning to use Ambari for your installation skip
+to this `section <#installation-using-ambari-slider-view>`__. Changing these files manually is
+needed only if you are going to install Presto on YARN manually using
+Slider. If installing via Ambari, you can change these configurations
+from the Slider view.
+
+Follow the steps here and configure the presto-yarn configuration files
+to match your cluster requirements. Optional ones are marked (optional).
+Please do not change any variables other than the ones listed below.
+
+appConfig.json
+~~~~~~~~~~~~~~
+
+1. ``site.global.app_user`` (default - ``yarn``): This is the user which
+   will be launching the YARN application for Presto. So all the Slider
+   commands (using ``bin/slider`` script) will be run as this user. Make
+   sure that you have a HDFS home directory created for the
+   ``app_user``. Eg: for user ``yarn`` create ``/user/yarn`` with
+   ``yarn`` user as an owner.
+
+::
+
+    hdfs dfs -mkdir -p /user/yarn
+    hdfs dfs -chown yarn:yarn /user/yarn
+
+``Note``: For operations involving Hive connector in Presto, especially
+INSERT, ALTER TABLE etc, it may require that the user running Presto has
+access to HDFS directories like Hive warehouse directories. So make sure
+that the ``app_user`` you set has appropriate access permissions to
+those HDFS directories. For eg: ``/apps/hive/warehouse`` is usually
+where Presto user will need access for various DML operations involving
+Hive connector and is owned by ``hdfs`` in most cases. In that case, one
+way to fix the permission issue is to set ``site.global.app_user`` to
+user ``hdfs`` and also create ``/user/hdfs`` directory in HDFS if not
+already there (as above). You will also need to run any slider
+scripts(bin/slider) as user ``hdfs`` in this case.
+
+2. ``site.global.user_group`` (default - ``hadoop``): The group owning
+   the application.
+
+3. ``site.global.data_dir`` (default - ``/var/lib/presto/data``): The
+   data directory configured should be pre-created on all nodes and must
+   be owned by user ``yarn``, otherwise slider will fail to start Presto
+   with permission errors.
+
+::
+
+    mkdir -p /var/lib/presto/data
+    chown -R yarn:hadoop /var/lib/presto/data
+
+
+4. ``site.global.config_dir`` (default - ``/var/lib/presto/etc``): The
+   configuration directory on the cluster where the Presto config files
+   node.properties, jvm.config, config.properties and connector
+   configuration files are deployed. These files will have configuration
+   values created from templates
+   ``presto-yarn-package/package/templates/*.j2`` and other relevant
+   ``appConfig.json`` parameters.
+
+5. ``site.global.singlenode`` (default - ``true``): If set to true, the
+   node used act as both coordinator and worker (singlenode mode). For
+   multi-node set up, this should be set to false.
+
+6. ``site.global.presto_query_max_memory`` (default - ``50GB``): This
+   will be used as ``query.max-memory`` in Presto's config.properties
+   file.
+
+7. ``site.global.presto_query_max_memory_per_node`` (default - ``1GB``):
+   This will be used as ``query.max-memory-per-node`` in Presto's
+   config.properties file.
+
+8. ``site.global.presto_server_port`` (default - ``8080``): Presto
+   server's http port.
+
+9. ``site.global.catalog`` (optional) (default - configures ``tpch``
+   connector): It should be of the format (note the single quotes around
+   each value) - {'connector1' : ['key1=value1', 'key2=value2'..],
+   'connector2' : ['key1=value1', 'key2=value2'..]..}. This will create
+   files connector1.properties, connector2.properties for Presto with
+   entries key1=value1 etc.
+
+::
+
+        "site.global.catalog": "{'hive': ['connector.name=hive-cdh5', 'hive.metastore.uri=thrift://${NN_HOST}:9083'], 'tpch': ['connector.name=tpch']}"
+
+``Note``: The ``NN_HOST`` used in ``hive.metastore.uri`` is a variable
+for your HDFS Namenode and this expects that your hive metastore is up
+and running on your HDFS Namenode host. You do not have to replace that
+with your actual Namenode hostname. This variable will be substituted
+with your Namenode hostname during runtime. If you have hive metastore
+running elsewhere make sure you update ``NN_HOST`` with the appropriate
+hostname.
+
+10. ``site.global.jvm_args`` (default - as in example below): This
+    configures Presto ``jvm.config`` file and default heapsize is
+    ``1GB``. Since Presto needs the ``jvm.config`` format to be a list of
+    options, one per line, this property must be a String representation
+    of list of strings. Each entry of this list will be a new line in
+    your jvm.config. For example the configuration should look like:
+
+::
+
+        "site.global.jvm_args": "['-server', '-Xmx1024M', '-XX:+UseG1GC', '-XX:G1HeapRegionSize=32M', '-XX:+UseGCOverheadLimit', '-XX:+ExplicitGCInvokesConcurrent', '-XX:+HeapDumpOnOutOfMemoryError', '-XX:OnOutOfMemoryError=kill -9 %p']",
+
+11. ``site.global.additional_node_properties`` and
+    ``site.global.additional_config_properties`` (optional) (default -
+    None): Presto launched via Slider will use ``config.properties`` and
+    ``node.properties`` created from templates
+    ``presto-yarn-package/package/templates/config.properties*.j2`` and
+    ``presto-yarn-package/package/target/node.properties.j2``
+    respectively. If you want to add any additional properties to these
+    configuration files, add ``site.global.additional_config_properties``
+    and ``site.global.additional_node_properties`` to your
+    ``appConfig.json``. The value of these has to be a string
+    representation of an array of entries (key=value) that has to go to
+    the ``.properties`` file. Eg:
+
+::
+
+        "site.global.additional_config_properties": "['task.max-worker-threads=50', 'distributed-joins-enabled=true']"
+
+12. ``site.global.plugin`` (optional) (default - None): This allows you
+    to add any additional jars you want to copy to plugin
+    ``presto-server-<version>/plugin/<connector>`` directory in addition
+    to what is already available there. It should be of the format
+    {'connector1' : ['jar1', 'jar2'..], 'connector2' : ['jar3',
+    'jar4'..]..}. This will copy jar1, jar2 to Presto plugin directory at
+    plugin/connector1 directory and jar3, jar4 at plugin/connector2
+    directory. Make sure you have the plugin jars you want to add to
+    Presto available at
+    ``presto-yarn-package/src/main/slider/package/plugins/`` prior to
+    building the presto-yarn app package and thus the app package built
+    ``presto-yarn-package-<version>-<presto-version>.zip`` will have the
+    jars under ``package/plugins`` directory.
+
+::
+
+        "site.global.plugin": "{'ml': ['presto-ml-${presto.version}.jar']}",
+
+13. ``java_home`` (default - ``/usr/lib/jvm/java``): Presto requires Java
+    1.8. So make jdk8 the default java or add it to ``java_home`` here
+
+14. Variables in ``appConfig.json`` like ``${COORDINATOR_HOST}``,
+    ``${AGENT_WORK_ROOT}`` etc. do not need any substitution and will be
+    appropriately configured during runtime.
+
+resources.json
+~~~~~~~~~~~~~~
+
+The configuration here can be added either globally (for COORDINATOR and
+WORKER) or for each component. Refer `configuration <#advanced-configuration>`__
+section for further details.
+
+1. ``yarn.vcores`` (default - ``1``): By default this is set globally.
+
+2. ``yarn.component.instances`` (default - ``1`` for COORDINATOR and
+   ``3`` for WORKER): The multinode
+   ``presto-yarn-package/src/main/resources/resources-multinode.json``
+   sample file is now configured for a 4 node cluster where there will
+   be 1 coordinator and 3 workers with strict placement policy, meaning,
+   there will be one component instance running on every node
+   irrespective of failure history. If there are insufficient number of
+   nodemanager nodes in your cluster to accomodate the number of workers
+   requested, the application launch will fail. The number of workers
+   could be ``number of nodemanagers in your cluster - 1``, with 1 node
+   reserved for the coordinator, if you want Presto to be on all YARN
+   nodes.
+   If you want to deploy Presto on a single node
+   (``site.global.singlenode`` set to true), make sure you set 1 for the
+   COORDINATOR and just not add the WORKER component section (Refer
+   ``presto-yarn-package/src/main/resources/resources-singlenode.json``).
+   You can also just set ``yarn.component.instances`` to 0 for WORKER in
+   this case.
+
+3. ``yarn.memory`` (default - ``1500MB``): The heapsize defined as -Xmx
+   of ``site.global.jvm_args`` in ``appConfig.json``, is used by the
+   Presto JVM itself. Slider suggests that the value of ``yarn.memory``
+   must be bigger than this heapsize. The value of ``yarn.memory`` MUST
+   be bigger than the heap size allocated to any JVM and Slider suggests
+   using atleast 50% more appears to work, though some experimentation
+   will be needed.
+
+4. ``yarn.label.expression`` (optional) (default - ``coordinator`` for
+   COORDINATOR and ``worker`` for WORKER\`\`): See `label <#using-yarn-label>`__
+   section for details.
+
+Now you are ready to deploy Presto on YARN either manually or via
+Ambari.
+
 Advanced Configuration
 ----------------------
 
@@ -540,7 +554,7 @@ Configuring memory and CPU
 Memory and CPU related configuration properties must be modified as per
 your cluster configuration and requirements.
 
-``Memory``
+1. Memory
 
 ``yarn.memory`` in ``resources.json`` declares the amount of memory to
 ask for in YARN containers. It should be defined for each component,
@@ -563,7 +577,7 @@ In addition, set other memory specific properties
 ``appConfig.json`` as you would set the properties ``query.max-memory``
 and ``query.max-memory-per-node`` in Presto's config.properties.
 
-``CPU``
+2. CPU
 
 Slider also supports configuring the YARN virtual cores to use for the
 process which can be defined per component. ``yarn.vcores`` declares the
@@ -574,7 +588,7 @@ See
 http://slider.incubator.apache.org/docs/configuration/resources.html#core
 for more details.
 
-``CGroups in YARN``
+3. CGroups in YARN
 
 If you are using CPU scheduling (using the DominantResourceCalculator),
 you should also use CGroups to constrain and manage CPU processes.
@@ -622,7 +636,7 @@ the component may fail within a failure window is defined in
 
 The related properties are:
 
--  The duration of a failure window, a time period in which failures are
+1. The duration of a failure window, a time period in which failures are
    counted. The related properties are
    ``yarn.container.failure.window.days``,
    ``yarn.container.failure.window.hours``,
@@ -632,7 +646,7 @@ The related properties are:
    measured from the start of the slider application master —once the
    duration of that window is exceeded, all failure counts are reset,
    and the window begins again.
--  The maximum number of failures of any component in this time period.
+2. The maximum number of failures of any component in this time period.
    ``yarn.container.failure.threshold`` is the property for this and in
    most cases, should be set proportional to the the number of instances
    of the component. For Presto clusters, where there will be one
@@ -654,11 +668,11 @@ of the underlying YARN cluster and hardware.
 Based on the placement policy there are two more failure related
 properties you can set.
 
--  The configuration property ``yarn.node.failure.threshold`` defines
+1. The configuration property ``yarn.node.failure.threshold`` defines
    how "unreliable" a node must be before it is skipped for placement
    requests. This is only used for the default
    yarn.component.placement.policy where unreliable nodes are avoided.
--  ``yarn.placement.escalate.seconds`` is the timeout after which slider
+2. ``yarn.placement.escalate.seconds`` is the timeout after which slider
    will escalate the request of pending containers to be launched on
    other nodes. For strict placement policy where the requested
    components are deployed on all nodes, this property is irrelevant.
@@ -683,12 +697,12 @@ To guarantee that a certain set of nodes are reserved for deploying
 Presto or to configure a particular node for a component type we can
 make use of YARN label expressions.
 
--  First assign the nodes/subset of nodes with appropriate labels. See
+1. First assign the nodes/subset of nodes with appropriate labels. See
    http://docs.hortonworks.com/HDPDocuments/HDP2/HDP-2.3.0/bk_yarn_resource_mgt/content/ch_node_labels.html
--  Then set the components in ``resource.json`` with
+2. Then set the components in ``resource.json`` with
    ``yarn.label.expression`` to have labels to be used when allocating
    containers for Presto.
--  Create the application using
+3. Create the application using
    ``bin/slider create .. --queue <queuename>``. ``queuename`` will be
    the queue defined in step one for the appropriate label.
 
