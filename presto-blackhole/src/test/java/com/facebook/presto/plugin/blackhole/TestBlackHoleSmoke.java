@@ -218,7 +218,7 @@ public class TestBlackHoleSmoke
         Stopwatch stopwatch = Stopwatch.createStarted();
 
         assertEquals(queryRunner.execute(session, "SELECT * FROM nation").getRowCount(), 1);
-        queryRunner.execute(session, "INSERT INTO nation SELECT CAST(null AS BIGINT), CAST(null AS VARCHAR), CAST(null AS BIGINT), CAST(null AS VARCHAR)");
+        queryRunner.execute(session, "INSERT INTO nation SELECT CAST(null AS BIGINT), CAST(null AS VARCHAR(25)), CAST(null AS BIGINT), CAST(null AS VARCHAR(152))");
 
         stopwatch.stop();
         assertGreaterThan(stopwatch.elapsed(MILLISECONDS), pageProcessingDelay.toMillis());
