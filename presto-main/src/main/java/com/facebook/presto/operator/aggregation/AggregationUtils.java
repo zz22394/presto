@@ -19,7 +19,6 @@ import com.facebook.presto.operator.aggregation.state.RegressionState;
 import com.facebook.presto.operator.aggregation.state.VarianceState;
 import com.facebook.presto.spi.Page;
 import com.facebook.presto.spi.block.Block;
-import com.facebook.presto.spi.type.Type;
 import com.facebook.presto.spi.type.TypeSignature;
 import com.google.common.base.CaseFormat;
 
@@ -130,12 +129,12 @@ public final class AggregationUtils
         return TypeSignature.parseTypeSignature(outputFunction.getAnnotation(OutputFunction.class).value());
     }
 
-    public static String generateAggregationName(String baseName, Type outputType, List<Type> inputTypes)
+    public static String generateAggregationName(String baseName, TypeSignature outputType, List<TypeSignature> inputTypes)
     {
         StringBuilder sb = new StringBuilder();
-        sb.append(CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, outputType.getTypeSignature().toString()));
-        for (Type inputType : inputTypes) {
-            sb.append(CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, inputType.getTypeSignature().toString()));
+        sb.append(CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, outputType.toString()));
+        for (TypeSignature inputType : inputTypes) {
+            sb.append(CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, inputType.toString()));
         }
         sb.append(CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, baseName.toLowerCase(ENGLISH)));
 
