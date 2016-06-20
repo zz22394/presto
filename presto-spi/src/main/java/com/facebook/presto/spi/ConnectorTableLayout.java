@@ -41,7 +41,8 @@ public class ConnectorTableLayout
                 Optional.empty(),
                 Optional.empty(),
                 Optional.empty(),
-                emptyList());
+                emptyList()
+        );
     }
 
     public ConnectorTableLayout(

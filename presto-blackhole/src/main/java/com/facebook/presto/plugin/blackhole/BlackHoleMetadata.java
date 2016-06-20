@@ -247,6 +247,7 @@ public class BlackHoleMetadata
                 Optional.empty(),
                 Optional.empty(),
                 Optional.empty(),
-                ImmutableList.of());
+                ImmutableList.of()
+        );
     }
 }
