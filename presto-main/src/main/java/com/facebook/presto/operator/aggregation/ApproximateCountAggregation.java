@@ -15,13 +15,12 @@ package com.facebook.presto.operator.aggregation;
 
 import com.facebook.presto.operator.aggregation.state.AccumulatorState;
 import com.facebook.presto.spi.block.BlockBuilder;
-import com.facebook.presto.spi.type.StandardTypes;
 import io.airlift.slice.Slice;
 import io.airlift.slice.Slices;
 
 import static com.facebook.presto.operator.aggregation.ApproximateUtils.countError;
 import static com.facebook.presto.operator.aggregation.ApproximateUtils.formatApproximateResult;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 
 @AggregationFunction(value = "count", approximate = true)
 public final class ApproximateCountAggregation
@@ -44,11 +43,11 @@ public final class ApproximateCountAggregation
         state.setSamples(state.getSamples() + otherState.getSamples());
     }
 
-    @OutputFunction(StandardTypes.VARCHAR)
+    @OutputFunction("varchar(57)")
     public static void output(ApproximateCountState state, double confidence, BlockBuilder out)
     {
         Slice value = Slices.utf8Slice(formatApproximateResult(state.getCount(), countError(state.getSamples(), state.getCount()), confidence, true));
-        VARCHAR.writeSlice(out, value);
+        createUnboundedVarcharType().writeSlice(out, value);
     }
 
     public interface ApproximateCountState

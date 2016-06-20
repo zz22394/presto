@@ -66,7 +66,7 @@ public final class ApproximateCountColumnAggregations
         state.setSamples(state.getSamples() + otherState.getSamples());
     }
 
-    @OutputFunction(StandardTypes.VARCHAR)
+    @OutputFunction("varchar(57)")
     public static void output(ApproximateCountState state, double confidence, BlockBuilder out)
     {
         String result = formatApproximateResult(state.getCount(), countError(state.getSamples(), state.getCount()), confidence, true);

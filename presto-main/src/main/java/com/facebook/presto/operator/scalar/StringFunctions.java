@@ -19,6 +19,7 @@ import com.facebook.presto.spi.block.Block;
 import com.facebook.presto.spi.block.BlockBuilder;
 import com.facebook.presto.spi.block.BlockBuilderStatus;
 import com.facebook.presto.spi.type.StandardTypes;
+import com.facebook.presto.spi.type.VarcharType;
 import com.facebook.presto.type.LiteralParameters;
 import com.facebook.presto.type.SqlType;
 import com.google.common.primitives.Ints;
@@ -540,8 +541,9 @@ public final class StringFunctions
 
     @Description("transforms the string to normalized form")
     @ScalarFunction
+    @LiteralParameters({"x", "y"})
     @SqlType(StandardTypes.VARCHAR)
-    public static Slice normalize(@SqlType(StandardTypes.VARCHAR) Slice slice, @SqlType(StandardTypes.VARCHAR) Slice form)
+    public static Slice normalize(@SqlType("varchar(x)") Slice slice, @SqlType("varchar(y)") Slice form)
     {
         Normalizer.Form targetForm;
         try {
