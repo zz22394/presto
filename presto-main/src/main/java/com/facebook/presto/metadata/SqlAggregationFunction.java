@@ -14,7 +14,7 @@
 package com.facebook.presto.metadata;
 
 import com.facebook.presto.operator.aggregation.AggregationCompiler;
-import com.facebook.presto.operator.aggregation.AggregationCompiler.BindableAggregationFunction;
+import com.facebook.presto.operator.aggregation.BindableAggregationFunction;
 import com.facebook.presto.operator.aggregation.InternalAggregationFunction;
 import com.facebook.presto.spi.type.TypeManager;
 import com.facebook.presto.spi.type.TypeSignature;
