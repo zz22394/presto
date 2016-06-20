@@ -45,6 +45,7 @@ import static com.facebook.presto.spi.type.Decimals.writeBigDecimal;
 import static com.facebook.presto.spi.type.Decimals.writeShortDecimal;
 import static com.facebook.presto.spi.type.StandardTypes.DECIMAL;
 import static com.facebook.presto.spi.type.TypeSignature.parseTypeSignature;
+import static com.facebook.presto.util.ImmutableCollectors.toImmutableList;
 import static com.facebook.presto.util.Reflection.methodHandle;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.math.BigDecimal.ROUND_HALF_UP;
@@ -102,7 +103,7 @@ public class DecimalAverageAggregation
         outputFunction = outputFunction.bindTo(type);
 
         AggregationMetadata metadata = new AggregationMetadata(
-                generateAggregationName(NAME, type, inputTypes),
+                generateAggregationName(NAME, type.getTypeSignature(), inputTypes.stream().map(Type::getTypeSignature).collect(toImmutableList())),
                 createInputParameterMetadata(type),
                 inputFunction,
                 null,

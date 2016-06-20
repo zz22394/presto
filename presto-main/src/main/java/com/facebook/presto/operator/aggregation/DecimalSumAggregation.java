@@ -46,6 +46,7 @@ import static com.facebook.presto.spi.type.Decimals.checkOverflow;
 import static com.facebook.presto.spi.type.Decimals.decodeUnscaledValue;
 import static com.facebook.presto.spi.type.Decimals.writeBigDecimal;
 import static com.facebook.presto.spi.type.TypeSignature.parseTypeSignature;
+import static com.facebook.presto.util.ImmutableCollectors.toImmutableList;
 import static com.facebook.presto.util.Reflection.methodHandle;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Iterables.getOnlyElement;
@@ -103,7 +104,7 @@ public class DecimalSumAggregation
         }
 
         AggregationMetadata metadata = new AggregationMetadata(
-                generateAggregationName(NAME, outputType, inputTypes),
+                generateAggregationName(NAME, outputType.getTypeSignature(), inputTypes.stream().map(Type::getTypeSignature).collect(toImmutableList())),
                 createInputParameterMetadata(inputType),
                 inputFunction.bindTo(inputType),
                 null,
