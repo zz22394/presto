@@ -28,7 +28,7 @@ import static com.facebook.presto.spi.StandardErrorCode.INVALID_FUNCTION_ARGUMEN
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.VarbinaryType.VARBINARY;
 import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR_UNBOUNDED;
+import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.spi.type.VarcharType.createVarcharType;
 
 public class TestStringFunctions
@@ -40,7 +40,7 @@ public class TestStringFunctions
     }
 
     @ScalarFunction(value = "utf8", deterministic = false)
-    @SqlType(VARCHAR_UNBOUNDED)
+    @SqlType(StandardTypes.VARCHAR)
     public static Slice convertBinaryToVarchar(@SqlType(StandardTypes.VARBINARY) Slice binary)
     {
         return binary;
@@ -479,7 +479,7 @@ public class TestStringFunctions
     @Test
     public void testVarcharToVarcharX()
     {
-        assertFunction("LOWER(CAST('HELLO' AS VARCHAR))", createVarcharType(Integer.MAX_VALUE), "hello");
+        assertFunction("LOWER(CAST('HELLO' AS VARCHAR))", createUnboundedVarcharType(), "hello");
     }
 
     @Test
