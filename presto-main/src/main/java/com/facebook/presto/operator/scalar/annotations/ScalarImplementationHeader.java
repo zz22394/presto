@@ -14,7 +14,9 @@
 package com.facebook.presto.operator.scalar.annotations;
 
 import com.facebook.presto.operator.Description;
+import com.facebook.presto.operator.scalar.ScalarFunction;
 import com.facebook.presto.operator.scalar.ScalarHeader;
+import com.facebook.presto.operator.scalar.ScalarOperator;
 import com.google.common.collect.ImmutableList;
 
 import java.lang.reflect.AnnotatedElement;
@@ -113,4 +115,3 @@ public class ScalarImplementationHeader
         return header;
     }
 }
-
