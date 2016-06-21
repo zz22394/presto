@@ -60,6 +60,7 @@ import static com.facebook.presto.bytecode.expression.BytecodeExpressions.add;
 import static com.facebook.presto.bytecode.expression.BytecodeExpressions.constantInt;
 import static com.facebook.presto.bytecode.expression.BytecodeExpressions.invokeStatic;
 import static com.facebook.presto.spi.StandardErrorCode.INVALID_FUNCTION_ARGUMENT;
+import static com.facebook.presto.spi.type.VarcharType.MAX_LENGTH;
 import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.facebook.presto.util.ImmutableCollectors.toImmutableList;
 import static com.facebook.presto.util.Reflection.methodHandle;
@@ -189,6 +190,16 @@ public final class ConcatFunction
             super(typeManager, signature, allowCoercion);
         }
 
+        private TypeSignature createVarcharTypeSignature(int size)
+        {
+            if (size > MAX_LENGTH) {
+                return createUnboundedVarcharType().getTypeSignature();
+            }
+            else {
+                return VarcharType.createVarcharType(size).getTypeSignature();
+            }
+        }
+
         @Override
         public Optional<Signature> bind(List<? extends Type> actualArgumentTypes)
         {
@@ -202,14 +213,14 @@ public final class ConcatFunction
 
                 int paramLength = varcharLength(type);
                 lengthAccumulator = Ints.saturatedCast(lengthAccumulator + paramLength);
-                boundTypesSignatures.add(VarcharType.createVarcharType(paramLength).getTypeSignature());
+                boundTypesSignatures.add(createVarcharTypeSignature(paramLength));
             }
 
             return Optional.of(
                     new Signature(
                             declaredSignature.getName(),
                             declaredSignature.getKind(),
-                            VarcharType.createVarcharType(Ints.saturatedCast(lengthAccumulator)).getTypeSignature(),
+                            createVarcharTypeSignature(Ints.saturatedCast(lengthAccumulator)),
                             boundTypesSignatures.build()));
         }
 

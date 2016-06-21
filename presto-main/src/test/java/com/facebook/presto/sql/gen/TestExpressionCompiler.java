@@ -1352,10 +1352,10 @@ public class TestExpressionCompiler
                         BOOLEAN,
                         value == null || pattern == null ? null : JoniRegexpFunctions.regexpLike(utf8Slice(value), joniRegexp(utf8Slice(pattern))));
                 assertExecute(generateExpression("regexp_replace(%s, %s)", value, pattern),
-                        value == null ? VARCHAR : createVarcharType(value.length()),
+                        value == null ? createVarcharType(0) : createVarcharType(value.length()),
                         value == null || pattern == null ? null : JoniRegexpFunctions.regexpReplace(utf8Slice(value), joniRegexp(utf8Slice(pattern))));
                 assertExecute(generateExpression("regexp_extract(%s, %s)", value, pattern),
-                        value == null ? VARCHAR : createVarcharType(value.length()),
+                        value == null ? createVarcharType(0) : createVarcharType(value.length()),
                         value == null || pattern == null ? null : JoniRegexpFunctions.regexpExtract(utf8Slice(value), joniRegexp(utf8Slice(pattern))));
             }
         }

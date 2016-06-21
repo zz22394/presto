@@ -37,7 +37,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.facebook.presto.metadata.SignatureBinder.bindVariables;
+import static com.facebook.presto.metadata.DefaultSignatureBinder.bindVariables;
 import static com.facebook.presto.operator.aggregation.AggregationCompiler.isParameterBlock;
 import static com.facebook.presto.operator.aggregation.AggregationCompiler.isParameterNullable;
 import static com.facebook.presto.operator.aggregation.AggregationMetadata.ParameterMetadata.ParameterType.BLOCK_INDEX;
