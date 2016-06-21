@@ -10,7 +10,7 @@
 
     <groupId>com.facebook.presto</groupId>
     <artifactId>presto-root</artifactId>
-    <version>0.141t</version>
+    <version>0.141.2t-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>presto-root</name>
@@ -28,8 +28,8 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:git://github.com/facebook/presto.git</connection>
-        <url>https://github.com/facebook/presto</url>
+        <connection>scm:git:git://github.com/Teradata/presto.git</connection>
+        <url>https://github.com/Teradata/presto</url>
         <tag>0.141</tag>
     </scm>
 
