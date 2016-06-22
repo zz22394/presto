@@ -74,6 +74,7 @@ import com.facebook.presto.operator.scalar.CombineHashFunction;
 import com.facebook.presto.operator.scalar.DateTimeFunctions;
 import com.facebook.presto.operator.scalar.FailureFunction;
 import com.facebook.presto.operator.scalar.HyperLogLogFunctions;
+import com.facebook.presto.operator.scalar.JoniRegexpCasts;
 import com.facebook.presto.operator.scalar.JoniRegexpFunctions;
 import com.facebook.presto.operator.scalar.JsonFunctions;
 import com.facebook.presto.operator.scalar.JsonOperators;
@@ -450,6 +451,7 @@ public class FunctionRegistry
                 .scalar(MapCardinalityFunction.class)
                 .scalar(MapConcatFunction.class)
                 .scalar(MapToMapCast.class)
+                .scalars(JoniRegexpCasts.class)
                 .functions(ZIP_FUNCTIONS)
                 .functions(ARRAY_JOIN, ARRAY_JOIN_WITH_NULL_REPLACEMENT)
                 .functions(ARRAY_TO_ARRAY_CAST, ARRAY_LESS_THAN)
@@ -482,6 +484,7 @@ public class FunctionRegistry
                 .function(CONCAT)
                 .function(DECIMAL_TO_DECIMAL_CAST)
                 .function(TRY_CAST)
+                .function(new Re2JCastToRegexpFunction(featuresConfig.getRe2JDfaStatesLimit(), featuresConfig.getRe2JDfaRetries()))
                 .function(DECIMAL_AVERAGE_AGGREGATION)
                 .function(DECIMAL_SUM_AGGREGATION)
                 .functions(DECIMAL_CEILING_FUNCTIONS)
@@ -491,14 +494,12 @@ public class FunctionRegistry
                 .function(DECIMAL_TRUNCATE_FUNCTION);
 
         builder.function(new ArrayAggregationFunction(featuresConfig.isLegacyArrayAgg()));
-
         switch (featuresConfig.getRegexLibrary()) {
             case JONI:
                 builder.scalars(JoniRegexpFunctions.class);
                 break;
             case RE2J:
-                builder.scalars(Re2JRegexpFunctions.class)
-                        .function(new Re2JCastToRegexpFunction(featuresConfig.getRe2JDfaStatesLimit(), featuresConfig.getRe2JDfaRetries()));
+                builder.scalars(Re2JRegexpFunctions.class);
                 break;
         }
 

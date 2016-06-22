@@ -65,6 +65,7 @@ import java.util.concurrent.Callable;
 import java.util.stream.LongStream;
 
 import static com.facebook.presto.SessionTestUtils.TEST_SESSION;
+import static com.facebook.presto.operator.scalar.JoniRegexpCasts.joniRegexp;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 import static com.facebook.presto.spi.type.DateTimeEncoding.packDateTimeWithZone;
@@ -250,7 +251,7 @@ public class TestExpressionCompiler
         }
 
         for (Integer value : intLefts) {
-            Long longValue = value == null ? null : value *  10000000000L;
+            Long longValue = value == null ? null : value * 10000000000L;
             assertExecute(generateExpression("%s", value), INTEGER, value == null ? null : value);
             assertExecute(generateExpression("- (%s)", value), INTEGER, value == null ? null : -value);
             assertExecute(generateExpression("%s", longValue), BIGINT, value == null ? null : longValue);
@@ -324,7 +325,7 @@ public class TestExpressionCompiler
                 assertExecute(generateExpression("%s / %s", left, right), INTEGER, left == null || right == null ? null : left / right);
                 assertExecute(generateExpression("%s %% %s", left, right), INTEGER, left == null || right == null ? null : left % right);
 
-                Long longLeft = left == null ? null : left *  1000000000L;
+                Long longLeft = left == null ? null : left * 1000000000L;
                 assertExecute(generateExpression("%s + %s", longLeft, right), BIGINT, longLeft == null || right == null ? null : longLeft + right);
                 assertExecute(generateExpression("%s - %s", longLeft, right), BIGINT, longLeft == null || right == null ? null : longLeft - right);
                 assertExecute(generateExpression("%s * %s", longLeft, right), BIGINT, longLeft == null || right == null ? null : longLeft * right);
@@ -1183,13 +1184,13 @@ public class TestExpressionCompiler
             for (String pattern : stringRights) {
                 assertExecute(generateExpression("regexp_like(%s, %s)", value, pattern),
                         BOOLEAN,
-                        value == null || pattern == null ? null : JoniRegexpFunctions.regexpLike(utf8Slice(value), JoniRegexpFunctions.castToRegexp(utf8Slice(pattern))));
+                        value == null || pattern == null ? null : JoniRegexpFunctions.regexpLike(utf8Slice(value), joniRegexp(utf8Slice(pattern))));
                 assertExecute(generateExpression("regexp_replace(%s, %s)", value, pattern),
                         varcharType(value),
-                        value == null || pattern == null ? null : JoniRegexpFunctions.regexpReplace(utf8Slice(value), JoniRegexpFunctions.castToRegexp(utf8Slice(pattern))));
+                        value == null || pattern == null ? null : JoniRegexpFunctions.regexpReplace(utf8Slice(value), joniRegexp(utf8Slice(pattern))));
                 assertExecute(generateExpression("regexp_extract(%s, %s)", value, pattern),
                         varcharType(value),
-                        value == null || pattern == null ? null : JoniRegexpFunctions.regexpExtract(utf8Slice(value), JoniRegexpFunctions.castToRegexp(utf8Slice(pattern))));
+                        value == null || pattern == null ? null : JoniRegexpFunctions.regexpExtract(utf8Slice(value), joniRegexp(utf8Slice(pattern))));
             }
         }
 
