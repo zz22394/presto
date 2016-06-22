@@ -23,9 +23,11 @@ This chapter describes the SQL syntax used in Presto.
     sql/execute
     sql/explain
     sql/explain-analyze
+    sql/grant
     sql/insert
     sql/prepare
     sql/reset-session
+    sql/revoke
     sql/rollback
     sql/select
     sql/set-session
