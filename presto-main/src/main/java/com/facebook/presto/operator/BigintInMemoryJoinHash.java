@@ -29,6 +29,7 @@ import java.util.Optional;
 import static com.facebook.presto.operator.SyntheticAddress.decodePosition;
 import static com.facebook.presto.operator.SyntheticAddress.decodeSliceIndex;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
+import static com.facebook.presto.util.HashCollisionsEstimator.estimateNumberOfHashCollisions;
 import static com.google.common.base.Preconditions.checkState;
 import static io.airlift.slice.SizeOf.sizeOf;
 import static java.util.Objects.requireNonNull;
@@ -46,6 +47,8 @@ public final class BigintInMemoryJoinHash
     private final long totalMemoryUsage;
     private final long[] values;
     private Optional<BitSet> nullsMask = Optional.empty(); // lazy initialized
+    private final long hashCollisions;
+    private final double expectedHashCollisions;
 
     public BigintInMemoryJoinHash(LongArrayList addresses, PagesHashStrategy pagesHashStrategy, List<List<Block>> channels, List<Integer> joinChannels)
     {
@@ -70,6 +73,7 @@ public final class BigintInMemoryJoinHash
         // to extracting hashes on the fly in the loop below..
         extractValues(addresses, channels.get(joinChannel));
 
+        long hashCollisions = 0;
         for (int position = 0; position < addresses.size(); position++) {
             long value = values[position];
             int hashPos = getHashPosition(value, mask);
@@ -88,6 +92,7 @@ public final class BigintInMemoryJoinHash
                 }
                 hashPos = (hashPos + 1) & mask;
                 currentKey = key[hashPos];
+                hashCollisions++;
             }
 
             key[hashPos] = position;
@@ -97,6 +102,9 @@ public final class BigintInMemoryJoinHash
                 + sizeOf(addresses.elements()) + pagesHashStrategy.getSizeInBytes()
                 + (positionLinks.isPresent() ? sizeOf(positionLinks.get()) : 0)
                 + (nullsMask.isPresent() ? nullsMask.get().size() / 8 : 0);
+
+        this.hashCollisions = hashCollisions;
+        this.expectedHashCollisions = estimateNumberOfHashCollisions(addresses.size(), hashSize);
     }
 
     private void setPositionLinks(int position, int currentKey)
@@ -147,6 +155,18 @@ public final class BigintInMemoryJoinHash
     public long getInMemorySizeInBytes()
     {
         return totalMemoryUsage;
+    }
+
+    @Override
+    public long getHashCollisions()
+    {
+        return hashCollisions;
+    }
+
+    @Override
+    public double getExpectedHashCollisions()
+    {
+        return expectedHashCollisions;
     }
 
     @Override
