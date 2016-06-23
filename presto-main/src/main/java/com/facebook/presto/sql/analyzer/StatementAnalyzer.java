@@ -47,6 +47,7 @@ import com.facebook.presto.sql.planner.ExpressionInterpreter;
 import com.facebook.presto.sql.planner.NoOpSymbolResolver;
 import com.facebook.presto.sql.planner.Symbol;
 import com.facebook.presto.sql.planner.optimizations.CanonicalizeExpressions;
+import com.facebook.presto.sql.tree.AddColumn;
 import com.facebook.presto.sql.tree.AliasedRelation;
 import com.facebook.presto.sql.tree.AllColumns;
 import com.facebook.presto.sql.tree.ArrayConstructor;
@@ -95,6 +96,7 @@ import com.facebook.presto.sql.tree.Row;
 import com.facebook.presto.sql.tree.SampledRelation;
 import com.facebook.presto.sql.tree.SelectItem;
 import com.facebook.presto.sql.tree.SetOperation;
+import com.facebook.presto.sql.tree.SetSession;
 import com.facebook.presto.sql.tree.ShowCatalogs;
 import com.facebook.presto.sql.tree.ShowColumns;
 import com.facebook.presto.sql.tree.ShowCreate;
@@ -106,6 +108,7 @@ import com.facebook.presto.sql.tree.ShowTables;
 import com.facebook.presto.sql.tree.SimpleGroupBy;
 import com.facebook.presto.sql.tree.SingleColumn;
 import com.facebook.presto.sql.tree.SortItem;
+import com.facebook.presto.sql.tree.StartTransaction;
 import com.facebook.presto.sql.tree.Statement;
 import com.facebook.presto.sql.tree.StringLiteral;
 import com.facebook.presto.sql.tree.Table;
@@ -957,6 +960,30 @@ class StatementAnalyzer
     {
         analysis.setRowCountQuery(true);
         return new RelationType(Field.newUnqualified("rows", BIGINT));
+    }
+
+    @Override
+    protected RelationType visitSetSession(SetSession node, AnalysisContext context)
+    {
+        return visitDataDefinitionStatement(node, context);
+    }
+
+    @Override
+    protected RelationType visitAddColumn(AddColumn node, AnalysisContext context)
+    {
+        return visitDataDefinitionStatement(node, context);
+    }
+
+    @Override
+    protected RelationType visitCreateTable(CreateTable node, AnalysisContext context)
+    {
+        return visitDataDefinitionStatement(node, context);
+    }
+
+    @Override
+    protected RelationType visitStartTransaction(StartTransaction node, AnalysisContext context)
+    {
+        return visitDataDefinitionStatement(node, context);
     }
 
     private static void validateColumns(Statement node, RelationType descriptor)
