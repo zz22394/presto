@@ -24,15 +24,16 @@ import static com.facebook.presto.spi.StandardErrorCode.INVALID_FUNCTION_ARGUMEN
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
 import static com.facebook.presto.spi.type.FloatType.FLOAT;
+import static com.facebook.presto.testing.AggregationTestUtils.generateInternalAggregationFunction;
 import static com.facebook.presto.util.Failures.checkCondition;
 import static com.google.common.base.Preconditions.checkState;
 
 @AggregationFunction("approx_percentile")
 public class ApproximateFloatPercentileAggregations
 {
-    public static final InternalAggregationFunction FLOAT_APPROXIMATE_PERCENTILE_AGGREGATION = new AggregationCompiler().generateAggregationFunction(ApproximateFloatPercentileAggregations.class, FLOAT, ImmutableList.of(FLOAT, DOUBLE));
-    public static final InternalAggregationFunction FLOAT_APPROXIMATE_PERCENTILE_WEIGHTED_AGGREGATION = new AggregationCompiler().generateAggregationFunction(ApproximateFloatPercentileAggregations.class, FLOAT, ImmutableList.of(FLOAT, BIGINT, DOUBLE));
-    public static final InternalAggregationFunction FLOAT_APPROXIMATE_PERCENTILE_WEIGHTED_AGGREGATION_WITH_ACCURACY = new AggregationCompiler().generateAggregationFunction(ApproximateFloatPercentileAggregations.class, FLOAT, ImmutableList.of(FLOAT, BIGINT, DOUBLE, DOUBLE));
+    public static final InternalAggregationFunction FLOAT_APPROXIMATE_PERCENTILE_AGGREGATION = generateInternalAggregationFunction(ApproximateFloatPercentileAggregations.class, FLOAT.getTypeSignature(), ImmutableList.of(FLOAT.getTypeSignature(), DOUBLE.getTypeSignature()));
+    public static final InternalAggregationFunction FLOAT_APPROXIMATE_PERCENTILE_WEIGHTED_AGGREGATION = generateInternalAggregationFunction(ApproximateFloatPercentileAggregations.class, FLOAT.getTypeSignature(), ImmutableList.of(FLOAT.getTypeSignature(), BIGINT.getTypeSignature(), DOUBLE.getTypeSignature()));
+    public static final InternalAggregationFunction FLOAT_APPROXIMATE_PERCENTILE_WEIGHTED_AGGREGATION_WITH_ACCURACY = generateInternalAggregationFunction(ApproximateFloatPercentileAggregations.class, FLOAT.getTypeSignature(), ImmutableList.of(FLOAT.getTypeSignature(), BIGINT.getTypeSignature(), DOUBLE.getTypeSignature(), DOUBLE.getTypeSignature()));
 
     private ApproximateFloatPercentileAggregations() {}
 

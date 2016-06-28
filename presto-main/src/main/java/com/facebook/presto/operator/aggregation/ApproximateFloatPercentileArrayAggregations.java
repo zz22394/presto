@@ -27,12 +27,13 @@ import java.util.List;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
 import static com.facebook.presto.spi.type.FloatType.FLOAT;
+import static com.facebook.presto.testing.AggregationTestUtils.generateInternalAggregationFunction;
 
 @AggregationFunction("approx_percentile")
 public class ApproximateFloatPercentileArrayAggregations
 {
-    public static final InternalAggregationFunction FLOAT_APPROXIMATE_PERCENTILE_ARRAY_AGGREGATION = new AggregationCompiler().generateAggregationFunction(ApproximateFloatPercentileArrayAggregations.class, new ArrayType(FLOAT), ImmutableList.of(FLOAT, new ArrayType(DOUBLE)));
-    public static final InternalAggregationFunction FLOAT_APPROXIMATE_PERCENTILE_ARRAY_WEIGHTED_AGGREGATION = new AggregationCompiler().generateAggregationFunction(ApproximateFloatPercentileArrayAggregations.class, new ArrayType(FLOAT), ImmutableList.of(FLOAT, BIGINT, new ArrayType(DOUBLE)));
+    public static final InternalAggregationFunction FLOAT_APPROXIMATE_PERCENTILE_ARRAY_AGGREGATION = generateInternalAggregationFunction(ApproximateFloatPercentileArrayAggregations.class, new ArrayType(FLOAT).getTypeSignature(), ImmutableList.of(FLOAT.getTypeSignature(), new ArrayType(DOUBLE).getTypeSignature()));
+    public static final InternalAggregationFunction FLOAT_APPROXIMATE_PERCENTILE_ARRAY_WEIGHTED_AGGREGATION = generateInternalAggregationFunction(ApproximateFloatPercentileArrayAggregations.class, new ArrayType(FLOAT).getTypeSignature(), ImmutableList.of(FLOAT.getTypeSignature(), BIGINT.getTypeSignature(), new ArrayType(DOUBLE).getTypeSignature()));
 
     private ApproximateFloatPercentileArrayAggregations() {}
 

@@ -19,13 +19,14 @@ import com.facebook.presto.spi.type.FloatType;
 import com.facebook.presto.spi.type.StandardTypes;
 import com.facebook.presto.type.SqlType;
 
+import static com.facebook.presto.testing.AggregationTestUtils.generateInternalAggregationFunction;
 import static java.lang.Float.floatToRawIntBits;
 import static java.lang.Float.intBitsToFloat;
 
 @AggregationFunction("sum")
 public final class FloatSumAggregation
 {
-    public static final InternalAggregationFunction FLOAT_SUM = new AggregationCompiler().generateAggregationFunction(FloatSumAggregation.class);
+    public static final InternalAggregationFunction FLOAT_SUM = generateInternalAggregationFunction(FloatSumAggregation.class);
 
     private FloatSumAggregation() {}
 
