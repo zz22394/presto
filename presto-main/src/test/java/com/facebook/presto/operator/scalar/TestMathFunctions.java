@@ -502,6 +502,7 @@ public class TestMathFunctions
         assertFunction("round(CAST(NULL as BIGINT))", BIGINT, null);
         assertFunction("round( 3000000000)", BIGINT, 3000000000L);
         assertFunction("round(-3000000000)", BIGINT, -3000000000L);
+        assertFunction("round(CAST(NULL as BIGINT))", BIGINT, null);
         assertFunction("round(DOUBLE '3.0')", DOUBLE, 3.0);
         assertFunction("round(DOUBLE '-3.0')", DOUBLE, -3.0);
         assertFunction("round(DOUBLE '3.499')", DOUBLE, 3.0);
