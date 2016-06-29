@@ -784,11 +784,25 @@ public class TestMathFunctions
         DecimalType expectedDecimalReturnType = createDecimalType(1, 0);
 
         //retains type for NULL values
+        assertFunction("sign(CAST(NULL as TINYINT))", TINYINT, null);
+        assertFunction("sign(CAST(NULL as SMALLINT))", SMALLINT, null);
         assertFunction("sign(CAST(NULL as INTEGER))", INTEGER, null);
         assertFunction("sign(CAST(NULL as BIGINT))", BIGINT, null);
         assertFunction("sign(CAST(NULL as DOUBLE))", DOUBLE, null);
         assertFunction("sign(CAST(NULL as DECIMAL(2,1)))", expectedDecimalReturnType, null);
         assertFunction("sign(CAST(NULL as DECIMAL(38,0)))", expectedDecimalReturnType, null);
+
+        //tinyint
+        for (int intValue : intLefts) {
+            Float signum = Math.signum(intValue);
+            assertFunction("sign(TINYINT '" + intValue + "')", TINYINT, signum.byteValue());
+        }
+
+        //smallint
+        for (int intValue : intLefts) {
+            Float signum = Math.signum(intValue);
+            assertFunction("sign(SMALLINT '" + intValue + "')", SMALLINT, signum.shortValue());
+        }
 
         //integer
         for (int intValue : intLefts) {
