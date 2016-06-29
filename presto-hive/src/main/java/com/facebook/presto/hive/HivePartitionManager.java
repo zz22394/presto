@@ -46,6 +46,7 @@ import static com.facebook.presto.hive.HiveBucketing.getHiveBucket;
 import static com.facebook.presto.hive.HiveBucketing.getHiveBucketHandle;
 import static com.facebook.presto.hive.HiveUtil.getPartitionKeyColumnHandles;
 import static com.facebook.presto.hive.HiveUtil.parsePartitionValue;
+import static com.facebook.presto.hive.PartitionStatistics.EMPTY_STATISTICS;
 import static com.facebook.presto.hive.util.Types.checkType;
 import static com.facebook.presto.spi.StandardErrorCode.NOT_SUPPORTED;
 import static com.google.common.base.Preconditions.checkArgument;
@@ -118,7 +119,7 @@ public class HivePartitionManager
         if (partitionColumns.isEmpty()) {
             return new HivePartitionResult(
                     partitionColumns,
-                    ImmutableList.of(new HivePartition(tableName, compactEffectivePredicate, bucket)),
+                    ImmutableList.of(new HivePartition(tableName, compactEffectivePredicate, bucket, EMPTY_STATISTICS)),
                     effectivePredicate,
                     TupleDomain.none(),
                     hiveBucketHandle);
@@ -132,7 +133,7 @@ public class HivePartitionManager
             Optional<Map<ColumnHandle, NullableValue>> values = parseValuesAndFilterPartition(partitionName, partitionColumns, effectivePredicate);
 
             if (values.isPresent()) {
-                partitions.add(new HivePartition(tableName, compactEffectivePredicate, partitionName, values.get(), bucket));
+                partitions.add(new HivePartition(tableName, compactEffectivePredicate, partitionName, values.get(), bucket, EMPTY_STATISTICS));
             }
         }
 
