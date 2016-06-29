@@ -617,6 +617,18 @@ public class TestMathFunctions
             assertFunction("sign(SMALLINT '" + intValue + "')", SMALLINT, signum.shortValue());
         }
 
+        //tinyint
+        for (int intValue : intLefts) {
+            Float signum = Math.signum(intValue);
+            assertFunction("sign(TINYINT '" + intValue + "')", TINYINT, signum.byteValue());
+        }
+
+        //smallint
+        for (int intValue : intLefts) {
+            Float signum = Math.signum(intValue);
+            assertFunction("sign(SMALLINT '" + intValue + "')", SMALLINT, signum.shortValue());
+        }
+
         //integer
         for (int intValue : intLefts) {
             Float signum = Math.signum(intValue);
