@@ -38,6 +38,8 @@ import com.facebook.presto.spi.connector.ConnectorMetadata;
 import com.facebook.presto.spi.predicate.NullableValue;
 import com.facebook.presto.spi.predicate.TupleDomain;
 import com.facebook.presto.spi.security.Privilege;
+import com.facebook.presto.spi.statistics.StatisticsValue;
+import com.facebook.presto.spi.statistics.TableStatistics;
 import com.facebook.presto.spi.type.TypeManager;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Verify;
@@ -1305,7 +1307,8 @@ public class HiveMetadata
     {
         HiveTableLayoutHandle hiveLayoutHandle = checkType(layoutHandle, HiveTableLayoutHandle.class, "layoutHandle");
         List<ColumnHandle> partitionColumns = hiveLayoutHandle.getPartitionColumns();
-        List<TupleDomain<ColumnHandle>> partitionDomains = hiveLayoutHandle.getPartitions().get().stream()
+        List<HivePartition> hivePartitions = hiveLayoutHandle.getPartitions().get();
+        List<TupleDomain<ColumnHandle>> partitionDomains = hivePartitions.stream()
                 .map(HivePartition::getTupleDomain)
                 .collect(toList());
 
@@ -1327,7 +1330,29 @@ public class HiveMetadata
                 Optional.empty(),
                 discretePredicates,
                 ImmutableList.of(),
-                EMPTY_STATISTICS);
+                getTableStatistics(hivePartitions));
+    }
+
+    private TableStatistics getTableStatistics(List<HivePartition> hivePartitions)
+    {
+        List<Long> partitionRowNums = hivePartitions.stream()
+                .map(HivePartition::getStatistics)
+                .map(PartitionStatistics::getNumRows)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(toList());
+
+        long numRowsSum = partitionRowNums.stream().mapToLong(a -> a).sum();
+        long partitionsWithStatsCount = partitionRowNums.size();
+        long allPartitionsCount = hivePartitions.size();
+
+        TableStatistics tableStatistics = EMPTY_STATISTICS;
+        if (partitionsWithStatsCount > 0) {
+            tableStatistics = TableStatistics.builder()
+                    .setRowsCount(new StatisticsValue(1.0 * numRowsSum / partitionsWithStatsCount * allPartitionsCount, 0.0))
+                    .build();
+        }
+        return tableStatistics;
     }
 
     @Override
