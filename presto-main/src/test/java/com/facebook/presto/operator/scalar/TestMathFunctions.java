@@ -611,14 +611,20 @@ public class TestMathFunctions
     @Test
     public void testRound()
     {
+        assertFunction("round(TINYINT '3')", TINYINT, (byte) 3);
+        assertFunction("round(TINYINT '-3')", TINYINT, (byte) -3);
+        assertFunction("round(CAST(NULL as TINYINT))", TINYINT, null);
+        assertFunction("round(SMALLINT '3')", SMALLINT, (short) 3);
+        assertFunction("round(SMALLINT '-3')", SMALLINT, (short) -3);
+        assertFunction("round(CAST(NULL as SMALLINT))", SMALLINT, null);
         assertFunction("round(3)", INTEGER, 3);
         assertFunction("round(-3)", INTEGER, -3);
         assertFunction("round(CAST(NULL as INTEGER))", INTEGER, null);
         assertFunction("round(BIGINT '3')", BIGINT, 3L);
         assertFunction("round(BIGINT '-3')", BIGINT, -3L);
+        assertFunction("round(CAST(NULL as BIGINT))", BIGINT, null);
         assertFunction("round( 3000000000)", BIGINT, 3000000000L);
         assertFunction("round(-3000000000)", BIGINT, -3000000000L);
-        assertFunction("round(CAST(NULL as BIGINT))", BIGINT, null);
         assertFunction("round(DOUBLE '3.0')", DOUBLE, 3.0);
         assertFunction("round(DOUBLE '-3.0')", DOUBLE, -3.0);
         assertFunction("round(DOUBLE '3.499')", DOUBLE, 3.0);
@@ -636,6 +642,30 @@ public class TestMathFunctions
         assertFunction("round(FLOAT '-3.5001')", FLOAT, -4.0f);
         assertFunction("round(FLOAT '-3.99')", FLOAT,  -4.0f);
         assertFunction("round(CAST(NULL as DOUBLE))", DOUBLE, null);
+        assertFunction("round(DOUBLE '" + GREATEST_DOUBLE_LESS_THAN_HALF + "')", DOUBLE, 0.0);
+        assertFunction("round(DOUBLE '-" + 0x1p-1 + "')", DOUBLE, -1.0); // -0.5
+        assertFunction("round(DOUBLE '-" + GREATEST_DOUBLE_LESS_THAN_HALF + "')", DOUBLE, -0.0);
+
+        assertFunction("round(3, 0)", INTEGER, 3);
+        assertFunction("round(-3, 0)", INTEGER, -3);
+        assertFunction("round(BIGINT '3', 0)", BIGINT, 3L);
+        assertFunction("round(-3, BIGINT '0')", INTEGER, -3);
+        assertFunction("round( 3000000000, 0)", BIGINT, 3000000000L);
+        assertFunction("round(-3000000000, 0)", BIGINT, -3000000000L);
+        assertFunction("round(DOUBLE '" + GREATEST_DOUBLE_LESS_THAN_HALF + "')", DOUBLE, 0.0);
+        assertFunction("round(DOUBLE '-" + 0x1p-1 + "')", DOUBLE, -1.0); // -0.5
+        assertFunction("round(DOUBLE '-" + GREATEST_DOUBLE_LESS_THAN_HALF + "')", DOUBLE, -0.0);
+
+        assertFunction("round(TINYINT '3', TINYINT '0')", TINYINT, (byte) 3);
+        assertFunction("round(TINYINT '3', 0)", TINYINT, (byte) 3);
+        assertFunction("round(SMALLINT '3', SMALLINT '0')", SMALLINT, (short) 3);
+        assertFunction("round(SMALLINT '3', 0)", SMALLINT, (short) 3);
+        assertFunction("round(3, 0)", INTEGER, 3);
+        assertFunction("round(-3, 0)", INTEGER, -3);
+        assertFunction("round(-3, BIGINT '0')", INTEGER, -3);
+        assertFunction("round(BIGINT '3', 0)", BIGINT, 3L);
+        assertFunction("round( 3000000000, 0)", BIGINT, 3000000000L);
+        assertFunction("round(-3000000000, 0)", BIGINT, -3000000000L);
         assertFunction("round(DOUBLE '3.0', 0)", DOUBLE, 3.0);
         assertFunction("round(DOUBLE '-3.0', 0)", DOUBLE, -3.0);
         assertFunction("round(DOUBLE '3.499', 0)", DOUBLE, 3.0);
@@ -655,6 +685,10 @@ public class TestMathFunctions
         assertFunction("round(DOUBLE '0.3')", DOUBLE, 0.0);
         assertFunction("round(DOUBLE '-0.3')", DOUBLE, -0.0);
 
+        assertFunction("round(TINYINT '3', TINYINT '1')", TINYINT, (byte) 3);
+        assertFunction("round(TINYINT '3', 1)", TINYINT, (byte) 3);
+        assertFunction("round(SMALLINT '3', SMALLINT '1')", SMALLINT, (short) 3);
+        assertFunction("round(SMALLINT '3', 1)", SMALLINT, (short) 3);
         assertFunction("round(FLOAT '3.0', 0)", FLOAT, 3.0f);
         assertFunction("round(FLOAT '-3.0', 0)", FLOAT, -3.0f);
         assertFunction("round(FLOAT '3.499', 0)", FLOAT, 3.0f);
@@ -666,12 +700,12 @@ public class TestMathFunctions
 
         assertFunction("round(3, 1)", INTEGER, 3);
         assertFunction("round(-3, 1)", INTEGER, -3);
+        assertFunction("round(-3, BIGINT '1')", INTEGER, -3);
+        assertFunction("round(-3, CAST(NULL as BIGINT))", INTEGER, null);
         assertFunction("round(BIGINT '3', 1)", BIGINT, 3L);
-        assertFunction("round(-3, BIGINT '1')", BIGINT, -3L);
         assertFunction("round( 3000000000, 1)", BIGINT, 3000000000L);
         assertFunction("round(-3000000000, 1)", BIGINT, -3000000000L);
         assertFunction("round(CAST(NULL as BIGINT), CAST(NULL as BIGINT))", BIGINT, null);
-        assertFunction("round(-3, CAST(NULL as BIGINT))", BIGINT, null);
         assertFunction("round(CAST(NULL as BIGINT), 1)", BIGINT, null);
         assertFunction("round(DOUBLE '3.0', 1)", DOUBLE, 3.0);
         assertFunction("round(DOUBLE '-3.0', 1)", DOUBLE, -3.0);
