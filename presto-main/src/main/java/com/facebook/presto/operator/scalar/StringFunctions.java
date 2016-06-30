@@ -13,12 +13,14 @@
  */
 package com.facebook.presto.operator.scalar;
 
+import com.facebook.presto.metadata.OperatorType;
 import com.facebook.presto.operator.Description;
 import com.facebook.presto.spi.PrestoException;
 import com.facebook.presto.spi.block.Block;
 import com.facebook.presto.spi.block.BlockBuilder;
 import com.facebook.presto.spi.block.BlockBuilderStatus;
 import com.facebook.presto.spi.type.StandardTypes;
+import com.facebook.presto.type.CodePointsType;
 import com.facebook.presto.type.Constraint;
 import com.facebook.presto.type.LiteralParameters;
 import com.facebook.presto.type.SqlType;
@@ -457,9 +459,8 @@ public final class StringFunctions
     @ScalarFunction("ltrim")
     @LiteralParameters("x")
     @SqlType("varchar(x)")
-    public static Slice leftTrim(@SqlType("varchar(x)") Slice slice, @SqlType(StandardTypes.VARCHAR) Slice charactersToTrim)
+    public static Slice leftTrim(@SqlType("varchar(x)") Slice slice, @SqlType(CodePointsType.NAME) int[] codePointsToTrim)
     {
-        int[] codePointsToTrim = toCodePoints(charactersToTrim);
         return SliceUtf8.leftTrim(slice, codePointsToTrim);
     }
 
@@ -467,9 +468,8 @@ public final class StringFunctions
     @ScalarFunction("rtrim")
     @LiteralParameters("x")
     @SqlType("varchar(x)")
-    public static Slice rightTrim(@SqlType("varchar(x)") Slice slice, @SqlType(StandardTypes.VARCHAR) Slice charactersToTrim)
+    public static Slice rightTrim(@SqlType("varchar(x)") Slice slice, @SqlType(CodePointsType.NAME) int[] codePointsToTrim)
     {
-        int[] codePointsToTrim = toCodePoints(charactersToTrim);
         return SliceUtf8.rightTrim(slice, codePointsToTrim);
     }
 
@@ -477,21 +477,23 @@ public final class StringFunctions
     @ScalarFunction("trim")
     @LiteralParameters("x")
     @SqlType("varchar(x)")
-    public static Slice trim(@SqlType("varchar(x)") Slice slice, @SqlType(StandardTypes.VARCHAR) Slice charactersToTrim)
+    public static Slice trim(@SqlType("varchar(x)") Slice slice, @SqlType(CodePointsType.NAME) int[] codePointsToTrim)
     {
-        int[] codePointsToTrim = toCodePoints(charactersToTrim);
         return SliceUtf8.trim(slice, codePointsToTrim);
     }
 
-    private static int[] toCodePoints(Slice slice)
+    @LiteralParameters("x")
+    @ScalarOperator(OperatorType.CAST)
+    @SqlType(CodePointsType.NAME)
+    public static int[] castToCodePoints(@SqlType("varchar(x)") Slice slice)
     {
-        int[] codePointsToTrim = new int[safeCountCodePoints(slice)];
+        int[] codePoints = new int[safeCountCodePoints(slice)];
         int position = 0;
-        for (int index = 0; index < codePointsToTrim.length; index++) {
-            codePointsToTrim[index] = getCodePointAt(slice, position);
+        for (int index = 0; index < codePoints.length; index++) {
+            codePoints[index] = getCodePointAt(slice, position);
             position += lengthOfCodePoint(slice, position);
         }
-        return codePointsToTrim;
+        return codePoints;
     }
 
     private static int safeCountCodePoints(Slice slice)
