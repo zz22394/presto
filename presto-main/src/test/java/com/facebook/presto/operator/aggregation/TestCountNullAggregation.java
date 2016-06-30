@@ -13,14 +13,12 @@
  */
 package com.facebook.presto.operator.aggregation;
 
-import com.facebook.presto.metadata.FunctionListBuilder;
 import com.facebook.presto.operator.aggregation.state.NullableLongState;
 import com.facebook.presto.spi.block.Block;
 import com.facebook.presto.spi.block.BlockBuilder;
 import com.facebook.presto.spi.block.BlockBuilderStatus;
 import com.facebook.presto.spi.type.StandardTypes;
 import com.facebook.presto.type.SqlType;
-import com.facebook.presto.type.TypeRegistry;
 import com.google.common.collect.ImmutableList;
 import org.testng.annotations.BeforeClass;
 
@@ -34,7 +32,7 @@ public class TestCountNullAggregation
     @BeforeClass
     public void setup()
     {
-        functionRegistry.addFunctions(new FunctionListBuilder(new TypeRegistry()).aggregate(CountNull.class).getFunctions());
+        functionRegistry.addFunctions(ImmutableList.of(AggregationCompiler.generateAggregationBindableFunction(CountNull.class)));
     }
 
     @Override
