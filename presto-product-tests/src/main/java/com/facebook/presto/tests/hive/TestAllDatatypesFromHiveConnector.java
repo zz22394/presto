@@ -215,7 +215,6 @@ public class TestAllDatatypesFromHiveConnector
                 DATE,
                 LONGNVARCHAR,
                 LONGNVARCHAR,
-                LONGNVARCHAR,
                 BOOLEAN,
                 LONGVARBINARY
         );
