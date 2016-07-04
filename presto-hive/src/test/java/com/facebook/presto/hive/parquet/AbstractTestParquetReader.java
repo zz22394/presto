@@ -45,7 +45,6 @@ import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 import static com.facebook.presto.spi.type.DateType.DATE;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
-import static com.facebook.presto.spi.type.FloatType.FLOAT;
 import static com.facebook.presto.spi.type.IntegerType.INTEGER;
 import static com.facebook.presto.spi.type.TimeZoneKey.UTC_KEY;
 import static com.facebook.presto.spi.type.TimestampType.TIMESTAMP;
@@ -177,21 +176,7 @@ public abstract class AbstractTestParquetReader
     public void testFloatSequence()
             throws Exception
     {
-        tester.testRoundTrip(javaFloatObjectInspector, floatSequence(0.0f, 0.1f, 30_000), FLOAT);
-    }
-
-    @Test
-    public void testFloatNaNInfinity()
-            throws Exception
-    {
-        tester.testRoundTrip(javaFloatObjectInspector, ImmutableList.of(1000.0f, -1.23f, Float.POSITIVE_INFINITY), FLOAT);
-        tester.testRoundTrip(javaFloatObjectInspector, ImmutableList.of(-1000.0f, Float.NEGATIVE_INFINITY, 1.23f), FLOAT);
-        tester.testRoundTrip(javaFloatObjectInspector, ImmutableList.of(0.0f, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY), FLOAT);
-
-        tester.testRoundTrip(javaFloatObjectInspector, ImmutableList.of(Float.NaN, -0.0f, 1.0f), FLOAT);
-        tester.testRoundTrip(javaFloatObjectInspector, ImmutableList.of(Float.NaN, -1.0f, Float.POSITIVE_INFINITY), FLOAT);
-        tester.testRoundTrip(javaFloatObjectInspector, ImmutableList.of(Float.NaN, Float.NEGATIVE_INFINITY, 1.0f), FLOAT);
-        tester.testRoundTrip(javaFloatObjectInspector, ImmutableList.of(Float.NaN, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY), FLOAT);
+        tester.testRoundTrip(javaFloatObjectInspector, floatSequence(0.0f, 0.1f, 30_000), AbstractTestParquetReader::floatToDouble, DOUBLE);
     }
 
     @Test
@@ -373,6 +358,14 @@ public abstract class AbstractTestParquetReader
     private static ContiguousSet<Integer> intsBetween(int lowerInclusive, int upperExclusive)
     {
         return ContiguousSet.create(Range.openClosed(lowerInclusive, upperExclusive), DiscreteDomain.integers());
+    }
+
+    private static Double floatToDouble(Float input)
+    {
+        if (input == null) {
+            return null;
+        }
+        return input.doubleValue();
     }
 
     private static Byte intToByte(Integer input)
