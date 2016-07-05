@@ -83,6 +83,7 @@ import com.facebook.presto.sql.tree.NodeLocation;
 import com.facebook.presto.sql.tree.NotExpression;
 import com.facebook.presto.sql.tree.NullIfExpression;
 import com.facebook.presto.sql.tree.NullLiteral;
+import com.facebook.presto.sql.tree.Parameter;
 import com.facebook.presto.sql.tree.Prepare;
 import com.facebook.presto.sql.tree.QualifiedName;
 import com.facebook.presto.sql.tree.QualifiedNameReference;
@@ -159,6 +160,7 @@ class AstBuilder
         extends SqlBaseBaseVisitor<Node>
 {
     private final ParsingOptions parsingOptions;
+    private int parameterPosition = 0;
 
     AstBuilder(ParsingOptions parsingOptions)
     {
@@ -1342,6 +1344,14 @@ class AstBuilder
                         .map((x) -> x.getChild(0).getPayload())
                         .map(Token.class::cast)
                         .map(AstBuilder::getIntervalFieldType));
+    }
+
+    @Override
+    public Node visitParameter(SqlBaseParser.ParameterContext context)
+    {
+        Parameter parameter = new Parameter(getLocation(context), parameterPosition);
+        parameterPosition++;
+        return parameter;
     }
 
     // ***************** arguments *****************
