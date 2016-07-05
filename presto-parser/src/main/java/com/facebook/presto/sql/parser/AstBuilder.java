@@ -355,7 +355,7 @@ class AstBuilder
     public Node visitExecute(SqlBaseParser.ExecuteContext context)
     {
         String name = context.identifier().getText();
-        return new Execute(getLocation(context), name);
+        return new Execute(getLocation(context), name, visit(context.expression(), Expression.class));
     }
 
     // ********************** query expressions ********************
