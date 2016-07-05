@@ -244,7 +244,7 @@ public class ExpressionInterpreter
         return visitor.process(expression, inputs);
     }
 
-    private static class ConstantExpressionVerifierVisitor
+    public static class ConstantExpressionVerifierVisitor
             extends DefaultTraversalVisitor<Void, Void>
     {
         private final Set<Expression> columnReferences;

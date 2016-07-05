@@ -6910,6 +6910,17 @@ public abstract class AbstractTestQueries
     }
 
     @Test
+    public void testExecuteWithUsing()
+            throws Exception
+    {
+        String query = "SELECT a + ?, count(1) FROM (VALUES 1, 2, 3, 2) t(a) GROUP BY a + ? HAVING count(1) > ?";
+        Session session = getSession().withPreparedStatement("my_query", query);
+        assertQuery(session,
+                "EXECUTE my_query USING 1, 1, 0",
+                "VALUES (2, 1), (3, 2), (4, 1)");
+    }
+
+    @Test
     public void testExecuteNoSuchQuery()
     {
         assertQueryFails("EXECUTE my_query", "Prepared statement not found: my_query");
