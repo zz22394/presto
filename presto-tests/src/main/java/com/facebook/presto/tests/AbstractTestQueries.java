@@ -56,6 +56,7 @@ import static com.facebook.presto.spi.type.TimeWithTimeZoneType.TIME_WITH_TIME_Z
 import static com.facebook.presto.spi.type.TimestampType.TIMESTAMP;
 import static com.facebook.presto.spi.type.TimestampWithTimeZoneType.TIMESTAMP_WITH_TIME_ZONE;
 import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.sql.analyzer.SemanticErrorCode.INVALID_PARAMETER_USAGE;
 import static com.facebook.presto.sql.analyzer.SemanticErrorCode.MISSING_SCHEMA;
 import static com.facebook.presto.sql.tree.ExplainType.Type.DISTRIBUTED;
 import static com.facebook.presto.sql.tree.ExplainType.Type.LOGICAL;
@@ -4675,6 +4676,22 @@ public abstract class AbstractTestQueries
     }
 
     @Test
+    public void testExplainExecuteWithUsing()
+    {
+        Session session = getSession().withPreparedStatement("my_query", "SELECT * FROM orders where orderkey < ?");
+        MaterializedResult result = computeActual(session, "EXPLAIN (TYPE LOGICAL) EXECUTE my_query USING 7");
+        assertEquals(getOnlyElement(result.getOnlyColumnAsSet()), getExplainPlan("SELECT * FROM orders where orderkey < 7", LOGICAL));
+    }
+
+    @Test
+    public void testExplainSetSessionWithUsing()
+    {
+        Session session = getSession().withPreparedStatement("my_query", "SET SESSION foo = ?");
+        MaterializedResult result = computeActual(session, "EXPLAIN (TYPE LOGICAL) EXECUTE my_query USING 7");
+        assertEquals(getOnlyElement(result.getOnlyColumnAsSet()), "SET SESSION foo = 7");
+    }
+
+    @Test
     public void testShowCatalogs()
             throws Exception
     {
@@ -6965,6 +6982,17 @@ public abstract class AbstractTestQueries
     }
 
     @Test
+    public void testExecuteWithUsing()
+            throws Exception
+    {
+        String query = "SELECT a + ?, count(1) FROM (VALUES 1, 2, 3, 2) t(a) GROUP BY a + ? HAVING count(1) > ?";
+        Session session = getSession().withPreparedStatement("my_query", query);
+        assertQuery(session,
+                "EXECUTE my_query USING 1, 1, 0",
+                "VALUES (2, 1), (3, 2), (4, 1)");
+    }
+
+    @Test
     public void testExecuteNoSuchQuery()
     {
         assertQueryFails("EXECUTE my_query", "Prepared statement not found: my_query");
@@ -6973,6 +7001,15 @@ public abstract class AbstractTestQueries
     @Test
     public void testParametersNonPreparedStatement()
     {
-        assertQueryFails("SELECT ?, 1", "line 1:8: Parameters are only allowed in prepared statements");
+        try {
+            computeActual("SELECT ?, 1");
+            fail("parameters not in prepared statements should fail");
+        }
+        catch (SemanticException e) {
+            assertEquals(e.getCode(), INVALID_PARAMETER_USAGE);
+        }
+        catch (RuntimeException e) {
+            assertEquals(e.getMessage(), "line 1:1: Incorrect number of parameters: expected 1 but found 0");
+        }
     }
 }

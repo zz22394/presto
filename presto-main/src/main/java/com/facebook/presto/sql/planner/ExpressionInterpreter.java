@@ -149,9 +149,9 @@ public class ExpressionInterpreter
         return new ExpressionInterpreter(expression, metadata, session, expressionTypes, true);
     }
 
-    public static Object evaluateConstantExpression(Expression expression, Type expectedType, Metadata metadata, Session session)
+    public static Object evaluateConstantExpression(Expression expression, Type expectedType, Metadata metadata, Session session, List<Expression> parameters)
     {
-        ExpressionAnalyzer analyzer = createConstantAnalyzer(metadata, session);
+        ExpressionAnalyzer analyzer = createConstantAnalyzer(metadata, session, parameters);
         analyzer.analyze(expression, Scope.builder().build());
 
         Type actualType = analyzer.getExpressionTypes().get(expression);
@@ -164,10 +164,15 @@ public class ExpressionInterpreter
         IdentityHashMap<Expression, Type> coercions = new IdentityHashMap<>();
         coercions.putAll(analyzer.getExpressionCoercions());
         coercions.put(expression, expectedType);
-        return evaluateConstantExpression(expression, coercions, metadata, session, ImmutableSet.of());
+        return evaluateConstantExpression(expression, coercions, metadata, session, ImmutableSet.of(), parameters);
     }
 
-    public static Object evaluateConstantExpression(Expression expression, IdentityHashMap<Expression, Type> coercions, Metadata metadata, Session session, Set<Expression> columnReferences)
+    public static Object evaluateConstantExpression(
+            Expression expression,
+            IdentityHashMap<Expression, Type> coercions,
+            Metadata metadata, Session session,
+            Set<Expression> columnReferences,
+            List<Expression> parameters)
     {
         requireNonNull(columnReferences, "columnReferences is null");
 
@@ -199,7 +204,7 @@ public class ExpressionInterpreter
 
         // The optimization above may have rewritten the expression tree which breaks all the identity maps, so redo the analysis
         // to re-analyze coercions that might be necessary
-        ExpressionAnalyzer analyzer = createConstantAnalyzer(metadata, session);
+        ExpressionAnalyzer analyzer = createConstantAnalyzer(metadata, session, parameters);
         analyzer.analyze(canonicalized, Scope.builder().build());
 
         // evaluate the expression
@@ -243,7 +248,7 @@ public class ExpressionInterpreter
         return visitor.process(expression, inputs);
     }
 
-    private static class ConstantExpressionVerifierVisitor
+    public static class ConstantExpressionVerifierVisitor
             extends DefaultTraversalVisitor<Void, Void>
     {
         private final Set<Expression> columnReferences;
