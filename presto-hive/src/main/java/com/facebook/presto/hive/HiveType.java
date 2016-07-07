@@ -52,7 +52,6 @@ import static com.facebook.presto.spi.type.CharType.createCharType;
 import static com.facebook.presto.spi.type.DateType.DATE;
 import static com.facebook.presto.spi.type.DecimalType.createDecimalType;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
-import static com.facebook.presto.spi.type.FloatType.FLOAT;
 import static com.facebook.presto.spi.type.IntegerType.INTEGER;
 import static com.facebook.presto.spi.type.SmallintType.SMALLINT;
 import static com.facebook.presto.spi.type.TimestampType.TIMESTAMP;
@@ -240,9 +239,6 @@ public final class HiveType
         if (DOUBLE.equals(type)) {
             return HIVE_DOUBLE.typeInfo;
         }
-        if (FLOAT.equals(type)) {
-            return HIVE_FLOAT.typeInfo;
-        }
         if (type instanceof VarcharType) {
             VarcharType varcharType = (VarcharType) type;
             int varcharLength = varcharType.getLength();
@@ -354,7 +350,7 @@ public final class HiveType
             case LONG:
                 return BIGINT;
             case FLOAT:
-                return FLOAT;
+                return DOUBLE;
             case DOUBLE:
                 return DOUBLE;
             case STRING:
