@@ -24,6 +24,7 @@ import com.facebook.presto.sql.tree.Node;
 import com.facebook.presto.sql.tree.NotExpression;
 import com.facebook.presto.sql.tree.QualifiedName;
 import com.facebook.presto.sql.tree.QualifiedNameReference;
+import com.facebook.presto.sql.tree.StringLiteral;
 
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
@@ -86,6 +87,16 @@ final class ExpressionVerifier
         if (expectedExpression instanceof LongLiteral) {
             LongLiteral expected = (LongLiteral) expectedExpression;
             return actual.getValue() == expected.getValue();
+        }
+        return false;
+    }
+
+    @Override
+    protected Boolean visitStringLiteral(StringLiteral actual, Expression expectedExpression)
+    {
+        if (expectedExpression instanceof StringLiteral) {
+            StringLiteral expected = (StringLiteral) expectedExpression;
+            return actual.getValue().equals(expected.getValue());
         }
         return false;
     }

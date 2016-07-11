@@ -17,6 +17,7 @@ import com.facebook.presto.sql.analyzer.FeaturesConfig;
 import com.facebook.presto.sql.planner.Plan;
 import com.facebook.presto.sql.planner.assertions.PlanAssert;
 import com.facebook.presto.sql.planner.assertions.PlanMatchPattern;
+import com.facebook.presto.sql.planner.plan.JoinNode;
 import com.facebook.presto.sql.planner.plan.WindowNode;
 import com.facebook.presto.testing.LocalQueryRunner;
 import com.facebook.presto.tpch.TpchConnectorFactory;
@@ -174,7 +175,7 @@ public class TestMergeIdenticalWindows
 
         assertUnitPlan(sql,
                 anyTree(
-                        join(ImmutableList.of(),
+                        join(JoinNode.Type.INNER, ImmutableList.of(),
                                 any(
                                         window(ImmutableList.of(functionCall("sum", "*")),
                                                 anyTree())),
