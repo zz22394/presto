@@ -3,18 +3,11 @@ Presto Documentation
 ####################
 
 .. toctree::
-   :hidden:
-
-   develop
-
-
-.. toctree::
     :maxdepth: 2
     :numbered: 2
 
     overview
     system-requirements
-    installation
     getting-started
     sandbox-vms
     server-installation-cluster-automated
@@ -29,6 +22,9 @@ Presto Documentation
     migration
     release
 
+.. toctree::
+   :hidden:
 
+   hidden
     
 .. Note: If "release" is not the last item, the CSS must be updated.
