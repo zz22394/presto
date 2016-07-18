@@ -43,12 +43,20 @@ script:
     fi
   - |
     if [ -v PRODUCT_TESTS ]; then
-      presto-product-tests/bin/run_on_docker.sh singlenode -x quarantine,big_query,storage_formats,mysql_connector,postgresql_connector,profile_specific_tests
-      presto-product-tests/bin/run_on_docker.sh singlenode-kerberos-hdfs-impersonation -g storage_formats,cli,hdfs_impersonation,authorization
+      presto-product-tests/bin/run_on_docker.sh \
+        singlenode -x quarantine,big_query,storage_formats,mysql_connector,postgresql_connector,profile_specific_tests
+    fi
+  - |
+    if [ -v PRODUCT_TESTS ]; then
+      presto-product-tests/bin/run_on_docker.sh \
+        singlenode-kerberos-hdfs-impersonation -g storage_formats,cli,hdfs_impersonation,authorization
     fi
   - |
     if [ -v INTEGRATION_TESTS ]; then
       presto-hive-hadoop2/bin/run_on_docker.sh
+    fi
+  - |
+    if [ -v INTEGRATION_TESTS ]; then
       ./mvnw install -DskipTests=true -B
     fi
 
