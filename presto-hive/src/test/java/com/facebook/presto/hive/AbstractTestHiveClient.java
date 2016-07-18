@@ -903,7 +903,7 @@ public abstract class AbstractTestHiveClient
         assertTableIsBucketed(tableHandle);
 
         ImmutableMap<ColumnHandle, NullableValue> bindings = ImmutableMap.<ColumnHandle, NullableValue>builder()
-                .put(columnHandles.get(columnIndex.get("t_float")), NullableValue.of(FLOAT, floatToRawIntBits(87.1f)))
+                .put(columnHandles.get(columnIndex.get("t_float")), NullableValue.of(FLOAT, (long) floatToRawIntBits(87.1f)))
                 .put(columnHandles.get(columnIndex.get("t_double")), NullableValue.of(DOUBLE, 88.2))
                 .build();
 
