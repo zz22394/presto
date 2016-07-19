@@ -424,6 +424,7 @@ public class PipelineContext
                 completedDrivers,
 
                 succinctBytes(memoryReservation.get()),
+                succinctBytes(0),
                 succinctBytes(systemMemoryReservation.get()),
 
                 queuedTime.snapshot(),
