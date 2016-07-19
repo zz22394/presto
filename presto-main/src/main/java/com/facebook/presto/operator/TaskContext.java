@@ -55,6 +55,7 @@ public class TaskContext
 
     private final DataSize operatorPreAllocatedMemory;
     private final AtomicLong memoryReservation = new AtomicLong();
+    private final AtomicLong revocableMemoryReservation = new AtomicLong();
     private final AtomicLong systemMemoryReservation = new AtomicLong();
 
     private final long createNanos = System.nanoTime();
@@ -156,6 +157,11 @@ public class TaskContext
         return operatorPreAllocatedMemory;
     }
 
+    public synchronized boolean isWaitingForRevocableMemory()
+    {
+        return queryContext.isWaitingForRevocableMemory();
+    }
+
     public synchronized ListenableFuture<?> reserveMemory(long bytes)
     {
         checkArgument(bytes >= 0, "bytes is negative");
@@ -163,6 +169,17 @@ public class TaskContext
         ListenableFuture<?> future = queryContext.reserveMemory(bytes);
         memoryReservation.getAndAdd(bytes);
         return future;
+    }
+
+    public synchronized boolean reserveRevocableMemory(long bytes)
+    {
+        checkArgument(bytes >= 0, "bytes is negative");
+
+        if (queryContext.reserveRevocableMemory(bytes)) {
+            revocableMemoryReservation.getAndAdd(bytes);
+            return true;
+        }
+        return false;
     }
 
     public synchronized ListenableFuture<?> reserveSystemMemory(long bytes)
@@ -190,6 +207,14 @@ public class TaskContext
         checkArgument(bytes <= memoryReservation.get(), "tried to free more memory than is reserved");
         memoryReservation.getAndAdd(-bytes);
         queryContext.freeMemory(bytes);
+    }
+
+    public synchronized void freeRevocableMemory(long bytes)
+    {
+        checkArgument(bytes >= 0, "bytes is negative");
+        checkArgument(bytes <= revocableMemoryReservation.get(), "tried to free more revocable memory than is reserved");
+        revocableMemoryReservation.getAndAdd(-bytes);
+        queryContext.freeRevocableMemory(bytes);
     }
 
     public synchronized void freeSystemMemory(long bytes)
@@ -374,7 +399,7 @@ public class TaskContext
                 completedDrivers,
                 cumulativeMemory.get(),
                 succinctBytes(memoryReservation.get()),
-                succinctBytes(0),
+                succinctBytes(revocableMemoryReservation.get()),
                 succinctBytes(systemMemoryReservation.get()),
                 new Duration(totalScheduledTime, NANOSECONDS).convertToMostSuccinctTimeUnit(),
                 new Duration(totalCpuTime, NANOSECONDS).convertToMostSuccinctTimeUnit(),

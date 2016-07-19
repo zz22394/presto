@@ -262,6 +262,22 @@ public class OperatorContext
         }
     }
 
+    public boolean reserveRevocableMemory(long bytes)
+    {
+        if (!driverContext.reserveRevocableMemory(bytes)) {
+            return false;
+        }
+
+        // TODO: use separate memory accounting for revocable memory pool?
+        long newReservation = memoryReservation.addAndGet(bytes);
+        if (newReservation > maxMemoryReservation) {
+            memoryReservation.getAndAdd(-bytes);
+            driverContext.freeRevocableMemory(bytes);
+            return false;
+        }
+        return true;
+    }
+
     public boolean tryReserveMemory(long bytes)
     {
         if (!driverContext.tryReserveMemory(bytes)) {
@@ -282,6 +298,14 @@ public class OperatorContext
         checkArgument(bytes >= 0, "bytes is negative");
         checkArgument(bytes <= memoryReservation.get(), "tried to free more memory than is reserved");
         driverContext.freeMemory(bytes);
+        memoryReservation.getAndAdd(-bytes);
+    }
+
+    public void freeRevocableMemory(long bytes)
+    {
+        checkArgument(bytes >= 0, "bytes is negative");
+        checkArgument(bytes <= memoryReservation.get(), "tried to free more revocable memory than is reserved");
+        driverContext.freeRevocableMemory(bytes);
         memoryReservation.getAndAdd(-bytes);
     }
 

@@ -17,9 +17,11 @@ import com.facebook.presto.Session;
 import com.facebook.presto.execution.QueryId;
 import com.facebook.presto.execution.TaskStateMachine;
 import com.facebook.presto.operator.TaskContext;
+import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.SettableFuture;
 import io.airlift.units.DataSize;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -50,6 +52,12 @@ public class QueryContext
     private long reserved;
 
     @GuardedBy("this")
+    private long revocableReserved;
+
+    @GuardedBy("this")
+    private SettableFuture<?> revocableFuture;
+
+    @GuardedBy("this")
     private MemoryPool memoryPool;
 
     @GuardedBy("this")
@@ -62,6 +70,9 @@ public class QueryContext
         this.memoryPool = requireNonNull(memoryPool, "memoryPool is null");
         this.systemMemoryPool = requireNonNull(systemMemoryPool, "systemMemoryPool is null");
         this.executor = requireNonNull(executor, "executor is null");
+
+        this.revocableFuture = SettableFuture.create();
+        this.revocableFuture.set(null);
     }
 
     // TODO: This method should be removed, and the correct limit set in the constructor. However, due to the way QueryContext is constructed the memory limit is not known in advance
@@ -72,6 +83,11 @@ public class QueryContext
         maxMemory = memoryPool.getMaxBytes();
     }
 
+    public synchronized boolean isWaitingForRevocableMemory()
+    {
+        return !revocableFuture.isDone();
+    }
+
     public synchronized ListenableFuture<?> reserveMemory(long bytes)
     {
         checkArgument(bytes >= 0, "bytes is negative");
@@ -79,9 +95,35 @@ public class QueryContext
         if (reserved + bytes > maxMemory) {
             throw exceededLocalLimit(succinctBytes(maxMemory));
         }
+
+        if (willExceedMemoryLimit(bytes)) {
+            if (revocableFuture.isDone()) {
+                revocableFuture = SettableFuture.create();
+            }
+        }
+
         ListenableFuture<?> future = memoryPool.reserve(queryId, bytes);
         reserved += bytes;
-        return future;
+
+        if (revocableFuture.isDone()) {
+            return future;
+        }
+        else {
+            return Futures.allAsList(ImmutableList.of(revocableFuture, future));
+        }
+    }
+
+    public synchronized boolean reserveRevocableMemory(long bytes)
+    {
+        if (willExceedMemoryLimit(bytes)) {
+            return false;
+        }
+
+        if (memoryPool.tryReserve(queryId, bytes)) {
+            revocableReserved += bytes;
+            return true;
+        }
+        return false;
     }
 
     public synchronized ListenableFuture<?> reserveSystemMemory(long bytes)
@@ -97,7 +139,7 @@ public class QueryContext
     {
         checkArgument(bytes >= 0, "bytes is negative");
 
-        if (reserved + bytes > maxMemory) {
+        if (willExceedMemoryLimit(bytes)) {
             return false;
         }
         if (memoryPool.tryReserve(queryId, bytes)) {
@@ -112,6 +154,18 @@ public class QueryContext
         checkArgument(reserved - bytes >= 0, "tried to free more memory than is reserved");
         reserved -= bytes;
         memoryPool.free(queryId, bytes);
+    }
+
+    public synchronized void freeRevocableMemory(long bytes)
+    {
+        checkArgument(revocableReserved - bytes >= 0, "tried to free more revocable memory than is reserved");
+
+        revocableReserved -= bytes;
+        memoryPool.free(queryId, bytes);
+
+        if (!willExceedMemoryLimit(0)) {
+            revocableFuture.set(null);
+        }
     }
 
     public synchronized void freeSystemMemory(long bytes)
@@ -130,9 +184,9 @@ public class QueryContext
             return;
         }
         MemoryPool originalPool = memoryPool;
-        long originalReserved = reserved;
+        long originalReserved = reserved + revocableReserved;
         memoryPool = pool;
-        ListenableFuture<?> future = pool.reserve(queryId, reserved);
+        ListenableFuture<?> future = pool.reserve(queryId, reserved + revocableReserved);
         Futures.addCallback(future, new FutureCallback<Object>() {
             @Override
             public void onSuccess(Object result)
@@ -157,5 +211,10 @@ public class QueryContext
         TaskContext taskContext = new TaskContext(this, taskStateMachine, executor, session, operatorPreAllocatedMemory, verboseStats, cpuTimerEnabled);
         taskContexts.add(taskContext);
         return taskContext;
+    }
+
+    private synchronized boolean willExceedMemoryLimit(long bytes)
+    {
+        return reserved + revocableReserved + bytes > maxMemory;
     }
 }
