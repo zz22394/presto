@@ -49,6 +49,7 @@ public final class TestGroups
     public static final String BASIC_SQL = "basic_sql";
     public static final String AUTHORIZATION = "authorization";
     public static final String HIVE_1_1_0 = "hive_1_1_0";
+    public static final String ACTIVE_DIRECTORY = "active_directory";
 
     private TestGroups() {}
 }
