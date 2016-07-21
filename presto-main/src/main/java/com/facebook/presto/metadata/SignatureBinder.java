@@ -20,6 +20,7 @@ import com.facebook.presto.spi.type.Type;
 import com.facebook.presto.spi.type.TypeManager;
 import com.facebook.presto.spi.type.TypeSignature;
 import com.facebook.presto.spi.type.TypeSignatureParameter;
+import com.facebook.presto.spi.type.VarcharType;
 import com.facebook.presto.type.UnknownType;
 import com.google.common.collect.ImmutableList;
 
@@ -150,7 +151,7 @@ public class SignatureBinder
         }
 
         // TODO: Refactor VARCHAR function to accept parametrized VARCHAR(X) instead of VARCHAR and remove this hack
-        if (expectedSignature.getBase().equals(StandardTypes.VARCHAR) && expectedSignature.getParameters().isEmpty()) {
+        if ((expectedSignature.getBase().equals(StandardTypes.VARCHAR) && expectedSignature.getParameters().isEmpty()) || expectedSignature.equals(VarcharType.VARCHAR.getTypeSignature())) {
             return actualType.getTypeSignature().getBase().equals(StandardTypes.VARCHAR) ||
                     (allowCoercion && typeManager.coerceTypeBase(actualType, StandardTypes.VARCHAR).isPresent());
         }
@@ -211,12 +212,23 @@ public class SignatureBinder
             if (currentBoundType.equals(actualType)) {
                 return true;
             }
+
             if (allowCoercion) {
                 Optional<Type> commonSuperType = typeManager.getCommonSuperType(currentBoundType, actualType);
                 if (commonSuperType.isPresent() && typeVariableConstraint.canBind(commonSuperType.get())) {
                     variableBinder.setTypeVariable(variable, commonSuperType.get());
                     return true;
                 }
+            }
+
+            // FIXME this is workaround for problem with binding functions with variable arity
+            // and different length of VARCHAR which is a problem due to (#5671).
+            // This fix shouldn't break anything but for sure removes sanity check for future
+            // development.
+            if (currentBoundType.getTypeSignature().getBase().equals(StandardTypes.VARCHAR) &&
+                    actualType.getTypeSignature().getBase().equals(StandardTypes.VARCHAR)) {
+                variableBinder.setTypeVariable(variable, VarcharType.VARCHAR);
+                return true;
             }
         }
         return false;
