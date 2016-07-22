@@ -300,7 +300,7 @@ public class OperatorContext
         memoryFuture.get().set(null);
     }
 
-    public void transferMemoryToTaskContext(long taskBytes)
+    public synchronized void transferMemoryToTaskContext(long taskBytes)
     {
         long bytes = memoryReservation.getAndSet(0);
         driverContext.transferMemoryToTaskContext(bytes);
@@ -320,7 +320,7 @@ public class OperatorContext
         }
     }
 
-    public void setMemoryReservation(long newMemoryReservation)
+    public synchronized void setMemoryReservation(long newMemoryReservation)
     {
         checkArgument(newMemoryReservation >= 0, "newMemoryReservation is negative");
 
@@ -334,7 +334,7 @@ public class OperatorContext
         }
     }
 
-    public boolean trySetMemoryReservation(long newMemoryReservation)
+    public synchronized boolean trySetMemoryReservation(long newMemoryReservation)
     {
         checkArgument(newMemoryReservation >= 0, "newMemoryReservation is negative");
 
