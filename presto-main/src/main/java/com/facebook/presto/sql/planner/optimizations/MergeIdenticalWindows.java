@@ -14,7 +14,6 @@
 package com.facebook.presto.sql.planner.optimizations;
 
 import com.facebook.presto.Session;
-import com.facebook.presto.metadata.Signature;
 import com.facebook.presto.spi.type.Type;
 import com.facebook.presto.sql.planner.PlanNodeIdAllocator;
 import com.facebook.presto.sql.planner.Symbol;
@@ -22,7 +21,6 @@ import com.facebook.presto.sql.planner.SymbolAllocator;
 import com.facebook.presto.sql.planner.plan.PlanNode;
 import com.facebook.presto.sql.planner.plan.SimplePlanRewriter;
 import com.facebook.presto.sql.planner.plan.WindowNode;
-import com.facebook.presto.sql.tree.FunctionCall;
 import com.google.common.collect.ImmutableMap;
 
 import java.util.HashMap;
@@ -103,14 +101,13 @@ public class MergeIdenticalWindows
                 return node.getSource();
             }
 
-            Context.FunctionPair collectedFunctions = mergeContext.getCollectedFunctions(node);
+            ImmutableMap.Builder<Symbol, WindowNode.Function> collectedFunctions = mergeContext.getCollectedFunctions(node);
 
             return new WindowNode(
                     node.getId(),
                     node.getSource(),
                     node.getSpecification(),
-                    collectedFunctions.getWindowFunctions().build(),
-                    collectedFunctions.getSignatures().build(),
+                    collectedFunctions.build(),
                     node.getHashSymbol(),
                     node.getPrePartitionedInputs(),
                     node.getPreSortedOrderPrefix());
@@ -119,45 +116,28 @@ public class MergeIdenticalWindows
 
     private static final class Context
     {
-        private Map<WindowNode.Specification, FunctionPair> pairMap = new HashMap<>();
+        private Map<WindowNode.Specification, ImmutableMap.Builder<Symbol, WindowNode.Function>> functions = new HashMap<>();
 
         private boolean collectFunctions(WindowNode window)
         {
             WindowNode.Specification key = window.getSpecification();
-            FunctionPair pair = pairMap.get(key);
+            ImmutableMap.Builder<Symbol, WindowNode.Function> builder = functions.get(key);
 
-            if (pair == null) {
-                pair = new FunctionPair();
+            if (builder == null) {
+                builder = ImmutableMap.builder();
             }
 
-            pair.getWindowFunctions().putAll(window.getWindowFunctions());
-            pair.getSignatures().putAll(window.getSignatures());
-            return pairMap.put(key, pair) == null;
+            builder.putAll(window.getWindowFunctions());
+            return functions.put(key, builder) == null;
         }
 
-        private FunctionPair getCollectedFunctions(WindowNode window)
+        private ImmutableMap.Builder<Symbol, WindowNode.Function> getCollectedFunctions(WindowNode window)
         {
             WindowNode.Specification key = window.getSpecification();
             checkState(
-                    pairMap.containsKey(key),
+                    functions.containsKey(key),
                     "No pair for window specification. Tried to merge the same window twice?");
-            return pairMap.get(key);
-        }
-
-        private static class FunctionPair
-        {
-            private final ImmutableMap.Builder<Symbol, FunctionCall> windowFunctions = new ImmutableMap.Builder<>();
-            private final ImmutableMap.Builder<Symbol, Signature> signatures = new ImmutableMap.Builder<>();
-
-            public ImmutableMap.Builder<Symbol, FunctionCall> getWindowFunctions()
-            {
-                return windowFunctions;
-            }
-
-            public ImmutableMap.Builder<Symbol, Signature> getSignatures()
-            {
-                return signatures;
-            }
+            return functions.get(key);
         }
     }
 }
