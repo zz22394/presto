@@ -57,21 +57,21 @@ public class OperatorContext
     private final DriverContext driverContext;
     private final Executor executor;
 
-    private final AtomicLong intervalWallStart = new AtomicLong();
-    private final AtomicLong intervalCpuStart = new AtomicLong();
-    private final AtomicLong intervalUserStart = new AtomicLong();
+    private long intervalWallStart;
+    private long intervalCpuStart;
+    private long intervalUserStart;
 
-    private final AtomicLong addInputCalls = new AtomicLong();
-    private final AtomicLong addInputWallNanos = new AtomicLong();
-    private final AtomicLong addInputCpuNanos = new AtomicLong();
-    private final AtomicLong addInputUserNanos = new AtomicLong();
+    private long addInputCalls;
+    private long addInputWallNanos;
+    private long addInputCpuNanos;
+    private long addInputUserNanos;
     private final CounterStat inputDataSize = new CounterStat();
     private final CounterStat inputPositions = new CounterStat();
 
-    private final AtomicLong getOutputCalls = new AtomicLong();
-    private final AtomicLong getOutputWallNanos = new AtomicLong();
-    private final AtomicLong getOutputCpuNanos = new AtomicLong();
-    private final AtomicLong getOutputUserNanos = new AtomicLong();
+    private long getOutputCalls;
+    private long getOutputWallNanos;
+    private long getOutputCpuNanos;
+    private long getOutputUserNanos;
     private final CounterStat outputDataSize = new CounterStat();
     private final CounterStat outputPositions = new CounterStat();
 
@@ -79,14 +79,14 @@ public class OperatorContext
     private final AtomicReference<BlockedMonitor> blockedMonitor = new AtomicReference<>();
     private final AtomicLong blockedWallNanos = new AtomicLong();
 
-    private final AtomicLong finishCalls = new AtomicLong();
-    private final AtomicLong finishWallNanos = new AtomicLong();
-    private final AtomicLong finishCpuNanos = new AtomicLong();
-    private final AtomicLong finishUserNanos = new AtomicLong();
+    private long finishCalls;
+    private long finishWallNanos;
+    private long finishCpuNanos;
+    private long finishUserNanos;
 
-    private final AtomicLong memoryReservation = new AtomicLong();
+    private long memoryReservation;
     private final OperatorSystemMemoryContext systemMemoryContext;
-    private final long maxMemoryReservation;
+    private long maxMemoryReservation;
 
     private final AtomicReference<Supplier<?>> infoSupplier = new AtomicReference<>();
     private final boolean collectTimings;
@@ -133,19 +133,19 @@ public class OperatorContext
         return driverContext.isDone();
     }
 
-    public void startIntervalTimer()
+    public synchronized void startIntervalTimer()
     {
-        intervalWallStart.set(System.nanoTime());
-        intervalCpuStart.set(currentThreadCpuTime());
-        intervalUserStart.set(currentThreadUserTime());
+        intervalWallStart = System.nanoTime();
+        intervalCpuStart = currentThreadCpuTime();
+        intervalUserStart = currentThreadUserTime();
     }
 
-    public void recordAddInput(Page page)
+    public synchronized void recordAddInput(Page page)
     {
-        addInputCalls.incrementAndGet();
-        recordInputWallNanos(nanosBetween(intervalWallStart.get(), System.nanoTime()));
-        addInputCpuNanos.getAndAdd(nanosBetween(intervalCpuStart.get(), currentThreadCpuTime()));
-        addInputUserNanos.getAndAdd(nanosBetween(intervalUserStart.get(), currentThreadUserTime()));
+        addInputCalls++;
+        recordInputWallNanos(nanosBetween(intervalWallStart, System.nanoTime()));
+        addInputCpuNanos += nanosBetween(intervalCpuStart, currentThreadCpuTime());
+        addInputUserNanos += nanosBetween(intervalUserStart, currentThreadUserTime());
 
         if (page != null) {
             inputDataSize.update(page.getSizeInBytes());
@@ -153,29 +153,30 @@ public class OperatorContext
         }
     }
 
-    public void recordGeneratedInput(long sizeInBytes, long positions)
+    public synchronized void recordGeneratedInput(long sizeInBytes, long positions)
     {
         recordGeneratedInput(sizeInBytes, positions, 0);
     }
 
-    public void recordGeneratedInput(long sizeInBytes, long positions, long readNanos)
+    public synchronized void recordGeneratedInput(long sizeInBytes, long positions, long readNanos)
     {
         inputDataSize.update(sizeInBytes);
         inputPositions.update(positions);
         recordInputWallNanos(readNanos);
     }
 
-    public long recordInputWallNanos(long readNanos)
+    public synchronized long recordInputWallNanos(long readNanos)
     {
-        return addInputWallNanos.getAndAdd(readNanos);
+        addInputWallNanos += readNanos;
+        return addInputWallNanos;
     }
 
-    public void recordGetOutput(Page page)
+    public synchronized void recordGetOutput(Page page)
     {
-        getOutputCalls.incrementAndGet();
-        getOutputWallNanos.getAndAdd(nanosBetween(intervalWallStart.get(), System.nanoTime()));
-        getOutputCpuNanos.getAndAdd(nanosBetween(intervalCpuStart.get(), currentThreadCpuTime()));
-        getOutputUserNanos.getAndAdd(nanosBetween(intervalUserStart.get(), currentThreadUserTime()));
+        getOutputCalls++;
+        getOutputWallNanos += nanosBetween(intervalWallStart, System.nanoTime());
+        getOutputCpuNanos += nanosBetween(intervalCpuStart, currentThreadCpuTime());
+        getOutputUserNanos += nanosBetween(intervalUserStart, currentThreadUserTime());
 
         if (page != null) {
             outputDataSize.update(page.getSizeInBytes());
@@ -183,13 +184,13 @@ public class OperatorContext
         }
     }
 
-    public void recordGeneratedOutput(long sizeInBytes, long positions)
+    public synchronized void recordGeneratedOutput(long sizeInBytes, long positions)
     {
         outputDataSize.update(sizeInBytes);
         outputPositions.update(positions);
     }
 
-    public void recordBlocked(ListenableFuture<?> blocked)
+    public synchronized void recordBlocked(ListenableFuture<?> blocked)
     {
         requireNonNull(blocked, "blocked is null");
 
@@ -204,25 +205,25 @@ public class OperatorContext
         // Do not register blocked with driver context.  The driver handles this directly.
     }
 
-    public void recordFinish()
+    public synchronized void recordFinish()
     {
-        finishCalls.incrementAndGet();
-        finishWallNanos.getAndAdd(nanosBetween(intervalWallStart.get(), System.nanoTime()));
-        finishCpuNanos.getAndAdd(nanosBetween(intervalCpuStart.get(), currentThreadCpuTime()));
-        finishUserNanos.getAndAdd(nanosBetween(intervalUserStart.get(), currentThreadUserTime()));
+        finishCalls++;
+        finishWallNanos += nanosBetween(intervalWallStart, System.nanoTime());
+        finishCpuNanos += nanosBetween(intervalCpuStart, currentThreadCpuTime());
+        finishUserNanos += nanosBetween(intervalUserStart, currentThreadUserTime());
     }
 
-    public ListenableFuture<?> isWaitingForMemory()
+    public synchronized ListenableFuture<?> isWaitingForMemory()
     {
         return memoryFuture.get();
     }
 
-    public DataSize getOperatorPreAllocatedMemory()
+    public synchronized DataSize getOperatorPreAllocatedMemory()
     {
         return driverContext.getOperatorPreAllocatedMemory();
     }
 
-    public void reserveMemory(long bytes)
+    public synchronized void reserveMemory(long bytes)
     {
         ListenableFuture<?> future = driverContext.reserveMemory(bytes);
         if (!future.isDone()) {
@@ -255,54 +256,55 @@ public class OperatorContext
                 }
             });
         }
-        long newReservation = memoryReservation.addAndGet(bytes);
-        if (newReservation > maxMemoryReservation) {
-            memoryReservation.getAndAdd(-bytes);
+        memoryReservation += bytes;
+        if (memoryReservation > maxMemoryReservation) {
+            memoryReservation -= bytes;
             throw exceededLocalLimit(new DataSize(maxMemoryReservation, BYTE));
         }
     }
 
-    public boolean tryReserveMemory(long bytes)
+    public synchronized boolean tryReserveMemory(long bytes)
     {
         if (!driverContext.tryReserveMemory(bytes)) {
             return false;
         }
 
-        long newReservation = memoryReservation.addAndGet(bytes);
-        if (newReservation > maxMemoryReservation) {
-            memoryReservation.getAndAdd(-bytes);
+        memoryReservation += bytes;
+        if (memoryReservation > maxMemoryReservation) {
+            memoryReservation -= bytes;
             driverContext.freeMemory(bytes);
             return false;
         }
         return true;
     }
 
-    public void freeMemory(long bytes)
+    public synchronized void freeMemory(long bytes)
     {
         checkArgument(bytes >= 0, "bytes is negative");
-        checkArgument(bytes <= memoryReservation.get(), "tried to free more memory than is reserved");
+        checkArgument(bytes <= memoryReservation, "tried to free more memory than is reserved");
         driverContext.freeMemory(bytes);
-        memoryReservation.getAndAdd(-bytes);
+        memoryReservation -= bytes;
     }
 
-    public AbstractAggregatedMemoryContext getSystemMemoryContext()
+    public synchronized AbstractAggregatedMemoryContext getSystemMemoryContext()
     {
         return systemMemoryContext;
     }
 
-    public void closeSystemMemoryContext()
+    public synchronized void closeSystemMemoryContext()
     {
         systemMemoryContext.close();
     }
 
-    public void moreMemoryAvailable()
+    public synchronized void moreMemoryAvailable()
     {
         memoryFuture.get().set(null);
     }
 
     public synchronized void transferMemoryToTaskContext(long taskBytes)
     {
-        long bytes = memoryReservation.getAndSet(0);
+        long bytes = memoryReservation;
+        memoryReservation = 0;
         driverContext.transferMemoryToTaskContext(bytes);
 
         TaskContext taskContext = driverContext.getPipelineContext().getTaskContext();
@@ -324,7 +326,7 @@ public class OperatorContext
     {
         checkArgument(newMemoryReservation >= 0, "newMemoryReservation is negative");
 
-        long delta = newMemoryReservation - memoryReservation.get();
+        long delta = newMemoryReservation - memoryReservation;
 
         if (delta > 0) {
             reserveMemory(delta);
@@ -338,7 +340,7 @@ public class OperatorContext
     {
         checkArgument(newMemoryReservation >= 0, "newMemoryReservation is negative");
 
-        long delta = newMemoryReservation - memoryReservation.get();
+        long delta = newMemoryReservation - memoryReservation;
 
         if (delta > 0) {
             return tryReserveMemory(delta);
@@ -349,7 +351,7 @@ public class OperatorContext
         }
     }
 
-    public void setInfoSupplier(Supplier<?> infoSupplier)
+    public synchronized void setInfoSupplier(Supplier<?> infoSupplier)
     {
         requireNonNull(infoSupplier, "infoProvider is null");
         this.infoSupplier.set(infoSupplier);
@@ -375,7 +377,7 @@ public class OperatorContext
         return outputPositions;
     }
 
-    public OperatorStats getOperatorStats()
+    public synchronized OperatorStats getOperatorStats()
     {
         Supplier<?> infoSupplier = this.infoSupplier.get();
         Object info = null;
@@ -388,28 +390,28 @@ public class OperatorContext
                 planNodeId,
                 operatorType,
 
-                addInputCalls.get(),
-                new Duration(addInputWallNanos.get(), NANOSECONDS).convertToMostSuccinctTimeUnit(),
-                new Duration(addInputCpuNanos.get(), NANOSECONDS).convertToMostSuccinctTimeUnit(),
-                new Duration(addInputUserNanos.get(), NANOSECONDS).convertToMostSuccinctTimeUnit(),
+                addInputCalls,
+                new Duration(addInputWallNanos, NANOSECONDS).convertToMostSuccinctTimeUnit(),
+                new Duration(addInputCpuNanos, NANOSECONDS).convertToMostSuccinctTimeUnit(),
+                new Duration(addInputUserNanos, NANOSECONDS).convertToMostSuccinctTimeUnit(),
                 succinctBytes(inputDataSize.getTotalCount()),
                 inputPositions.getTotalCount(),
 
-                getOutputCalls.get(),
-                new Duration(getOutputWallNanos.get(), NANOSECONDS).convertToMostSuccinctTimeUnit(),
-                new Duration(getOutputCpuNanos.get(), NANOSECONDS).convertToMostSuccinctTimeUnit(),
-                new Duration(getOutputUserNanos.get(), NANOSECONDS).convertToMostSuccinctTimeUnit(),
+                getOutputCalls,
+                new Duration(getOutputWallNanos, NANOSECONDS).convertToMostSuccinctTimeUnit(),
+                new Duration(getOutputCpuNanos, NANOSECONDS).convertToMostSuccinctTimeUnit(),
+                new Duration(getOutputUserNanos, NANOSECONDS).convertToMostSuccinctTimeUnit(),
                 succinctBytes(outputDataSize.getTotalCount()),
                 outputPositions.getTotalCount(),
 
                 new Duration(blockedWallNanos.get(), NANOSECONDS).convertToMostSuccinctTimeUnit(),
 
-                finishCalls.get(),
-                new Duration(finishWallNanos.get(), NANOSECONDS).convertToMostSuccinctTimeUnit(),
-                new Duration(finishCpuNanos.get(), NANOSECONDS).convertToMostSuccinctTimeUnit(),
-                new Duration(finishUserNanos.get(), NANOSECONDS).convertToMostSuccinctTimeUnit(),
+                finishCalls,
+                new Duration(finishWallNanos, NANOSECONDS).convertToMostSuccinctTimeUnit(),
+                new Duration(finishCpuNanos, NANOSECONDS).convertToMostSuccinctTimeUnit(),
+                new Duration(finishUserNanos, NANOSECONDS).convertToMostSuccinctTimeUnit(),
 
-                succinctBytes(memoryReservation.get()),
+                succinctBytes(memoryReservation),
                 succinctBytes(systemMemoryContext.getReservedBytes()),
                 memoryFuture.get().isDone() ? Optional.empty() : Optional.of(WAITING_FOR_MEMORY),
                 info);
