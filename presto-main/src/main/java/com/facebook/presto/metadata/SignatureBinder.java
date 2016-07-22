@@ -22,13 +22,20 @@ import com.facebook.presto.spi.type.TypeSignature;
 import com.facebook.presto.spi.type.TypeSignatureParameter;
 import com.facebook.presto.type.UnknownType;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterators;
+import com.google.common.collect.PeekingIterator;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.facebook.presto.type.TypeCalculation.calculateLiteralValue;
+import static com.facebook.presto.util.ImmutableCollectors.toImmutableList;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Iterables.getLast;
 import static java.util.Objects.requireNonNull;
@@ -127,16 +134,189 @@ public class SignatureBinder
             }
         }
 
+        ImmutableList.Builder<BoundVariables> argumentsBinds = ImmutableList.builder();
+        argumentsBinds.add(variableBinder.build());
         for (int i = 0; i < actualTypes.size(); i++) {
+            BoundVariables.Builder currentBind = BoundVariables.builder();
             // Get the current argument signature, or the last one, if this is a varargs function
             TypeSignature expectedArgumentSignature = expectedTypes.get(Math.min(i, expectedTypes.size() - 1));
             Type actualArgumentType = actualTypes.get(i);
-            if (!bind(expectedArgumentSignature, actualArgumentType, variableBinder)) {
+            if (!bind(expectedArgumentSignature, actualArgumentType, currentBind)) {
                 return false;
+            }
+            argumentsBinds.add(currentBind.build());
+        }
+
+        return resolveBinds(expectedTypes, actualTypes, argumentsBinds.build(), variableBinder);
+    }
+
+    private boolean resolveBinds(List<TypeSignature> expectedTypes, List<? extends Type> actualTypes, ImmutableList<BoundVariables> bounds, BoundVariables.Builder variableBinder)
+    {
+        if (!resolveTypeBinds(bounds, variableBinder))
+            return false;
+
+        return resolveLongBinds(expectedTypes, actualTypes, bounds, variableBinder);
+
+
+    }
+
+    private boolean resolveLongBinds(List<TypeSignature> expectedTypes, List<? extends Type> actualTypes, ImmutableList<BoundVariables> bounds, BoundVariables.Builder variableBinder)
+    {
+        Map<String, Set<Long>> conflicts = new HashMap();
+        BoundVariables bound = bounds.stream().reduce(
+                BoundVariables.builder().build(),
+                (x, y) -> {
+                    BoundVariables.Builder builder = BoundVariables.builder();
+                    for (Map.Entry<String, Long> bind : x.getLongVariables().entrySet()) {
+                        if ((!y.containsLongVariable(bind.getKey()) || y.getLongVariable(bind.getKey()).equals(bind.getValue())) && !conflicts.containsKey(bind.getKey())) {
+                            builder.setLongVariable(bind.getKey(), bind.getValue());
+                        }
+                        else {
+                            if (!conflicts.containsKey(bind.getKey())) {
+                                conflicts.put(bind.getKey(), new HashSet());
+                            }
+                            conflicts.get(bind.getKey()).add(bind.getValue());
+                            conflicts.get(bind.getKey()).add(y.getLongVariable(bind.getKey()));
+                        }
+                    }
+                    for (Map.Entry<String, Long> bind : y.getLongVariables().entrySet()) {
+                        if (!x.containsLongVariable(bind.getKey())) {
+                            if (!conflicts.containsKey(bind.getKey())) {
+                                builder.setLongVariable(bind.getKey(), bind.getValue());
+                            }
+                            else {
+                                conflicts.get(bind.getKey()).add(bind.getValue());
+                            }
+                        }
+                    }
+                    return builder.build();
+                }
+        );
+
+        if (conflicts.isEmpty()) {
+            for (Map.Entry<String, Long> bind : bound.getLongVariables().entrySet()) {
+                variableBinder.setLongVariable(bind.getKey(), bind.getValue());
+            }
+            return true;
+        }
+
+        if (!allowCoercion) {
+            return false;
+        }
+
+        BindCombinationsIterator conflictsSolutions = new BindCombinationsIterator(conflicts, bound);
+        Optional<BoundVariables> solution = Optional.empty();
+        while (conflictsSolutions.hasNext()) {
+            BoundVariables currentSolution = conflictsSolutions.next();
+            if (isSolutionValid(expectedTypes, actualTypes, currentSolution)) {
+                if (solution.isPresent()) {
+                    throw new RuntimeException("Ambiguous bindings.");
+                }
+                solution = Optional.of(currentSolution);
             }
         }
 
+        if (solution.isPresent()) {
+            for (Map.Entry<String, Long> bind : solution.get().getLongVariables().entrySet()) {
+                variableBinder.setLongVariable(bind.getKey(), bind.getValue());
+            }
+        }
+
+        return solution.isPresent();
+    }
+
+    private boolean resolveTypeBinds(ImmutableList<BoundVariables> bounds, BoundVariables.Builder variableBinder)
+    {
+        BoundVariables bound = bounds.stream().reduce(
+                BoundVariables.builder().build(),
+                (x, y) -> {
+                    BoundVariables.Builder builder = BoundVariables.builder();
+                    for (Map.Entry<String, Type> bind : x.getTypeVariables().entrySet()) {
+                        if ((!y.containsTypeVariable(bind.getKey()) || y.getTypeVariable(bind.getKey()).equals(bind.getValue()))) {
+                            builder.setTypeVariable(bind.getKey(), bind.getValue());
+                        }
+                        else {
+                            BoundVariables.builder().build();
+                        }
+                    }
+                    for (Map.Entry<String, Type> bind : y.getTypeVariables().entrySet()) {
+                        if (!x.containsTypeVariable(bind.getKey())) {
+                            builder.setTypeVariable(bind.getKey(), bind.getValue());
+                        }
+                        else {
+                            BoundVariables.builder().build();
+                        }
+                    }
+                    return builder.build();
+                }
+        );
+
+        if (bound.getTypeVariables().size() < variableBinder.build().getTypeVariables().size())
+            return false;
+
+        for (Map.Entry<String, Type> bind : bound.getTypeVariables().entrySet()) {
+            variableBinder.setTypeVariable(bind.getKey(), bind.getValue());
+        }
+
         return true;
+    }
+
+    private boolean isSolutionValid(List<TypeSignature> expectedTypes, List<? extends Type> actualTypes, BoundVariables currentSolution)
+    {
+        List<Type> resolvedTypes = bindVariables(expectedTypes, currentSolution).stream().map(x -> typeManager.getType(x)).collect(toImmutableList());
+        for (int i = 0; i < expectedTypes.size(); ++i) {
+            if (!typeManager.canCoerce(actualTypes.get(i), resolvedTypes.get(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private class BindCombinationsIterator implements Iterator<BoundVariables>
+    {
+        private final List<Map.Entry<String, Set<Long>>> conflicts;
+        private final List<PeekingIterator<Long>> conflictIterators;
+        private final BoundVariables boundVariables;
+
+        public BindCombinationsIterator(Map<String, Set<Long>> conflicts, BoundVariables boundVariables)
+        {
+            this.conflicts = ImmutableList.copyOf(conflicts.entrySet());
+            this.conflictIterators = this.conflicts.stream().map(x -> Iterators.peekingIterator(x.getValue().iterator())).collect(toList());
+            this.boundVariables = boundVariables;
+        }
+
+        @Override
+        public boolean hasNext()
+        {
+            return conflictIterators.get(conflictIterators.size() - 1).hasNext();
+        }
+
+        @Override
+        public BoundVariables next()
+        {
+            for (int i = 0; i < conflictIterators.size(); ++i) {
+                if (conflictIterators.get(i).hasNext()) {
+                    BoundVariables bound = peek();
+                    conflictIterators.get(i).next();
+                    return bound;
+                }
+                conflictIterators.remove(i);
+                conflictIterators.add(i, Iterators.peekingIterator(conflicts.get(i).getValue().iterator()));
+            }
+            throw new RuntimeException("This iterator has no next element");
+        }
+
+        public BoundVariables peek()
+        {
+            BoundVariables.Builder builder = BoundVariables.builder();
+            for (int i = 0; i < conflictIterators.size(); ++i) {
+                builder.setLongVariable(conflicts.get(i).getKey(), conflictIterators.get(i).peek());
+            }
+            for (Map.Entry<String, Long> confirmedBound : boundVariables.getLongVariables().entrySet()) {
+                builder.setLongVariable(confirmedBound.getKey(), confirmedBound.getValue());
+            }
+            return builder.build();
+        }
     }
 
     private boolean bind(
@@ -450,3 +630,4 @@ public class SignatureBinder
         }
     }
 }
+
