@@ -42,7 +42,7 @@ public final class VarcharOperators
     @LiteralParameters({"x", "y"})
     @ScalarOperator(EQUAL)
     @SqlType(StandardTypes.BOOLEAN)
-    public static boolean equal(@SqlType("varchar(x)") Slice left, @SqlType("varchar(y)") Slice right)
+    public static boolean equal(@SqlType("varchar(x)") Slice left, @SqlType("varchar(x)") Slice right)
     {
         return left.equals(right);
     }
@@ -50,7 +50,7 @@ public final class VarcharOperators
     @LiteralParameters({"x", "y"})
     @ScalarOperator(NOT_EQUAL)
     @SqlType(StandardTypes.BOOLEAN)
-    public static boolean notEqual(@SqlType("varchar(x)") Slice left, @SqlType("varchar(y)") Slice right)
+    public static boolean notEqual(@SqlType("varchar(x)") Slice left, @SqlType("varchar(x)") Slice right)
     {
         return !left.equals(right);
     }
@@ -58,7 +58,7 @@ public final class VarcharOperators
     @LiteralParameters({"x", "y"})
     @ScalarOperator(LESS_THAN)
     @SqlType(StandardTypes.BOOLEAN)
-    public static boolean lessThan(@SqlType("varchar(x)") Slice left, @SqlType("varchar(y)") Slice right)
+    public static boolean lessThan(@SqlType("varchar(x)") Slice left, @SqlType("varchar(x)") Slice right)
     {
         return left.compareTo(right) < 0;
     }
@@ -66,7 +66,7 @@ public final class VarcharOperators
     @LiteralParameters({"x", "y"})
     @ScalarOperator(LESS_THAN_OR_EQUAL)
     @SqlType(StandardTypes.BOOLEAN)
-    public static boolean lessThanOrEqual(@SqlType("varchar(x)") Slice left, @SqlType("varchar(y)") Slice right)
+    public static boolean lessThanOrEqual(@SqlType("varchar(x)") Slice left, @SqlType("varchar(x)") Slice right)
     {
         return left.compareTo(right) <= 0;
     }
@@ -74,7 +74,7 @@ public final class VarcharOperators
     @LiteralParameters({"x", "y"})
     @ScalarOperator(GREATER_THAN)
     @SqlType(StandardTypes.BOOLEAN)
-    public static boolean greaterThan(@SqlType("varchar(x)") Slice left, @SqlType("varchar(y)") Slice right)
+    public static boolean greaterThan(@SqlType("varchar(x)") Slice left, @SqlType("varchar(x)") Slice right)
     {
         return left.compareTo(right) > 0;
     }
@@ -82,7 +82,7 @@ public final class VarcharOperators
     @LiteralParameters({"x", "y"})
     @ScalarOperator(GREATER_THAN_OR_EQUAL)
     @SqlType(StandardTypes.BOOLEAN)
-    public static boolean greaterThanOrEqual(@SqlType("varchar(x)") Slice left, @SqlType("varchar(y)") Slice right)
+    public static boolean greaterThanOrEqual(@SqlType("varchar(x)") Slice left, @SqlType("varchar(x)") Slice right)
     {
         return left.compareTo(right) >= 0;
     }
@@ -90,7 +90,7 @@ public final class VarcharOperators
     @LiteralParameters({"x", "y", "z"})
     @ScalarOperator(BETWEEN)
     @SqlType(StandardTypes.BOOLEAN)
-    public static boolean between(@SqlType("varchar(x)") Slice value, @SqlType("varchar(y)") Slice min, @SqlType("varchar(z)") Slice max)
+    public static boolean between(@SqlType("varchar(x)") Slice value, @SqlType("varchar(x)") Slice min, @SqlType("varchar(x)") Slice max)
     {
         return min.compareTo(value) <= 0 && value.compareTo(max) <= 0;
     }
