@@ -63,7 +63,7 @@ public class TestHiveS3Connector
                         32767,
                         2147483647,
                         9223372036854775807L,
-                        123.34500122070312, // (double) 123.345f - see limitation #1
+                        123.345f,
                         234.567,
                         new BigDecimal("346"),
                         new BigDecimal("345.67800"),
@@ -95,7 +95,7 @@ public class TestHiveS3Connector
                         32767,
                         2147483647,
                         9223372036854775807L,
-                        123.34500122070312, // (double) 123.345f - see limitation #1
+                        123.345f,
                         234.567,
                         new BigDecimal("346"),
                         new BigDecimal("345.67800"),
@@ -127,7 +127,7 @@ public class TestHiveS3Connector
                         32767,
                         2147483647,
                         9223372036854775807L,
-                        123.34500122070312, // (double) 123.345f - see limitation #1
+                        123.345f,
                         234.567,
                         new BigDecimal("346"),
                         new BigDecimal("345.67800"),
@@ -160,7 +160,7 @@ public class TestHiveS3Connector
                         32767,
                         2147483647,
                         9223372036854775807L,
-                        123.34500122070312, // (double) 123.345f - see limitation #1
+                        123.345f,
                         234.567,
                         parseTimestampInUTC("2015-05-10 12:15:35.123"),
                         "ala ma kota",
@@ -188,7 +188,7 @@ public class TestHiveS3Connector
                 row("c_smallint", "smallint"),
                 row("c_int", "integer"),
                 row("c_bigint", "bigint"),
-                row("c_float", "double"),
+                row("c_float", "float"),
                 row("c_double", "double"),
                 row("c_decimal", "decimal(10,0)"),
                 row("c_decimal_w_params", "decimal(10,5)"),
@@ -209,7 +209,7 @@ public class TestHiveS3Connector
                 row("c_smallint", "smallint"),
                 row("c_int", "integer"),
                 row("c_bigint", "bigint"),
-                row("c_float", "double"),
+                row("c_float", "float"),
                 row("c_double", "double"),
                 row("c_timestamp", "timestamp"),
                 row("c_string", "varchar"),
