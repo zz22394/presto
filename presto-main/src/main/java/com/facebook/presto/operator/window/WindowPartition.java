@@ -16,20 +16,23 @@ package com.facebook.presto.operator.window;
 import com.facebook.presto.operator.PagesHashStrategy;
 import com.facebook.presto.operator.PagesIndex;
 import com.facebook.presto.spi.PageBuilder;
-import com.facebook.presto.spi.function.WindowFunction;
 import com.facebook.presto.spi.function.WindowIndex;
 import com.facebook.presto.sql.tree.FrameBound;
+import com.facebook.presto.sql.tree.WindowFrame;
 import com.google.common.primitives.Ints;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.facebook.presto.spi.StandardErrorCode.INVALID_WINDOW_FRAME;
+import static com.facebook.presto.sql.tree.FrameBound.Type.CURRENT_ROW;
 import static com.facebook.presto.sql.tree.FrameBound.Type.FOLLOWING;
 import static com.facebook.presto.sql.tree.FrameBound.Type.PRECEDING;
 import static com.facebook.presto.sql.tree.FrameBound.Type.UNBOUNDED_FOLLOWING;
 import static com.facebook.presto.sql.tree.FrameBound.Type.UNBOUNDED_PRECEDING;
 import static com.facebook.presto.sql.tree.WindowFrame.Type.RANGE;
 import static com.facebook.presto.util.Failures.checkCondition;
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 
 public final class WindowPartition
@@ -39,7 +42,7 @@ public final class WindowPartition
     private final int partitionEnd;
 
     private final int[] outputChannels;
-    private final List<WindowFunction> windowFunctions;
+    private final List<FramedWindowFunction> windowFunctions;
     private final FrameInfo frameInfo;
     private final PagesHashStrategy peerGroupHashStrategy;
 
@@ -54,8 +57,7 @@ public final class WindowPartition
             int partitionStart,
             int partitionEnd,
             int[] outputChannels,
-            List<WindowFunction> windowFunctions,
-            FrameInfo frameInfo,
+            List<FramedWindowFunction> windowFunctions,
             PagesHashStrategy peerGroupHashStrategy)
     {
         this.pagesIndex = pagesIndex;
@@ -63,17 +65,43 @@ public final class WindowPartition
         this.partitionEnd = partitionEnd;
         this.outputChannels = outputChannels;
         this.windowFunctions = windowFunctions;
-        this.frameInfo = frameInfo;
+        this.frameInfo = assertSingleFrame(windowFunctions); // TODO remove this when multiple Frames are handled correctly
         this.peerGroupHashStrategy = peerGroupHashStrategy;
 
         // reset functions for new partition
         WindowIndex windowIndex = new PagesWindowIndex(pagesIndex, partitionStart, partitionEnd);
-        for (WindowFunction windowFunction : windowFunctions) {
-            windowFunction.reset(windowIndex);
+        for (FramedWindowFunction framedWindowFunction : windowFunctions) {
+            framedWindowFunction.function.reset(windowIndex);
         }
 
         currentPosition = partitionStart;
         updatePeerGroup();
+    }
+
+    private static FrameInfo assertSingleFrame(List<FramedWindowFunction> windows)
+    {
+        if (windows.isEmpty()) {
+            return new FrameInfo(WindowFrame.Type.RANGE, UNBOUNDED_PRECEDING, Optional.empty(), CURRENT_ROW, Optional.empty());
+        }
+        checkArgument(windows.stream().map(framedFunction -> framedFunction.frame).distinct().count() == 1,
+                "All window functions have to share the same frame. Distinct frames in single operator are not yet supported.");
+        return windows.iterator().next().frame;
+    }
+
+    private static int preceding(int rowPosition, long value)
+    {
+        if (value > rowPosition) {
+            return 0;
+        }
+        return Ints.checkedCast(rowPosition - value);
+    }
+
+    private static int following(int rowPosition, int endPosition, long value)
+    {
+        if (value > (endPosition - rowPosition)) {
+            return endPosition;
+        }
+        return Ints.checkedCast(rowPosition + value);
     }
 
     public int getPartitionEnd()
@@ -103,12 +131,10 @@ public final class WindowPartition
             updatePeerGroup();
         }
 
-        // compute window frame
         updateFrame();
 
-        // process window functions
-        for (WindowFunction function : windowFunctions) {
-            function.processRow(
+        for (FramedWindowFunction framedFunction : windowFunctions) {
+            framedFunction.function.processRow(
                     pageBuilder.getBlockBuilder(channel),
                     peerGroupStart - partitionStart,
                     peerGroupEnd - partitionStart - 1,
@@ -208,22 +234,6 @@ public final class WindowPartition
         }
 
         return (start > end) || ((start > positions) && (end > positions));
-    }
-
-    private static int preceding(int rowPosition, long value)
-    {
-        if (value > rowPosition) {
-            return 0;
-        }
-        return Ints.checkedCast(rowPosition - value);
-    }
-
-    private static int following(int rowPosition, int endPosition, long value)
-    {
-        if (value > (endPosition - rowPosition)) {
-            return endPosition;
-        }
-        return Ints.checkedCast(rowPosition + value);
     }
 
     private long getStartValue()
