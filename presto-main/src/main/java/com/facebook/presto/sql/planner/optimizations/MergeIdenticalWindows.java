@@ -25,7 +25,10 @@ import com.google.common.collect.ImmutableMap;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
 
+import static com.facebook.presto.util.ImmutableCollectors.toImmutableMap;
 import static com.google.common.base.Preconditions.checkState;
 
 /**
@@ -84,6 +87,7 @@ public class MergeIdenticalWindows
                     "MergeIdenticalWindows should be run before HashGenerationOptimizer");
             checkState(node.getPrePartitionedInputs().isEmpty() && node.getPreSortedOrderPrefix() == 0,
                     "MergeIdenticalWindows should be run before AddExchanges");
+            checkState(node.getFrames().values().size() == 1, "More than one frame per WindowNode is not yet supported");
 
             Context mergeContext = context.get();
             boolean retainNode = mergeContext.collectFunctions(node);
@@ -101,13 +105,16 @@ public class MergeIdenticalWindows
                 return node.getSource();
             }
 
-            ImmutableMap.Builder<Symbol, WindowNode.Function> collectedFunctions = mergeContext.getCollectedFunctions(node);
+            Map<Symbol, WindowNode.Function> collectedFunctions = mergeContext.getCollectedFunctions(node).build();
+
+            WindowNode.Frame frame = node.getFrames().values().iterator().next();
 
             return new WindowNode(
                     node.getId(),
                     node.getSource(),
                     node.getSpecification(),
-                    collectedFunctions.build(),
+                    collectedFunctions,
+                    collectedFunctions.values().stream().collect(toImmutableMap(Function.identity(), ignore -> frame)),
                     node.getHashSymbol(),
                     node.getPrePartitionedInputs(),
                     node.getPreSortedOrderPrefix());
@@ -116,24 +123,62 @@ public class MergeIdenticalWindows
 
     private static final class Context
     {
-        private Map<WindowNode.Specification, ImmutableMap.Builder<Symbol, WindowNode.Function>> functions = new HashMap<>();
+        private static final class SpecificationAndFrame
+        {
+            private final WindowNode.Specification specification;
+            private final WindowNode.Frame frame;
+
+            SpecificationAndFrame(WindowNode.Specification specification, WindowNode.Frame frame)
+            {
+                this.specification = specification;
+                this.frame = frame;
+            }
+
+            SpecificationAndFrame(WindowNode node)
+            {
+                this(node.getSpecification(),
+                        node.getFrames().values().iterator().next()); // asserted in #visitWindow already
+            }
+
+            @Override
+            public int hashCode()
+            {
+                return Objects.hash(specification, frame);
+            }
+
+            @Override
+            public boolean equals(Object obj)
+            {
+                if (this == obj) {
+                    return true;
+                }
+                if (obj == null || getClass() != obj.getClass()) {
+                    return false;
+                }
+                SpecificationAndFrame other = (SpecificationAndFrame) obj;
+                return Objects.equals(this.specification, other.specification) &&
+                        Objects.equals(this.frame, other.frame);
+            }
+        }
+
+        private Map<SpecificationAndFrame, ImmutableMap.Builder<Symbol, WindowNode.Function>> functions = new HashMap<>();
 
         private boolean collectFunctions(WindowNode window)
         {
-            WindowNode.Specification key = window.getSpecification();
-            ImmutableMap.Builder<Symbol, WindowNode.Function> builder = functions.get(key);
+            SpecificationAndFrame specificationAndFrame = new SpecificationAndFrame(window);
+            ImmutableMap.Builder<Symbol, WindowNode.Function> builder = functions.get(specificationAndFrame);
 
             if (builder == null) {
                 builder = ImmutableMap.builder();
             }
 
             builder.putAll(window.getWindowFunctions());
-            return functions.put(key, builder) == null;
+            return functions.put(specificationAndFrame, builder) == null;
         }
 
         private ImmutableMap.Builder<Symbol, WindowNode.Function> getCollectedFunctions(WindowNode window)
         {
-            WindowNode.Specification key = window.getSpecification();
+            SpecificationAndFrame key = new SpecificationAndFrame(window);
             checkState(
                     functions.containsKey(key),
                     "No pair for window specification. Tried to merge the same window twice?");

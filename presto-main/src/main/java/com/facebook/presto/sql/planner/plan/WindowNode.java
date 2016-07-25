@@ -46,6 +46,7 @@ public class WindowNode
     private final Specification specification;
     private final int preSortedOrderPrefix;
     private final Map<Symbol, Function> windowFunctions;
+    private final Map<Function, Frame> frames;
     private final Optional<Symbol> hashSymbol;
 
     @JsonCreator
@@ -54,6 +55,7 @@ public class WindowNode
             @JsonProperty("source") PlanNode source,
             @JsonProperty("specification") Specification specification,
             @JsonProperty("windowFunctions") Map<Symbol, Function> windowFunctions,
+            @JsonProperty("frames") Map<Function, Frame> frames,
             @JsonProperty("hashSymbol") Optional<Symbol> hashSymbol,
             @JsonProperty("prePartitionedInputs") Set<Symbol> prePartitionedInputs,
             @JsonProperty("preSortedOrderPrefix") int preSortedOrderPrefix)
@@ -67,13 +69,20 @@ public class WindowNode
         checkArgument(specification.getPartitionBy().containsAll(prePartitionedInputs), "prePartitionedInputs must be contained in partitionBy");
         checkArgument(preSortedOrderPrefix <= specification.getOrderBy().size(), "Cannot have sorted more symbols than those requested");
         checkArgument(preSortedOrderPrefix == 0 || ImmutableSet.copyOf(prePartitionedInputs).equals(ImmutableSet.copyOf(specification.getPartitionBy())), "preSortedOrderPrefix can only be greater than zero if all partition symbols are pre-partitioned");
+        checkArgument(allFunctionsHaveFrames(windowFunctions, frames), "not all functions have frames assigned");
 
         this.source = source;
         this.prePartitionedInputs = ImmutableSet.copyOf(prePartitionedInputs);
         this.specification = specification;
         this.windowFunctions = ImmutableMap.copyOf(windowFunctions);
+        this.frames = ImmutableMap.copyOf(frames);
         this.hashSymbol = hashSymbol;
         this.preSortedOrderPrefix = preSortedOrderPrefix;
+    }
+
+    private static boolean allFunctionsHaveFrames(Map<Symbol, Function> windowFunctions, Map<Function, Frame> frames)
+    {
+        return windowFunctions.values().stream().filter(f -> frames.containsKey(f)).count() == windowFunctions.size();
     }
 
     @Override
@@ -115,15 +124,16 @@ public class WindowNode
         return specification.getOrderings();
     }
 
-    public Frame getFrame()
-    {
-        return specification.getFrame();
-    }
-
     @JsonProperty
     public Map<Symbol, Function> getWindowFunctions()
     {
         return windowFunctions;
+    }
+
+    @JsonProperty
+    public Map<Function, Frame> getFrames()
+    {
+        return frames;
     }
 
     @JsonProperty
@@ -156,25 +166,21 @@ public class WindowNode
         private final List<Symbol> partitionBy;
         private final List<Symbol> orderBy;
         private final Map<Symbol, SortOrder> orderings;
-        private final Frame frame;
 
         @JsonCreator
         public Specification(
                 @JsonProperty("partitionBy") List<Symbol> partitionBy,
                 @JsonProperty("orderBy") List<Symbol> orderBy,
-                @JsonProperty("orderings") Map<Symbol, SortOrder> orderings,
-                @JsonProperty("frame") Frame frame)
+                @JsonProperty("orderings") Map<Symbol, SortOrder> orderings)
         {
             requireNonNull(partitionBy, "partitionBy is null");
             requireNonNull(orderBy, "orderBy is null");
             checkArgument(orderings.size() == orderBy.size(), "orderBy and orderings sizes don't match");
             checkArgument(orderings.keySet().containsAll(orderBy), "Every orderBy symbol must have an ordering direction");
-            requireNonNull(frame, "frame is null");
 
             this.partitionBy = ImmutableList.copyOf(partitionBy);
             this.orderBy = ImmutableList.copyOf(orderBy);
             this.orderings = ImmutableMap.copyOf(orderings);
-            this.frame = frame;
         }
 
         @JsonProperty
@@ -195,16 +201,10 @@ public class WindowNode
             return orderings;
         }
 
-        @JsonProperty
-        public Frame getFrame()
-        {
-            return frame;
-        }
-
         @Override
         public int hashCode()
         {
-            return Objects.hash(partitionBy, orderBy, orderings, frame);
+            return Objects.hash(partitionBy, orderBy, orderings);
         }
 
         @Override
@@ -222,8 +222,7 @@ public class WindowNode
 
             return Objects.equals(this.partitionBy, other.partitionBy) &&
                     Objects.equals(this.orderBy, other.orderBy) &&
-                    Objects.equals(this.orderings, other.orderings) &&
-                    Objects.equals(this.frame, other.frame);
+                    Objects.equals(this.orderings, other.orderings);
         }
     }
 
