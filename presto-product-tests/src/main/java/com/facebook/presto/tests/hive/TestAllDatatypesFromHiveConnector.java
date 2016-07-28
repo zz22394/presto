@@ -247,6 +247,7 @@ public class TestAllDatatypesFromHiveConnector
                 row("c_timestamp", "timestamp"),
                 row("c_string", "varchar"),
                 row("c_varchar", "varchar(10)"),
+                row("c_char", "char(10)"),
                 row("c_boolean", "boolean"),
                 row("c_binary", "varbinary")
         );
@@ -264,6 +265,7 @@ public class TestAllDatatypesFromHiveConnector
                 TIMESTAMP,
                 LONGNVARCHAR,
                 LONGNVARCHAR,
+                CHAR,
                 BOOLEAN,
                 LONGVARBINARY
         );
@@ -281,6 +283,7 @@ public class TestAllDatatypesFromHiveConnector
                         parseTimestampInUTC("2015-05-10 12:15:35.123"),
                         "ala ma kota",
                         "ala ma kot",
+                        "ala ma    ",
                         true,
                         "kot binarny".getBytes()));
     }
