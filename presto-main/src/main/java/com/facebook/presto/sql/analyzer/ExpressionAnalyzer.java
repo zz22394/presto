@@ -1175,7 +1175,7 @@ public class ExpressionAnalyzer
         return analyzeExpressions(session, metadata, sqlParser, tupleDescriptor, ImmutableMap.of(), expressions);
     }
 
-    private static ExpressionAnalysis analyzeExpressions(
+    public static ExpressionAnalysis analyzeExpressions(
             Session session,
             Metadata metadata,
             SqlParser sqlParser,
