@@ -1,4 +1,4 @@
--- database: presto; groups: postgresql_connector; queryType: SELECT; tables: postgres.float_table_psql
+-- database: presto; groups: postgresql_connector,quarantine; queryType: SELECT; tables: postgres.float_table_psql
 --!
 describe postgresql.public.float_table_psql
 --!
