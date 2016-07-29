@@ -703,8 +703,8 @@ public class TestStringFunctions
         assertFunction("UPPER('')", createVarcharType(0), "");
         assertFunction("UPPER('Hello World')", createVarcharType(11), "HELLO WORLD");
         assertFunction("UPPER('what!!')", createVarcharType(6), "WHAT!!");
-        assertFunction("UPPER('\u00D6sterreich')", createVarcharType(10), upperByCodePoint("\u00D6STERREICH"));
-        assertFunction("UPPER('From\uD801\uDC2DTo')", createVarcharType(7), upperByCodePoint("FROM\uD801\uDC2DTO"));
+        assertFunction("UPPER('\u00D6sterreich')", createVarcharType(10), upperByCodePoint("\u00D6") + "STERREICH");
+        assertFunction("UPPER('From\uD801\uDC2DTo')", createVarcharType(7), "FROM" + upperByCodePoint("\uD801\uDC2D") + "TO");
 
         assertFunction("CAST(UPPER(utf8(from_hex('CE'))) AS VARBINARY)", VARBINARY, new SqlVarbinary(new byte[] {(byte) 0xCE}));
         assertFunction("CAST(UPPER('hello' || utf8(from_hex('CE'))) AS VARBINARY)", VARBINARY, new SqlVarbinary(new byte[] {'H', 'E', 'L', 'L', 'O', (byte) 0xCE}));
@@ -717,8 +717,8 @@ public class TestStringFunctions
         assertFunction("UPPER(CAST('' AS CHAR(10)))", createCharType(10), "");
         assertFunction("UPPER(CAST('Hello World' AS CHAR(11)))", createCharType(11), "HELLO WORLD");
         assertFunction("UPPER(CAST('what!!' AS CHAR(6)))", createCharType(6), "WHAT!!");
-        assertFunction("UPPER(CAST('\u00D6sterreich' AS CHAR(10)))", createCharType(10), upperByCodePoint("\u00D6STERREICH"));
-        assertFunction("UPPER(CAST('From\uD801\uDC2DTo' AS CHAR(7)))", createCharType(7), upperByCodePoint("FROM\uD801\uDC2DTO"));
+        assertFunction("UPPER(CAST('\u00D6sterreich' AS CHAR(10)))", createCharType(10), upperByCodePoint("\u00D6") + "STERREICH");
+        assertFunction("UPPER(CAST('From\uD801\uDC2DTo' AS CHAR(7)))", createCharType(7), "FROM" + upperByCodePoint("\uD801\uDC2D") + "TO");
     }
 
     @Test
