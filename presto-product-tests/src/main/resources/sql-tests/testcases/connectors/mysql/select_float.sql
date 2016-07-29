@@ -1,4 +1,4 @@
--- database: presto; groups: mysql_connector; tables: mysql.float_table_mysql
+-- database: presto; groups: mysql_connector,quarantine; tables: mysql.float_table_mysql
 --!
 select * from mysql.test.float_table_mysql
 --!
