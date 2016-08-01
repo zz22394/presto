@@ -309,21 +309,16 @@ public class PagesIndex
 
     public PagesHashStrategy createPagesHashStrategy(List<Integer> joinChannels, Optional<Integer> hashChannel)
     {
-        return createPagesHashStrategy(joinChannels, hashChannel, Optional.empty());
-    }
-
-    public PagesHashStrategy createPagesHashStrategy(List<Integer> joinChannels, Optional<Integer> hashChannel, Optional<JoinFilterFunction> joinFilterFunction)
-    {
         try {
-            return joinCompiler.compilePagesHashStrategyFactory(types, joinChannels)
-                    .createPagesHashStrategy(ImmutableList.copyOf(channels), hashChannel);
+            return joinCompiler.compilePagesHashStrategyFactory(types, joinChannels, Optional.empty())
+                    .createPagesHashStrategy(ImmutableList.copyOf(channels), hashChannel, Optional.empty());
         }
         catch (Exception e) {
             log.error(e, "Lookup source compile failed for types=%s error=%s", types, e);
         }
 
         // if compilation fails, use interpreter
-        return new SimplePagesHashStrategy(types, ImmutableList.<List<Block>>copyOf(channels), joinChannels, hashChannel, joinFilterFunction);
+        return new SimplePagesHashStrategy(types, ImmutableList.<List<Block>>copyOf(channels), joinChannels, hashChannel, Optional.empty());
     }
 
     public LookupSource createLookupSource(List<Integer> joinChannels, Optional<Integer> hashChannel, Optional<JoinFilterFunction> filterFunction)
@@ -338,12 +333,13 @@ public class PagesIndex
             //        OUTER joins into NestedLoopsJoin and remove "type == INNER" condition in LocalExecutionPlanner.visitJoin()
 
             try {
-                LookupSourceFactory lookupSourceFactory = joinCompiler.compileLookupSourceFactory(types, joinChannels);
+                LookupSourceFactory lookupSourceFactory = joinCompiler.compileLookupSourceFactory(types, joinChannels, filterFunction.map(JoinFilterFunction::getClass));
 
                 LookupSource lookupSource = lookupSourceFactory.createLookupSource(
                         valueAddresses,
                         ImmutableList.<List<Block>>copyOf(channels),
-                        hashChannel);
+                        hashChannel,
+                        filterFunction);
 
                 return lookupSource;
             }
