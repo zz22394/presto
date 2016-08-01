@@ -20,7 +20,6 @@ import org.testng.annotations.Test;
 
 import static com.facebook.presto.SessionTestUtils.TEST_SESSION;
 import static com.facebook.presto.spi.StandardErrorCode.DIVISION_BY_ZERO;
-import static com.facebook.presto.spi.StandardErrorCode.INVALID_FUNCTION_ARGUMENT;
 import static com.facebook.presto.spi.StandardErrorCode.NUMERIC_VALUE_OUT_OF_RANGE;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
@@ -235,9 +234,6 @@ public class TestMathFunctions
         // NULL DECIMAL
         assertFunction("truncate(CAST(NULL AS DECIMAL(1,0)), -1)", createDecimalType(1, 0), null);
         assertFunction("truncate(NULL, NULL)", createDecimalType(1, 0), null);
-
-        // OUT OF RANGE DECIMAL
-        assertInvalidFunction("truncate(DECIMAL '1234567890123456789012345678901234567890123', 0)", INVALID_FUNCTION_ARGUMENT);
     }
 
     @Test
@@ -578,7 +574,7 @@ public class TestMathFunctions
         assertFunction("round(FLOAT '3.5')", FLOAT, 4.0f);
         assertFunction("round(FLOAT '-3.5')", FLOAT, -4.0f);
         assertFunction("round(FLOAT '-3.5001')", FLOAT, -4.0f);
-        assertFunction("round(FLOAT '-3.99')", FLOAT,  -4.0f);
+        assertFunction("round(FLOAT '-3.99')", FLOAT, -4.0f);
         assertFunction("round(CAST(NULL as DOUBLE))", DOUBLE, null);
         assertFunction("round(" + GREATEST_DOUBLE_LESS_THAN_HALF + ")", DOUBLE, 0.0);
         assertFunction("round(-" + 0x1p-1 + ")", DOUBLE, -1.0); // -0.5
