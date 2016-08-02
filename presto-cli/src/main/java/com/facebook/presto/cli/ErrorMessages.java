@@ -35,6 +35,7 @@ public class ErrorMessages
     private static final String PRESTO_SHUTTING_DOWN  = "Presto is shutting down\n";
 
     private static final String TECHNICAL_DETAILS_HEADER = "\n=========   TECHNICAL DETAILS   =========\n";
+    private static final String SESSION_INTRO = "Session information:\n";
     private static final String ERROR_MESSAGE_INTRO = "Error message:\n";
     private static final String STACKTRACE_INTRO = "Stack trace:\n";
     private static final String TECHNICAL_DETAILS_END = "========= TECHNICAL DETAILS END =========\n\n";
@@ -212,6 +213,8 @@ public class ErrorMessages
     private static void technicalDetailsPrestoServerExceptionErrorMessage(StringBuilder builder, PrestoServerException serverException, ClientSession session)
     {
         builder.append(TECHNICAL_DETAILS_HEADER);
+        builder.append(SESSION_INTRO);
+        builder.append(session);
         builder.append(STACKTRACE_INTRO);
         if (serverException.getServerException().isPresent()) {
             builder.append(getStackTraceString(serverException));
@@ -227,6 +230,8 @@ public class ErrorMessages
         builder.append(TECHNICAL_DETAILS_HEADER);
         builder.append(ERROR_MESSAGE_INTRO);
         builder.append(throwable.getMessage() + "\n");
+        builder.append(SESSION_INTRO);
+        builder.append(session);
         builder.append(STACKTRACE_INTRO);
         builder.append(getStackTraceString(throwable));
         builder.append(TECHNICAL_DETAILS_END);
