@@ -15,7 +15,7 @@ package com.facebook.presto.cli;
 
 import com.facebook.presto.client.ClientSession;
 import com.facebook.presto.client.PrestoServerException;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import io.airlift.http.client.HttpStatus;
 
 import java.io.EOFException;
 import java.io.PrintWriter;
@@ -28,19 +28,22 @@ import static java.lang.String.format;
 public class ErrorMessages
 {
     private static final String PRESTO_COORDINATOR_NOT_FOUND = "There was a problem with a response from Presto Coordinator.\n";
+    private static final String PRESTO_COORDINATOR_404 = "Presto HTTP interface returned 404 (file not found).\n";
     private static final String TECHNICAL_DETAILS_HEADER = "\n=========   TECHNICAL DETAILS   =========\n";
     private static final String ERROR_MESSAGE_INTRO = "Error message:\n";
     private static final String STACKTRACE_INTRO = "Stack trace:\n";
     private static final String TECHNICAL_DETAILS_END = "========= TECHNICAL DETAILS END =========\n\n";
 
     private enum Tips {
-        VERIFY_PRESTO_RUNNING("Verify that Presto is running on %s"),
+        VERIFY_PRESTO_RUNNING("Verify that Presto is running on %s."),
         DEFINE_SERVER_AS_CLI_PARAM("Use '--server' argument when starting Presto CLI to define server host and port."),
         CHECK_NETWORK("Check the network conditions between client and server."),
         USE_DEBUG_MODE("Use '--debug' argument to get more technical details."),
         WAIT_FOR_INITIALIZATION("Wait for server to complete initialization."),
         WAIT_FOR_SERVER_RESTART("Wait for server to restart as it may have restart scheduled."),
-        START_SERVER_AGAIN("Start server again manually.");
+        START_SERVER_AGAIN("Start server again manually."),
+        CHECK_OTHER_HTTP_SERVICE("Make sure that none other HTTP service is running on %s."),
+        CLIENT_IS_UP_TO_DATE_WITH_SERVER("Update CLI to match Presto server version.");
 
         private static final String TIPS_INTRO = "To solve this problem you may try to:\n";
 
@@ -89,16 +92,46 @@ public class ErrorMessages
     public static String createErrorMessage(Throwable throwable, ClientSession session)
     {
         if (throwable instanceof PrestoServerException) {
-            return prestoServerExceptionErrorMesage((PrestoServerException) throwable);
+            return prestoServerExceptionErrorMesage((PrestoServerException) throwable, session);
         }
         else {
             return runtimeExceptionErrorMessage(throwable, session);
         }
     }
 
-    private static String prestoServerExceptionErrorMesage(PrestoServerException throwable)
+    private static String prestoServerExceptionErrorMesage(PrestoServerException serverException, ClientSession session)
     {
-        throw new NotImplementedException();
+        StringBuilder builder = new StringBuilder();
+        if (serverException.getResponse().getStatusCode() == HttpStatus.NOT_FOUND.code()) {
+            builder.append(PRESTO_COORDINATOR_404);
+            Tips.Builder tipsBuilder = Tips.builder();
+            tipsBuilder.addTip(Tips.VERIFY_PRESTO_RUNNING, session.getServer())
+                    .addTip(Tips.DEFINE_SERVER_AS_CLI_PARAM)
+                    .addTip(Tips.CHECK_NETWORK)
+                    .addTip(Tips.CHECK_OTHER_HTTP_SERVICE)
+                    .addTip(Tips.CLIENT_IS_UP_TO_DATE_WITH_SERVER)
+                    .build();
+            if (!session.isDebug()) {
+                tipsBuilder.addTip(Tips.USE_DEBUG_MODE);
+            }
+        }
+        else {
+            builder.append(serverException.getMessage());
+        }
+
+        if (session.isDebug()) {
+            builder.append(TECHNICAL_DETAILS_HEADER);
+            builder.append("Stack trace:\n");
+            if (serverException.getServerException().isPresent()) {
+                builder.append(getStackTraceString(serverException));
+            }
+            else {
+                builder.append(serverException.getServerException().get().getStackTraceString());
+            }
+            builder.append(TECHNICAL_DETAILS_END);
+        }
+
+        return builder.toString();
     }
 
     private static String runtimeExceptionErrorMessage(Throwable throwable, ClientSession session)
