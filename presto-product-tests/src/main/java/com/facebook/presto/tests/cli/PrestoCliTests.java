@@ -202,7 +202,7 @@ public class PrestoCliTests
     public void shouldPassQueryForLdapUserInMultipleGroups()
             throws IOException, InterruptedException
     {
-        ldapUserName = "FinanceHRUserInAsia";
+        ldapUserName = "UserInMultipleGroups";
         launchPrestoCliWithServerArgument("--catalog", "hive", "--schema", "default", "--execute", "select * from nation;");
         assertThat(trimLines(presto.readRemainingOutputLines())).containsAll(nationTableBatchLines);
     }
@@ -211,7 +211,7 @@ public class PrestoCliTests
     public void shouldFailQueryForLdapUserInChildGroup()
             throws IOException, InterruptedException
     {
-        ldapUserName = "FinanceSubSubGroupUserInAsia";
+        ldapUserName = "ChildGroupUser";
         launchPrestoCliWithServerArgument("--catalog", "hive", "--schema", "default", "--execute", "select * from nation;");
         assertTrue(trimLines(presto.readRemainingErrorLines()).stream().anyMatch(str -> str.contains("Authentication failed: User " + ldapUserName + " not a member of the group")));
     }
@@ -220,7 +220,7 @@ public class PrestoCliTests
     public void shouldFailQueryForLdapUserInParentGroup()
             throws IOException, InterruptedException
     {
-        ldapUserName = "FinanceUserInAsia";
+        ldapUserName = "GrandParentGroupUser";
         launchPrestoCliWithServerArgument("--catalog", "hive", "--schema", "default", "--execute", "select * from nation;");
         assertTrue(trimLines(presto.readRemainingErrorLines()).stream().anyMatch(str -> str.contains("Authentication failed: User " + ldapUserName + " not a member of the group")));
     }
@@ -229,7 +229,7 @@ public class PrestoCliTests
     public void shouldFailQueryForOrphanLdapUser()
             throws IOException, InterruptedException
     {
-        ldapUserName = "OrphanUserInAsia";
+        ldapUserName = "OrphanUser";
         launchPrestoCliWithServerArgument("--catalog", "hive", "--schema", "default", "--execute", "select * from nation;");
         assertTrue(trimLines(presto.readRemainingErrorLines()).stream().anyMatch(str -> str.contains("Authentication failed: User " + ldapUserName + " not a member of the group")));
     }
