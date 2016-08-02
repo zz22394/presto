@@ -15,6 +15,8 @@ package com.facebook.presto.cli;
 
 import com.facebook.presto.client.ClientSession;
 import com.facebook.presto.client.PrestoServerException;
+import com.facebook.presto.spi.PrestoException.SerializedPrestoException;
+import com.facebook.presto.spi.StandardErrorCode;
 import io.airlift.http.client.HttpStatus;
 
 import java.io.EOFException;
@@ -29,6 +31,9 @@ public class ErrorMessages
 {
     private static final String PRESTO_COORDINATOR_NOT_FOUND = "There was a problem with a response from Presto Coordinator.\n";
     private static final String PRESTO_COORDINATOR_404 = "Presto HTTP interface returned 404 (file not found).\n";
+    private static final String PRESTO_STARTING_UP  = "Presto is still starting up.\n";
+    private static final String PRESTO_SHUTTING_DOWN  = "Presto is shutting down\n";
+
     private static final String TECHNICAL_DETAILS_HEADER = "\n=========   TECHNICAL DETAILS   =========\n";
     private static final String ERROR_MESSAGE_INTRO = "Error message:\n";
     private static final String STACKTRACE_INTRO = "Stack trace:\n";
@@ -102,7 +107,30 @@ public class ErrorMessages
     private static String prestoServerExceptionErrorMesage(PrestoServerException serverException, ClientSession session)
     {
         StringBuilder builder = new StringBuilder();
-        if (serverException.getResponse().getStatusCode() == HttpStatus.NOT_FOUND.code()) {
+
+        if (serverException.getServerException().isPresent()) {
+            SerializedPrestoException exception = serverException.getServerException().get();
+            if (exception.getErrorCode().equals(StandardErrorCode.SERVER_STARTING_UP)) {
+                builder.append(PRESTO_STARTING_UP);
+                Tips.Builder tipsBuilder = Tips.builder();
+                tipsBuilder.addTip(Tips.WAIT_FOR_INITIALIZATION);
+                if (!session.isDebug()) {
+                    tipsBuilder.addTip(Tips.USE_DEBUG_MODE);
+                }
+                builder.append(tipsBuilder.build());
+            }
+            else if (exception.getErrorCode().equals(StandardErrorCode.SERVER_SHUTTING_DOWN)) {
+                builder.append(PRESTO_SHUTTING_DOWN);
+                Tips.Builder tipsBuilder = Tips.builder();
+                tipsBuilder.addTip(Tips.WAIT_FOR_SERVER_RESTART)
+                           .addTip(Tips.START_SERVER_AGAIN);
+                if (!session.isDebug()) {
+                    tipsBuilder.addTip(Tips.USE_DEBUG_MODE);
+                }
+                builder.append(tipsBuilder.build());
+            }
+        }
+        else if (serverException.getResponse().getStatusCode() == HttpStatus.NOT_FOUND.code()) {
             builder.append(PRESTO_COORDINATOR_404);
             Tips.Builder tipsBuilder = Tips.builder();
             tipsBuilder.addTip(Tips.VERIFY_PRESTO_RUNNING, session.getServer())
