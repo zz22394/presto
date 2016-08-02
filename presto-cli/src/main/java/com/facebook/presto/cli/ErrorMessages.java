@@ -108,20 +108,25 @@ public class ErrorMessages
     private static String prestoServerExceptionErrorMesage(PrestoServerException serverException, ClientSession session)
     {
         StringBuilder builder = new StringBuilder();
+        boolean wasErrorIdentified = false;
 
         if (serverException.getServerException().isPresent()) {
             SerializedPrestoException exception = serverException.getServerException().get();
-            if (exception.getErrorCode().equals(StandardErrorCode.SERVER_STARTING_UP)) {
+            if (exception.getErrorCode().equals(StandardErrorCode.SERVER_STARTING_UP.toErrorCode())) {
                 serverStartingUpErrorMessage(builder, session);
+                wasErrorIdentified = true;
             }
-            else if (exception.getErrorCode().equals(StandardErrorCode.SERVER_SHUTTING_DOWN)) {
+            else if (exception.getErrorCode().equals(StandardErrorCode.SERVER_SHUTTING_DOWN.toErrorCode())) {
                 serverShuttingDownErrorMessage(builder, session);
+                wasErrorIdentified = true;
             }
         }
         else if (serverException.getResponse().getStatusCode() == HttpStatus.NOT_FOUND.code()) {
             serverFileNotFoundErrorMessage(builder, session);
+            wasErrorIdentified = true;
         }
-        else {
+
+        if (!wasErrorIdentified) {
             builder.append(serverException.getMessage());
         }
 
