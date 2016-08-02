@@ -14,6 +14,8 @@
 package com.facebook.presto.cli;
 
 import com.facebook.presto.client.ClientSession;
+import com.facebook.presto.client.PrestoServerException;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.EOFException;
 import java.io.PrintWriter;
@@ -84,7 +86,22 @@ public class ErrorMessages
 
     private final StringBuilder builder = new StringBuilder();
 
-    public static String build(Throwable throwable, ClientSession session)
+    public static String createErrorMessage(Throwable throwable, ClientSession session)
+    {
+        if (throwable instanceof PrestoServerException) {
+            return prestoServerExceptionErrorMesage((PrestoServerException) throwable);
+        }
+        else {
+            return runtimeExceptionErrorMessage(throwable, session);
+        }
+    }
+
+    private static String prestoServerExceptionErrorMesage(PrestoServerException throwable)
+    {
+        throw new NotImplementedException();
+    }
+
+    private static String runtimeExceptionErrorMessage(Throwable throwable, ClientSession session)
     {
         StringBuilder builder = new StringBuilder();
 
