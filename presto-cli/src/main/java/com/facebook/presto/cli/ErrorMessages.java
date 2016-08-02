@@ -207,7 +207,7 @@ public class ErrorMessages
         tipsBuilder.addTip(Tips.VERIFY_PRESTO_RUNNING, session.getServer())
                 .addTip(Tips.DEFINE_SERVER_AS_CLI_PARAM)
                 .addTip(Tips.CHECK_NETWORK)
-                .addTip(Tips.CHECK_OTHER_HTTP_SERVICE)
+                .addTip(Tips.CHECK_OTHER_HTTP_SERVICE, session.getServer())
                 .addTip(Tips.CLIENT_IS_UP_TO_DATE_WITH_SERVER);
         if (!session.isDebug()) {
             tipsBuilder.addTip(Tips.USE_DEBUG_MODE);
