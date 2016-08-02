@@ -341,7 +341,7 @@ public class StatementClient
     private RuntimeException requestFailedException(String task, Request request, JsonResponse<QueryResults> response)
     {
         gone.set(true);
-        if (!response.hasValue()) {
+        if (response.hasValue()) {
             ObjectMapper mapper = new ObjectMapperProvider().get();
             try {
                 PrestoException.SerializedPrestoException serverException = mapper.readValue(response.getJson(), PrestoException.SerializedPrestoException.class);
