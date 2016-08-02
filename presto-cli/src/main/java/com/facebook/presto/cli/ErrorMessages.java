@@ -111,52 +111,21 @@ public class ErrorMessages
         if (serverException.getServerException().isPresent()) {
             SerializedPrestoException exception = serverException.getServerException().get();
             if (exception.getErrorCode().equals(StandardErrorCode.SERVER_STARTING_UP)) {
-                builder.append(PRESTO_STARTING_UP);
-                Tips.Builder tipsBuilder = Tips.builder();
-                tipsBuilder.addTip(Tips.WAIT_FOR_INITIALIZATION);
-                if (!session.isDebug()) {
-                    tipsBuilder.addTip(Tips.USE_DEBUG_MODE);
-                }
-                builder.append(tipsBuilder.build());
+                serverStartingUpErrorMessage(builder, session);
             }
             else if (exception.getErrorCode().equals(StandardErrorCode.SERVER_SHUTTING_DOWN)) {
-                builder.append(PRESTO_SHUTTING_DOWN);
-                Tips.Builder tipsBuilder = Tips.builder();
-                tipsBuilder.addTip(Tips.WAIT_FOR_SERVER_RESTART)
-                           .addTip(Tips.START_SERVER_AGAIN);
-                if (!session.isDebug()) {
-                    tipsBuilder.addTip(Tips.USE_DEBUG_MODE);
-                }
-                builder.append(tipsBuilder.build());
+                serverShuttingDownErrorMessage(builder, session);
             }
         }
         else if (serverException.getResponse().getStatusCode() == HttpStatus.NOT_FOUND.code()) {
-            builder.append(PRESTO_COORDINATOR_404);
-            Tips.Builder tipsBuilder = Tips.builder();
-            tipsBuilder.addTip(Tips.VERIFY_PRESTO_RUNNING, session.getServer())
-                    .addTip(Tips.DEFINE_SERVER_AS_CLI_PARAM)
-                    .addTip(Tips.CHECK_NETWORK)
-                    .addTip(Tips.CHECK_OTHER_HTTP_SERVICE)
-                    .addTip(Tips.CLIENT_IS_UP_TO_DATE_WITH_SERVER)
-                    .build();
-            if (!session.isDebug()) {
-                tipsBuilder.addTip(Tips.USE_DEBUG_MODE);
-            }
+            serverFileNotFoundErrorMessage(builder, session);
         }
         else {
             builder.append(serverException.getMessage());
         }
 
         if (session.isDebug()) {
-            builder.append(TECHNICAL_DETAILS_HEADER);
-            builder.append("Stack trace:\n");
-            if (serverException.getServerException().isPresent()) {
-                builder.append(getStackTraceString(serverException));
-            }
-            else {
-                builder.append(serverException.getServerException().get().getStackTraceString());
-            }
-            builder.append(TECHNICAL_DETAILS_END);
+            technicalDetailsPrestoServerExceptionErrorMessage(builder, serverException, session);
         }
 
         return builder.toString();
@@ -167,15 +136,7 @@ public class ErrorMessages
         StringBuilder builder = new StringBuilder();
 
         if (getCausalChain(throwable).stream().anyMatch(x -> x instanceof EOFException || x instanceof ConnectException)) {
-            builder.append(PRESTO_COORDINATOR_NOT_FOUND);
-            Tips.Builder tipsBuilder = Tips.builder();
-            tipsBuilder.addTip(Tips.VERIFY_PRESTO_RUNNING, session.getServer())
-                       .addTip(Tips.DEFINE_SERVER_AS_CLI_PARAM)
-                       .addTip(Tips.CHECK_NETWORK).build();
-            if (!session.isDebug()) {
-                tipsBuilder.addTip(Tips.USE_DEBUG_MODE);
-            }
-            builder.append(tipsBuilder.build());
+            serverNotFoundErrorMessage(builder, session);
         }
         else {
             // We have no clue about what went wrong, just display what we obtained.
@@ -183,12 +144,7 @@ public class ErrorMessages
         }
 
         if (session.isDebug()) {
-            builder.append(TECHNICAL_DETAILS_HEADER);
-            builder.append(ERROR_MESSAGE_INTRO);
-            builder.append(throwable.getMessage() + "\n");
-            builder.append(STACKTRACE_INTRO);
-            builder.append(getStackTraceString(throwable));
-            builder.append(TECHNICAL_DETAILS_END);
+            technicalDetailsRuntimeExceptionErrorMessage(builder, throwable, session);
         }
 
         return builder.toString();
@@ -200,4 +156,81 @@ public class ErrorMessages
         throwable.printStackTrace(new PrintWriter(writer));
         return writer.toString();
     }
+
+    //region Messages for given problems
+    private static void serverNotFoundErrorMessage(StringBuilder builder, ClientSession session)
+    {
+        builder.append(PRESTO_COORDINATOR_NOT_FOUND);
+        Tips.Builder tipsBuilder = Tips.builder();
+        tipsBuilder.addTip(Tips.VERIFY_PRESTO_RUNNING, session.getServer())
+                .addTip(Tips.DEFINE_SERVER_AS_CLI_PARAM)
+                .addTip(Tips.CHECK_NETWORK).build();
+        if (!session.isDebug()) {
+            tipsBuilder.addTip(Tips.USE_DEBUG_MODE);
+        }
+        builder.append(tipsBuilder.build());
+    }
+
+    private static void serverStartingUpErrorMessage(StringBuilder builder, ClientSession session)
+    {
+        builder.append(PRESTO_STARTING_UP);
+        Tips.Builder tipsBuilder = Tips.builder();
+        tipsBuilder.addTip(Tips.WAIT_FOR_INITIALIZATION);
+        if (!session.isDebug()) {
+            tipsBuilder.addTip(Tips.USE_DEBUG_MODE);
+        }
+        builder.append(tipsBuilder.build());
+    }
+
+    private static void serverShuttingDownErrorMessage(StringBuilder builder, ClientSession session)
+    {
+        builder.append(PRESTO_SHUTTING_DOWN);
+        Tips.Builder tipsBuilder = Tips.builder();
+        tipsBuilder.addTip(Tips.WAIT_FOR_SERVER_RESTART)
+                .addTip(Tips.START_SERVER_AGAIN);
+        if (!session.isDebug()) {
+            tipsBuilder.addTip(Tips.USE_DEBUG_MODE);
+        }
+        builder.append(tipsBuilder.build());
+    }
+
+    private static void serverFileNotFoundErrorMessage(StringBuilder builder, ClientSession session)
+    {
+        builder.append(PRESTO_COORDINATOR_404);
+        Tips.Builder tipsBuilder = Tips.builder();
+        tipsBuilder.addTip(Tips.VERIFY_PRESTO_RUNNING, session.getServer())
+                .addTip(Tips.DEFINE_SERVER_AS_CLI_PARAM)
+                .addTip(Tips.CHECK_NETWORK)
+                .addTip(Tips.CHECK_OTHER_HTTP_SERVICE)
+                .addTip(Tips.CLIENT_IS_UP_TO_DATE_WITH_SERVER);
+        if (!session.isDebug()) {
+            tipsBuilder.addTip(Tips.USE_DEBUG_MODE);
+        }
+        builder.append(tipsBuilder.build());
+    }
+
+    private static void technicalDetailsPrestoServerExceptionErrorMessage(StringBuilder builder, PrestoServerException serverException, ClientSession session)
+    {
+        builder.append(TECHNICAL_DETAILS_HEADER);
+        builder.append(STACKTRACE_INTRO);
+        if (serverException.getServerException().isPresent()) {
+            builder.append(getStackTraceString(serverException));
+        }
+        else {
+            builder.append(serverException.getServerException().get().getStackTraceString());
+        }
+        builder.append(TECHNICAL_DETAILS_END);
+    }
+
+    private static void technicalDetailsRuntimeExceptionErrorMessage(StringBuilder builder, Throwable throwable, ClientSession session)
+    {
+        builder.append(TECHNICAL_DETAILS_HEADER);
+        builder.append(ERROR_MESSAGE_INTRO);
+        builder.append(throwable.getMessage() + "\n");
+        builder.append(STACKTRACE_INTRO);
+        builder.append(getStackTraceString(throwable));
+        builder.append(TECHNICAL_DETAILS_END);
+    }
+
+    //endregion
 }
