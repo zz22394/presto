@@ -20,9 +20,8 @@ import com.facebook.presto.spi.StandardErrorCode;
 import io.airlift.http.client.HttpStatus;
 
 import java.io.EOFException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.net.ConnectException;
+import java.util.Arrays;
 
 import static com.google.common.base.Throwables.getCausalChain;
 import static java.lang.String.format;
@@ -159,9 +158,7 @@ public class ErrorMessages
 
     private static String getStackTraceString(Throwable throwable)
     {
-        StringWriter writer = new StringWriter();
-        throwable.printStackTrace(new PrintWriter(writer));
-        return writer.toString();
+        return Arrays.stream(throwable.getStackTrace()).map(x -> x.toString()).reduce("", (a, b) -> a + b + "\n");
     }
 
     //region Messages for given problems
@@ -220,20 +217,19 @@ public class ErrorMessages
     {
         builder.append(TECHNICAL_DETAILS_HEADER);
         builder.append(SESSION_INTRO);
-        builder.append(session);
+        builder.append(session + "\n\n");
         builder.append(STACKTRACE_INTRO);
         if (serverException.getServerException().isPresent()) {
-            builder.append(serverException.getServerException().get().getStackTraceString());
+            builder.append(serverException.getServerException().get().getStackTraceString() + "\n\n");
         }
         else {
-            builder.append(getStackTraceString(serverException));
+            builder.append(getStackTraceString(serverException) + "\n");
         }
 
-        if (serverException.getResponse().hasValue()) {
-            builder.append(RESPONSE_INTRO);
-            builder.append(serverException.getResponse().getHeaders().toString());
-            builder.append(serverException.getResponse().getResponseBody());
-        }
+        builder.append(RESPONSE_INTRO);
+        builder.append(serverException.getResponse().getHeaders().toString() + "\n");
+        builder.append(serverException.getResponse().getResponseBody() + "\n");
+
         builder.append(TECHNICAL_DETAILS_END);
     }
 
@@ -241,9 +237,9 @@ public class ErrorMessages
     {
         builder.append(TECHNICAL_DETAILS_HEADER);
         builder.append(ERROR_MESSAGE_INTRO);
-        builder.append(throwable.getMessage() + "\n");
+        builder.append(throwable.getMessage() + "\n\n");
         builder.append(SESSION_INTRO);
-        builder.append(session);
+        builder.append(session + "\n\n");
         builder.append(STACKTRACE_INTRO);
         builder.append(getStackTraceString(throwable));
         builder.append(TECHNICAL_DETAILS_END);

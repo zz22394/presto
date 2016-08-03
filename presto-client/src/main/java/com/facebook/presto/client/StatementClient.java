@@ -341,16 +341,18 @@ public class StatementClient
     private RuntimeException requestFailedException(String task, Request request, JsonResponse<QueryResults> response)
     {
         gone.set(true);
-        if (response.hasValue()) {
-            ObjectMapper mapper = new ObjectMapperProvider().get();
-            try {
+
+        ObjectMapper mapper = new ObjectMapperProvider().get();
+        try {
+            if (response.getJson() != null) {
                 PrestoException.SerializedPrestoException serverException = mapper.readValue(response.getJson(), PrestoException.SerializedPrestoException.class);
                 return new PrestoServerException(task, request, response, serverException);
             }
-            catch (IOException e) {
-                // The response does not fit into PrestoException, continue with adding just request.
-            }
         }
+        catch (IOException e) {
+            // The response does not fit into PrestoException, continue with adding just request.
+        }
+
         return new PrestoServerException(task, request, response);
     }
 

@@ -56,14 +56,13 @@ public class PrestoServerException
             message.append(format("PrestoException %s with code %s.\n", serverException.get().getErrorCode().getName(), serverException.get().getErrorCode().getCode()));
             message.append(format("PrestoException message: \n%s\n", serverException.get().getMessage()));
         }
-        else if (!response.hasValue()) {
+        else {
             message.append(format("Response info:\n%s\n", response));
             message.append(format("Response body:\n%s\n", response.getResponseBody()));
+            if (response.hasValue()) {
+                message.append(format("Response status:\n%s\n", response.getStatusMessage()));
+            }
         }
-        else {
-            message.append(format("Response status:\n%s\n", response.getStatusMessage()));
-        }
-
         return message.toString();
     }
 
