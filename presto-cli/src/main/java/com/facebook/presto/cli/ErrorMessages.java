@@ -66,17 +66,19 @@ public class ErrorMessages
             return message;
         }
 
-        public static Builder builder()
+        public static Builder builder(ClientSession session)
         {
-            return new Builder();
+            return new Builder(session);
         }
 
         private static class Builder
         {
+            private ClientSession session;
             private StringBuilder builder = new StringBuilder();
 
-            public Builder()
+            public Builder(ClientSession session)
             {
+                this.session = session;
                 builder.append(TIPS_INTRO);
             }
 
@@ -88,7 +90,12 @@ public class ErrorMessages
 
             public String build()
             {
-                return builder.toString();
+                if (!session.isQuiet()) {
+                    return builder.toString();
+                }
+                else {
+                    return "";
+                }
             }
         }
     }
@@ -166,7 +173,7 @@ public class ErrorMessages
     private static void serverNotFoundErrorMessage(StringBuilder builder, ClientSession session)
     {
         builder.append(PRESTO_COORDINATOR_NOT_FOUND);
-        Tips.Builder tipsBuilder = Tips.builder();
+        Tips.Builder tipsBuilder = Tips.builder(session);
         tipsBuilder.addTip(Tips.VERIFY_PRESTO_RUNNING, session.getServer())
                 .addTip(Tips.DEFINE_SERVER_AS_CLI_PARAM)
                 .addTip(Tips.CHECK_NETWORK).build();
@@ -179,7 +186,7 @@ public class ErrorMessages
     private static void serverStartingUpErrorMessage(StringBuilder builder, ClientSession session)
     {
         builder.append(PRESTO_STARTING_UP);
-        Tips.Builder tipsBuilder = Tips.builder();
+        Tips.Builder tipsBuilder = Tips.builder(session);
         tipsBuilder.addTip(Tips.WAIT_FOR_INITIALIZATION);
         if (!session.isDebug()) {
             tipsBuilder.addTip(Tips.USE_DEBUG_MODE);
@@ -190,7 +197,7 @@ public class ErrorMessages
     private static void serverShuttingDownErrorMessage(StringBuilder builder, ClientSession session)
     {
         builder.append(PRESTO_SHUTTING_DOWN);
-        Tips.Builder tipsBuilder = Tips.builder();
+        Tips.Builder tipsBuilder = Tips.builder(session);
         tipsBuilder.addTip(Tips.WAIT_FOR_SERVER_RESTART)
                 .addTip(Tips.START_SERVER_AGAIN);
         if (!session.isDebug()) {
@@ -202,7 +209,7 @@ public class ErrorMessages
     private static void serverFileNotFoundErrorMessage(StringBuilder builder, ClientSession session)
     {
         builder.append(PRESTO_COORDINATOR_404);
-        Tips.Builder tipsBuilder = Tips.builder();
+        Tips.Builder tipsBuilder = Tips.builder(session);
         tipsBuilder.addTip(Tips.VERIFY_PRESTO_RUNNING, session.getServer())
                 .addTip(Tips.DEFINE_SERVER_AS_CLI_PARAM)
                 .addTip(Tips.CHECK_NETWORK)
