@@ -50,8 +50,7 @@ public class InMemoryConnector
     @Override
     public boolean isSingleStatementWritesOnly()
     {
-        // TODO: support transactional metadata
-        return true;
+        return false;
     }
 
     @Override
