@@ -67,7 +67,7 @@ public class TestInMemorySmoke
     }
 
     @Test
-    public void inMemoryConnectorUsage()
+    public void select()
             throws SQLException
     {
         assertThatQueryReturnsValue("CREATE TABLE nation as SELECT * FROM tpch.tiny.nation", 25L);
@@ -83,6 +83,15 @@ public class TestInMemorySmoke
         assertThatQueryReturnsValue("INSERT INTO nation SELECT * FROM tpch.tiny.nation", 25L);
 
         assertThatQueryReturnsValue("SELECT count(*) FROM nation", 75L);
+    }
+
+    @Test
+    public void selectColumnsSubset()
+            throws SQLException
+    {
+        assertThatQueryReturnsValue("CREATE TABLE nation as SELECT * FROM tpch.tiny.nation", 25L);
+
+        assertThatQueryReturnsSameValueAs("SELECT nationkey, regionkey FROM nation ORDER BY nationkey", "SELECT nationkey, regionkey FROM tpch.tiny.nation ORDER BY nationkey");
     }
 
     private List<QualifiedObjectName> listInMemoryTables()
