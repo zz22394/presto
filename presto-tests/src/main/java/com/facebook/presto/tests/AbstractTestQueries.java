@@ -88,6 +88,7 @@ public abstract class AbstractTestQueries
             .window(CustomRank.class)
             .scalars(CustomAdd.class)
             .scalars(CreateHll.class)
+            .scalars(CustomDoubleBigintCompare.class)
             .getFunctions();
 
     public static final List<PropertyMetadata<?>> TEST_SYSTEM_PROPERTIES = ImmutableList.of(
@@ -6813,6 +6814,31 @@ public abstract class AbstractTestQueries
         assertAccessDenied("INSERT INTO orders SELECT * FROM orders", "Cannot insert into table .*.orders.*", privilege("orders", INSERT_TABLE));
         assertAccessDenied("DELETE FROM orders", "Cannot delete from table .*.orders.*", privilege("orders", DELETE_TABLE));
         assertAccessDenied("CREATE TABLE foo AS SELECT * FROM orders", "Cannot create table .*.foo.*", privilege("foo", CREATE_TABLE));
+    }
+
+    @Test
+    public void testNotParametricNotTypeOnlyCoercionWithEqualityAndPushdownOptimization()
+            throws Exception
+    {
+        // Making sure sin is defined and coercions do work.
+        assertQuery("SELECT sin(1)");
+        assertQuery("SELECT sin(CAST(1 AS BIGINT))");
+        assertQuery("SELECT sin(1.1)");
+
+        // Complex coercions across joins
+        assertQuery("SELECT * FROM (" +
+                        "  SELECT sin(t2.z) cc FROM (" +
+                        "    SELECT *" +
+                        "    FROM (VALUES (CAST(1.1 AS DOUBLE))) t(z)" +
+                        "  ) t2" +
+                        "  JOIN (" +
+                        "    SELECT *" +
+                        "    FROM (VALUES (CAST(1.1 AS DOUBLE))) u(z)" +
+                        "    WHERE z=1" +
+                        "  ) u2" +
+                        "  ON t2.z = u2.z" +
+                        ") tt " +
+                        "WHERE cc = 1.1");
     }
 
     @Test
