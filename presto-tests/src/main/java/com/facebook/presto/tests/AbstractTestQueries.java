@@ -1535,6 +1535,23 @@ public abstract class AbstractTestQueries
     }
 
     @Test
+    public void testGrouping()
+            throws Exception
+    {
+        assertQuery("" +
+            "SELECT a, b, sum(c), grouping(a, b)\n" +
+            "FROM (VALUES\n" +
+            "      ('h', 'j', 11),\n" +
+            "      ('k', 'l', 7)\n" +
+            "      ) AS t (a, b, c)\n" +
+            "GROUP BY GROUPING SETS ( (a), (b))\n",
+            "VALUES ('h', NULL, 11, 1),\n" +
+                    "('k', NULL, 7, 1),\n" +
+                    "(NULL, 'j', 11, 2),\n" +
+                    "(NULL, 'l', 7, 2)");
+    }
+
+    @Test
     public void testIntersect()
             throws Exception
     {

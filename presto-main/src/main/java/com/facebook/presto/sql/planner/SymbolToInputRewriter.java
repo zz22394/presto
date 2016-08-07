@@ -56,7 +56,7 @@ public class SymbolToInputRewriter
             Symbol groupId = new Symbol("groupid");
             checkState(symbolToChannelMapping.containsKey(groupId), "grouping operation requires an available groupid channel");
             List<Expression> arguments = Arrays.asList(new FieldReference(symbolToChannelMapping.get(groupId)), node.getArguments().get(1), node.getArguments().get(2));
-            return new FunctionCall(node.getLocation().get(), node.getName(), arguments);
+            return new FunctionCall(node.getName(), arguments);
         }
         else {
             return rewriteExpression(node, context, treeRewriter);
