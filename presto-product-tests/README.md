@@ -240,10 +240,10 @@ setup outlined below:
 3. Add an IP-to-host mapping for the docker hosts in `/etc/hosts`.
 The format of `/etc/hosts` entries is `<ip> <host>`:
 
-    - On GNU/Linux run the following command: 
+    - On GNU/Linux run the following command add output of below command to `/etc/hosts`: 
 
         ```
-        sudo presto-product-tests/bin/hosts.sh singlenode > /etc/hosts
+        presto-product-tests/bin/hosts.sh singlenode
         ```
 
     Note that above command requires [jq](https://stedolan.github.io/jq/) to be installed in your system
