@@ -122,6 +122,7 @@ import com.facebook.presto.sql.tree.QualifiedName;
 import com.facebook.presto.type.BigintOperators;
 import com.facebook.presto.type.BooleanOperators;
 import com.facebook.presto.type.CharOperatorsNoPad;
+import com.facebook.presto.type.CharOperatorsPadSpaces;
 import com.facebook.presto.type.ColorOperators;
 import com.facebook.presto.type.DateOperators;
 import com.facebook.presto.type.DateTimeOperators;
@@ -494,7 +495,12 @@ public class FunctionRegistry
                 break;
         }
 
-        builder.scalars(CharOperatorsNoPad.class);
+        if (featuresConfig.isCharPadSpaces()) {
+            builder.scalars(CharOperatorsPadSpaces.class);
+        }
+        else {
+            builder.scalars(CharOperatorsNoPad.class);
+        }
 
         if (featuresConfig.isExperimentalSyntaxEnabled()) {
             builder.aggregate(ApproximateAverageAggregations.class)

@@ -58,6 +58,8 @@ public class FeaturesConfig
     private int re2JDfaRetries = 5;
     private RegexLibrary regexLibrary = JONI;
 
+    private boolean charPadSpaces = false;
+
     @NotNull
     public String getResourceGroupManager()
     {
@@ -267,6 +269,19 @@ public class FeaturesConfig
     public FeaturesConfig setRegexLibrary(RegexLibrary regexLibrary)
     {
         this.regexLibrary = regexLibrary;
+        return this;
+    }
+
+    public boolean isCharPadSpaces()
+    {
+        return charPadSpaces;
+    }
+
+    @Config("char.pad-spaces")
+    @ConfigDescription("Pad character strings with spaces during comparison")
+    public FeaturesConfig setCharPadSpaces(boolean charPadSpaces)
+    {
+        this.charPadSpaces = charPadSpaces;
         return this;
     }
 }
