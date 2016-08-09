@@ -26,4 +26,6 @@ public interface HashAggregationBuilder
     Iterator<Page> buildResult();
 
     boolean checkFullAndUpdateMemory();
+
+    boolean isBusy();
 }

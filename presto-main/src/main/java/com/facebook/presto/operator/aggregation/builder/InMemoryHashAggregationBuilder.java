@@ -25,6 +25,7 @@ import com.facebook.presto.spi.type.Type;
 import com.facebook.presto.sql.planner.plan.AggregationNode;
 import com.google.common.collect.AbstractIterator;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
 
 import java.util.ArrayList;
@@ -117,6 +118,12 @@ public class InMemoryHashAggregationBuilder
     }
 
     @Override
+    public boolean isBusy()
+    {
+        return false;
+    }
+
+    @Override
     public void close()
     {
     }
@@ -134,6 +141,18 @@ public class InMemoryHashAggregationBuilder
         return sizeInMemory;
     }
 
+    public void setOutputPartial()
+    {
+        for (Aggregator aggregator : aggregators) {
+            aggregator.setOutputPartial();
+        }
+    }
+
+    public int getKeyChannels()
+    {
+        return groupByHash.getTypes().size();
+    }
+
     public long getGroupCount()
     {
         return groupByHash.getGroupCount();
@@ -145,11 +164,25 @@ public class InMemoryHashAggregationBuilder
         return buildResult(consecutiveGroupIds());
     }
 
+    public Iterator<Page> buildResultSorted()
+    {
+        return buildResult(sortedGroupIds());
+    }
+
     public List<Type> buildTypes()
     {
         ArrayList<Type> types = new ArrayList<>(groupByHash.getTypes());
         for (Aggregator aggregator : aggregators) {
             types.add(aggregator.getType());
+        }
+        return types;
+    }
+
+    public List<Type> buildIntermediateTypes()
+    {
+        ArrayList<Type> types = new ArrayList<>(groupByHash.getTypes());
+        for (InMemoryHashAggregationBuilder.Aggregator aggregator : aggregators) {
+            types.add(aggregator.getIntermediateType());
         }
         return types;
     }
@@ -221,6 +254,13 @@ public class InMemoryHashAggregationBuilder
         return IntStream.range(0, groupByHash.getGroupCount()).iterator();
     }
 
+    private Iterator<Integer> sortedGroupIds()
+    {
+        List<Integer> groupIds = Lists.newArrayList(consecutiveGroupIds());
+        groupIds.sort(groupByHash::compare);
+        return groupIds.iterator();
+    }
+
     private static class Aggregator
     {
         private final GroupedAccumulator aggregation;
@@ -283,6 +323,11 @@ public class InMemoryHashAggregationBuilder
             else {
                 aggregation.evaluateFinal(groupId, output);
             }
+        }
+
+        public void setOutputPartial()
+        {
+            step = AggregationNode.Step.partialOutput(step);
         }
     }
 
