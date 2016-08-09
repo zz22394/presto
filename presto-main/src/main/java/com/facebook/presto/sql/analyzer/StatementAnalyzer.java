@@ -846,6 +846,7 @@ class StatementAnalyzer
                         rightExpressions.add(rightExpression);
                         analysis.recordSubqueries(node, leftExpressionAnalysis);
                         analysis.recordSubqueries(node, rightExpressionAnalysis);
+                        addCoercionForJoinCriteria(node, leftExpression, rightExpression);
                     }
                     else {
                         // mixed references to both left and right join relation on one side of comparison operator.
