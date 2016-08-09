@@ -219,6 +219,7 @@ import static com.facebook.presto.operator.scalar.RowNotEqualOperator.ROW_NOT_EQ
 import static com.facebook.presto.operator.scalar.RowToJsonCast.ROW_TO_JSON;
 import static com.facebook.presto.operator.scalar.RowToRowCast.ROW_TO_ROW_CAST;
 import static com.facebook.presto.operator.scalar.TryCastFunction.TRY_CAST;
+import static com.facebook.presto.operator.scalar.TypeOfFunction.TYPE_OF;
 import static com.facebook.presto.operator.scalar.VarcharToVarcharCast.VARCHAR_TO_VARCHAR_CAST;
 import static com.facebook.presto.operator.scalar.ZipFunction.ZIP_FUNCTIONS;
 import static com.facebook.presto.operator.window.AggregateWindowFunction.supplier;
@@ -480,7 +481,8 @@ public class FunctionRegistry
                 .function(CONCAT)
                 .function(DECIMAL_TO_DECIMAL_CAST)
                 .function(new Re2JCastToRegexpFunction(featuresConfig.getRe2JDfaStatesLimit(), featuresConfig.getRe2JDfaRetries()))
-                .function(TRY_CAST);
+                .function(TRY_CAST)
+                .function(TYPE_OF);
 
         builder.function(new ArrayAggregationFunction(featuresConfig.isLegacyArrayAgg()));
 

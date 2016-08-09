@@ -21,3 +21,10 @@ Conversion Functions
 .. function:: try_cast(value AS type) -> type
 
     Like :func:`cast`, but returns null if the cast fails.
+
+Miscellaneous
+-------------
+
+.. function:: type_of(expr) -> varchar
+
+    Prints string name of provided expression.
