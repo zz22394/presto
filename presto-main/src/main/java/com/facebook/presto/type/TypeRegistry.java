@@ -13,6 +13,7 @@
  */
 package com.facebook.presto.type;
 
+import com.facebook.presto.spi.type.CharType;
 import com.facebook.presto.spi.type.DecimalType;
 import com.facebook.presto.spi.type.ParametricType;
 import com.facebook.presto.spi.type.StandardTypes;
@@ -198,6 +199,10 @@ public final class TypeRegistry
             return true;
         }
 
+        if (source instanceof CharType && result instanceof CharType) {
+            return true;
+        }
+
         if (source instanceof DecimalType && result instanceof DecimalType) {
             DecimalType sourceDecimal = (DecimalType) source;
             DecimalType resultDecimal = (DecimalType) result;
@@ -251,6 +256,10 @@ public final class TypeRegistry
                 return Optional.of(getCommonSuperTypeForVarchar(
                         checkType(firstType, VarcharType.class, "firstType"), checkType(secondType, VarcharType.class, "secondType")));
             }
+            if (firstTypeBaseName.equals(StandardTypes.CHAR)) {
+                return Optional.of(getCommonSuperTypeForChar(
+                        checkType(firstType, CharType.class, "firstType"), checkType(secondType, CharType.class, "secondType")));
+            }
 
             if (isCovariantParametrizedType(firstType)) {
                 return getCommonSupperTypeForCovariantParametrizedType(firstType, secondType);
@@ -283,6 +292,11 @@ public final class TypeRegistry
     private Type getCommonSuperTypeForVarchar(VarcharType firstType, VarcharType secondType)
     {
         return createVarcharType(Math.max(firstType.getLength(), secondType.getLength()));
+    }
+
+    private Type getCommonSuperTypeForChar(CharType firstType, CharType secondType)
+    {
+        return createCharType(Math.max(firstType.getLength(), secondType.getLength()));
     }
 
     private Optional<Type> getCommonSupperTypeForCovariantParametrizedType(Type firstType, Type secondType)

@@ -68,6 +68,12 @@ public class TestTypeRegistry
         assertTrue(isTypeOnlyCoercion("array(varchar(42))", "array(varchar(44))"));
         assertFalse(isTypeOnlyCoercion("array(varchar(44))", "array(varchar(42))"));
 
+        assertTrue(isTypeOnlyCoercion("char(42)", "char(44)"));
+        assertFalse(isTypeOnlyCoercion("char(44)", "char(42)"));
+
+        assertTrue(isTypeOnlyCoercion("array(char(42))", "array(char(44))"));
+        assertFalse(isTypeOnlyCoercion("array(char(44))", "array(char(42))"));
+
         assertTrue(isTypeOnlyCoercion("decimal(22,1)", "decimal(23,1)"));
         assertTrue(isTypeOnlyCoercion("decimal(2,1)", "decimal(3,1)"));
         assertFalse(isTypeOnlyCoercion("decimal(23,1)", "decimal(22,1)"));
