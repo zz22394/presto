@@ -14,16 +14,36 @@
 
 package com.facebook.presto.plugin.memory;
 
+import com.facebook.presto.spi.NodeManager;
 import com.facebook.presto.spi.Plugin;
 import com.facebook.presto.spi.connector.ConnectorFactory;
-import com.facebook.presto.spi.connector.ConnectorFactoryContext;
 import com.google.common.collect.ImmutableList;
+
+import javax.inject.Inject;
+
+import java.util.List;
+
+import static com.google.common.base.Preconditions.checkState;
+import static java.util.Objects.requireNonNull;
 
 public final class MemoryPlugin
         implements Plugin
 {
-    public Iterable<ConnectorFactory> getConnectorFactories(ConnectorFactoryContext context)
+    private NodeManager nodeManager;
+
+    @Inject
+    public void setNodeManager(NodeManager nodeManager)
     {
-        return ImmutableList.of(new MemoryConnectorFactory(context.getNodeManager()));
+        this.nodeManager = requireNonNull(nodeManager, "nodeManager is null");
+    }
+
+    @Override
+    public <T> List<T> getServices(Class<T> type)
+    {
+        if (type == ConnectorFactory.class) {
+            checkState(nodeManager != null, "NodeManager has not been set");
+            return ImmutableList.of(type.cast(new MemoryConnectorFactory(nodeManager)));
+        }
+        return ImmutableList.of();
     }
 }
