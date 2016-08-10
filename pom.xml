@@ -80,7 +80,7 @@
         <module>presto-redis</module>
         <module>presto-cassandra</module>
         <module>presto-blackhole</module>
-        <module>presto-memory</module>
+        <module>presto-in-memory</module>
         <module>presto-orc</module>
         <module>presto-hive</module>
         <module>presto-hive-hadoop1</module>
