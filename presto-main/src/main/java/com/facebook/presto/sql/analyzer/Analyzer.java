@@ -54,7 +54,6 @@ public class Analyzer
         this.experimentalSyntaxEnabled = experimentalSyntaxEnabled;
     }
 
-
     public Analysis analyze(Statement statement)
     {
         return analyze(statement, false);
