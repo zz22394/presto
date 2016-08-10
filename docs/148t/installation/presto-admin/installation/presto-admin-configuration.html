@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Configuring Presto-Admin &mdash; Teradata Distribution of Presto 0.148-t.1.1 Documentation</title>
+  <title>2. Configuring Presto-Admin &mdash; Teradata Distribution of Presto 0.148-t.1.2 Documentation</title>
   
 
   
@@ -30,10 +30,10 @@
   
 
   
-    <link rel="top" title="Teradata Distribution of Presto 0.148-t.1.1 Documentation" href="../../../index.html"/>
-        <link rel="up" title="7. Presto Server Installation on an AWS EMR (Presto Admin and RPMs)" href="../../../server-installation-aws-emr-manual.html"/>
-        <link rel="next" title="Installing Java 8" href="java-installation.html"/>
-        <link rel="prev" title="Installing Presto Admin" href="presto-admin-installation.html"/> 
+    <link rel="top" title="Teradata Distribution of Presto 0.148-t.1.2 Documentation" href="../../../index.html"/>
+        <link rel="up" title="Manual Installation on a Cluster" href="../../installation-presto-admin.html"/>
+        <link rel="next" title="3. Installing Java 8" href="java-installation.html"/>
+        <link rel="prev" title="1. Installing Presto Admin" href="presto-admin-installation.html"/> 
 
   
   <script src="../../../_static/js/modernizr.min.js"></script>
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                0.148-t.1.1
+                0.148-t.1.2
               </div>
             
           
@@ -93,47 +93,34 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../../../server-installation-aws-emr-manual.html">7. Presto Server Installation on an AWS EMR (Presto Admin and RPMs)</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../../../server-installation-aws-emr-manual.html#system-requirements">7.1. System Requirements</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../../../server-installation-aws-emr-manual.html#manual-installation-on-an-aws-emr">7.2. Manual Installation on an AWS EMR</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="presto-admin-installation.html">Installing Presto Admin</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Configuring Presto Admin</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#configuration-for-amazon-emr">Configuration for Amazon EMR</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#configuration-for-other-clusters">Configuration for other clusters</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#sudo-password-specification">Sudo Password Specification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="presto-admin-installation.html">1. Installing Presto Admin</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">2. Configuring Presto Admin</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#configuration-for-amazon-emr">2.1. Configuration for Amazon EMR</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#configuration-for-other-clusters">2.2. Configuration for other clusters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sudo-password-specification">2.3. Sudo Password Specification</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="java-installation.html">Installing Java 8</a></li>
-<li class="toctree-l3"><a class="reference internal" href="presto-server-installation.html">Installing the Presto Server</a></li>
-<li class="toctree-l3"><a class="reference internal" href="presto-cli-installation.html">Installing the Presto CLI</a></li>
-<li class="toctree-l3"><a class="reference internal" href="presto-connector-installation.html">Adding a Connector</a></li>
-<li class="toctree-l3"><a class="reference internal" href="presto-configuration.html">Configuring Presto</a></li>
-<li class="toctree-l3"><a class="reference internal" href="troubleshooting-installation.html">Troubleshooting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="java-installation.html">3. Installing Java 8</a></li>
+<li class="toctree-l3"><a class="reference internal" href="presto-server-installation.html">4. Installing the Presto Server</a></li>
+<li class="toctree-l3"><a class="reference internal" href="presto-cli-installation.html">5. Installing the Presto CLI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="presto-connector-installation.html">6. Adding a Connector</a></li>
+<li class="toctree-l3"><a class="reference internal" href="presto-configuration.html">7. Configuring Presto</a></li>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting-installation.html">8. Troubleshooting</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../user-guide.html">8. Presto Admin</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../admin.html">9. Administration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../connector.html">10. Connectors</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../security.html">11. Security</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../functions.html">12. Functions and Operators</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../language.html">13. SQL Language</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../sql.html">14. SQL Statement Syntax</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../migration.html">15. Migration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../release.html">16. Release Notes</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../connector/cassandra.html">Cassandra Connector</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../connector/kafka.html">Kafka Connector</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../connector/kafka-tutorial.html">Kafka Connector Tutorial</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../connector/localfile.html">Local File Connector</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../connector/mongodb.html">MongoDB Connector</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../connector/redis.html">Redis Connector</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../installation-ambari.html">Automated Installation on a Cluster</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../installation-presto-admin.html">Manual Installation on a Cluster</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../installation-yarn-automated.html">Automated Installation on a YARN-Based Cluster</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../installation-yarn-manual.html">Manual Installation on a YARN-Based Cluster</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../yarn.html">YARN Integration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../develop.html">Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client.html">8. Presto Client Software</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user-guide.html">9. Presto Admin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../yarn.html">10. YARN Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../admin.html">11. Administration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../connector.html">12. Connectors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../security.html">13. Security</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../functions.html">14. Functions and Operators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../language.html">15. SQL Language</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sql.html">16. SQL Statement Syntax</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../migration.html">17. Migration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../release.html">18. Release Notes</a></li>
 </ul>
 
             
@@ -164,9 +151,11 @@
   <ul class="wy-breadcrumbs">
     <li><a href="../../../index.html">Docs</a> &raquo;</li>
       
-        <li><a href="../../../server-installation-aws-emr-manual.html">7. Presto Server Installation on an AWS EMR (Presto Admin and RPMs)</a> &raquo;</li>
+        <li><a href="../../../getting-started.html">3. Getting Started</a> &raquo;</li>
       
-    <li>Configuring Presto-Admin</li>
+        <li><a href="../../installation-presto-admin.html">Manual Installation on a Cluster</a> &raquo;</li>
+      
+    <li>2. Configuring Presto-Admin</li>
     <li class="wy-breadcrumbs-aside">
       
         
@@ -181,7 +170,7 @@
            <div itemprop="articleBody">
             
   <div class="section" id="configuring-presto-admin">
-<span id="presto-admin-configuration-label"></span><h1>Configuring Presto-Admin</h1>
+<span id="presto-admin-configuration-label"></span><h1>2. Configuring Presto-Admin</h1>
 <p>A Presto cluster consists of a coordinator node and one or more workers nodes.
 A coordinator and worker may be located on the same node, meaning that you can
 have a single-node installation of Presto, but having a dedicated node for the
@@ -199,15 +188,15 @@ the nodes via SSH as that user (see <a class="reference internal" href="../ssh-c
 on how to set that up). The file should be owned by root with R/W permissions
 (i.e. 622).</p>
 <div class="section" id="configuration-for-amazon-emr">
-<h2>Configuration for Amazon EMR</h2>
+<h2>2.1. Configuration for Amazon EMR</h2>
 <p>Use the following configuration as a template for Amazon EMR:</p>
-<div class="highlight-sql"><div class="highlight"><pre><span></span>{
-&quot;username&quot;: &quot;hadoop&quot;,
-&quot;port&quot;: &quot;&lt;ssh_port&gt;&quot;,
-&quot;coordinator&quot;: &quot;&lt;EMR_master_node_host_name&gt;&quot;,
-&quot;workers&quot;: [&quot;&lt;host_name_1&gt;&quot;, &quot;&lt;host_name_2&gt;&quot;, ... &quot;&lt;host_name_n&gt;&quot;],
-&quot;java8_home&quot;:&quot;&lt;path/to/java8/on/presto/nodes&gt;&quot;
-}
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="o">{</span>
+<span class="s2">&quot;username&quot;</span>: <span class="s2">&quot;hadoop&quot;</span>,
+<span class="s2">&quot;port&quot;</span>: <span class="s2">&quot;&lt;ssh_port&gt;&quot;</span>,
+<span class="s2">&quot;coordinator&quot;</span>: <span class="s2">&quot;&lt;EMR_master_node_host_name&gt;&quot;</span>,
+<span class="s2">&quot;workers&quot;</span>: <span class="o">[</span><span class="s2">&quot;&lt;host_name_1&gt;&quot;</span>, <span class="s2">&quot;&lt;host_name_2&gt;&quot;</span>, ... <span class="s2">&quot;&lt;host_name_n&gt;&quot;</span><span class="o">]</span>,
+<span class="s2">&quot;java8_home&quot;</span>:<span class="s2">&quot;&lt;path/to/java8/on/presto/nodes&gt;&quot;</span>
+<span class="o">}</span>
 </pre></div>
 </div>
 <p>Also, for running Presto Admin commands on Amazon EMR, do the following:</p>
@@ -216,7 +205,7 @@ on how to set that up). The file should be owned by root with R/W permissions
 <li><p class="first">Copy the <code class="docutils literal"><span class="pre">.pem</span></code> file associated with the Amazon EC2 key pair to the Presto Admin installation node of the EMR cluster.</p>
 </li>
 <li><p class="first">Use the <code class="docutils literal"><span class="pre">-i</span> <span class="pre">&lt;/path/to/your.pem&gt;</span></code> input argument when running presto-admin commands on the node.</p>
-<div class="highlight-sql"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="o">&lt;/</span><span class="n">path</span><span class="o">/</span><span class="k">to</span><span class="o">/</span><span class="n">presto</span><span class="o">-</span><span class="k">admin</span><span class="o">&gt;</span> <span class="o">-</span><span class="n">i</span> <span class="o">&lt;/</span><span class="n">path</span><span class="o">/</span><span class="k">to</span><span class="o">/</span><span class="n">your</span><span class="p">.</span><span class="n">pem</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">presto_admin_command</span><span class="o">&gt;</span>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sudo &lt;/path/to/presto-admin&gt; -i &lt;/path/to/your.pem&gt; &lt;presto_admin_command&gt;
 </pre></div>
 </div>
 </li>
@@ -224,25 +213,25 @@ on how to set that up). The file should be owned by root with R/W permissions
 </div></blockquote>
 </div>
 <div class="section" id="configuration-for-other-clusters">
-<h2>Configuration for other clusters</h2>
+<h2>2.2. Configuration for other clusters</h2>
 <p>Use the following configuration as a template for other clusters:</p>
-<div class="highlight-sql"><div class="highlight"><pre><span></span>{
-&quot;username&quot;: &quot;&lt;ssh_user_name&gt;&quot;,
-&quot;port&quot;: &quot;&lt;ssh_port&gt;&quot;,
-&quot;coordinator&quot;: &quot;&lt;host_name&gt;&quot;,
-&quot;workers&quot;: [&quot;&lt;host_name_1&gt;&quot;, &quot;&lt;host_name_2&gt;&quot;, ... &quot;&lt;host_name_n&gt;&quot;],
-&quot;java8_home&quot;:&quot;&lt;path/to/java8/on/presto/nodes&gt;&quot;
-}
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="o">{</span>
+<span class="s2">&quot;username&quot;</span>: <span class="s2">&quot;&lt;ssh_user_name&gt;&quot;</span>,
+<span class="s2">&quot;port&quot;</span>: <span class="s2">&quot;&lt;ssh_port&gt;&quot;</span>,
+<span class="s2">&quot;coordinator&quot;</span>: <span class="s2">&quot;&lt;host_name&gt;&quot;</span>,
+<span class="s2">&quot;workers&quot;</span>: <span class="o">[</span><span class="s2">&quot;&lt;host_name_1&gt;&quot;</span>, <span class="s2">&quot;&lt;host_name_2&gt;&quot;</span>, ... <span class="s2">&quot;&lt;host_name_n&gt;&quot;</span><span class="o">]</span>,
+<span class="s2">&quot;java8_home&quot;</span>:<span class="s2">&quot;&lt;path/to/java8/on/presto/nodes&gt;&quot;</span>
+<span class="o">}</span>
 </pre></div>
 </div>
 <p>All of the properties are optional, and if left out the following defaults will
 be used:</p>
-<div class="highlight-sql"><div class="highlight"><pre><span></span>{
-&quot;username&quot;: &quot;root&quot;,
-&quot;port&quot;: &quot;22&quot;,
-&quot;coordinator&quot;: &quot;localhost&quot;,
-&quot;workers&quot;: [&quot;localhost&quot;]
-}
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="o">{</span>
+<span class="s2">&quot;username&quot;</span>: <span class="s2">&quot;root&quot;</span>,
+<span class="s2">&quot;port&quot;</span>: <span class="s2">&quot;22&quot;</span>,
+<span class="s2">&quot;coordinator&quot;</span>: <span class="s2">&quot;localhost&quot;</span>,
+<span class="s2">&quot;workers&quot;</span>: <span class="o">[</span><span class="s2">&quot;localhost&quot;</span><span class="o">]</span>
+<span class="o">}</span>
 </pre></div>
 </div>
 <p>Note that <code class="docutils literal"><span class="pre">java8_home</span></code> is not set by default.  It only needs to be set if
@@ -256,25 +245,25 @@ to tell the Presto RPM where to find Java 8.</p>
 default configuration is for a single-node installation of Presto on the same
 node that <code class="docutils literal"><span class="pre">presto-admin</span></code> is installed on. For a 6 node cluster with default
 username and port, a sample <code class="docutils literal"><span class="pre">config.json</span></code> would be:</p>
-<div class="highlight-sql"><div class="highlight"><pre><span></span>{
-&quot;coordinator&quot;: &quot;master&quot;,
-&quot;workers&quot;: [&quot;slave1&quot;,&quot;slave2&quot;,&quot;slave3&quot;,&quot;slave4&quot;,&quot;slave5&quot;]
-}
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="o">{</span>
+<span class="s2">&quot;coordinator&quot;</span>: <span class="s2">&quot;master&quot;</span>,
+<span class="s2">&quot;workers&quot;</span>: <span class="o">[</span><span class="s2">&quot;slave1&quot;</span>,<span class="s2">&quot;slave2&quot;</span>,<span class="s2">&quot;slave3&quot;</span>,<span class="s2">&quot;slave4&quot;</span>,<span class="s2">&quot;slave5&quot;</span><span class="o">]</span>
+<span class="o">}</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="sudo-password-specification">
-<span id="sudo-password-spec"></span><h2>Sudo Password Specification</h2>
+<span id="sudo-password-spec"></span><h2>2.3. Sudo Password Specification</h2>
 <p>Please note that if the username you specify is not root, and that user needs
 to specify a sudo password, you do so in one of two ways. You can specify it on
 the command line:</p>
-<div class="highlight-sql"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="p">.</span><span class="o">/</span><span class="n">presto</span><span class="o">-</span><span class="k">admin</span> <span class="o">&lt;</span><span class="n">command</span><span class="o">&gt;</span> <span class="o">-</span><span class="n">p</span> <span class="o">&lt;</span><span class="n">password</span><span class="o">&gt;</span>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sudo ./presto-admin &lt;command&gt; -p &lt;password&gt;
 </pre></div>
 </div>
 <p>Alternatively, you can opt to use an interactive password prompt, which prompts
 you for the initial value of your password before running any commands:</p>
-<div class="highlight-sql"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="p">.</span><span class="o">/</span><span class="n">presto</span><span class="o">-</span><span class="k">admin</span> <span class="o">&lt;</span><span class="n">command</span><span class="o">&gt;</span> <span class="o">-</span><span class="n">I</span>
-<span class="n">Initial</span> <span class="n">value</span> <span class="k">for</span> <span class="n">env</span><span class="p">.</span><span class="n">password</span><span class="p">:</span> <span class="o">&lt;</span><span class="k">type</span> <span class="n">your</span> <span class="n">password</span> <span class="n">here</span><span class="o">&gt;</span>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>sudo ./presto-admin &lt;command&gt; -I
+Initial value <span class="k">for</span> env.password: &lt;<span class="nb">type</span> your password here&gt;
 </pre></div>
 </div>
 <p>The sudo password for the user must be the same as the SSH password.</p>
@@ -288,10 +277,10 @@ you for the initial value of your password before running any commands:</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="java-installation.html" class="btn btn-neutral float-right" title="Installing Java 8" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="java-installation.html" class="btn btn-neutral float-right" title="3. Installing Java 8" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="presto-admin-installation.html" class="btn btn-neutral" title="Installing Presto Admin" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="presto-admin-installation.html" class="btn btn-neutral" title="1. Installing Presto Admin" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -320,7 +309,7 @@ you for the initial value of your password before running any commands:</p>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../../',
-            VERSION:'0.148-t.1.1',
+            VERSION:'0.148-t.1.2',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

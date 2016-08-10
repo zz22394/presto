@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>9.4. Resource Group Configuration &mdash; Teradata Distribution of Presto 0.148-t.1.1 Documentation</title>
+  <title>11.4. Resource Group Configuration &mdash; Teradata Distribution of Presto 0.148-t.1.2 Documentation</title>
   
 
   
@@ -30,10 +30,10 @@
   
 
   
-    <link rel="top" title="Teradata Distribution of Presto 0.148-t.1.1 Documentation" href="../index.html"/>
-        <link rel="up" title="9. Administration" href="../admin.html"/>
-        <link rel="next" title="9.5. Presto on AWS EMR" href="../aws/emr.html"/>
-        <link rel="prev" title="9.3. Queue Configuration" href="queue.html"/> 
+    <link rel="top" title="Teradata Distribution of Presto 0.148-t.1.2 Documentation" href="../index.html"/>
+        <link rel="up" title="11. Administration" href="../admin.html"/>
+        <link rel="next" title="11.5. Presto on AWS EMR" href="../aws/emr.html"/>
+        <link rel="prev" title="11.3. Queue Configuration" href="queue.html"/> 
 
   
   <script src="../_static/js/modernizr.min.js"></script>
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                0.148-t.1.1
+                0.148-t.1.2
               </div>
             
           
@@ -91,41 +91,28 @@
 <li class="toctree-l1"><a class="reference internal" href="../server-installation-cluster-automated.html">5. Presto Server Installation on a Cluster (Ambari)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../server-installation-cluster-manual.html">6. Presto Server Installation on a Cluster (Presto Admin and RPMs)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../server-installation-aws-emr-manual.html">7. Presto Server Installation on an AWS EMR (Presto Admin and RPMs)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../installation/presto-admin/user-guide.html">8. Presto Admin</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="../admin.html">9. Administration</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="web-interface.html">9.1. Web Interface</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tuning.html">9.2. Tuning Presto</a></li>
-<li class="toctree-l2"><a class="reference internal" href="queue.html">9.3. Queue Configuration</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">9.4. Resource Group Configuration</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../client.html">8. Presto Client Software</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation/presto-admin/user-guide.html">9. Presto Admin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../yarn.html">10. YARN Integration</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../admin.html">11. Administration</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="web-interface.html">11.1. Web Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tuning.html">11.2. Tuning Presto</a></li>
+<li class="toctree-l2"><a class="reference internal" href="queue.html">11.3. Queue Configuration</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">11.4. Resource Group Configuration</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#resource-group-properties">Resource Group Properties</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#selector-properties">Selector Properties</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../aws/emr.html">9.5. Presto on AWS EMR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../aws/emr.html">11.5. Presto on AWS EMR</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../connector.html">10. Connectors</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../security.html">11. Security</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../functions.html">12. Functions and Operators</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../language.html">13. SQL Language</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../sql.html">14. SQL Statement Syntax</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../migration.html">15. Migration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../release.html">16. Release Notes</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../connector/cassandra.html">Cassandra Connector</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../connector/kafka.html">Kafka Connector</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../connector/kafka-tutorial.html">Kafka Connector Tutorial</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../connector/localfile.html">Local File Connector</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../connector/mongodb.html">MongoDB Connector</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../connector/redis.html">Redis Connector</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../installation/installation-ambari.html">Automated Installation on a Cluster</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../installation/installation-presto-admin.html">Manual Installation on a Cluster</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../installation/installation-yarn-automated.html">Automated Installation on a YARN-Based Cluster</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../installation/installation-yarn-manual.html">Manual Installation on a YARN-Based Cluster</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../yarn.html">YARN Integration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../develop.html">Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../connector.html">12. Connectors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../security.html">13. Security</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../functions.html">14. Functions and Operators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../language.html">15. SQL Language</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sql.html">16. SQL Statement Syntax</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../migration.html">17. Migration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release.html">18. Release Notes</a></li>
 </ul>
 
             
@@ -156,9 +143,9 @@
   <ul class="wy-breadcrumbs">
     <li><a href="../index.html">Docs</a> &raquo;</li>
       
-        <li><a href="../admin.html">9. Administration</a> &raquo;</li>
+        <li><a href="../admin.html">11. Administration</a> &raquo;</li>
       
-    <li>9.4. Resource Group Configuration</li>
+    <li>11.4. Resource Group Configuration</li>
     <li class="wy-breadcrumbs-aside">
       
         
@@ -173,7 +160,7 @@
            <div itemprop="articleBody">
             
   <div class="section" id="resource-group-configuration">
-<h1>9.4. Resource Group Configuration</h1>
+<h1>11.4. Resource Group Configuration</h1>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">Resource groups are currently experimental and must be enabled with the
@@ -335,10 +322,10 @@ all other users are subject to the follow limits:</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../aws/emr.html" class="btn btn-neutral float-right" title="9.5. Presto on AWS EMR" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="../aws/emr.html" class="btn btn-neutral float-right" title="11.5. Presto on AWS EMR" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="queue.html" class="btn btn-neutral" title="9.3. Queue Configuration" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="queue.html" class="btn btn-neutral" title="11.3. Queue Configuration" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -367,7 +354,7 @@ all other users are subject to the follow limits:</p>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../',
-            VERSION:'0.148-t.1.1',
+            VERSION:'0.148-t.1.2',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

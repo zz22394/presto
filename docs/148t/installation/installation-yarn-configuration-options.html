@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Presto Configuration Options for YARN-Based Clusters &mdash; Teradata Distribution of Presto 0.148-t.1.1 Documentation</title>
+  <title>10.4. Presto Configuration Options for YARN-Based Clusters &mdash; Teradata Distribution of Presto 0.148-t.1.2 Documentation</title>
   
 
   
@@ -30,10 +30,10 @@
   
 
   
-    <link rel="top" title="Teradata Distribution of Presto 0.148-t.1.1 Documentation" href="../index.html"/>
-        <link rel="up" title="YARN Integration" href="../yarn.html"/>
-        <link rel="next" title="Advanced Configuration Options for YARN-Based Clusters" href="installation-yarn-configuration-options-advanced.html"/>
-        <link rel="prev" title="Presto Installation Directory Structure on YARN-Based Clusters" href="installation-yarn-directory-structure.html"/> 
+    <link rel="top" title="Teradata Distribution of Presto 0.148-t.1.2 Documentation" href="../index.html"/>
+        <link rel="up" title="10. YARN Integration" href="../yarn.html"/>
+        <link rel="next" title="10.5. Advanced Configuration Options for YARN-Based Clusters" href="installation-yarn-configuration-options-advanced.html"/>
+        <link rel="prev" title="10.3. Presto Installation Directory Structure on YARN-Based Clusters" href="installation-yarn-directory-structure.html"/> 
 
   
   <script src="../_static/js/modernizr.min.js"></script>
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                0.148-t.1.1
+                0.148-t.1.2
               </div>
             
           
@@ -83,7 +83,7 @@
           
             
             
-                <ul>
+                <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../overview.html">1. Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../system-requirements.html">2. System Requirements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../getting-started.html">3. Getting Started</a></li>
@@ -91,40 +91,29 @@
 <li class="toctree-l1"><a class="reference internal" href="../server-installation-cluster-automated.html">5. Presto Server Installation on a Cluster (Ambari)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../server-installation-cluster-manual.html">6. Presto Server Installation on a Cluster (Presto Admin and RPMs)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../server-installation-aws-emr-manual.html">7. Presto Server Installation on an AWS EMR (Presto Admin and RPMs)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="presto-admin/user-guide.html">8. Presto Admin</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../admin.html">9. Administration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../connector.html">10. Connectors</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../security.html">11. Security</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../functions.html">12. Functions and Operators</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../language.html">13. SQL Language</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../sql.html">14. SQL Statement Syntax</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../migration.html">15. Migration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../release.html">16. Release Notes</a></li>
-</ul>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../connector/cassandra.html">Cassandra Connector</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../connector/kafka.html">Kafka Connector</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../connector/kafka-tutorial.html">Kafka Connector Tutorial</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../connector/localfile.html">Local File Connector</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../connector/mongodb.html">MongoDB Connector</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../connector/redis.html">Redis Connector</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation-ambari.html">Automated Installation on a Cluster</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation-presto-admin.html">Manual Installation on a Cluster</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation-yarn-automated.html">Automated Installation on a YARN-Based Cluster</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation-yarn-manual.html">Manual Installation on a YARN-Based Cluster</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="../yarn.html">YARN Integration</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="installation-yarn-directory-structure.html">Presto Installation Directory Structure on YARN-Based Clusters</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Presto Configuration Options for YARN-Based Clusters</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../client.html">8. Presto Client Software</a></li>
+<li class="toctree-l1"><a class="reference internal" href="presto-admin/user-guide.html">9. Presto Admin</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../yarn.html">10. YARN Integration</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="installation-yarn-automated.html">10.1. Automated Installation on a YARN-Based Cluster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation-yarn-manual.html">10.2. Manual Installation on a YARN-Based Cluster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation-yarn-directory-structure.html">10.3. Presto Installation Directory Structure on YARN-Based Clusters</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">10.4. Presto Configuration Options for YARN-Based Clusters</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#appconfig-json">appConfig.json</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#resources-json">resources.json</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="installation-yarn-configuration-options-advanced.html">Advanced Configuration Options for YARN-Based Clusters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installation-yarn-debugging-logging.html">Debugging and Logging for a YARN-Based Cluster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation-yarn-configuration-options-advanced.html">10.5. Advanced Configuration Options for YARN-Based Clusters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation-yarn-debugging-logging.html">10.6. Debugging and Logging for a YARN-Based Cluster</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../develop.html">Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../admin.html">11. Administration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../connector.html">12. Connectors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../security.html">13. Security</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../functions.html">14. Functions and Operators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../language.html">15. SQL Language</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sql.html">16. SQL Statement Syntax</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../migration.html">17. Migration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release.html">18. Release Notes</a></li>
 </ul>
 
             
@@ -155,11 +144,9 @@
   <ul class="wy-breadcrumbs">
     <li><a href="../index.html">Docs</a> &raquo;</li>
       
-        <li><a href="../hidden.html">&lt;no title&gt;</a> &raquo;</li>
+        <li><a href="../yarn.html">10. YARN Integration</a> &raquo;</li>
       
-        <li><a href="../yarn.html">YARN Integration</a> &raquo;</li>
-      
-    <li>Presto Configuration Options for YARN-Based Clusters</li>
+    <li>10.4. Presto Configuration Options for YARN-Based Clusters</li>
     <li class="wy-breadcrumbs-aside">
       
         
@@ -174,7 +161,7 @@
            <div itemprop="articleBody">
             
   <div class="section" id="presto-configuration-options-for-yarn-based-clusters">
-<h1>Presto Configuration Options for YARN-Based Clusters</h1>
+<h1>10.4. Presto Configuration Options for YARN-Based Clusters</h1>
 <p>If you are using Ambari to install the Presto App package you can update
 the configuration properties from the Ambari Slider View UI. If you are
 using Slider to install Presto on YARN manually, you must edit the
@@ -185,12 +172,12 @@ can get Presto running on YARN. Sample configuration options files for the
 Presto App package are available in the repository in the following directory:</p>
 <p><code class="docutils literal"><span class="pre">presto-yarn-package/src/main/resources</span></code></p>
 <p>The &#8220;default&#8221; values listed for the sections
-<a class="reference external" href="#appconfig-json">appConfig.json</a> and <a class="reference external" href="#resources-json">resources.json</a> are
-from <code class="docutils literal"><span class="pre">presto-yarn-package/src/main/resources/appConfig.json</span></code> and
+<a class="reference internal" href="#appconfig-json-label"><span class="std std-ref">appConfig.json</span></a> and <a class="reference internal" href="#resources-json-label"><span class="std std-ref">resources.json</span></a> are from
+<code class="docutils literal"><span class="pre">presto-yarn-package/src/main/resources/appConfig.json</span></code> and
 <code class="docutils literal"><span class="pre">presto-yarn-package/src/main/resources/resources-multinode.json</span></code>
-files respectively. These default values will be auto-populated on the Slider
-View UI for installation using <a class="reference external" href="#installation-using-ambari-slider-view">Ambari</a> Slider View.
-But you can modify the properties on the UI as per your requirements.</p>
+files respectively. These default values will be auto-populated on the
+Slider View UI for installation using Ambari Slider View.  But you
+can modify the properties on the UI as per your requirements.</p>
 <p>For manual installation using Slider, copy the
 <code class="docutils literal"><span class="pre">presto-yarn-package/src/main/resources/appConfig.json</span></code> and
 <code class="docutils literal"><span class="pre">presto-yarn-package/src/main/resources/resources-[singlenode|multinode].json</span></code>
@@ -203,7 +190,7 @@ them as-is.</p>
 to match your cluster requirements. Optional ones are marked (optional).
 Please do not change any variables other than the ones listed below.</p>
 <div class="section" id="appconfig-json">
-<h2>appConfig.json</h2>
+<span id="appconfig-json-label"></span><h2>appConfig.json</h2>
 <ol class="arabic simple">
 <li><code class="docutils literal"><span class="pre">site.global.app_user</span></code> (default - <code class="docutils literal"><span class="pre">yarn</span></code>): This is the user which
 will be launching the YARN application for Presto. So all the Slider
@@ -338,12 +325,14 @@ jars under <code class="docutils literal"><span class="pre">package/plugins</spa
 <code class="docutils literal"><span class="pre">${AGENT_WORK_ROOT}</span></code> etc. do not need any substitution and will be
 appropriately configured during runtime.</li>
 </ol>
+<blockquote>
+<div></div></blockquote>
 </div>
 <div class="section" id="resources-json">
-<h2>resources.json</h2>
+<span id="resources-json-label"></span><h2>resources.json</h2>
 <p>The configuration here can be added either globally (for COORDINATOR and
-WORKER) or for each component. Refer <a class="reference external" href="#advanced-configuration">configuration</a>
-section for further details.</p>
+WORKER) or for each component. See:</p>
+<p><a class="reference internal" href="installation-yarn-configuration-options-advanced.html"><span class="doc">Advanced Configuration Options</span></a>.</p>
 <ol class="arabic simple">
 <li><code class="docutils literal"><span class="pre">yarn.vcores</span></code> (default - <code class="docutils literal"><span class="pre">1</span></code>): By default this is set globally.</li>
 <li><code class="docutils literal"><span class="pre">yarn.component.instances</span></code> (default - <code class="docutils literal"><span class="pre">1</span></code> for COORDINATOR and
@@ -372,8 +361,7 @@ be bigger than the heap size allocated to any JVM and Slider suggests
 using atleast 50% more appears to work, though some experimentation
 will be needed.</li>
 <li><code class="docutils literal"><span class="pre">yarn.label.expression</span></code> (optional) (default - <code class="docutils literal"><span class="pre">coordinator</span></code> for
-COORDINATOR and <code class="docutils literal"><span class="pre">worker</span></code> for WORKER``): See <a class="reference external" href="#using-yarn-label">label</a>
-section for details.</li>
+COORDINATOR and <code class="docutils literal"><span class="pre">worker</span></code> for WORKER``): See <a class="reference internal" href="installation-ambari.html#configuring-presto-label"><span class="std std-ref">Configuring Presto</span></a>.</li>
 </ol>
 <p>Now you are ready to deploy Presto on YARN either manually or by using
 Ambari.</p>
@@ -387,10 +375,10 @@ Ambari.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="installation-yarn-configuration-options-advanced.html" class="btn btn-neutral float-right" title="Advanced Configuration Options for YARN-Based Clusters" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="installation-yarn-configuration-options-advanced.html" class="btn btn-neutral float-right" title="10.5. Advanced Configuration Options for YARN-Based Clusters" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="installation-yarn-directory-structure.html" class="btn btn-neutral" title="Presto Installation Directory Structure on YARN-Based Clusters" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="installation-yarn-directory-structure.html" class="btn btn-neutral" title="10.3. Presto Installation Directory Structure on YARN-Based Clusters" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -419,7 +407,7 @@ Ambari.</p>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../',
-            VERSION:'0.148-t.1.1',
+            VERSION:'0.148-t.1.2',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

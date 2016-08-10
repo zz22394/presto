@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Troubleshooting &mdash; Teradata Distribution of Presto 0.148-t.1.1 Documentation</title>
+  <title>8. Troubleshooting &mdash; Teradata Distribution of Presto 0.148-t.1.2 Documentation</title>
   
 
   
@@ -30,10 +30,10 @@
   
 
   
-    <link rel="top" title="Teradata Distribution of Presto 0.148-t.1.1 Documentation" href="../../../index.html"/>
-        <link rel="up" title="7. Presto Server Installation on an AWS EMR (Presto Admin and RPMs)" href="../../../server-installation-aws-emr-manual.html"/>
-        <link rel="next" title="8. User Guide" href="../user-guide.html"/>
-        <link rel="prev" title="Configuring Presto" href="presto-configuration.html"/> 
+    <link rel="top" title="Teradata Distribution of Presto 0.148-t.1.2 Documentation" href="../../../index.html"/>
+        <link rel="up" title="Manual Installation on a Cluster" href="../../installation-presto-admin.html"/>
+        <link rel="next" title="4. Presto Installation on a Sandbox VM" href="../../../sandbox-vms.html"/>
+        <link rel="prev" title="7. Configuring Presto" href="presto-configuration.html"/> 
 
   
   <script src="../../../_static/js/modernizr.min.js"></script>
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                0.148-t.1.1
+                0.148-t.1.2
               </div>
             
           
@@ -93,42 +93,29 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../../../server-installation-aws-emr-manual.html">7. Presto Server Installation on an AWS EMR (Presto Admin and RPMs)</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../../../server-installation-aws-emr-manual.html#system-requirements">7.1. System Requirements</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../../../server-installation-aws-emr-manual.html#manual-installation-on-an-aws-emr">7.2. Manual Installation on an AWS EMR</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="presto-admin-installation.html">Installing Presto Admin</a></li>
-<li class="toctree-l3"><a class="reference internal" href="presto-admin-configuration.html">Configuring Presto Admin</a></li>
-<li class="toctree-l3"><a class="reference internal" href="java-installation.html">Installing Java 8</a></li>
-<li class="toctree-l3"><a class="reference internal" href="presto-server-installation.html">Installing the Presto Server</a></li>
-<li class="toctree-l3"><a class="reference internal" href="presto-cli-installation.html">Installing the Presto CLI</a></li>
-<li class="toctree-l3"><a class="reference internal" href="presto-connector-installation.html">Adding a Connector</a></li>
-<li class="toctree-l3"><a class="reference internal" href="presto-configuration.html">Configuring Presto</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Troubleshooting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="presto-admin-installation.html">1. Installing Presto Admin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="presto-admin-configuration.html">2. Configuring Presto Admin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="java-installation.html">3. Installing Java 8</a></li>
+<li class="toctree-l3"><a class="reference internal" href="presto-server-installation.html">4. Installing the Presto Server</a></li>
+<li class="toctree-l3"><a class="reference internal" href="presto-cli-installation.html">5. Installing the Presto CLI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="presto-connector-installation.html">6. Adding a Connector</a></li>
+<li class="toctree-l3"><a class="reference internal" href="presto-configuration.html">7. Configuring Presto</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">8. Troubleshooting</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../user-guide.html">8. Presto Admin</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../admin.html">9. Administration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../connector.html">10. Connectors</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../security.html">11. Security</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../functions.html">12. Functions and Operators</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../language.html">13. SQL Language</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../sql.html">14. SQL Statement Syntax</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../migration.html">15. Migration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../release.html">16. Release Notes</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../connector/cassandra.html">Cassandra Connector</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../connector/kafka.html">Kafka Connector</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../connector/kafka-tutorial.html">Kafka Connector Tutorial</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../connector/localfile.html">Local File Connector</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../connector/mongodb.html">MongoDB Connector</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../connector/redis.html">Redis Connector</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../installation-ambari.html">Automated Installation on a Cluster</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../installation-presto-admin.html">Manual Installation on a Cluster</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../installation-yarn-automated.html">Automated Installation on a YARN-Based Cluster</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../installation-yarn-manual.html">Manual Installation on a YARN-Based Cluster</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../yarn.html">YARN Integration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../develop.html">Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client.html">8. Presto Client Software</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user-guide.html">9. Presto Admin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../yarn.html">10. YARN Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../admin.html">11. Administration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../connector.html">12. Connectors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../security.html">13. Security</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../functions.html">14. Functions and Operators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../language.html">15. SQL Language</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sql.html">16. SQL Statement Syntax</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../migration.html">17. Migration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../release.html">18. Release Notes</a></li>
 </ul>
 
             
@@ -159,9 +146,11 @@
   <ul class="wy-breadcrumbs">
     <li><a href="../../../index.html">Docs</a> &raquo;</li>
       
-        <li><a href="../../../server-installation-aws-emr-manual.html">7. Presto Server Installation on an AWS EMR (Presto Admin and RPMs)</a> &raquo;</li>
+        <li><a href="../../../getting-started.html">3. Getting Started</a> &raquo;</li>
       
-    <li>Troubleshooting</li>
+        <li><a href="../../installation-presto-admin.html">Manual Installation on a Cluster</a> &raquo;</li>
+      
+    <li>8. Troubleshooting</li>
     <li class="wy-breadcrumbs-aside">
       
         
@@ -176,7 +165,7 @@
            <div itemprop="articleBody">
             
   <div class="section" id="troubleshooting">
-<h1>Troubleshooting</h1>
+<h1>8. Troubleshooting</h1>
 <ol class="arabic">
 <li><p class="first">To troubleshoot problems with presto-admin or Presto, you can use the
 incident report gathering commands from presto-admin to gather logs and
@@ -196,11 +185,11 @@ directory.</p>
 <a class="reference internal" href="../presto-admin-commands.html#server-status"><span class="std std-ref">server status</span></a>.</p>
 </li>
 <li><p class="first">If Presto is not running and you try to execute any command from the Presto CLI you might get:</p>
-<div class="highlight-sql"><div class="highlight"><pre><span></span>$ Error running command: Server refused connection: http://localhost:8080/v1/statement
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ Error running command: Server refused connection: http://localhost:8080/v1/statement
 </pre></div>
 </div>
 <p>To fix this, start Presto with:</p>
-<div class="highlight-sql"><div class="highlight"><pre><span></span>$ sudo ./presto-admin server start
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ sudo ./presto-admin server start
 </pre></div>
 </div>
 </li>
@@ -222,7 +211,7 @@ cluster again using <a class="reference internal" href="../presto-admin-commands
 </li>
 <li><p class="first">The following error can occur if you do not have passwordless ssh enabled
 and have not provided a password or if the user requires a sudo password:</p>
-<div class="highlight-sql"><div class="highlight"><pre><span></span><span class="n">Fatal</span> <span class="n">error</span><span class="p">:</span> <span class="n">Needed</span> <span class="k">to</span> <span class="n">prompt</span> <span class="k">for</span> <span class="n">a</span> <span class="k">connection</span> <span class="k">or</span> <span class="n">sudo</span> <span class="n">password</span> <span class="p">(</span><span class="k">host</span><span class="p">:</span> <span class="n">master</span><span class="p">),</span> <span class="n">but</span> <span class="k">input</span> <span class="n">would</span> <span class="n">be</span> <span class="n">ambiguous</span> <span class="k">in</span> <span class="n">parallel</span> <span class="k">mode</span>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>Fatal error: Needed to prompt <span class="k">for</span> a connection or sudo password <span class="o">(</span>host: master<span class="o">)</span>, but input would be ambiguous in parallel mode
 </pre></div>
 </div>
 <p>See <a class="reference internal" href="../ssh-configuration.html#ssh-configuration-label"><span class="std std-ref">SSH Configuration</span></a> for information on setting up
@@ -239,10 +228,10 @@ for information on providing a sudo password.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../user-guide.html" class="btn btn-neutral float-right" title="8. User Guide" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="../../../sandbox-vms.html" class="btn btn-neutral float-right" title="4. Presto Installation on a Sandbox VM" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="presto-configuration.html" class="btn btn-neutral" title="Configuring Presto" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="presto-configuration.html" class="btn btn-neutral" title="7. Configuring Presto" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -271,7 +260,7 @@ for information on providing a sudo password.</p>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../../',
-            VERSION:'0.148-t.1.1',
+            VERSION:'0.148-t.1.2',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

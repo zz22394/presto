@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>10.4. MySQL Connector &mdash; Teradata Distribution of Presto 0.148-t.1.1 Documentation</title>
+  <title>12.4. MySQL Connector &mdash; Teradata Distribution of Presto 0.148-t.1.2 Documentation</title>
   
 
   
@@ -30,10 +30,10 @@
   
 
   
-    <link rel="top" title="Teradata Distribution of Presto 0.148-t.1.1 Documentation" href="../index.html"/>
-        <link rel="up" title="10. Connectors" href="../connector.html"/>
-        <link rel="next" title="10.5. PostgreSQL Connector" href="postgresql.html"/>
-        <link rel="prev" title="10.3. Hive Security Configuration" href="hive-security.html"/> 
+    <link rel="top" title="Teradata Distribution of Presto 0.148-t.1.2 Documentation" href="../index.html"/>
+        <link rel="up" title="12. Connectors" href="../connector.html"/>
+        <link rel="next" title="12.5. PostgreSQL Connector" href="postgresql.html"/>
+        <link rel="prev" title="12.3. Hive Security Configuration" href="hive-security.html"/> 
 
   
   <script src="../_static/js/modernizr.min.js"></script>
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                0.148-t.1.1
+                0.148-t.1.2
               </div>
             
           
@@ -91,13 +91,15 @@
 <li class="toctree-l1"><a class="reference internal" href="../server-installation-cluster-automated.html">5. Presto Server Installation on a Cluster (Ambari)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../server-installation-cluster-manual.html">6. Presto Server Installation on a Cluster (Presto Admin and RPMs)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../server-installation-aws-emr-manual.html">7. Presto Server Installation on an AWS EMR (Presto Admin and RPMs)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../installation/presto-admin/user-guide.html">8. Presto Admin</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../admin.html">9. Administration</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="../connector.html">10. Connectors</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="teradata.html">10.1. Teradata Connector</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hive.html">10.2. Hive Connector</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hive-security.html">10.3. Hive Security Configuration</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">10.4. MySQL Connector</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../client.html">8. Presto Client Software</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation/presto-admin/user-guide.html">9. Presto Admin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../yarn.html">10. YARN Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../admin.html">11. Administration</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../connector.html">12. Connectors</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="teradata.html">12.1. Teradata Connector</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hive.html">12.2. Hive Connector</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hive-security.html">12.3. Hive Security Configuration</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">12.4. MySQL Connector</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#configuration">Configuration</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#multiple-mysql-servers">Multiple MySQL Servers</a></li>
 </ul>
@@ -106,34 +108,19 @@
 <li class="toctree-l3"><a class="reference internal" href="#mysql-connector-limitations">MySQL Connector Limitations</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="postgresql.html">10.5. PostgreSQL Connector</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tpch.html">10.6. TPCH Connector</a></li>
-<li class="toctree-l2"><a class="reference internal" href="system.html">10.7. System Connector</a></li>
-<li class="toctree-l2"><a class="reference internal" href="jmx.html">10.8. JMX Connector</a></li>
-<li class="toctree-l2"><a class="reference internal" href="blackhole.html">10.9. Black Hole Connector</a></li>
+<li class="toctree-l2"><a class="reference internal" href="postgresql.html">12.5. PostgreSQL Connector</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tpch.html">12.6. TPCH Connector</a></li>
+<li class="toctree-l2"><a class="reference internal" href="system.html">12.7. System Connector</a></li>
+<li class="toctree-l2"><a class="reference internal" href="jmx.html">12.8. JMX Connector</a></li>
+<li class="toctree-l2"><a class="reference internal" href="blackhole.html">12.9. Black Hole Connector</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../security.html">11. Security</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../functions.html">12. Functions and Operators</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../language.html">13. SQL Language</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../sql.html">14. SQL Statement Syntax</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../migration.html">15. Migration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../release.html">16. Release Notes</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cassandra.html">Cassandra Connector</a></li>
-<li class="toctree-l1"><a class="reference internal" href="kafka.html">Kafka Connector</a></li>
-<li class="toctree-l1"><a class="reference internal" href="kafka-tutorial.html">Kafka Connector Tutorial</a></li>
-<li class="toctree-l1"><a class="reference internal" href="localfile.html">Local File Connector</a></li>
-<li class="toctree-l1"><a class="reference internal" href="mongodb.html">MongoDB Connector</a></li>
-<li class="toctree-l1"><a class="reference internal" href="redis.html">Redis Connector</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../installation/installation-ambari.html">Automated Installation on a Cluster</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../installation/installation-presto-admin.html">Manual Installation on a Cluster</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../installation/installation-yarn-automated.html">Automated Installation on a YARN-Based Cluster</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../installation/installation-yarn-manual.html">Manual Installation on a YARN-Based Cluster</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../yarn.html">YARN Integration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../develop.html">Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../security.html">13. Security</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../functions.html">14. Functions and Operators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../language.html">15. SQL Language</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sql.html">16. SQL Statement Syntax</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../migration.html">17. Migration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release.html">18. Release Notes</a></li>
 </ul>
 
             
@@ -164,9 +151,9 @@
   <ul class="wy-breadcrumbs">
     <li><a href="../index.html">Docs</a> &raquo;</li>
       
-        <li><a href="../connector.html">10. Connectors</a> &raquo;</li>
+        <li><a href="../connector.html">12. Connectors</a> &raquo;</li>
       
-    <li>10.4. MySQL Connector</li>
+    <li>12.4. MySQL Connector</li>
     <li class="wy-breadcrumbs-aside">
       
         
@@ -181,7 +168,7 @@
            <div itemprop="articleBody">
             
   <div class="section" id="mysql-connector">
-<h1>10.4. MySQL Connector</h1>
+<h1>12.4. MySQL Connector</h1>
 <p>The MySQL connector allows querying and creating tables in an external
 MySQL database. This can be used to join data between different
 systems like MySQL and Hive, or between two different MySQL instances.</p>
@@ -251,10 +238,10 @@ that catalog name instead of <code class="docutils literal"><span class="pre">my
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="postgresql.html" class="btn btn-neutral float-right" title="10.5. PostgreSQL Connector" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="postgresql.html" class="btn btn-neutral float-right" title="12.5. PostgreSQL Connector" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="hive-security.html" class="btn btn-neutral" title="10.3. Hive Security Configuration" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="hive-security.html" class="btn btn-neutral" title="12.3. Hive Security Configuration" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -283,7 +270,7 @@ that catalog name instead of <code class="docutils literal"><span class="pre">my
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../',
-            VERSION:'0.148-t.1.1',
+            VERSION:'0.148-t.1.2',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

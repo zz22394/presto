@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>14.5. CREATE TABLE AS &mdash; Teradata Distribution of Presto 0.148-t.1.1 Documentation</title>
+  <title>16.5. CREATE TABLE AS &mdash; Teradata Distribution of Presto 0.148-t.1.2 Documentation</title>
   
 
   
@@ -30,10 +30,10 @@
   
 
   
-    <link rel="top" title="Teradata Distribution of Presto 0.148-t.1.1 Documentation" href="../index.html"/>
-        <link rel="up" title="14. SQL Statement Syntax" href="../sql.html"/>
-        <link rel="next" title="14.6. CREATE VIEW" href="create-view.html"/>
-        <link rel="prev" title="14.4. CREATE TABLE" href="create-table.html"/> 
+    <link rel="top" title="Teradata Distribution of Presto 0.148-t.1.2 Documentation" href="../index.html"/>
+        <link rel="up" title="16. SQL Statement Syntax" href="../sql.html"/>
+        <link rel="next" title="16.6. CREATE VIEW" href="create-view.html"/>
+        <link rel="prev" title="16.4. CREATE TABLE" href="create-table.html"/> 
 
   
   <script src="../_static/js/modernizr.min.js"></script>
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                0.148-t.1.1
+                0.148-t.1.2
               </div>
             
           
@@ -91,73 +91,60 @@
 <li class="toctree-l1"><a class="reference internal" href="../server-installation-cluster-automated.html">5. Presto Server Installation on a Cluster (Ambari)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../server-installation-cluster-manual.html">6. Presto Server Installation on a Cluster (Presto Admin and RPMs)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../server-installation-aws-emr-manual.html">7. Presto Server Installation on an AWS EMR (Presto Admin and RPMs)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../installation/presto-admin/user-guide.html">8. Presto Admin</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../admin.html">9. Administration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../connector.html">10. Connectors</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../security.html">11. Security</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../functions.html">12. Functions and Operators</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../language.html">13. SQL Language</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="../sql.html">14. SQL Statement Syntax</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="alter-table.html">14.1. ALTER TABLE</a></li>
-<li class="toctree-l2"><a class="reference internal" href="call.html">14.2. CALL</a></li>
-<li class="toctree-l2"><a class="reference internal" href="commit.html">14.3. COMMIT</a></li>
-<li class="toctree-l2"><a class="reference internal" href="create-table.html">14.4. CREATE TABLE</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">14.5. CREATE TABLE AS</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../client.html">8. Presto Client Software</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation/presto-admin/user-guide.html">9. Presto Admin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../yarn.html">10. YARN Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../admin.html">11. Administration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../connector.html">12. Connectors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../security.html">13. Security</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../functions.html">14. Functions and Operators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../language.html">15. SQL Language</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../sql.html">16. SQL Statement Syntax</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="alter-table.html">16.1. ALTER TABLE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="call.html">16.2. CALL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="commit.html">16.3. COMMIT</a></li>
+<li class="toctree-l2"><a class="reference internal" href="create-table.html">16.4. CREATE TABLE</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">16.5. CREATE TABLE AS</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#synopsis">Synopsis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#description">Description</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#examples">Examples</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="create-view.html">14.6. CREATE VIEW</a></li>
-<li class="toctree-l2"><a class="reference internal" href="deallocate-prepare.html">14.7. DEALLOCATE PREPARE</a></li>
-<li class="toctree-l2"><a class="reference internal" href="delete.html">14.8. DELETE</a></li>
-<li class="toctree-l2"><a class="reference internal" href="describe.html">14.9. DESCRIBE</a></li>
-<li class="toctree-l2"><a class="reference internal" href="describe-input.html">14.10. DESCRIBE INPUT</a></li>
-<li class="toctree-l2"><a class="reference internal" href="describe-output.html">14.11. DESCRIBE OUTPUT</a></li>
-<li class="toctree-l2"><a class="reference internal" href="drop-table.html">14.12. DROP TABLE</a></li>
-<li class="toctree-l2"><a class="reference internal" href="drop-view.html">14.13. DROP VIEW</a></li>
-<li class="toctree-l2"><a class="reference internal" href="execute.html">14.14. EXECUTE</a></li>
-<li class="toctree-l2"><a class="reference internal" href="explain.html">14.15. EXPLAIN</a></li>
-<li class="toctree-l2"><a class="reference internal" href="explain-analyze.html">14.16. EXPLAIN ANALYZE</a></li>
-<li class="toctree-l2"><a class="reference internal" href="grant.html">14.17. GRANT</a></li>
-<li class="toctree-l2"><a class="reference internal" href="insert.html">14.18. INSERT</a></li>
-<li class="toctree-l2"><a class="reference internal" href="prepare.html">14.19. PREPARE</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reset-session.html">14.20. RESET SESSION</a></li>
-<li class="toctree-l2"><a class="reference internal" href="revoke.html">14.21. REVOKE</a></li>
-<li class="toctree-l2"><a class="reference internal" href="rollback.html">14.22. ROLLBACK</a></li>
-<li class="toctree-l2"><a class="reference internal" href="select.html">14.23. SELECT</a></li>
-<li class="toctree-l2"><a class="reference internal" href="set-session.html">14.24. SET SESSION</a></li>
-<li class="toctree-l2"><a class="reference internal" href="show-catalogs.html">14.25. SHOW CATALOGS</a></li>
-<li class="toctree-l2"><a class="reference internal" href="show-columns.html">14.26. SHOW COLUMNS</a></li>
-<li class="toctree-l2"><a class="reference internal" href="show-create-table.html">14.27. SHOW CREATE TABLE</a></li>
-<li class="toctree-l2"><a class="reference internal" href="show-create-view.html">14.28. SHOW CREATE VIEW</a></li>
-<li class="toctree-l2"><a class="reference internal" href="show-functions.html">14.29. SHOW FUNCTIONS</a></li>
-<li class="toctree-l2"><a class="reference internal" href="show-partitions.html">14.30. SHOW PARTITIONS</a></li>
-<li class="toctree-l2"><a class="reference internal" href="show-schemas.html">14.31. SHOW SCHEMAS</a></li>
-<li class="toctree-l2"><a class="reference internal" href="show-session.html">14.32. SHOW SESSION</a></li>
-<li class="toctree-l2"><a class="reference internal" href="show-tables.html">14.33. SHOW TABLES</a></li>
-<li class="toctree-l2"><a class="reference internal" href="start-transaction.html">14.34. START TRANSACTION</a></li>
-<li class="toctree-l2"><a class="reference internal" href="use.html">14.35. USE</a></li>
-<li class="toctree-l2"><a class="reference internal" href="values.html">14.36. VALUES</a></li>
+<li class="toctree-l2"><a class="reference internal" href="create-view.html">16.6. CREATE VIEW</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deallocate-prepare.html">16.7. DEALLOCATE PREPARE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="delete.html">16.8. DELETE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="describe.html">16.9. DESCRIBE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="describe-input.html">16.10. DESCRIBE INPUT</a></li>
+<li class="toctree-l2"><a class="reference internal" href="describe-output.html">16.11. DESCRIBE OUTPUT</a></li>
+<li class="toctree-l2"><a class="reference internal" href="drop-table.html">16.12. DROP TABLE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="drop-view.html">16.13. DROP VIEW</a></li>
+<li class="toctree-l2"><a class="reference internal" href="execute.html">16.14. EXECUTE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="explain.html">16.15. EXPLAIN</a></li>
+<li class="toctree-l2"><a class="reference internal" href="explain-analyze.html">16.16. EXPLAIN ANALYZE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="grant.html">16.17. GRANT</a></li>
+<li class="toctree-l2"><a class="reference internal" href="insert.html">16.18. INSERT</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prepare.html">16.19. PREPARE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reset-session.html">16.20. RESET SESSION</a></li>
+<li class="toctree-l2"><a class="reference internal" href="revoke.html">16.21. REVOKE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rollback.html">16.22. ROLLBACK</a></li>
+<li class="toctree-l2"><a class="reference internal" href="select.html">16.23. SELECT</a></li>
+<li class="toctree-l2"><a class="reference internal" href="set-session.html">16.24. SET SESSION</a></li>
+<li class="toctree-l2"><a class="reference internal" href="show-catalogs.html">16.25. SHOW CATALOGS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="show-columns.html">16.26. SHOW COLUMNS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="show-create-table.html">16.27. SHOW CREATE TABLE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="show-create-view.html">16.28. SHOW CREATE VIEW</a></li>
+<li class="toctree-l2"><a class="reference internal" href="show-functions.html">16.29. SHOW FUNCTIONS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="show-partitions.html">16.30. SHOW PARTITIONS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="show-schemas.html">16.31. SHOW SCHEMAS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="show-session.html">16.32. SHOW SESSION</a></li>
+<li class="toctree-l2"><a class="reference internal" href="show-tables.html">16.33. SHOW TABLES</a></li>
+<li class="toctree-l2"><a class="reference internal" href="start-transaction.html">16.34. START TRANSACTION</a></li>
+<li class="toctree-l2"><a class="reference internal" href="use.html">16.35. USE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="values.html">16.36. VALUES</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../migration.html">15. Migration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../release.html">16. Release Notes</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../connector/cassandra.html">Cassandra Connector</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../connector/kafka.html">Kafka Connector</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../connector/kafka-tutorial.html">Kafka Connector Tutorial</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../connector/localfile.html">Local File Connector</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../connector/mongodb.html">MongoDB Connector</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../connector/redis.html">Redis Connector</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../installation/installation-ambari.html">Automated Installation on a Cluster</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../installation/installation-presto-admin.html">Manual Installation on a Cluster</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../installation/installation-yarn-automated.html">Automated Installation on a YARN-Based Cluster</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../installation/installation-yarn-manual.html">Manual Installation on a YARN-Based Cluster</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../yarn.html">YARN Integration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../develop.html">Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../migration.html">17. Migration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release.html">18. Release Notes</a></li>
 </ul>
 
             
@@ -188,9 +175,9 @@
   <ul class="wy-breadcrumbs">
     <li><a href="../index.html">Docs</a> &raquo;</li>
       
-        <li><a href="../sql.html">14. SQL Statement Syntax</a> &raquo;</li>
+        <li><a href="../sql.html">16. SQL Statement Syntax</a> &raquo;</li>
       
-    <li>14.5. CREATE TABLE AS</li>
+    <li>16.5. CREATE TABLE AS</li>
     <li class="wy-breadcrumbs-aside">
       
         
@@ -205,7 +192,7 @@
            <div itemprop="articleBody">
             
   <div class="section" id="create-table-as">
-<h1>14.5. CREATE TABLE AS</h1>
+<h1>16.5. CREATE TABLE AS</h1>
 <div class="section" id="synopsis">
 <h2>Synopsis</h2>
 <div class="highlight-none"><div class="highlight"><pre><span></span>CREATE TABLE [ IF NOT EXISTS ] table_name
@@ -263,10 +250,10 @@ properties, run the following query:</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="create-view.html" class="btn btn-neutral float-right" title="14.6. CREATE VIEW" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="create-view.html" class="btn btn-neutral float-right" title="16.6. CREATE VIEW" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="create-table.html" class="btn btn-neutral" title="14.4. CREATE TABLE" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="create-table.html" class="btn btn-neutral" title="16.4. CREATE TABLE" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -295,7 +282,7 @@ properties, run the following query:</p>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../',
-            VERSION:'0.148-t.1.1',
+            VERSION:'0.148-t.1.2',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

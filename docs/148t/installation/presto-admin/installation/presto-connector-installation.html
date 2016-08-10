@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Adding a Connector &mdash; Teradata Distribution of Presto 0.148-t.1.1 Documentation</title>
+  <title>6. Adding a Connector &mdash; Teradata Distribution of Presto 0.148-t.1.2 Documentation</title>
   
 
   
@@ -30,10 +30,10 @@
   
 
   
-    <link rel="top" title="Teradata Distribution of Presto 0.148-t.1.1 Documentation" href="../../../index.html"/>
-        <link rel="up" title="7. Presto Server Installation on an AWS EMR (Presto Admin and RPMs)" href="../../../server-installation-aws-emr-manual.html"/>
-        <link rel="next" title="Configuring Presto" href="presto-configuration.html"/>
-        <link rel="prev" title="Running Presto Queries" href="presto-cli-installation.html"/> 
+    <link rel="top" title="Teradata Distribution of Presto 0.148-t.1.2 Documentation" href="../../../index.html"/>
+        <link rel="up" title="Manual Installation on a Cluster" href="../../installation-presto-admin.html"/>
+        <link rel="next" title="7. Configuring Presto" href="presto-configuration.html"/>
+        <link rel="prev" title="5. Running Presto Queries" href="presto-cli-installation.html"/> 
 
   
   <script src="../../../_static/js/modernizr.min.js"></script>
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                0.148-t.1.1
+                0.148-t.1.2
               </div>
             
           
@@ -93,42 +93,29 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../../../server-installation-aws-emr-manual.html">7. Presto Server Installation on an AWS EMR (Presto Admin and RPMs)</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../../../server-installation-aws-emr-manual.html#system-requirements">7.1. System Requirements</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../../../server-installation-aws-emr-manual.html#manual-installation-on-an-aws-emr">7.2. Manual Installation on an AWS EMR</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="presto-admin-installation.html">Installing Presto Admin</a></li>
-<li class="toctree-l3"><a class="reference internal" href="presto-admin-configuration.html">Configuring Presto Admin</a></li>
-<li class="toctree-l3"><a class="reference internal" href="java-installation.html">Installing Java 8</a></li>
-<li class="toctree-l3"><a class="reference internal" href="presto-server-installation.html">Installing the Presto Server</a></li>
-<li class="toctree-l3"><a class="reference internal" href="presto-cli-installation.html">Installing the Presto CLI</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Adding a Connector</a></li>
-<li class="toctree-l3"><a class="reference internal" href="presto-configuration.html">Configuring Presto</a></li>
-<li class="toctree-l3"><a class="reference internal" href="troubleshooting-installation.html">Troubleshooting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="presto-admin-installation.html">1. Installing Presto Admin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="presto-admin-configuration.html">2. Configuring Presto Admin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="java-installation.html">3. Installing Java 8</a></li>
+<li class="toctree-l3"><a class="reference internal" href="presto-server-installation.html">4. Installing the Presto Server</a></li>
+<li class="toctree-l3"><a class="reference internal" href="presto-cli-installation.html">5. Installing the Presto CLI</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">6. Adding a Connector</a></li>
+<li class="toctree-l3"><a class="reference internal" href="presto-configuration.html">7. Configuring Presto</a></li>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting-installation.html">8. Troubleshooting</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../user-guide.html">8. Presto Admin</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../admin.html">9. Administration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../connector.html">10. Connectors</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../security.html">11. Security</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../functions.html">12. Functions and Operators</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../language.html">13. SQL Language</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../sql.html">14. SQL Statement Syntax</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../migration.html">15. Migration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../release.html">16. Release Notes</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../connector/cassandra.html">Cassandra Connector</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../connector/kafka.html">Kafka Connector</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../connector/kafka-tutorial.html">Kafka Connector Tutorial</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../connector/localfile.html">Local File Connector</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../connector/mongodb.html">MongoDB Connector</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../connector/redis.html">Redis Connector</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../installation-ambari.html">Automated Installation on a Cluster</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../installation-presto-admin.html">Manual Installation on a Cluster</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../installation-yarn-automated.html">Automated Installation on a YARN-Based Cluster</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../installation-yarn-manual.html">Manual Installation on a YARN-Based Cluster</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../yarn.html">YARN Integration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../develop.html">Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../client.html">8. Presto Client Software</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user-guide.html">9. Presto Admin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../yarn.html">10. YARN Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../admin.html">11. Administration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../connector.html">12. Connectors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../security.html">13. Security</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../functions.html">14. Functions and Operators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../language.html">15. SQL Language</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sql.html">16. SQL Statement Syntax</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../migration.html">17. Migration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../release.html">18. Release Notes</a></li>
 </ul>
 
             
@@ -159,9 +146,11 @@
   <ul class="wy-breadcrumbs">
     <li><a href="../../../index.html">Docs</a> &raquo;</li>
       
-        <li><a href="../../../server-installation-aws-emr-manual.html">7. Presto Server Installation on an AWS EMR (Presto Admin and RPMs)</a> &raquo;</li>
+        <li><a href="../../../getting-started.html">3. Getting Started</a> &raquo;</li>
       
-    <li>Adding a Connector</li>
+        <li><a href="../../installation-presto-admin.html">Manual Installation on a Cluster</a> &raquo;</li>
+      
+    <li>6. Adding a Connector</li>
     <li class="wy-breadcrumbs-aside">
       
         
@@ -176,7 +165,7 @@
            <div itemprop="articleBody">
             
   <div class="section" id="adding-a-connector">
-<h1>Adding a Connector</h1>
+<h1>6. Adding a Connector</h1>
 <p>In Presto, connectors allow you to access different data sources &#8211; e.g.,
 Hive, PostgreSQL, or MySQL.</p>
 <p>To add the Hive connector:</p>
@@ -211,10 +200,10 @@ For more on which connectors Presto supports, see the <a class="reference extern
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="presto-configuration.html" class="btn btn-neutral float-right" title="Configuring Presto" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="presto-configuration.html" class="btn btn-neutral float-right" title="7. Configuring Presto" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="presto-cli-installation.html" class="btn btn-neutral" title="Running Presto Queries" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="presto-cli-installation.html" class="btn btn-neutral" title="5. Running Presto Queries" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -243,7 +232,7 @@ For more on which connectors Presto supports, see the <a class="reference extern
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../../',
-            VERSION:'0.148-t.1.1',
+            VERSION:'0.148-t.1.2',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true
