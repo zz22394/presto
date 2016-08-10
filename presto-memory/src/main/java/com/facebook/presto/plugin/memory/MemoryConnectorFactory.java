@@ -17,6 +17,7 @@ package com.facebook.presto.plugin.memory;
 import com.facebook.presto.spi.ConnectorHandleResolver;
 import com.facebook.presto.spi.NodeManager;
 import com.facebook.presto.spi.connector.Connector;
+import com.facebook.presto.spi.connector.ConnectorContext;
 import com.facebook.presto.spi.connector.ConnectorFactory;
 
 import java.util.Map;
@@ -54,7 +55,7 @@ public class MemoryConnectorFactory
     }
 
     @Override
-    public Connector create(String connectorId, Map<String, String> requiredConfig)
+    public Connector create(String connectorId, Map<String, String> requiredConfig, ConnectorContext context)
     {
         int splitsPerNode = getSplitsPerNode(requiredConfig);
         MemoryPagesStore pagesStore = new MemoryPagesStore();
