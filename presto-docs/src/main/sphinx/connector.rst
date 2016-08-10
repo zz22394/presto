@@ -17,4 +17,4 @@ from different data sources.
     connector/system
     connector/jmx
     connector/blackhole
-    connector/inmemory
+    connector/memory
