@@ -54,10 +54,17 @@ public class Analyzer
         this.experimentalSyntaxEnabled = experimentalSyntaxEnabled;
     }
 
+
     public Analysis analyze(Statement statement)
     {
-        Statement rewrittenStatement = StatementRewrite.rewrite(session, metadata, sqlParser, queryExplainer, statement);
+        return analyze(statement, false);
+    }
+
+    public Analysis analyze(Statement statement, boolean isDescribe)
+    {
+        Statement rewrittenStatement = StatementRewrite.rewrite(session, metadata, sqlParser, queryExplainer, statement, accessControl, experimentalSyntaxEnabled);
         Analysis analysis = new Analysis(rewrittenStatement);
+        analysis.setIsDescribe(isDescribe);
         StatementAnalyzer analyzer = new StatementAnalyzer(analysis, metadata, sqlParser, accessControl, session, experimentalSyntaxEnabled);
         analyzer.process(rewrittenStatement, Scope.builder().build());
         return analysis;
