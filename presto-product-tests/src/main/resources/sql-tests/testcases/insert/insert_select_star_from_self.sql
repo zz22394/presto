@@ -1,4 +1,4 @@
--- database: presto; groups: insert; mutable_tables: datatype|loaded
+-- database: presto; groups: insert,quarantine; mutable_tables: datatype|loaded
 -- delimiter: |; ignoreOrder: true; 
 --!
 insert into ${mutableTables.hive.datatype} select * from ${mutableTables.hive.datatype};
