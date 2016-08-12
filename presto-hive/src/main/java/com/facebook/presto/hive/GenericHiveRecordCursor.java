@@ -72,8 +72,8 @@ import static com.facebook.presto.spi.type.Decimals.isLongDecimal;
 import static com.facebook.presto.spi.type.Decimals.isShortDecimal;
 import static com.facebook.presto.spi.type.Decimals.rescale;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
-import static com.facebook.presto.spi.type.FloatType.FLOAT;
 import static com.facebook.presto.spi.type.IntegerType.INTEGER;
+import static com.facebook.presto.spi.type.RealType.REAL;
 import static com.facebook.presto.spi.type.SmallintType.SMALLINT;
 import static com.facebook.presto.spi.type.TimestampType.TIMESTAMP;
 import static com.facebook.presto.spi.type.TinyintType.TINYINT;
@@ -215,7 +215,7 @@ class GenericHiveRecordCursor<K, V extends Writable>
                 else if (TINYINT.equals(type)) {
                     longs[columnIndex] = tinyintPartitionKey(partitionKey.getValue(), name);
                 }
-                else if (FLOAT.equals(type)) {
+                else if (REAL.equals(type)) {
                     longs[columnIndex] = floatPartitionKey(partitionKey.getValue(), name);
                 }
                 else if (DOUBLE.equals(type)) {
@@ -575,7 +575,7 @@ class GenericHiveRecordCursor<K, V extends Writable>
         else if (DOUBLE.equals(type)) {
             parseDoubleColumn(column);
         }
-        else if (FLOAT.equals(type)) {
+        else if (REAL.equals(type)) {
             parseLongColumn(column);
         }
         else if (isVarcharType(type) || VARBINARY.equals(type)) {

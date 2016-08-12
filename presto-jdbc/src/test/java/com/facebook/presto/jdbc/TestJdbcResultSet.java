@@ -98,7 +98,7 @@ public class TestJdbcResultSet
     public void testObjectTypes()
             throws Exception
     {
-        String sql = "SELECT 123, 12300000000, 0.1, true, 'hello', DOUBLE '1.0' / 0.0, DOUBLE '0.0' / 0.0, ARRAY[1, 2], FLOAT '123.45', cast('foo' as char(5))";
+        String sql = "SELECT 123, 12300000000, 0.1, true, 'hello', DOUBLE '1.0' / 0.0, DOUBLE '0.0' / 0.0, ARRAY[1, 2], REAL '123.45', cast('foo' as char(5))";
         try (ResultSet rs = statement.executeQuery(sql)) {
             ResultSetMetaData metadata = rs.getMetaData();
             assertEquals(metadata.getColumnCount(), 10);

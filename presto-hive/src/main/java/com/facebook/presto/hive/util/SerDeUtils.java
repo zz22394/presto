@@ -23,8 +23,8 @@ import com.facebook.presto.spi.type.CharType;
 import com.facebook.presto.spi.type.DateType;
 import com.facebook.presto.spi.type.DecimalType;
 import com.facebook.presto.spi.type.DoubleType;
-import com.facebook.presto.spi.type.FloatType;
 import com.facebook.presto.spi.type.IntegerType;
+import com.facebook.presto.spi.type.RealType;
 import com.facebook.presto.spi.type.SmallintType;
 import com.facebook.presto.spi.type.TimestampType;
 import com.facebook.presto.spi.type.TinyintType;
@@ -120,7 +120,7 @@ public final class SerDeUtils
                 BigintType.BIGINT.writeLong(builder, ((LongObjectInspector) inspector).get(object));
                 return;
             case FLOAT:
-                FloatType.FLOAT.writeLong(builder, floatToRawIntBits(((FloatObjectInspector) inspector).get(object)));
+                RealType.REAL.writeLong(builder, floatToRawIntBits(((FloatObjectInspector) inspector).get(object)));
                 return;
             case DOUBLE:
                 DoubleType.DOUBLE.writeDouble(builder, ((DoubleObjectInspector) inspector).get(object));

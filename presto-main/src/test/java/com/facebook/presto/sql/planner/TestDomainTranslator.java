@@ -62,9 +62,9 @@ import static com.facebook.presto.spi.type.DateType.DATE;
 import static com.facebook.presto.spi.type.DecimalType.createDecimalType;
 import static com.facebook.presto.spi.type.Decimals.encodeScaledValue;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
-import static com.facebook.presto.spi.type.FloatType.FLOAT;
 import static com.facebook.presto.spi.type.HyperLogLogType.HYPER_LOG_LOG;
 import static com.facebook.presto.spi.type.IntegerType.INTEGER;
+import static com.facebook.presto.spi.type.RealType.REAL;
 import static com.facebook.presto.spi.type.SmallintType.SMALLINT;
 import static com.facebook.presto.spi.type.TimestampType.TIMESTAMP;
 import static com.facebook.presto.spi.type.TinyintType.TINYINT;
@@ -145,7 +145,7 @@ public class TestDomainTranslator
             .put(C_DECIMAL_2_0, createDecimalType(2, 0))
             .put(C_SMALLINT, SMALLINT)
             .put(C_TINYINT, TINYINT)
-            .put(C_FLOAT, FLOAT)
+            .put(C_FLOAT, REAL)
             .build();
 
     private static final long TIMESTAMP_VALUE = new DateTime(2013, 3, 30, 1, 5, 0, 0, DateTimeZone.UTC).getMillis();
@@ -1549,7 +1549,7 @@ public class TestDomainTranslator
 
         public boolean isFractional()
         {
-            return type == DOUBLE || type == FLOAT || (type instanceof DecimalType && ((DecimalType) type).getScale() > 0);
+            return type == DOUBLE || type == REAL || (type instanceof DecimalType && ((DecimalType) type).getScale() > 0);
         }
     }
 }

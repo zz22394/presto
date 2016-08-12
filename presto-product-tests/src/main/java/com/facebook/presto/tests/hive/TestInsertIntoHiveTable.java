@@ -66,7 +66,7 @@ public class TestInsertIntoHiveTable
                 "SMALLINT '32767', " +
                 "2147483647, " +
                 "9223372036854775807, " +
-                "FLOAT '123.345', " +
+                "REAL '123.345', " +
                 "234.567, " +
                 "cast (345.678 as DECIMAL(10, 0)), " +
                 "cast (345.678 as DECIMAL(10, 5))," +

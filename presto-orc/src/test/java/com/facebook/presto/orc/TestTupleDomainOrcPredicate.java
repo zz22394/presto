@@ -47,7 +47,7 @@ import static com.facebook.presto.spi.type.DateType.DATE;
 import static com.facebook.presto.spi.type.DecimalType.createDecimalType;
 import static com.facebook.presto.spi.type.Decimals.encodeScaledValue;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
-import static com.facebook.presto.spi.type.FloatType.FLOAT;
+import static com.facebook.presto.spi.type.RealType.REAL;
 import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
 import static io.airlift.slice.Slices.utf8Slice;
 import static java.lang.Float.floatToRawIntBits;
@@ -155,25 +155,25 @@ public class TestTupleDomainOrcPredicate
     public void testFloat()
             throws Exception
     {
-        assertEquals(getDomain(FLOAT, 0, null), none(FLOAT));
-        assertEquals(getDomain(FLOAT, 10, null), all(FLOAT));
+        assertEquals(getDomain(REAL, 0, null), none(REAL));
+        assertEquals(getDomain(REAL, 10, null), all(REAL));
 
-        assertEquals(getDomain(FLOAT, 0, doubleColumnStats(null, null, null)), none(FLOAT));
-        assertEquals(getDomain(FLOAT, 0, doubleColumnStats(0L, null, null)), none(FLOAT));
-        assertEquals(getDomain(FLOAT, 0, doubleColumnStats(0L, (double) 42.24f, (double) 42.24f)), none(FLOAT));
+        assertEquals(getDomain(REAL, 0, doubleColumnStats(null, null, null)), none(REAL));
+        assertEquals(getDomain(REAL, 0, doubleColumnStats(0L, null, null)), none(REAL));
+        assertEquals(getDomain(REAL, 0, doubleColumnStats(0L, (double) 42.24f, (double) 42.24f)), none(REAL));
 
-        assertEquals(getDomain(FLOAT, 10, doubleColumnStats(0L, null, null)), onlyNull(FLOAT));
-        assertEquals(getDomain(FLOAT, 10, doubleColumnStats(10L, null, null)), notNull(FLOAT));
+        assertEquals(getDomain(REAL, 10, doubleColumnStats(0L, null, null)), onlyNull(REAL));
+        assertEquals(getDomain(REAL, 10, doubleColumnStats(10L, null, null)), notNull(REAL));
 
-        assertEquals(getDomain(FLOAT, 10, doubleColumnStats(10L, (double) 42.24f, (double) 42.24f)), singleValue(FLOAT, (long) floatToRawIntBits(42.24f)));
+        assertEquals(getDomain(REAL, 10, doubleColumnStats(10L, (double) 42.24f, (double) 42.24f)), singleValue(REAL, (long) floatToRawIntBits(42.24f)));
 
-        assertEquals(getDomain(FLOAT, 10, doubleColumnStats(10L, 3.3, (double) 42.24f)), create(ValueSet.ofRanges(range(FLOAT, (long) floatToRawIntBits(3.3f), true, (long) floatToRawIntBits(42.24f), true)), false));
-        assertEquals(getDomain(FLOAT, 10, doubleColumnStats(10L, null, (double) 42.24f)), create(ValueSet.ofRanges(lessThanOrEqual(FLOAT, (long) floatToRawIntBits(42.24f))), false));
-        assertEquals(getDomain(FLOAT, 10, doubleColumnStats(10L, 3.3, null)), create(ValueSet.ofRanges(greaterThanOrEqual(FLOAT, (long) floatToRawIntBits(3.3f))), false));
+        assertEquals(getDomain(REAL, 10, doubleColumnStats(10L, 3.3, (double) 42.24f)), create(ValueSet.ofRanges(range(REAL, (long) floatToRawIntBits(3.3f), true, (long) floatToRawIntBits(42.24f), true)), false));
+        assertEquals(getDomain(REAL, 10, doubleColumnStats(10L, null, (double) 42.24f)), create(ValueSet.ofRanges(lessThanOrEqual(REAL, (long) floatToRawIntBits(42.24f))), false));
+        assertEquals(getDomain(REAL, 10, doubleColumnStats(10L, 3.3, null)), create(ValueSet.ofRanges(greaterThanOrEqual(REAL, (long) floatToRawIntBits(3.3f))), false));
 
-        assertEquals(getDomain(FLOAT, 10, doubleColumnStats(5L, 3.3, (double) 42.24f)), create(ValueSet.ofRanges(range(FLOAT, (long) floatToRawIntBits(3.3f), true, (long) floatToRawIntBits(42.24f), true)), true));
-        assertEquals(getDomain(FLOAT, 10, doubleColumnStats(5L, null, (double) 42.24f)), create(ValueSet.ofRanges(lessThanOrEqual(FLOAT, (long) floatToRawIntBits(42.24f))), true));
-        assertEquals(getDomain(FLOAT, 10, doubleColumnStats(5L, 3.3, null)), create(ValueSet.ofRanges(greaterThanOrEqual(FLOAT, (long) floatToRawIntBits(3.3f))), true));
+        assertEquals(getDomain(REAL, 10, doubleColumnStats(5L, 3.3, (double) 42.24f)), create(ValueSet.ofRanges(range(REAL, (long) floatToRawIntBits(3.3f), true, (long) floatToRawIntBits(42.24f), true)), true));
+        assertEquals(getDomain(REAL, 10, doubleColumnStats(5L, null, (double) 42.24f)), create(ValueSet.ofRanges(lessThanOrEqual(REAL, (long) floatToRawIntBits(42.24f))), true));
+        assertEquals(getDomain(REAL, 10, doubleColumnStats(5L, 3.3, null)), create(ValueSet.ofRanges(greaterThanOrEqual(REAL, (long) floatToRawIntBits(3.3f))), true));
     }
 
     @Test

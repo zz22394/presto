@@ -30,7 +30,7 @@ import static com.facebook.presto.spi.predicate.Range.range;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
-import static com.facebook.presto.spi.type.FloatType.FLOAT;
+import static com.facebook.presto.spi.type.RealType.REAL;
 import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static io.airlift.slice.Slices.utf8Slice;
 import static java.lang.Float.floatToRawIntBits;
@@ -117,19 +117,19 @@ public class TestTupleDomainParquetPredicate
     public void testFloat()
             throws Exception
     {
-        assertEquals(getDomain(FLOAT, 0, null), all(FLOAT));
+        assertEquals(getDomain(REAL, 0, null), all(REAL));
 
         float minimum = 4.3f;
         float maximum = 40.3f;
 
-        assertEquals(getDomain(FLOAT, 10, floatColumnStats(minimum, minimum)), singleValue(FLOAT, (long) floatToRawIntBits(minimum)));
+        assertEquals(getDomain(REAL, 10, floatColumnStats(minimum, minimum)), singleValue(REAL, (long) floatToRawIntBits(minimum)));
 
         assertEquals(
-                getDomain(FLOAT, 10, floatColumnStats(minimum, maximum)),
-                create(ValueSet.ofRanges(range(FLOAT, (long) floatToRawIntBits(minimum), true, (long) floatToRawIntBits(maximum), true)), false)
+                getDomain(REAL, 10, floatColumnStats(minimum, maximum)),
+                create(ValueSet.ofRanges(range(REAL, (long) floatToRawIntBits(minimum), true, (long) floatToRawIntBits(maximum), true)), false)
         );
 
-        assertEquals(getDomain(FLOAT, 10, floatColumnStats(maximum, minimum)), create(ValueSet.all(FLOAT), false));
+        assertEquals(getDomain(REAL, 10, floatColumnStats(maximum, minimum)), create(ValueSet.all(REAL), false));
     }
 
     private static FloatStatistics floatColumnStats(float minimum, float maximum)

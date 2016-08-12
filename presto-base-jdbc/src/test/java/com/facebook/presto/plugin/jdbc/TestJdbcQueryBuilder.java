@@ -41,7 +41,7 @@ import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 import static com.facebook.presto.spi.type.DateType.DATE;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
-import static com.facebook.presto.spi.type.FloatType.FLOAT;
+import static com.facebook.presto.spi.type.RealType.REAL;
 import static com.facebook.presto.spi.type.TimeType.TIME;
 import static com.facebook.presto.spi.type.TimestampType.TIMESTAMP;
 import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
@@ -75,7 +75,7 @@ public class TestJdbcQueryBuilder
                 new JdbcColumnHandle("test_id", "col_4", DATE),
                 new JdbcColumnHandle("test_id", "col_5", TIME),
                 new JdbcColumnHandle("test_id", "col_6", TIMESTAMP),
-                new JdbcColumnHandle("test_id", "col_7", FLOAT));
+                new JdbcColumnHandle("test_id", "col_7", REAL));
 
         Connection connection = database.getConnection();
         try (PreparedStatement preparedStatement = connection.prepareStatement("create table \"test_table\" (" + "" +
@@ -166,11 +166,11 @@ public class TestJdbcQueryBuilder
             throws SQLException
     {
         TupleDomain<ColumnHandle> tupleDomain = TupleDomain.withColumnDomains(ImmutableMap.of(
-                columns.get(7), Domain.create(SortedRangeSet.copyOf(FLOAT,
+                columns.get(7), Domain.create(SortedRangeSet.copyOf(REAL,
                                 ImmutableList.of(
-                                        Range.equal(FLOAT, (long) floatToRawIntBits(100.0f + 0)),
-                                        Range.equal(FLOAT, (long) floatToRawIntBits(100.008f + 0)),
-                                        Range.equal(FLOAT, (long) floatToRawIntBits(100.0f + 14)))),
+                                        Range.equal(REAL, (long) floatToRawIntBits(100.0f + 0)),
+                                        Range.equal(REAL, (long) floatToRawIntBits(100.008f + 0)),
+                                        Range.equal(REAL, (long) floatToRawIntBits(100.0f + 14)))),
                         false)
         ));
 

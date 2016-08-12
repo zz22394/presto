@@ -46,7 +46,7 @@ import static java.lang.Float.intBitsToFloat;
 import static java.lang.String.valueOf;
 import static java.math.RoundingMode.FLOOR;
 
-public final class FloatOperators
+public final class RealOperators
 {
     private static final float MIN_LONG_AS_FLOAT = -0x1p63f;
     private static final float MAX_LONG_PLUS_ONE_AS_FLOAT = 0x1p63f;
@@ -57,97 +57,97 @@ public final class FloatOperators
     private static final float MIN_BYTE_AS_FLOAT = -0x1p7f;
     private static final float MAX_BYTE_PLUS_ONE_AS_FLOAT = 0x1p7f;
 
-    private FloatOperators()
+    private RealOperators()
     {
     }
 
     @ScalarOperator(ADD)
-    @SqlType(StandardTypes.FLOAT)
-    public static long add(@SqlType(StandardTypes.FLOAT) long left, @SqlType(StandardTypes.FLOAT) long right)
+    @SqlType(StandardTypes.REAL)
+    public static long add(@SqlType(StandardTypes.REAL) long left, @SqlType(StandardTypes.REAL) long right)
     {
         return floatToRawIntBits(intBitsToFloat((int) left) + intBitsToFloat((int) right));
     }
 
     @ScalarOperator(SUBTRACT)
-    @SqlType(StandardTypes.FLOAT)
-    public static long subtract(@SqlType(StandardTypes.FLOAT) long left, @SqlType(StandardTypes.FLOAT) long right)
+    @SqlType(StandardTypes.REAL)
+    public static long subtract(@SqlType(StandardTypes.REAL) long left, @SqlType(StandardTypes.REAL) long right)
     {
         return floatToRawIntBits(intBitsToFloat((int) left) - intBitsToFloat((int) right));
     }
 
     @ScalarOperator(MULTIPLY)
-    @SqlType(StandardTypes.FLOAT)
-    public static long multiply(@SqlType(StandardTypes.FLOAT) long left, @SqlType(StandardTypes.FLOAT) long right)
+    @SqlType(StandardTypes.REAL)
+    public static long multiply(@SqlType(StandardTypes.REAL) long left, @SqlType(StandardTypes.REAL) long right)
     {
         return floatToRawIntBits(intBitsToFloat((int) left) * intBitsToFloat((int) right));
     }
 
     @ScalarOperator(DIVIDE)
-    @SqlType(StandardTypes.FLOAT)
-    public static long divide(@SqlType(StandardTypes.FLOAT) long left, @SqlType(StandardTypes.FLOAT) long right)
+    @SqlType(StandardTypes.REAL)
+    public static long divide(@SqlType(StandardTypes.REAL) long left, @SqlType(StandardTypes.REAL) long right)
     {
         return floatToRawIntBits(intBitsToFloat((int) left) / intBitsToFloat((int) right));
     }
 
     @ScalarOperator(MODULUS)
-    @SqlType(StandardTypes.FLOAT)
-    public static long modulus(@SqlType(StandardTypes.FLOAT) long left, @SqlType(StandardTypes.FLOAT) long right)
+    @SqlType(StandardTypes.REAL)
+    public static long modulus(@SqlType(StandardTypes.REAL) long left, @SqlType(StandardTypes.REAL) long right)
     {
         return floatToRawIntBits(intBitsToFloat((int) left) % intBitsToFloat((int) right));
     }
 
     @ScalarOperator(NEGATION)
-    @SqlType(StandardTypes.FLOAT)
-    public static long negate(@SqlType(StandardTypes.FLOAT) long value)
+    @SqlType(StandardTypes.REAL)
+    public static long negate(@SqlType(StandardTypes.REAL) long value)
     {
         return floatToRawIntBits(-intBitsToFloat((int) value));
     }
 
     @ScalarOperator(EQUAL)
     @SqlType(StandardTypes.BOOLEAN)
-    public static boolean equal(@SqlType(StandardTypes.FLOAT) long left, @SqlType(StandardTypes.FLOAT) long right)
+    public static boolean equal(@SqlType(StandardTypes.REAL) long left, @SqlType(StandardTypes.REAL) long right)
     {
         return intBitsToFloat((int) left) == intBitsToFloat((int) right);
     }
 
     @ScalarOperator(NOT_EQUAL)
     @SqlType(StandardTypes.BOOLEAN)
-    public static boolean notEqual(@SqlType(StandardTypes.FLOAT) long left, @SqlType(StandardTypes.FLOAT) long right)
+    public static boolean notEqual(@SqlType(StandardTypes.REAL) long left, @SqlType(StandardTypes.REAL) long right)
     {
         return intBitsToFloat((int) left) != intBitsToFloat((int) right);
     }
 
     @ScalarOperator(LESS_THAN)
     @SqlType(StandardTypes.BOOLEAN)
-    public static boolean lessThan(@SqlType(StandardTypes.FLOAT) long left, @SqlType(StandardTypes.FLOAT) long right)
+    public static boolean lessThan(@SqlType(StandardTypes.REAL) long left, @SqlType(StandardTypes.REAL) long right)
     {
         return intBitsToFloat((int) left) < intBitsToFloat((int) right);
     }
 
     @ScalarOperator(LESS_THAN_OR_EQUAL)
     @SqlType(StandardTypes.BOOLEAN)
-    public static boolean lessThanOrEqual(@SqlType(StandardTypes.FLOAT) long left, @SqlType(StandardTypes.FLOAT) long right)
+    public static boolean lessThanOrEqual(@SqlType(StandardTypes.REAL) long left, @SqlType(StandardTypes.REAL) long right)
     {
         return intBitsToFloat((int) left) <= intBitsToFloat((int) right);
     }
 
     @ScalarOperator(GREATER_THAN)
     @SqlType(StandardTypes.BOOLEAN)
-    public static boolean greaterThan(@SqlType(StandardTypes.FLOAT) long left, @SqlType(StandardTypes.FLOAT) long right)
+    public static boolean greaterThan(@SqlType(StandardTypes.REAL) long left, @SqlType(StandardTypes.REAL) long right)
     {
         return intBitsToFloat((int) left) > intBitsToFloat((int) right);
     }
 
     @ScalarOperator(GREATER_THAN_OR_EQUAL)
     @SqlType(StandardTypes.BOOLEAN)
-    public static boolean greaterThanOrEqual(@SqlType(StandardTypes.FLOAT) long left, @SqlType(StandardTypes.FLOAT) long right)
+    public static boolean greaterThanOrEqual(@SqlType(StandardTypes.REAL) long left, @SqlType(StandardTypes.REAL) long right)
     {
         return intBitsToFloat((int) left) >= intBitsToFloat((int) right);
     }
 
     @ScalarOperator(BETWEEN)
     @SqlType(StandardTypes.BOOLEAN)
-    public static boolean between(@SqlType(StandardTypes.FLOAT) long value, @SqlType(StandardTypes.FLOAT) long min, @SqlType(StandardTypes.FLOAT) long max)
+    public static boolean between(@SqlType(StandardTypes.REAL) long value, @SqlType(StandardTypes.REAL) long min, @SqlType(StandardTypes.REAL) long max)
     {
         return intBitsToFloat((int) min) <= intBitsToFloat((int) value) &&
                 intBitsToFloat((int) value) <= intBitsToFloat((int) max);
@@ -155,28 +155,28 @@ public final class FloatOperators
 
     @ScalarOperator(HASH_CODE)
     @SqlType(StandardTypes.BIGINT)
-    public static long hashCode(@SqlType(StandardTypes.FLOAT) long value)
+    public static long hashCode(@SqlType(StandardTypes.REAL) long value)
     {
         return value;
     }
 
     @ScalarOperator(CAST)
     @SqlType(StandardTypes.VARCHAR)
-    public static Slice castToVarchar(@SqlType(StandardTypes.FLOAT) long value)
+    public static Slice castToVarchar(@SqlType(StandardTypes.REAL) long value)
     {
         return utf8Slice(valueOf(intBitsToFloat((int) value)));
     }
 
     @ScalarOperator(CAST)
     @SqlType(StandardTypes.BIGINT)
-    public static long castToLong(@SqlType(StandardTypes.FLOAT) long value)
+    public static long castToLong(@SqlType(StandardTypes.REAL) long value)
     {
         return (long) MathFunctions.round((double) intBitsToFloat((int) value));
     }
 
     @ScalarOperator(CAST)
     @SqlType(StandardTypes.INTEGER)
-    public static long castToInteger(@SqlType(StandardTypes.FLOAT) long value)
+    public static long castToInteger(@SqlType(StandardTypes.REAL) long value)
     {
         try {
             return Ints.checkedCast((long) MathFunctions.round((double) intBitsToFloat((int) value)));
@@ -188,7 +188,7 @@ public final class FloatOperators
 
     @ScalarOperator(CAST)
     @SqlType(StandardTypes.SMALLINT)
-    public static long castToSmallint(@SqlType(StandardTypes.FLOAT) long value)
+    public static long castToSmallint(@SqlType(StandardTypes.REAL) long value)
     {
         try {
             return Shorts.checkedCast((long) MathFunctions.round((double) intBitsToFloat((int) value)));
@@ -200,7 +200,7 @@ public final class FloatOperators
 
     @ScalarOperator(CAST)
     @SqlType(StandardTypes.TINYINT)
-    public static long castToTinyint(@SqlType(StandardTypes.FLOAT) long value)
+    public static long castToTinyint(@SqlType(StandardTypes.REAL) long value)
     {
         try {
             return SignedBytes.checkedCast((long) MathFunctions.round((double) intBitsToFloat((int) value)));
@@ -212,42 +212,42 @@ public final class FloatOperators
 
     @ScalarOperator(CAST)
     @SqlType(StandardTypes.DOUBLE)
-    public static double castToDouble(@SqlType(StandardTypes.FLOAT) long value)
+    public static double castToDouble(@SqlType(StandardTypes.REAL) long value)
     {
         return (double) intBitsToFloat((int) value);
     }
 
     @ScalarOperator(CAST)
     @SqlType(StandardTypes.BOOLEAN)
-    public static boolean castToBoolean(@SqlType(StandardTypes.FLOAT) long value)
+    public static boolean castToBoolean(@SqlType(StandardTypes.REAL) long value)
     {
         return intBitsToFloat((int) value) != 0.0f;
     }
 
     @ScalarOperator(SATURATED_FLOOR_CAST)
     @SqlType(StandardTypes.BIGINT)
-    public static long saturatedFloorCastToBigint(@SqlType(StandardTypes.FLOAT) long value)
+    public static long saturatedFloorCastToBigint(@SqlType(StandardTypes.REAL) long value)
     {
         return saturatedFloorCastToLong(value, Long.MIN_VALUE, MIN_LONG_AS_FLOAT, Long.MAX_VALUE, MAX_LONG_PLUS_ONE_AS_FLOAT);
     }
 
     @ScalarOperator(SATURATED_FLOOR_CAST)
     @SqlType(StandardTypes.INTEGER)
-    public static long saturatedFloorCastToInteger(@SqlType(StandardTypes.FLOAT) long value)
+    public static long saturatedFloorCastToInteger(@SqlType(StandardTypes.REAL) long value)
     {
         return saturatedFloorCastToLong(value, Integer.MIN_VALUE, MIN_INTEGER_AS_FLOAT, Integer.MAX_VALUE, MAX_INTEGER_PLUS_ONE_AS_FLOAT);
     }
 
     @ScalarOperator(SATURATED_FLOOR_CAST)
     @SqlType(StandardTypes.SMALLINT)
-    public static long saturatedFloorCastToSmallint(@SqlType(StandardTypes.FLOAT) long value)
+    public static long saturatedFloorCastToSmallint(@SqlType(StandardTypes.REAL) long value)
     {
         return saturatedFloorCastToLong(value, Short.MIN_VALUE, MIN_SHORT_AS_FLOAT, Short.MAX_VALUE, MAX_SHORT_PLUS_ONE_AS_FLOAT);
     }
 
     @ScalarOperator(SATURATED_FLOOR_CAST)
     @SqlType(StandardTypes.TINYINT)
-    public static long saturatedFloorCastToTinyint(@SqlType(StandardTypes.FLOAT) long value)
+    public static long saturatedFloorCastToTinyint(@SqlType(StandardTypes.REAL) long value)
     {
         return saturatedFloorCastToLong(value, Byte.MIN_VALUE, MIN_BYTE_AS_FLOAT, Byte.MAX_VALUE, MAX_BYTE_PLUS_ONE_AS_FLOAT);
     }

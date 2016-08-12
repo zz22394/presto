@@ -217,8 +217,8 @@ public final class DoubleOperators
     }
 
     @ScalarOperator(CAST)
-    @SqlType(StandardTypes.FLOAT)
-    public static long castToFloat(@SqlType(StandardTypes.DOUBLE) double value)
+    @SqlType(StandardTypes.REAL)
+    public static long castToReal(@SqlType(StandardTypes.DOUBLE) double value)
     {
         return floatToRawIntBits((float) value);
     }
@@ -239,7 +239,7 @@ public final class DoubleOperators
     }
 
     @ScalarOperator(SATURATED_FLOOR_CAST)
-    @SqlType(StandardTypes.FLOAT)
+    @SqlType(StandardTypes.REAL)
     public static long saturatedFloorCastToFloat(@SqlType(StandardTypes.DOUBLE) double value)
     {
         float result;

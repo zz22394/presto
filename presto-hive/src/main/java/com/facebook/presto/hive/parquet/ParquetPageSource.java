@@ -65,8 +65,8 @@ import static com.facebook.presto.spi.type.DateType.DATE;
 import static com.facebook.presto.spi.type.Decimals.isLongDecimal;
 import static com.facebook.presto.spi.type.Decimals.isShortDecimal;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
-import static com.facebook.presto.spi.type.FloatType.FLOAT;
 import static com.facebook.presto.spi.type.IntegerType.INTEGER;
+import static com.facebook.presto.spi.type.RealType.REAL;
 import static com.facebook.presto.spi.type.SmallintType.SMALLINT;
 import static com.facebook.presto.spi.type.TimestampType.TIMESTAMP;
 import static com.facebook.presto.spi.type.TinyintType.TINYINT;
@@ -235,10 +235,10 @@ class ParquetPageSource
                         type.writeSlice(blockBuilder, value);
                     }
                 }
-                else if (type.equals(FLOAT)) {
+                else if (type.equals(REAL)) {
                     long value = floatPartitionKey(partitionKey.getValue(), name);
                     for (int i = 0; i < MAX_VECTOR_LENGTH; i++) {
-                        FLOAT.writeLong(blockBuilder, value);
+                        REAL.writeLong(blockBuilder, value);
                     }
                 }
                 else {

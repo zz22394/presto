@@ -23,7 +23,7 @@ import org.testng.annotations.Test;
 import static com.facebook.presto.plugin.jdbc.TestingDatabase.CONNECTOR_ID;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
-import static com.facebook.presto.spi.type.FloatType.FLOAT;
+import static com.facebook.presto.spi.type.RealType.REAL;
 import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
 import static com.facebook.presto.spi.type.VarcharType.createVarcharType;
 import static java.util.Locale.ENGLISH;
@@ -103,6 +103,6 @@ public class TestJdbcClient
                 new JdbcColumnHandle(CONNECTOR_ID, "COL1", BIGINT),
                 new JdbcColumnHandle(CONNECTOR_ID, "COL2", DOUBLE),
                 new JdbcColumnHandle(CONNECTOR_ID, "COL3", DOUBLE),
-                new JdbcColumnHandle(CONNECTOR_ID, "COL4", FLOAT)));
+                new JdbcColumnHandle(CONNECTOR_ID, "COL4", REAL)));
     }
 }
