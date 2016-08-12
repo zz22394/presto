@@ -30,27 +30,19 @@ public class WindowFunctionDefinition
 
     public static WindowFunctionDefinition window(WindowFunctionSupplier functionSupplier, Type type, List<Integer> inputs)
     {
-        requireNonNull(functionSupplier, "functionSupplier is null");
-        requireNonNull(type, "type is null");
-        requireNonNull(inputs, "inputs is null");
-
         return new WindowFunctionDefinition(functionSupplier, type, inputs);
     }
 
     public static WindowFunctionDefinition window(WindowFunctionSupplier functionSupplier, Type type, Integer... inputs)
     {
-        requireNonNull(functionSupplier, "functionSupplier is null");
-        requireNonNull(type, "type is null");
-        requireNonNull(inputs, "inputs is null");
-
         return window(functionSupplier, type, Arrays.asList(inputs));
     }
 
     WindowFunctionDefinition(WindowFunctionSupplier functionSupplier, Type type, List<Integer> argumentChannels)
     {
-        this.functionSupplier = functionSupplier;
-        this.type = type;
-        this.argumentChannels = argumentChannels;
+        this.functionSupplier = requireNonNull(functionSupplier, "functionSupplier is null");
+        this.type = requireNonNull(type, "type is null");
+        this.argumentChannels = requireNonNull(argumentChannels, "inputs is null");
     }
 
     public Type getType()
