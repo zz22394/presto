@@ -57,8 +57,8 @@ import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 import static com.facebook.presto.spi.type.DateTimeEncoding.packDateTimeWithZone;
 import static com.facebook.presto.spi.type.DateType.DATE;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
-import static com.facebook.presto.spi.type.FloatType.FLOAT;
 import static com.facebook.presto.spi.type.IntegerType.INTEGER;
+import static com.facebook.presto.spi.type.RealType.REAL;
 import static com.facebook.presto.spi.type.SmallintType.SMALLINT;
 import static com.facebook.presto.spi.type.StandardTypes.ARRAY;
 import static com.facebook.presto.spi.type.StandardTypes.MAP;
@@ -236,7 +236,7 @@ public class MaterializedResult
         else if (DOUBLE.equals(type)) {
             type.writeDouble(blockBuilder, ((Number) value).doubleValue());
         }
-        else if (FLOAT.equals(type)) {
+        else if (REAL.equals(type)) {
             type.writeLong(blockBuilder, (long) floatToRawIntBits(((Number) value).floatValue()));
         }
         else if (BOOLEAN.equals(type)) {

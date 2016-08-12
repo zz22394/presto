@@ -32,8 +32,8 @@ import static com.facebook.presto.spi.type.Decimals.bigIntegerTenToNth;
 import static com.facebook.presto.spi.type.Decimals.decodeUnscaledValue;
 import static com.facebook.presto.spi.type.Decimals.encodeUnscaledValue;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
-import static com.facebook.presto.spi.type.FloatType.FLOAT;
 import static com.facebook.presto.spi.type.IntegerType.INTEGER;
+import static com.facebook.presto.spi.type.RealType.REAL;
 import static com.facebook.presto.spi.type.SmallintType.SMALLINT;
 import static com.facebook.presto.spi.type.TinyintType.TINYINT;
 import static com.facebook.presto.spi.type.TypeSignature.parseTypeSignature;
@@ -141,7 +141,7 @@ public final class DecimalSaturatedFloorCasts
             .signature(Signature.builder()
                     .kind(SCALAR)
                     .operatorType(SATURATED_FLOOR_CAST)
-                    .argumentTypes(FLOAT.getTypeSignature())
+                    .argumentTypes(REAL.getTypeSignature())
                     .returnType(parseTypeSignature("decimal(result_precision,result_scale)", ImmutableSet.of("result_precision", "result_scale")))
                     .build()
             )

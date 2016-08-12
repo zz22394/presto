@@ -334,7 +334,7 @@ public class TestHiveBucketing
                 assertEquals(nano % 1_000_000, 0);
                 type.writeLong(blockBuilder, epochSecond * 1000 + nano / 1_000_000);
                 break;
-            case StandardTypes.FLOAT:
+            case StandardTypes.REAL:
                 type.writeLong(blockBuilder, floatToRawIntBits(((Number) element).floatValue()));
                 break;
             default:

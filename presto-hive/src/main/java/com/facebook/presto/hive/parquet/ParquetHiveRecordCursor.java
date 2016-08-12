@@ -97,8 +97,8 @@ import static com.facebook.presto.spi.type.DecimalType.createDecimalType;
 import static com.facebook.presto.spi.type.Decimals.isLongDecimal;
 import static com.facebook.presto.spi.type.Decimals.isShortDecimal;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
-import static com.facebook.presto.spi.type.FloatType.FLOAT;
 import static com.facebook.presto.spi.type.IntegerType.INTEGER;
+import static com.facebook.presto.spi.type.RealType.REAL;
 import static com.facebook.presto.spi.type.SmallintType.SMALLINT;
 import static com.facebook.presto.spi.type.StandardTypes.ARRAY;
 import static com.facebook.presto.spi.type.StandardTypes.MAP;
@@ -246,7 +246,7 @@ public class ParquetHiveRecordCursor
                 else if (isLongDecimal(type)) {
                     slices[columnIndex] = longDecimalPartitionKey(partitionKey.getValue(), (DecimalType) type, columnName);
                 }
-                else if (type.equals(FLOAT)) {
+                else if (type.equals(REAL)) {
                     longs[columnIndex] = floatPartitionKey(partitionKeyValue, columnName);
                 }
                 else {

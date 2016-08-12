@@ -89,8 +89,8 @@ import static com.facebook.presto.spi.type.Chars.trimSpaces;
 import static com.facebook.presto.spi.type.DateType.DATE;
 import static com.facebook.presto.spi.type.DecimalType.createDecimalType;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
-import static com.facebook.presto.spi.type.FloatType.FLOAT;
 import static com.facebook.presto.spi.type.IntegerType.INTEGER;
+import static com.facebook.presto.spi.type.RealType.REAL;
 import static com.facebook.presto.spi.type.SmallintType.SMALLINT;
 import static com.facebook.presto.spi.type.TimestampType.TIMESTAMP;
 import static com.facebook.presto.spi.type.TinyintType.TINYINT;
@@ -451,14 +451,14 @@ public final class HiveUtil
             return NullableValue.of(TIMESTAMP, timestampPartitionKey(value, timeZone, partitionName));
         }
 
-        if (FLOAT.equals(type)) {
+        if (REAL.equals(type)) {
             if (isNull) {
-                return NullableValue.asNull(FLOAT);
+                return NullableValue.asNull(REAL);
             }
             if (value.isEmpty()) {
-                return NullableValue.of(FLOAT, floatToRawIntBits(0.0f));
+                return NullableValue.of(REAL, floatToRawIntBits(0.0f));
             }
-            return NullableValue.of(FLOAT, floatPartitionKey(value, partitionName));
+            return NullableValue.of(REAL, floatPartitionKey(value, partitionName));
         }
 
         if (DOUBLE.equals(type)) {

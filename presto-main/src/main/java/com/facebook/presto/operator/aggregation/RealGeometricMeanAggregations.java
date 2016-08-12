@@ -18,20 +18,20 @@ import com.facebook.presto.spi.block.BlockBuilder;
 import com.facebook.presto.spi.type.StandardTypes;
 import com.facebook.presto.type.SqlType;
 
-import static com.facebook.presto.spi.type.FloatType.FLOAT;
+import static com.facebook.presto.spi.type.RealType.REAL;
 import static java.lang.Float.floatToRawIntBits;
 import static java.lang.Float.intBitsToFloat;
 
-@AggregationFunction("avg")
-public final class FloatAverageAggregation
+@AggregationFunction("geometric_mean")
+public final class RealGeometricMeanAggregations
 {
-    private FloatAverageAggregation() {}
+    private RealGeometricMeanAggregations() {}
 
     @InputFunction
-    public static void input(LongAndDoubleState state, @SqlType(StandardTypes.FLOAT) long value)
+    public static void input(LongAndDoubleState state, @SqlType(StandardTypes.REAL) long value)
     {
         state.setLong(state.getLong() + 1);
-        state.setDouble(state.getDouble() + intBitsToFloat((int) value));
+        state.setDouble(state.getDouble() + Math.log(intBitsToFloat((int) value)));
     }
 
     @CombineFunction
@@ -41,7 +41,7 @@ public final class FloatAverageAggregation
         state.setDouble(state.getDouble() + otherState.getDouble());
     }
 
-    @OutputFunction(StandardTypes.FLOAT)
+    @OutputFunction(StandardTypes.REAL)
     public static void output(LongAndDoubleState state, BlockBuilder out)
     {
         long count = state.getLong();
@@ -49,8 +49,7 @@ public final class FloatAverageAggregation
             out.appendNull();
         }
         else {
-            double average = state.getDouble() / count;
-            FLOAT.writeLong(out, floatToRawIntBits((float) average));
+            REAL.writeLong(out, floatToRawIntBits((float) Math.exp(state.getDouble() / count)));
         }
     }
 }

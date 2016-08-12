@@ -17,8 +17,8 @@ import com.facebook.presto.spi.PrestoException;
 import com.facebook.presto.spi.RecordCursor;
 import com.facebook.presto.spi.type.BigintType;
 import com.facebook.presto.spi.type.DateType;
-import com.facebook.presto.spi.type.FloatType;
 import com.facebook.presto.spi.type.IntegerType;
+import com.facebook.presto.spi.type.RealType;
 import com.facebook.presto.spi.type.SmallintType;
 import com.facebook.presto.spi.type.TimeType;
 import com.facebook.presto.spi.type.TimestampType;
@@ -150,7 +150,7 @@ public class JdbcRecordCursor
             if (type.equals(IntegerType.INTEGER)) {
                 return (long) resultSet.getInt(field + 1);
             }
-            if (type.equals(FloatType.FLOAT)) {
+            if (type.equals(RealType.REAL)) {
                 return (long) floatToRawIntBits(resultSet.getFloat(field + 1));
             }
             if (type.equals(BigintType.BIGINT)) {

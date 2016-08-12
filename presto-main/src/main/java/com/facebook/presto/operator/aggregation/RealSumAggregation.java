@@ -15,23 +15,23 @@ package com.facebook.presto.operator.aggregation;
 
 import com.facebook.presto.operator.aggregation.state.NullableDoubleState;
 import com.facebook.presto.spi.block.BlockBuilder;
-import com.facebook.presto.spi.type.FloatType;
 import com.facebook.presto.spi.type.StandardTypes;
 import com.facebook.presto.type.SqlType;
 
+import static com.facebook.presto.spi.type.RealType.REAL;
 import static com.facebook.presto.testing.AggregationTestUtils.generateInternalAggregationFunction;
 import static java.lang.Float.floatToRawIntBits;
 import static java.lang.Float.intBitsToFloat;
 
 @AggregationFunction("sum")
-public final class FloatSumAggregation
+public final class RealSumAggregation
 {
-    public static final InternalAggregationFunction FLOAT_SUM = generateInternalAggregationFunction(FloatSumAggregation.class);
+    public static final InternalAggregationFunction REAL_SUM = generateInternalAggregationFunction(RealSumAggregation.class);
 
-    private FloatSumAggregation() {}
+    private RealSumAggregation() {}
 
     @InputFunction
-    public static void sum(NullableDoubleState state, @SqlType(StandardTypes.FLOAT) long value)
+    public static void sum(NullableDoubleState state, @SqlType(StandardTypes.REAL) long value)
     {
         state.setNull(false);
         state.setDouble(state.getDouble() + intBitsToFloat((int) value));
@@ -54,14 +54,14 @@ public final class FloatSumAggregation
         }
     }
 
-    @OutputFunction(StandardTypes.FLOAT)
+    @OutputFunction(StandardTypes.REAL)
     public static void output(NullableDoubleState state, BlockBuilder out)
     {
         if (state.isNull()) {
             out.appendNull();
         }
         else {
-            FloatType.FLOAT.writeLong(out, floatToRawIntBits((float) state.getDouble()));
+            REAL.writeLong(out, floatToRawIntBits((float) state.getDouble()));
         }
     }
 }

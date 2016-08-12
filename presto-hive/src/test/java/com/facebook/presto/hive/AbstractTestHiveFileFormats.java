@@ -94,8 +94,8 @@ import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 import static com.facebook.presto.spi.type.CharType.createCharType;
 import static com.facebook.presto.spi.type.Chars.isCharType;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
-import static com.facebook.presto.spi.type.FloatType.FLOAT;
 import static com.facebook.presto.spi.type.IntegerType.INTEGER;
+import static com.facebook.presto.spi.type.RealType.REAL;
 import static com.facebook.presto.spi.type.SmallintType.SMALLINT;
 import static com.facebook.presto.spi.type.TinyintType.TINYINT;
 import static com.facebook.presto.spi.type.VarbinaryType.VARBINARY;
@@ -298,7 +298,7 @@ public abstract class AbstractTestHiveFileFormats
                                                                                                                                                                             3L}), mapBlockOf(BIGINT, BIGINT, 2, 3)))
             .add(new TestColumn("t_map_int", getStandardMapObjectInspector(javaIntObjectInspector, javaIntObjectInspector), ImmutableMap.of(3, 3), mapBlockOf(INTEGER, INTEGER, 3, 3)))
             .add(new TestColumn("t_map_bigint", getStandardMapObjectInspector(javaLongObjectInspector, javaLongObjectInspector), ImmutableMap.of(4L, 4L), mapBlockOf(BIGINT, BIGINT, 4L, 4L)))
-            .add(new TestColumn("t_map_float", getStandardMapObjectInspector(javaFloatObjectInspector, javaFloatObjectInspector), ImmutableMap.of(5.0f, 5.0f), mapBlockOf(FLOAT, FLOAT, 5.0f, 5.0f)))
+            .add(new TestColumn("t_map_float", getStandardMapObjectInspector(javaFloatObjectInspector, javaFloatObjectInspector), ImmutableMap.of(5.0f, 5.0f), mapBlockOf(REAL, REAL, 5.0f, 5.0f)))
             .add(new TestColumn("t_map_double", getStandardMapObjectInspector(javaDoubleObjectInspector, javaDoubleObjectInspector), ImmutableMap.of(6.0, 6.0), mapBlockOf(DOUBLE, DOUBLE, 6.0, 6.0)))
             .add(new TestColumn("t_map_boolean",
                     getStandardMapObjectInspector(javaBooleanObjectInspector, javaBooleanObjectInspector),
@@ -348,7 +348,7 @@ public abstract class AbstractTestHiveFileFormats
             .add(new TestColumn("t_array_smallint", getStandardListObjectInspector(javaShortObjectInspector), ImmutableList.of((short) 2), arrayBlockOf(SMALLINT, (short) 2)))
             .add(new TestColumn("t_array_int", getStandardListObjectInspector(javaIntObjectInspector), ImmutableList.of(3), arrayBlockOf(INTEGER, 3)))
             .add(new TestColumn("t_array_bigint", getStandardListObjectInspector(javaLongObjectInspector), ImmutableList.of(4L), arrayBlockOf(BIGINT, 4L)))
-            .add(new TestColumn("t_array_float", getStandardListObjectInspector(javaFloatObjectInspector), ImmutableList.of(5.0f), arrayBlockOf(FLOAT, 5.0f)))
+            .add(new TestColumn("t_array_float", getStandardListObjectInspector(javaFloatObjectInspector), ImmutableList.of(5.0f), arrayBlockOf(REAL, 5.0f)))
             .add(new TestColumn("t_array_double", getStandardListObjectInspector(javaDoubleObjectInspector), ImmutableList.of(6.0), StructuralTestUtil.arrayBlockOf(DOUBLE, 6.0)))
             .add(new TestColumn("t_array_boolean", getStandardListObjectInspector(javaBooleanObjectInspector), ImmutableList.of(true), arrayBlockOf(BOOLEAN, true)))
             .add(new TestColumn(
@@ -587,7 +587,7 @@ public abstract class AbstractTestHiveFileFormats
                 else if (BIGINT.equals(type)) {
                     fieldFromCursor = cursor.getLong(i);
                 }
-                else if (FLOAT.equals(type)) {
+                else if (REAL.equals(type)) {
                     fieldFromCursor = cursor.getLong(i);
                 }
                 else if (DOUBLE.equals(type)) {
@@ -620,7 +620,7 @@ public abstract class AbstractTestHiveFileFormats
                         fieldFromCursor = new BigDecimal(Decimals.decodeUnscaledValue(cursor.getSlice(i)), decimalType.getScale());
                     }
                 }
-                else if (FLOAT.equals(type)) {
+                else if (REAL.equals(type)) {
                     fieldFromCursor = Float.intBitsToFloat((int) cursor.getLong(i));
                 }
                 else {

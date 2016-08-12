@@ -140,9 +140,9 @@ import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 import static com.facebook.presto.spi.type.Chars.isCharType;
 import static com.facebook.presto.spi.type.DateType.DATE;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
-import static com.facebook.presto.spi.type.FloatType.FLOAT;
 import static com.facebook.presto.spi.type.HyperLogLogType.HYPER_LOG_LOG;
 import static com.facebook.presto.spi.type.IntegerType.INTEGER;
+import static com.facebook.presto.spi.type.RealType.REAL;
 import static com.facebook.presto.spi.type.SmallintType.SMALLINT;
 import static com.facebook.presto.spi.type.StandardTypes.ARRAY;
 import static com.facebook.presto.spi.type.StandardTypes.MAP;
@@ -203,7 +203,7 @@ public abstract class AbstractTestHiveClient
             .add(new ColumnMetadata("t_smallint", SMALLINT))
             .add(new ColumnMetadata("t_integer", INTEGER))
             .add(new ColumnMetadata("t_bigint", BIGINT))
-            .add(new ColumnMetadata("t_float", FLOAT))
+            .add(new ColumnMetadata("t_real", REAL))
             .add(new ColumnMetadata("t_double", DOUBLE))
             .add(new ColumnMetadata("t_boolean", BOOLEAN))
             .add(new ColumnMetadata("t_array", ARRAY_TYPE))
@@ -212,7 +212,7 @@ public abstract class AbstractTestHiveClient
             .build();
 
     private static final MaterializedResult CREATE_TABLE_DATA =
-            MaterializedResult.resultBuilder(SESSION, BIGINT, createUnboundedVarcharType(), TINYINT, SMALLINT, INTEGER, BIGINT, FLOAT, DOUBLE, BOOLEAN, ARRAY_TYPE, MAP_TYPE, ROW_TYPE)
+            MaterializedResult.resultBuilder(SESSION, BIGINT, createUnboundedVarcharType(), TINYINT, SMALLINT, INTEGER, BIGINT, REAL, DOUBLE, BOOLEAN, ARRAY_TYPE, MAP_TYPE, ROW_TYPE)
                     .row(1L, "hello", (byte) 45, (short) 345, 234, 123L, -754.1985f, 43.5, true, ImmutableList.of("apple", "banana"), ImmutableMap.of("one", 1L, "two", 2L), ImmutableList.of("true", 1L, true))
                     .row(2L, null, null, null, null, null, null, null, null, null, null, null)
                     .row(3L, "bye", (byte) 46, (short) 346, 345, 456L, 754.2008f, 98.1, false, ImmutableList.of("ape", "bear"), ImmutableMap.of("three", 3L, "four", 4L), ImmutableList.of("false", 0L, false))
@@ -233,7 +233,7 @@ public abstract class AbstractTestHiveClient
                     .build());
 
     private static final MaterializedResult CREATE_TABLE_PARTITIONED_DATA_2ND =
-            MaterializedResult.resultBuilder(SESSION, BIGINT, createUnboundedVarcharType(), TINYINT, SMALLINT, INTEGER, BIGINT, FLOAT, DOUBLE, BOOLEAN, ARRAY_TYPE, MAP_TYPE, ROW_TYPE, createUnboundedVarcharType())
+            MaterializedResult.resultBuilder(SESSION, BIGINT, createUnboundedVarcharType(), TINYINT, SMALLINT, INTEGER, BIGINT, REAL, DOUBLE, BOOLEAN, ARRAY_TYPE, MAP_TYPE, ROW_TYPE, createUnboundedVarcharType())
                     .row(4L, "hello", (byte) 45, (short) 345, 234, 123L, 754.1985f, 43.5, true, ImmutableList.of("apple", "banana"), ImmutableMap.of("one", 1L, "two", 2L), ImmutableList.of("true", 1L, true), "2015-07-04")
                     .row(5L, null, null, null, null, null, null, null, null, null, null, null, "2015-07-04")
                     .row(6L, "bye", (byte) 46, (short) 346, 345, 456L, -754.2008f, 98.1, false, ImmutableList.of("ape", "bear"), ImmutableMap.of("three", 3L, "four", 4L), ImmutableList.of("false", 0L, false), "2015-07-04")
@@ -678,7 +678,7 @@ public abstract class AbstractTestHiveClient
         assertPrimitiveField(map, "t_smallint", SMALLINT, false);
         assertPrimitiveField(map, "t_int", INTEGER, false);
         assertPrimitiveField(map, "t_bigint", BIGINT, false);
-        assertPrimitiveField(map, "t_float", FLOAT, false);
+        assertPrimitiveField(map, "t_real", REAL, false);
         assertPrimitiveField(map, "t_double", DOUBLE, false);
         assertPrimitiveField(map, "t_boolean", BOOLEAN, false);
         assertPrimitiveField(map, "ds", createUnboundedVarcharType(), true);
@@ -904,7 +904,7 @@ public abstract class AbstractTestHiveClient
         assertTableIsBucketed(tableHandle);
 
         ImmutableMap<ColumnHandle, NullableValue> bindings = ImmutableMap.<ColumnHandle, NullableValue>builder()
-                .put(columnHandles.get(columnIndex.get("t_float")), NullableValue.of(FLOAT, (long) floatToRawIntBits(87.1f)))
+                .put(columnHandles.get(columnIndex.get("t_float")), NullableValue.of(REAL, (long) floatToRawIntBits(87.1f)))
                 .put(columnHandles.get(columnIndex.get("t_double")), NullableValue.of(DOUBLE, 88.2))
                 .build();
 
@@ -2518,7 +2518,7 @@ public abstract class AbstractTestHiveClient
                 else if (DOUBLE.equals(column.getType())) {
                     assertInstanceOf(value, Double.class);
                 }
-                else if (FLOAT.equals(column.getType())) {
+                else if (REAL.equals(column.getType())) {
                     assertInstanceOf(value, Float.class);
                 }
                 else if (isVarcharType(column.getType())) {

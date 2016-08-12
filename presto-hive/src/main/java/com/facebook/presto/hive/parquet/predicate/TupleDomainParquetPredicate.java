@@ -45,7 +45,7 @@ import java.util.function.Function;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
-import static com.facebook.presto.spi.type.FloatType.FLOAT;
+import static com.facebook.presto.spi.type.RealType.REAL;
 import static com.facebook.presto.spi.type.Varchars.isVarcharType;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.Float.floatToRawIntBits;
@@ -168,7 +168,7 @@ public class TupleDomainParquetPredicate<C>
             ParquetDoubleStatistics parquetDoubleStatistics = new ParquetDoubleStatistics(doubleStatistics.genericGetMin(), doubleStatistics.genericGetMax());
             return createDomain(type, hasNullValue, parquetDoubleStatistics);
         }
-        else if (type.equals(FLOAT) && statistics instanceof FloatStatistics) {
+        else if (type.equals(REAL) && statistics instanceof FloatStatistics) {
             FloatStatistics floatStatistics = (FloatStatistics) statistics;
             // ignore corrupted statistics
             if (floatStatistics.genericGetMin() > floatStatistics.genericGetMax()) {

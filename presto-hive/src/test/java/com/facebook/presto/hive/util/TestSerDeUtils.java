@@ -47,8 +47,8 @@ import static com.facebook.presto.hive.util.SerDeUtils.serializeObject;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
-import static com.facebook.presto.spi.type.FloatType.FLOAT;
 import static com.facebook.presto.spi.type.IntegerType.INTEGER;
+import static com.facebook.presto.spi.type.RealType.REAL;
 import static com.facebook.presto.spi.type.SmallintType.SMALLINT;
 import static com.facebook.presto.spi.type.TinyintType.TINYINT;
 import static com.facebook.presto.spi.type.VarbinaryType.VARBINARY;
@@ -141,7 +141,7 @@ public class TestSerDeUtils
 
         // float
         Block expectedFloat = VARBINARY.createBlockBuilder(new BlockBuilderStatus(), 1).writeInt(floatToRawIntBits(20.0f)).closeEntry().build();
-        Block actualFloat = toBinaryBlock(FLOAT, 20.0f, getInspector(Float.class));
+        Block actualFloat = toBinaryBlock(REAL, 20.0f, getInspector(Float.class));
         assertBlockEquals(actualFloat, expectedFloat);
 
         // double
@@ -249,7 +249,7 @@ public class TestSerDeUtils
         com.facebook.presto.spi.type.Type innerRowType = new RowType(ImmutableList.of(INTEGER, BIGINT), Optional.empty());
         com.facebook.presto.spi.type.Type arrayOfInnerRowType = new ArrayType(innerRowType);
         com.facebook.presto.spi.type.Type mapOfInnerRowType = new MapType(createUnboundedVarcharType(), innerRowType);
-        List<com.facebook.presto.spi.type.Type> outerRowParameterTypes = ImmutableList.of(TINYINT, SMALLINT, INTEGER, BIGINT, FLOAT, DOUBLE, createUnboundedVarcharType(), createUnboundedVarcharType(), arrayOfInnerRowType, mapOfInnerRowType, innerRowType);
+        List<com.facebook.presto.spi.type.Type> outerRowParameterTypes = ImmutableList.of(TINYINT, SMALLINT, INTEGER, BIGINT, REAL, DOUBLE, createUnboundedVarcharType(), createUnboundedVarcharType(), arrayOfInnerRowType, mapOfInnerRowType, innerRowType);
         com.facebook.presto.spi.type.Type outerRowType = new RowType(outerRowParameterTypes, Optional.empty());
 
         actual = toBinaryBlock(outerRowType, outerStruct, getInspector(OuterStruct.class));

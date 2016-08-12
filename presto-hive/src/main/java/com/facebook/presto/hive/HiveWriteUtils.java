@@ -26,8 +26,8 @@ import com.facebook.presto.spi.type.DateType;
 import com.facebook.presto.spi.type.DecimalType;
 import com.facebook.presto.spi.type.Decimals;
 import com.facebook.presto.spi.type.DoubleType;
-import com.facebook.presto.spi.type.FloatType;
 import com.facebook.presto.spi.type.IntegerType;
+import com.facebook.presto.spi.type.RealType;
 import com.facebook.presto.spi.type.SmallintType;
 import com.facebook.presto.spi.type.TimestampType;
 import com.facebook.presto.spi.type.TinyintType;
@@ -179,7 +179,7 @@ public final class HiveWriteUtils
         else if (type.equals(DoubleType.DOUBLE)) {
             return javaDoubleObjectInspector;
         }
-        else if (type.equals(FloatType.FLOAT)) {
+        else if (type.equals(RealType.REAL)) {
             return javaFloatObjectInspector;
         }
         else if (type instanceof VarcharType) {
@@ -244,7 +244,7 @@ public final class HiveWriteUtils
         if (DoubleType.DOUBLE.equals(type)) {
             return type.getDouble(block, position);
         }
-        if (FloatType.FLOAT.equals(type)) {
+        if (RealType.REAL.equals(type)) {
             return intBitsToFloat((int) type.getLong(block, position));
         }
         if (type instanceof VarcharType) {
@@ -566,7 +566,7 @@ public final class HiveWriteUtils
             return writableDoubleObjectInspector;
         }
 
-        if (type.equals(FloatType.FLOAT)) {
+        if (type.equals(RealType.REAL)) {
             return writableFloatObjectInspector;
         }
 
@@ -640,7 +640,7 @@ public final class HiveWriteUtils
             return new DoubleFieldSetter(rowInspector, row, field);
         }
 
-        if (type.equals(FloatType.FLOAT)) {
+        if (type.equals(RealType.REAL)) {
             return new FloatFieldSetter(rowInspector, row, field);
         }
 
@@ -821,7 +821,7 @@ public final class HiveWriteUtils
         @Override
         public void setField(Block block, int position)
         {
-            value.set(intBitsToFloat((int) FloatType.FLOAT.getLong(block, position)));
+            value.set(intBitsToFloat((int) RealType.REAL.getLong(block, position)));
             rowInspector.setStructFieldData(row, field, value);
         }
     }
