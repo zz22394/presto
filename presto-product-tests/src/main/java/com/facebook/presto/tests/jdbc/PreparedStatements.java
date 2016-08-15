@@ -68,6 +68,8 @@ public class PreparedStatements
     private static final String TABLE_NAME = "textfile_all_types";
     private static final String TABLE_NAME_MUTABLE = "all_types_table_name";
 
+    private Connection connection;
+
     private static class ImmutableAllTypesTable
             implements RequirementsProvider
     {
@@ -87,8 +89,6 @@ public class PreparedStatements
             return mutableTable(ALL_HIVE_SIMPLE_TYPES_TEXTFILE, TABLE_NAME_MUTABLE, CREATED);
         }
     }
-
-    private Connection connection;
 
     @BeforeTestWithContext
     public void setup()
