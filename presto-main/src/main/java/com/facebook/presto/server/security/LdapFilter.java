@@ -144,9 +144,9 @@ public class LdapFilter
                 return;
             }
             catch (AuthenticationException e) {
-                // LOG incorrect credentials message separately since the one from e is not explicit
-                LOG.debug("LDAP Authentication failed due to invalid credentials");
-                throw Throwables.propagate(e);
+                // Log exception since the error message from LDAP server is not very friendly to be returned to the user
+                LOG.debug("LDAP Authentication failed with exception: %s", e);
+                throw new RuntimeException("Authentication failed. Invalid credentials.");
             }
             catch (NamingException e) {
                 throw Throwables.propagate(e);
