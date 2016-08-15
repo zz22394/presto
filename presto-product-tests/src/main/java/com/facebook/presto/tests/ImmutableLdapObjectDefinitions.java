@@ -45,6 +45,7 @@ public final class ImmutableLdapObjectDefinitions
                     .setDistinguishedName("cn=DefaultGroup,ou=America,dc=10.25.150.158")
                     .setAttributes(ImmutableMap.of(
                             "cn", "DefaultGroup",
+//                            "member", "uid=UserInMultipleGroups,ou=Asia,dc=10.25.150.158",
                             "member", "uid=DefaultGroupUser,ou=Asia,dc=10.25.150.158"))
                     .addObjectClasses(Arrays.asList("groupOfNames"))
                     .build();
@@ -54,8 +55,7 @@ public final class ImmutableLdapObjectDefinitions
                     .setDistinguishedName("cn=ParentGroup,ou=America,dc=10.25.150.158")
                     .setAttributes(ImmutableMap.of(
                             "cn", "ParentGroup",
-                            "member", "uid=ParentGroupUser,ou=Asia,dc=10.25.150.158",
-                            "member", "uid=UserInMultipleGroups,ou=Asia,dc=10.25.150.158"))
+                            "member", "uid=ParentGroupUser,ou=Asia,dc=10.25.150.158"))
                     .addObjectClasses(Arrays.asList("groupOfNames"))
                     .build();
 
@@ -112,7 +112,7 @@ public final class ImmutableLdapObjectDefinitions
                     ))
                     .addObjectClasses(Arrays.asList("person", "inetOrgPerson"))
                     .build();
-
+/*
     public static final LdapObjectDefinition USER_IN_MULTIPLE_GROUPS =
             LdapObjectDefinition.builder("UserInMultipleGroups")
                     .setDistinguishedName("uid=userinmultiplegroups,ou=Asia,dc=10.25.150.158")
@@ -125,7 +125,7 @@ public final class ImmutableLdapObjectDefinitions
                     ))
                     .addObjectClasses(Arrays.asList("person", "inetOrgPerson"))
                     .build();
-
+*/
     public static final LdapObjectDefinition ORPHAN_USER =
             LdapObjectDefinition.builder("OrphanUser")
                     .setDistinguishedName("uid=orphanuser,ou=Asia,dc=10.25.150.158")

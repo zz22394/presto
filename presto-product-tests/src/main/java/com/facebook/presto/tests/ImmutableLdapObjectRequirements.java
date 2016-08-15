@@ -21,7 +21,6 @@ import com.teradata.tempto.fulfillment.ldap.LdapObjectRequirement;
 import java.util.Arrays;
 
 import static com.facebook.presto.tests.ImmutableLdapObjectDefinitions.AMERICA_ORG;
-import static com.facebook.presto.tests.ImmutableLdapObjectDefinitions.ANOTHER_GROUP;
 import static com.facebook.presto.tests.ImmutableLdapObjectDefinitions.ASIA_ORG;
 import static com.facebook.presto.tests.ImmutableLdapObjectDefinitions.CHILD_GROUP;
 import static com.facebook.presto.tests.ImmutableLdapObjectDefinitions.CHILD_GROUP_USER;
@@ -30,7 +29,6 @@ import static com.facebook.presto.tests.ImmutableLdapObjectDefinitions.DEFAULT_G
 import static com.facebook.presto.tests.ImmutableLdapObjectDefinitions.ORPHAN_USER;
 import static com.facebook.presto.tests.ImmutableLdapObjectDefinitions.PARENT_GROUP;
 import static com.facebook.presto.tests.ImmutableLdapObjectDefinitions.PARENT_GROUP_USER;
-import static com.facebook.presto.tests.ImmutableLdapObjectDefinitions.USER_IN_MULTIPLE_GROUPS;
 import static com.teradata.tempto.Requirements.compose;
 
 public class ImmutableLdapObjectRequirements
@@ -39,7 +37,7 @@ public class ImmutableLdapObjectRequirements
     public static final Requirement DEFAULT_OBJECTS = new LdapObjectRequirement(Arrays.asList(AMERICA_ORG, ASIA_ORG, DEFAULT_GROUP, DEFAULT_GROUP_USER));
     public static final Requirement PARENT_OBJECTS = new LdapObjectRequirement(Arrays.asList(AMERICA_ORG, ASIA_ORG, PARENT_GROUP, PARENT_GROUP_USER));
     public static final Requirement CHILD_OBJECTS = new LdapObjectRequirement(Arrays.asList(AMERICA_ORG, ASIA_ORG, CHILD_GROUP, CHILD_GROUP_USER));
-    public static final Requirement MULTIPLE_GROUPS_OBJECTS = new LdapObjectRequirement(Arrays.asList(AMERICA_ORG, ASIA_ORG, DEFAULT_GROUP, ANOTHER_GROUP, USER_IN_MULTIPLE_GROUPS));
+ //   public static final Requirement MULTIPLE_GROUPS_OBJECTS = new LdapObjectRequirement(Arrays.asList(AMERICA_ORG, ASIA_ORG, DEFAULT_GROUP, ANOTHER_GROUP, USER_IN_MULTIPLE_GROUPS));
     public static final Requirement ORPHAN_OBJECTS = new LdapObjectRequirement(Arrays.asList(AMERICA_ORG, ASIA_ORG, ORPHAN_USER));
 
     @Override
@@ -49,7 +47,7 @@ public class ImmutableLdapObjectRequirements
                 DEFAULT_OBJECTS,
                 PARENT_OBJECTS,
                 CHILD_OBJECTS,
-                MULTIPLE_GROUPS_OBJECTS,
+//                MULTIPLE_GROUPS_OBJECTS,
                 ORPHAN_OBJECTS
         );
     }
@@ -83,7 +81,7 @@ public class ImmutableLdapObjectRequirements
             return CHILD_OBJECTS;
         }
     }
-
+/*
     public static class ImmutableUserInMultipleGroupsObject
             implements RequirementsProvider
     {
@@ -93,7 +91,7 @@ public class ImmutableLdapObjectRequirements
             return MULTIPLE_GROUPS_OBJECTS;
         }
     }
-
+*/
     public static class ImmutableOrphanUserObject
             implements RequirementsProvider
     {
