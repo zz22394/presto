@@ -53,7 +53,7 @@ public final class AllSimpleTypesTableDefinitions
                         "   c_smallint           SMALLINT," +
                         "   c_int                INT," +
                         "   c_bigint             BIGINT," +
-                        "   c_float              FLOAT," +
+                        "   c_float              REAL," +
                         "   c_double             DOUBLE," +
                         "   c_decimal            DECIMAL," +
                         "   c_decimal_w_params   DECIMAL(10,5)," +
@@ -81,7 +81,7 @@ public final class AllSimpleTypesTableDefinitions
                         "   c_smallint           SMALLINT," +
                         "   c_int                INT," +
                         "   c_bigint             BIGINT," +
-                        "   c_float              FLOAT," +
+                        "   c_float              REAL," +
                         "   c_double             DOUBLE," +
                         "   c_decimal            DECIMAL," +
                         "   c_decimal_w_params   DECIMAL(10,5)," +
@@ -107,7 +107,7 @@ public final class AllSimpleTypesTableDefinitions
                         "   c_smallint           SMALLINT," +
                         "   c_int                INT," +
                         "   c_bigint             BIGINT," +
-                        "   c_float              FLOAT," +
+                        "   c_float              REAL," +
                         "   c_double             DOUBLE," +
                         "   c_timestamp          TIMESTAMP," +
                         "   c_date               DATE," +
