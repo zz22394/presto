@@ -254,8 +254,8 @@ public class TestDriver
                         ", DATE '2013-03-22' as g" +
                         ", INTERVAL '123-11' YEAR TO MONTH as h" +
                         ", INTERVAL '11 22:33:44.555' DAY TO SECOND as i" +
-                        ", FLOAT '123.45' as j" +
-                        ", FLOAT 'Infinity' as k" +
+                        ", REAL '123.45' as j" +
+                        ", REAL 'Infinity' as k" +
                         "")) {
                     assertTrue(rs.next());
 
