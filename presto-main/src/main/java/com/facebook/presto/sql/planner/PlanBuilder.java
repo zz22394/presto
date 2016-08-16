@@ -13,7 +13,6 @@
  */
 package com.facebook.presto.sql.planner;
 
-import com.facebook.presto.execution.ParameterRewriter;
 import com.facebook.presto.sql.analyzer.Analysis;
 import com.facebook.presto.sql.planner.plan.PlanNode;
 import com.facebook.presto.sql.planner.plan.ProjectNode;
@@ -21,6 +20,7 @@ import com.facebook.presto.sql.tree.Expression;
 import com.facebook.presto.sql.tree.ExpressionTreeRewriter;
 import com.google.common.collect.ImmutableMap;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -29,21 +29,21 @@ import static java.util.Objects.requireNonNull;
 class PlanBuilder
 {
     private final TranslationMap translations;
-    private final ParameterRewriter parameterRewriter;
+    private final List<Expression> parameters;
     private final PlanNode root;
     private final Optional<Symbol> sampleWeight;
 
-    public PlanBuilder(TranslationMap translations, PlanNode root, Optional<Symbol> sampleWeight, ParameterRewriter parameterRewriter)
+    public PlanBuilder(TranslationMap translations, PlanNode root, Optional<Symbol> sampleWeight, List<Expression> parameters)
     {
         requireNonNull(translations, "translations is null");
         requireNonNull(root, "root is null");
         requireNonNull(sampleWeight, "sampleWeight is null");
-        requireNonNull(parameterRewriter, "parameterRewriter is null");
+        requireNonNull(parameters, "parameterRewriter is null");
 
         this.translations = translations;
         this.root = root;
         this.sampleWeight = sampleWeight;
-        this.parameterRewriter = parameterRewriter;
+        this.parameters = parameters;
     }
 
     public TranslationMap copyTranslations()
@@ -60,7 +60,7 @@ class PlanBuilder
 
     public PlanBuilder withNewRoot(PlanNode root)
     {
-        return new PlanBuilder(translations, root, sampleWeight, parameterRewriter);
+        return new PlanBuilder(translations, root, sampleWeight, parameters);
     }
 
     public Optional<Symbol> getSampleWeight()
@@ -110,18 +110,19 @@ class PlanBuilder
         }
 
         ImmutableMap.Builder<Symbol, Expression> newTranslations = ImmutableMap.builder();
+        ParameterRewriter parameterRewriter = new ParameterRewriter(parameters, getAnalysis());
         for (Expression expression : expressions) {
-            expression = ExpressionTreeRewriter.rewriteWith(parameterRewriter, expression);
-            Symbol symbol = symbolAllocator.newSymbol(expression, getAnalysis().getTypeWithCoercions(expression));
-
-            projections.put(symbol, translations.rewrite(expression));
-            newTranslations.put(symbol, expression);
+            Expression rewritten = ExpressionTreeRewriter.rewriteWith(parameterRewriter, expression);
+            translations.addIntermediateMapping(expression, rewritten);
+            Symbol symbol = symbolAllocator.newSymbol(rewritten, getAnalysis().getTypeWithCoercions(expression));
+            projections.put(symbol, translations.rewrite(rewritten));
+            newTranslations.put(symbol, rewritten);
         }
         // Now append the new translations into the TranslationMap
         for (Map.Entry<Symbol, Expression> entry : newTranslations.build().entrySet()) {
             translations.put(entry.getValue(), entry.getKey());
         }
 
-        return new PlanBuilder(translations, new ProjectNode(idAllocator.getNextId(), getRoot(), projections.build()), getSampleWeight(), parameterRewriter);
+        return new PlanBuilder(translations, new ProjectNode(idAllocator.getNextId(), getRoot(), projections.build()), getSampleWeight(), parameters);
     }
 }

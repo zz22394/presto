@@ -58,6 +58,7 @@ import static com.facebook.presto.spi.type.TimestampWithTimeZoneType.TIMESTAMP_W
 import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
 import static com.facebook.presto.sql.analyzer.SemanticErrorCode.INVALID_PARAMETER_USAGE;
 import static com.facebook.presto.sql.analyzer.SemanticErrorCode.MISSING_SCHEMA;
+import static com.facebook.presto.sql.analyzer.SemanticErrorCode.MUST_BE_AGGREGATE_OR_GROUP_BY;
 import static com.facebook.presto.sql.tree.ExplainType.Type.DISTRIBUTED;
 import static com.facebook.presto.sql.tree.ExplainType.Type.LOGICAL;
 import static com.facebook.presto.testing.MaterializedResult.resultBuilder;
@@ -6982,14 +6983,63 @@ public abstract class AbstractTestQueries
     }
 
     @Test
-    public void testExecuteWithUsing()
+    public void testExecuteUsing()
             throws Exception
     {
-        String query = "SELECT a + ?, count(1) FROM (VALUES 1, 2, 3, 2) t(a) GROUP BY a + ? HAVING count(1) > ?";
+        String query = "SELECT a + 1, count(?) FROM (VALUES 1, 2, 3, 2) t1(a) JOIN (VALUES 1, 2, 3, 4) t2(b) ON b < ? WHERE a < ? GROUP BY a + 1 HAVING count(1) > ?";
         Session session = getSession().withPreparedStatement("my_query", query);
         assertQuery(session,
-                "EXECUTE my_query USING 1, 1, 0",
-                "VALUES (2, 1), (3, 2), (4, 1)");
+                "EXECUTE my_query USING 1, 5, 4, 0",
+                "VALUES (2, 4), (3, 8), (4, 4)");
+    }
+
+    @Test
+    public void testExecuteUsingWithSubquery()
+            throws Exception
+    {
+        String query = "SELECT ? in (SELECT orderkey FROM orders)";
+        Session session = getSession().withPreparedStatement("my_query", query);
+
+        assertQuery(session,
+                "EXECUTE my_query USING 10",
+                "SELECT 10 in (SELECT orderkey FROM orders)"
+                );
+    }
+
+    @Test
+    public void testExecuteUsingWithSubqueryInJoin()
+        throws Exception
+    {
+        String query = "SELECT * " +
+                "FROM " +
+                "    (VALUES ?,2,3) t(x) " +
+                "  JOIN " +
+                "    (VALUES 1,2,3) t2(y) " +
+                "  ON "  +
+                "(x in (VALUES 1,2,?)) = (y in (VALUES 1,2,3)) AND (x in (VALUES 1,?)) = (y in (VALUES 1,2))";
+
+        Session session = getSession().withPreparedStatement("my_query", query);
+        assertQuery(session,
+                "EXECUTE my_query USING 1, 3, 2",
+                "VALUES (1,1), (1,2), (2,2), (2,1), (3,3)");
+    }
+
+    @Test
+    public void testExecuteWithParametersInGroupBy()
+            throws Exception
+    {
+        try {
+            String query = "SELECT a + ?, count(1) FROM (VALUES 1, 2, 3, 2) t(a) GROUP BY a + ?";
+            Session session = getSession().withPreparedStatement("my_query", query);
+            computeActual(session, "EXECUTE my_query USING 1, 1");
+            fail("parameters in group by and select should fail");
+        }
+        catch (SemanticException e) {
+            assertEquals(e.getCode(), MUST_BE_AGGREGATE_OR_GROUP_BY);
+        }
+        catch (RuntimeException e) {
+            assertEquals(e.getMessage(), "line 1:10: '(\"a\" + ?)' must be an aggregate expression or appear in GROUP BY clause");
+        }
     }
 
     @Test

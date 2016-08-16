@@ -119,6 +119,7 @@ import static com.facebook.presto.spi.type.VarbinaryType.VARBINARY;
 import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
 import static com.facebook.presto.sql.analyzer.SemanticErrorCode.EXPRESSION_NOT_CONSTANT;
 import static com.facebook.presto.sql.analyzer.SemanticErrorCode.INVALID_LITERAL;
+import static com.facebook.presto.sql.analyzer.SemanticErrorCode.INVALID_PARAMETER_USAGE;
 import static com.facebook.presto.sql.analyzer.SemanticErrorCode.MULTIPLE_FIELDS_FROM_SUBQUERY;
 import static com.facebook.presto.sql.analyzer.SemanticErrorCode.NOT_SUPPORTED;
 import static com.facebook.presto.sql.analyzer.SemanticErrorCode.TYPE_MISMATCH;
@@ -792,7 +793,13 @@ public class ExpressionAnalyzer
         @Override
         protected Type visitParameter(Parameter node, StackableAstVisitorContext<Void> context)
         {
-            checkArgument(node.getPosition() < parameters.size(), "invalid parameter number %s, max value is %s", node.getPosition(), parameters.size() - 1);
+            if (parameters.size() == 0) {
+                throw new SemanticException(INVALID_PARAMETER_USAGE, node, "query takes no parameters");
+            }
+            if (node.getPosition() >= parameters.size()) {
+                throw new SemanticException(INVALID_PARAMETER_USAGE, node, "invalid parameter index %s, max value is %s", node.getPosition(), parameters.size() - 1);
+            }
+
             Type resultType = process(parameters.get(node.getPosition()), context);
             expressionTypes.put(node, resultType);
             return resultType;

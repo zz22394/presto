@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package com.facebook.presto.execution;
+package com.facebook.presto.sql.planner;
 
 import com.facebook.presto.spi.type.Type;
 import com.facebook.presto.sql.analyzer.Analysis;
@@ -51,7 +51,6 @@ public class ParameterRewriter
     public Expression rewriteExpression(Expression node, Void context, ExpressionTreeRewriter<Void> treeRewriter)
     {
         return treeRewriter.defaultRewrite(node, context);
-//        return coerceIfNecessary(node, rewrittenExpression);
     }
 
     @Override

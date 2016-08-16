@@ -63,6 +63,7 @@ import com.facebook.presto.sql.tree.Node;
 import com.facebook.presto.sql.tree.NotExpression;
 import com.facebook.presto.sql.tree.NullIfExpression;
 import com.facebook.presto.sql.tree.NullLiteral;
+import com.facebook.presto.sql.tree.Parameter;
 import com.facebook.presto.sql.tree.QualifiedName;
 import com.facebook.presto.sql.tree.QualifiedNameReference;
 import com.facebook.presto.sql.tree.Row;
@@ -176,8 +177,7 @@ public class ExpressionInterpreter
     {
         requireNonNull(columnReferences, "columnReferences is null");
 
-        // verify expression is constant
-        new ConstantExpressionVerifierVisitor(columnReferences, expression).process(expression, null);
+        verifyExpressionIsConstant(columnReferences, expression);
 
         // add coercions
         Expression rewrite = ExpressionTreeRewriter.rewriteWith(new ExpressionRewriter<Void>()
@@ -211,6 +211,11 @@ public class ExpressionInterpreter
         Object result = expressionInterpreter(canonicalized, metadata, session, analyzer.getExpressionTypes()).evaluate(0);
         verify(!(result instanceof Expression), "Expression interpreter returned an unresolved expression");
         return result;
+    }
+
+    public static void verifyExpressionIsConstant(Set<Expression> columnReferences, Expression expression)
+    {
+        new ConstantExpressionVerifierVisitor(columnReferences, expression).process(expression, null);
     }
 
     private ExpressionInterpreter(Expression expression, Metadata metadata, Session session, IdentityHashMap<Expression, Type> expressionTypes, boolean optimize)
@@ -248,7 +253,7 @@ public class ExpressionInterpreter
         return visitor.process(expression, inputs);
     }
 
-    public static class ConstantExpressionVerifierVisitor
+    private static class ConstantExpressionVerifierVisitor
             extends DefaultTraversalVisitor<Void, Void>
     {
         private final Set<Expression> columnReferences;
@@ -408,6 +413,12 @@ public class ExpressionInterpreter
 
         @Override
         protected Object visitQualifiedNameReference(QualifiedNameReference node, Object context)
+        {
+            return node;
+        }
+
+        @Override
+        protected Object visitParameter(Parameter node, Object context)
         {
             return node;
         }

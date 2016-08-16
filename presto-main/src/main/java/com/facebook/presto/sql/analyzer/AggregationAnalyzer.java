@@ -13,8 +13,8 @@
  */
 package com.facebook.presto.sql.analyzer;
 
-import com.facebook.presto.execution.ParameterRewriter;
 import com.facebook.presto.metadata.Metadata;
+import com.facebook.presto.sql.planner.ParameterRewriter;
 import com.facebook.presto.sql.tree.ArithmeticBinaryExpression;
 import com.facebook.presto.sql.tree.ArithmeticUnaryExpression;
 import com.facebook.presto.sql.tree.ArrayConstructor;
@@ -102,7 +102,9 @@ class AggregationAnalyzer
         this.metadata = metadata;
         this.columnReferences = ImmutableSet.copyOf(columnReferences);
         this.parameters = parameters;
-        this.expressions = groupByExpressions.stream().map(e -> ExpressionTreeRewriter.rewriteWith(new ParameterRewriter(parameters), e)).collect(toImmutableList());
+        this.expressions = groupByExpressions.stream()
+                .map(e -> ExpressionTreeRewriter.rewriteWith(new ParameterRewriter(parameters), e))
+                .collect(toImmutableList());
         ImmutableList.Builder<Integer> fieldIndexes = ImmutableList.builder();
 
         fieldIndexes.addAll(groupByExpressions.stream()
@@ -474,10 +476,6 @@ class AggregationAnalyzer
         @Override
         public Boolean process(Node node, @Nullable Void context)
         {
-            if (node instanceof Expression) {
-                node = ExpressionTreeRewriter.rewriteWith(new ParameterRewriter(parameters), (Expression) node);
-            }
-
             if (expressions.stream().anyMatch(node::equals)) {
                 return true;
             }

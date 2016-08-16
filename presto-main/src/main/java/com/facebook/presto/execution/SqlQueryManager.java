@@ -23,7 +23,6 @@ import com.facebook.presto.spi.PrestoException;
 import com.facebook.presto.sql.analyzer.SemanticException;
 import com.facebook.presto.sql.parser.ParsingException;
 import com.facebook.presto.sql.parser.SqlParser;
-import com.facebook.presto.sql.planner.ExpressionInterpreter.ConstantExpressionVerifierVisitor;
 import com.facebook.presto.sql.tree.Execute;
 import com.facebook.presto.sql.tree.Explain;
 import com.facebook.presto.sql.tree.Expression;
@@ -58,12 +57,14 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static com.facebook.presto.execution.ParameterExtractor.getParameterCount;
 import static com.facebook.presto.execution.QueryState.RUNNING;
 import static com.facebook.presto.spi.StandardErrorCode.ABANDONED_QUERY;
 import static com.facebook.presto.spi.StandardErrorCode.EXCEEDED_TIME_LIMIT;
 import static com.facebook.presto.spi.StandardErrorCode.NOT_SUPPORTED;
 import static com.facebook.presto.spi.StandardErrorCode.SERVER_SHUTTING_DOWN;
 import static com.facebook.presto.sql.analyzer.SemanticErrorCode.INVALID_PARAMETER_USAGE;
+import static com.facebook.presto.sql.planner.ExpressionInterpreter.verifyExpressionIsConstant;
 import static com.facebook.presto.util.ImmutableCollectors.toImmutableList;
 import static com.google.common.base.Preconditions.checkArgument;
 import static io.airlift.concurrent.Threads.threadsNamed;
@@ -362,13 +363,12 @@ public class SqlQueryManager
 
     public static void validateParameters(Statement node, List<Expression> parameterValues)
     {
-        ParameterCollector collector = new ParameterCollector();
-        collector.process(node, null);
-        if (parameterValues.size() != collector.getParameterCount()) {
-            throw new SemanticException(INVALID_PARAMETER_USAGE, node, "Incorrect number of parameters: expected %s but found %s", collector.getParameterCount(), parameterValues.size());
+        int parameterCount = getParameterCount(node);
+        if (parameterValues.size() != parameterCount) {
+            throw new SemanticException(INVALID_PARAMETER_USAGE, node, "Incorrect number of parameters: expected %s but found %s", parameterCount, parameterValues.size());
         }
         for (Expression expression : parameterValues) {
-            new ConstantExpressionVerifierVisitor(emptySet(), expression).process(expression, null);
+            verifyExpressionIsConstant(emptySet(), expression);
         }
     }
 
