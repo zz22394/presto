@@ -46,3 +46,9 @@ variable ``regex_library`` to RE2J.  The memory footprint can be adjusted by set
 Additionally, the number of times the re2j library falls back from its DFA algorithm to the NFA algorithm (due to
 hitting the states limit) before immediately starting with the NFA algorithm can be set with the ``re2j_dfa_retries``
 session variable.
+
+======================
+Discontinue to support
+======================
+
+Implicit casts from Varchar(x) to date types are no longer supported.
