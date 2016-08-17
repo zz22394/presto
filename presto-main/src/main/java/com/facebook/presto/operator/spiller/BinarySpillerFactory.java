@@ -19,6 +19,7 @@ import com.facebook.presto.spi.spiller.Spiller;
 import com.facebook.presto.spi.spiller.SpillerFactory;
 import com.facebook.presto.spi.type.Type;
 import com.facebook.presto.sql.analyzer.FeaturesConfig;
+import com.facebook.presto.util.PrestoPaths;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.inject.Inject;
@@ -27,6 +28,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static io.airlift.concurrent.Threads.daemonThreadsNamed;
 import static java.util.Objects.requireNonNull;
@@ -40,6 +42,7 @@ public class BinarySpillerFactory
     private final ListeningExecutorService executor;
     private final BlockEncodingSerde blockEncodingSerde;
     private final Path spillPath;
+    private AtomicInteger spillerId = new AtomicInteger(0);
 
     @Inject
     public BinarySpillerFactory(BlockEncodingSerde blockEncodingSerde, FeaturesConfig featuresConfig)
@@ -60,6 +63,9 @@ public class BinarySpillerFactory
     @Override
     public Spiller create(List<Type> types)
     {
-        return new BinaryFileSpiller(blockEncodingSerde, executor, spillPath);
+        return new BinaryFileSpiller(
+                blockEncodingSerde,
+                executor,
+                PrestoPaths.nested(spillPath, Integer.toString(spillerId.incrementAndGet())));
     }
 }

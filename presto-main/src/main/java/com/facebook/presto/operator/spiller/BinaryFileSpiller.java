@@ -18,6 +18,7 @@ import com.facebook.presto.spi.Page;
 import com.facebook.presto.spi.PrestoException;
 import com.facebook.presto.spi.block.BlockEncodingSerde;
 import com.facebook.presto.spi.spiller.Spiller;
+import com.facebook.presto.util.PrestoPaths;
 import com.google.common.io.Closer;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import io.airlift.concurrent.MoreFutures;
@@ -34,7 +35,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -128,6 +128,6 @@ public class BinaryFileSpiller
 
     private Path getPath(int spillNumber)
     {
-        return Paths.get(targetDirectory.toAbsolutePath().toString(), String.format("%d.bin", spillNumber));
+        return PrestoPaths.nested(targetDirectory, String.format("%d.bin", spillNumber));
     }
 }
