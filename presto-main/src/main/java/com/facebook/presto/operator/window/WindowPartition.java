@@ -18,14 +18,11 @@ import com.facebook.presto.operator.PagesIndex;
 import com.facebook.presto.spi.PageBuilder;
 import com.facebook.presto.spi.function.WindowIndex;
 import com.facebook.presto.sql.tree.FrameBound;
-import com.facebook.presto.sql.tree.WindowFrame;
 import com.google.common.primitives.Ints;
 
 import java.util.List;
-import java.util.Optional;
 
 import static com.facebook.presto.spi.StandardErrorCode.INVALID_WINDOW_FRAME;
-import static com.facebook.presto.sql.tree.FrameBound.Type.CURRENT_ROW;
 import static com.facebook.presto.sql.tree.FrameBound.Type.FOLLOWING;
 import static com.facebook.presto.sql.tree.FrameBound.Type.PRECEDING;
 import static com.facebook.presto.sql.tree.FrameBound.Type.UNBOUNDED_FOLLOWING;
@@ -80,9 +77,6 @@ public final class WindowPartition
 
     private static FrameInfo assertSingleFrame(List<FramedWindowFunction> windows)
     {
-        if (windows.isEmpty()) {
-            return new FrameInfo(WindowFrame.Type.RANGE, UNBOUNDED_PRECEDING, Optional.empty(), CURRENT_ROW, Optional.empty());
-        }
         checkArgument(windows.stream().map(framedFunction -> framedFunction.frame).distinct().count() == 1,
                 "All window functions have to share the same frame. Distinct frames in single operator are not yet supported.");
         return windows.iterator().next().frame;
