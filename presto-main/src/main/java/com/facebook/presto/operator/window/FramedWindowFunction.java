@@ -19,12 +19,22 @@ import static java.util.Objects.requireNonNull;
 
 public final class FramedWindowFunction
 {
-    public final WindowFunction function;
-    public final FrameInfo frame;
+    private final WindowFunction function;
+    private final FrameInfo frame;
 
     public FramedWindowFunction(WindowFunction windowFunction, FrameInfo frameInfo)
     {
         this.function = requireNonNull(windowFunction, "windowFunction is null");
         this.frame = requireNonNull(frameInfo, "frameInfo is null");
+    }
+
+    public WindowFunction getFunction()
+    {
+        return function;
+    }
+
+    public FrameInfo getFrame()
+    {
+        return frame;
     }
 }

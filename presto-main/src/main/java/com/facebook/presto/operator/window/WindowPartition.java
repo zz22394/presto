@@ -68,7 +68,7 @@ public final class WindowPartition
         // reset functions for new partition
         WindowIndex windowIndex = new PagesWindowIndex(pagesIndex, partitionStart, partitionEnd);
         for (FramedWindowFunction framedWindowFunction : windowFunctions) {
-            framedWindowFunction.function.reset(windowIndex);
+            framedWindowFunction.getFunction().reset(windowIndex);
         }
 
         currentPosition = partitionStart;
@@ -77,9 +77,9 @@ public final class WindowPartition
 
     private static FrameInfo assertSingleFrame(List<FramedWindowFunction> windows)
     {
-        checkArgument(windows.stream().map(framedFunction -> framedFunction.frame).distinct().count() == 1,
+        checkArgument(windows.stream().map(framedFunction -> framedFunction.getFrame()).distinct().count() == 1,
                 "All window functions have to share the same frame. Distinct frames in single operator are not yet supported.");
-        return windows.iterator().next().frame;
+        return windows.iterator().next().getFrame();
     }
 
     public int getPartitionEnd()
@@ -112,7 +112,7 @@ public final class WindowPartition
         updateFrame();
 
         for (FramedWindowFunction framedFunction : windowFunctions) {
-            framedFunction.function.processRow(
+            framedFunction.getFunction().processRow(
                     pageBuilder.getBlockBuilder(channel),
                     peerGroupStart - partitionStart,
                     peerGroupEnd - partitionStart - 1,
