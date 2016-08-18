@@ -211,7 +211,7 @@ public class WindowOperator
 
         this.operatorContext = operatorContext;
         this.outputChannels = Ints.toArray(outputChannels);
-        this.windowFunctions =  windowFunctionDefinitions.stream()
+        this.windowFunctions = windowFunctionDefinitions.stream()
                 .map(functionDefinition -> new FramedWindowFunction(functionDefinition.createWindowFunction(), functionDefinition.getFrameInfo()))
                 .collect(toImmutableList());
 
