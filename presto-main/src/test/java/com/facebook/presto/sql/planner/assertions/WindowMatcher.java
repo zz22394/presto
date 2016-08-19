@@ -46,17 +46,15 @@ final class WindowMatcher
         }
 
         WindowNode windowNode = (WindowNode) node;
-        List<FunctionCall> actualCalls = windowNode.getWindowFunctions().values().stream()
+        LinkedList<FunctionCall> actualCalls = windowNode.getWindowFunctions().values().stream()
                 .map(WindowNode.Function::getFunctionCall)
-                .collect(Collectors.toList());
+                .collect(Collectors.toCollection(LinkedList::new));
 
         if (actualCalls.size() != functionCalls.size()) {
             return false;
         }
 
-        LinkedList<FunctionCall> expectedCalls = new LinkedList<>(functionCalls);
-
-        for (FunctionCall expectedCall : expectedCalls) {
+        for (FunctionCall expectedCall : functionCalls) {
             if (!actualCalls.remove(expectedCall)) {
                 // Found an expectedCall not in expectedCalls.
                 return false;
