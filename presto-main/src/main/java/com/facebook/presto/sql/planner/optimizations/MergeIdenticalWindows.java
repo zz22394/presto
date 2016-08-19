@@ -101,10 +101,13 @@ public class MergeIdenticalWindows
             checkState(node.getPrePartitionedInputs().isEmpty() && node.getPreSortedOrderPrefix() == 0, "MergeIdenticalWindows should be run before AddExchanges");
             checkState(identicalFrames(node));
 
+            Collection<WindowNode.Function> functions = node.getWindowFunctions().values();
+            SpecificationAndFrame specificationAndFrame = new SpecificationAndFrame(node.getSpecification(), functions.iterator().next().getFrame());
+
             return context.rewrite(
                     node.getSource(),
                     ImmutableListMultimap.<SpecificationAndFrame, WindowNode>builder()
-                            .put(new SpecificationAndFrame(node), node) // Add the current window first so that it gets precedence in iteration order
+                            .put(specificationAndFrame, node) // Add the current window first so that it gets precedence in iteration order
                             .putAll(context.get())
                             .build());
         }
@@ -148,12 +151,6 @@ public class MergeIdenticalWindows
             {
                 this.specification = requireNonNull(specification, "specification is null");
                 this.frame = requireNonNull(frame, "frame is null");
-            }
-
-            SpecificationAndFrame(WindowNode node)
-            {
-                this(node.getSpecification(),
-                        node.getWindowFunctions().values().iterator().next().getFrame()); // asserted in #visitWindow already
             }
 
             public WindowNode.Specification getSpecification()
