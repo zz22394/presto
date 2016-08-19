@@ -17,6 +17,7 @@ import com.facebook.presto.operator.window.FrameInfo;
 import com.facebook.presto.operator.window.WindowFunctionSupplier;
 import com.facebook.presto.spi.function.WindowFunction;
 import com.facebook.presto.spi.type.Type;
+import com.google.common.collect.ImmutableList;
 
 import java.util.Arrays;
 import java.util.List;
@@ -42,10 +43,15 @@ public class WindowFunctionDefinition
 
     WindowFunctionDefinition(WindowFunctionSupplier functionSupplier, Type type, FrameInfo frameInfo, List<Integer> argumentChannels)
     {
-        this.functionSupplier = requireNonNull(functionSupplier, "functionSupplier is null");
-        this.type = requireNonNull(type, "type is null");
-        this.frameInfo = requireNonNull(frameInfo, "frameInfo is null");
-        this.argumentChannels = requireNonNull(argumentChannels, "inputs is null");
+        requireNonNull(functionSupplier, "functionSupplier is null");
+        requireNonNull(type, "type is null");
+        requireNonNull(frameInfo, "frameInfo is null");
+        requireNonNull(argumentChannels, "inputs is null");
+
+        this.functionSupplier = functionSupplier;
+        this.type = type;
+        this.frameInfo = frameInfo;
+        this.argumentChannels = ImmutableList.copyOf(argumentChannels);
     }
 
     public FrameInfo getFrameInfo()
