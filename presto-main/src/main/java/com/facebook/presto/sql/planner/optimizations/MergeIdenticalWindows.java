@@ -79,7 +79,7 @@ public class MergeIdenticalWindows
     }
 
     private static class Rewriter
-            extends SimplePlanRewriter<Multimap<Rewriter.SpecificationAndFrame, WindowNode>>
+            extends SimplePlanRewriter<Multimap<SpecificationAndFrame, WindowNode>>
     {
         @Override
         protected PlanNode visitPlan(PlanNode node, RewriteContext<Multimap<SpecificationAndFrame, WindowNode>> context)
@@ -141,47 +141,47 @@ public class MergeIdenticalWindows
                     canonical.getPrePartitionedInputs(),
                     canonical.getPreSortedOrderPrefix());
         }
+    }
 
-        static final class SpecificationAndFrame
+    private static final class SpecificationAndFrame
+    {
+        private final WindowNode.Specification specification;
+        private final WindowNode.Frame frame;
+
+        SpecificationAndFrame(WindowNode.Specification specification, WindowNode.Frame frame)
         {
-            private final WindowNode.Specification specification;
-            private final WindowNode.Frame frame;
+            this.specification = requireNonNull(specification, "specification is null");
+            this.frame = requireNonNull(frame, "frame is null");
+        }
 
-            SpecificationAndFrame(WindowNode.Specification specification, WindowNode.Frame frame)
-            {
-                this.specification = requireNonNull(specification, "specification is null");
-                this.frame = requireNonNull(frame, "frame is null");
-            }
+        public WindowNode.Specification getSpecification()
+        {
+            return specification;
+        }
 
-            public WindowNode.Specification getSpecification()
-            {
-                return specification;
-            }
+        public WindowNode.Frame getFrame()
+        {
+            return frame;
+        }
 
-            public WindowNode.Frame getFrame()
-            {
-                return frame;
-            }
+        @Override
+        public int hashCode()
+        {
+            return Objects.hash(specification, frame);
+        }
 
-            @Override
-            public int hashCode()
-            {
-                return Objects.hash(specification, frame);
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (this == obj) {
+                return true;
             }
-
-            @Override
-            public boolean equals(Object obj)
-            {
-                if (this == obj) {
-                    return true;
-                }
-                if (obj == null || getClass() != obj.getClass()) {
-                    return false;
-                }
-                SpecificationAndFrame other = (SpecificationAndFrame) obj;
-                return Objects.equals(this.specification, other.specification) &&
-                        Objects.equals(this.frame, other.frame);
+            if (obj == null || getClass() != obj.getClass()) {
+                return false;
             }
+            SpecificationAndFrame other = (SpecificationAndFrame) obj;
+            return Objects.equals(this.specification, other.specification) &&
+                    Objects.equals(this.frame, other.frame);
         }
     }
 }
