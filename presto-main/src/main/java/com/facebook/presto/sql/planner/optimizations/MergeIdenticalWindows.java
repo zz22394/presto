@@ -31,6 +31,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkState;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Merge together the functions in WindowNodes that have identical WindowNode.Specifications.
@@ -128,7 +129,7 @@ public class MergeIdenticalWindows
             return new WindowNode(
                     canonical.getId(),
                     source,
-                    specification.specification,
+                    specification.getSpecification(),
                     windows.stream()
                             .map(WindowNode::getWindowFunctions)
                             .flatMap(map -> map.entrySet().stream())
@@ -145,14 +146,24 @@ public class MergeIdenticalWindows
 
             SpecificationAndFrame(WindowNode.Specification specification, WindowNode.Frame frame)
             {
-                this.specification = specification;
-                this.frame = frame;
+                this.specification = requireNonNull(specification, "specification is null");
+                this.frame = requireNonNull(frame, "frame is null");
             }
 
             SpecificationAndFrame(WindowNode node)
             {
                 this(node.getSpecification(),
                         node.getWindowFunctions().values().iterator().next().getFrame()); // asserted in #visitWindow already
+            }
+
+            public WindowNode.Specification getSpecification()
+            {
+                return specification;
+            }
+
+            public WindowNode.Frame getFrame()
+            {
+                return frame;
             }
 
             @Override
