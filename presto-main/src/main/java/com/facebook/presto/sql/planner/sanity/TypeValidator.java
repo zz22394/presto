@@ -95,7 +95,7 @@ public final class TypeValidator
         {
             visitPlan(node, context);
 
-            checkSignatureAndCall(node.getWindowFunctions());
+            checkWindowFunctions(node.getWindowFunctions());
 
             return null;
         }
@@ -136,7 +136,7 @@ public final class TypeValidator
             return null;
         }
 
-        private void checkSignatureAndCall(Map<Symbol, WindowNode.Function> functions)
+        private void checkWindowFunctions(Map<Symbol, WindowNode.Function> functions)
         {
             for (Map.Entry<Symbol, WindowNode.Function> entry : functions.entrySet()) {
                 Signature signature = entry.getValue().getSignature();
