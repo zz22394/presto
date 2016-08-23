@@ -119,6 +119,8 @@ public class PrestoS3FileSystem
 
     public static final String S3_ACCESS_KEY = "presto.s3.access-key";
     public static final String S3_SECRET_KEY = "presto.s3.secret-key";
+    public static final String S3_ENDPOINT = "presto.s3.endpoint";
+    public static final String S3_SIGNER_TYPE = "presto.s3.signer-type";
     public static final String S3_SSL_ENABLED = "presto.s3.ssl.enabled";
     public static final String S3_MAX_ERROR_RETRIES = "presto.s3.max-error-retries";
     public static final String S3_MAX_CLIENT_RETRIES = "presto.s3.max-client-retries";
@@ -601,6 +603,10 @@ public class PrestoS3FileSystem
         AWSCredentialsProvider credentials = getAwsCredentialsProvider(uri, hadoopConfig);
         Optional<EncryptionMaterialsProvider> emp = createEncryptionMaterialsProvider(hadoopConfig);
         AmazonS3Client client;
+        String signerType = hadoopConfig.get(S3_SIGNER_TYPE);
+        if (signerType != null) {
+            clientConfig.withSignerOverride(signerType);
+        }
         if (emp.isPresent()) {
             client = new AmazonS3EncryptionClient(credentials, emp.get(), clientConfig, new CryptoConfiguration(), METRIC_COLLECTOR);
         }
@@ -613,6 +619,18 @@ public class PrestoS3FileSystem
             Region region = Regions.getCurrentRegion();
             if (region != null) {
                 client.setRegion(region);
+            }
+        }
+
+        String endPoint = hadoopConfig.get(S3_ENDPOINT);
+        if (endPoint != null) {
+            try {
+                client.setEndpoint(endPoint);
+            }
+            catch (IllegalArgumentException e) {
+                String msg = "Incorrect endpoint: "  + e.getMessage();
+                LOG.error(msg);
+                throw new IllegalArgumentException(msg, e);
             }
         }
 
